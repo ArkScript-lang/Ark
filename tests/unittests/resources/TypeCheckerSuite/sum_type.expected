@@ -1,2 +1,7 @@
 Function f expected 1 argument
-  -> n (Number, String) was of type Bool
+Call
+  ↳ (f true)
+Signature
+  ↳ (f n)
+Arguments
+  → `n' (expected Number, or String), got true (Bool)

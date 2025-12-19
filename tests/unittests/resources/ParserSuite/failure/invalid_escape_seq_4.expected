@@ -1,0 +1,5 @@
+In file tests/unittests/resources/ParserSuite/failure/invalid_escape_seq_4.ark:1
+    1 | (print "\ugggg")
+      |         ^~
+    2 |
+        Invalid escape sequence, expected 4 hex digits: \uabcd

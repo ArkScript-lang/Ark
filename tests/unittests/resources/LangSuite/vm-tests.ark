@@ -1,7 +1,8 @@
 (import std.Testing)
 
 (let tests 0)
-(let closure (fun (&tests) ()))
+(let foo 12)
+(let closure (fun (&tests &foo) ()))
 (let make (fun (a b c)
     (fun (&a &b &c) ())))
 (let make2 (fun (a b c)
@@ -21,7 +22,7 @@
 (mut val 1)
 (let parent (fun (&val &child) ()))
 
-(let create-human (fun (name age) {
+(let create-human (fun (name (mut age)) {
     (let set-age (fun (new-age) (set age new-age)))
     (fun (&set-age &name &age) ()) }))
 (let bob (create-human "Bob" 38))
@@ -51,6 +52,7 @@
         (test:expect (>= 0 -4))
         (test:expect (>= "hello" "hello"))
         (test:expect (>= "hello" "abc"))
+        (test:expect (< 1 "a"))  # comparisons between types are ordered on type id...
         (test:neq "hello" "abc")
         (test:neq nil true)
         (test:neq nil false)
@@ -59,7 +61,8 @@
         (test:neq "" 1)
         (test:neq "" nil)
         (test:neq "" true)
-        (test:neq "" false) })
+        (test:neq "" false)
+        (test:expect (< parent bob)) })
 
     (test:case "lengths and list operations" {
         (test:eq (len "hello") 5)
@@ -68,6 +71,7 @@
         (test:eq (len []) 0)
         (test:expect (empty? ""))
         (test:expect (empty? []))
+        (test:expect (not []))
         (test:eq (tail "") "")
         (test:eq (tail "a") "")
         (test:eq (tail "abc") "bc")
@@ -93,7 +97,8 @@
         (test:eq (toString true) "true")
         (test:eq (toString false) "false")
         (test:eq (toString [1 2]) "[1 2]")
-        (test:eq (toString ["12"]) "[\"12\"]") })
+        (test:eq (toString ["12"]) "[\"12\"]")
+        (test:eq (toString (dict "key" "value")) "{key: value}") })
 
     (test:case "indexing" {
         (test:eq (@ "hello" 1) "e")
@@ -101,7 +106,14 @@
         (test:eq (@ "hello" -4) "e")
         (test:eq (@ ["h" "e" "l" "l" "o"] 1) "e")
         (test:eq (@ ["h" "e" "l" "l" "o"] -1) "o")
-        (test:eq (@ ["h" "e" "l" "l" "o"] -4) "e") })
+        (test:eq (@ ["h" "e" "l" "l" "o"] -4) "e")
+
+        (let lst [1 2 3])
+        (let idx 1)
+        # AT_SYM_INDEX_SYM_INDEX
+        (test:eq (@ lst idx) 2)
+        # AT_SYM_INDEX_CONST
+        (test:eq (@ lst 1) 2) })
 
     (test:case "Short-circuiting" {
         (let falsy (fun () {
@@ -121,16 +133,21 @@
         (test:eq (type 1) "Number")
         (test:eq (type "") "String")
         (test:eq (type make) "Function")
+        # CHECK_TYPE_OF
+        ((fun () (test:expect (= (type make) "Function"))))
         (test:eq (type print) "CProc")
         (test:eq (type closure) "Closure")
+        # CHECK_TYPE_OF
+        ((fun () (test:expect (= (type closure) "Closure"))))
         (test:eq (type nil) "Nil")
         (test:eq (type true) "Bool")
         (test:eq (type false) "Bool")
-        (test:expect (hasField closure "vm-tests:tests"))
+        (test:eq (type (dict)) "Dict")
+        (test:expect (hasField closure "tests"))
         (test:expect (not (hasField closure "12"))) })
 
     (test:case "closures" {
-        (test:eq (toString closure) "(.vm-tests:tests=0)")
+        (test:eq (toString closure) "(.tests=0 .foo=12)")
         (test:eq closure_1 closure_1_bis)
         (test:eq closure_1 closure_2)
         (test:neq closure_1 closure_4)
@@ -146,21 +163,76 @@
         (parent.child.call)
         (test:eq (parent.child.get) [5 12]) })
 
+    (test:case "closure capture" {
+        (mut keep true)
+        (mut foo nil)
+        (while keep {
+            (set foo (fun (&keep) keep))
+            (set keep false) })
+        (test:expect foo.keep "capture inside a deeper scope works") })
+
     (test:case "increment and decrement vars" {
         (mut var 0)
+        # INCREMENT_BY_INDEX
         (set var (+ var 5))
+        # INCREMENT_BY_INDEX
         (set var (+ 10 var))
+        # DECREMENT_BY_INDEX
         (set var (- var 1))
+        # INCREMENT_STORE
+        ((fun () (set var (+ 1 var))))
+        # DECREMENT_STORE
+        ((fun () (set var (- var 1))))
+        (test:eq 15 ((fun () (+ var 1))))
+        (test:eq 13 ((fun () (- var 1))))
         (test:eq var 14) })
+
+    (test:case "hack to test usually optimized append_in_place" {
+        (mut data [])
+        (append! ((fun () data)) 5) })
+
+    (test:case "optimized jumps" {
+        (mut i 10)
+        (let n 5)
+        # GT_SYM_JUMP_IF_FALSE
+        (while (> i n) (set i (- i 1)))
+        # GT_CONST_JUMP_IF_FALSE
+        (while (> i 5) (set i (- i 1)))
+        (test:eq i 5) })
 
     (test:case "set/store head and tail" {
         (mut data [1 2 3 4])
+        # STORE_LEN
+        (let length (len data))
+        (test:eq length 4)
+
+        # STORE_TAIL_BY_INDEX
         (let data2 (tail data))
+        # SET_VAL_TAIL_BY_INDEX
         (set data (tail data))
         (test:eq data2 data)
         (test:eq data [2 3 4])
 
+        # SET_VAL_TAIL
+        ((fun () (set data (tail data))))
+        (test:eq data [3 4])
+
+        (mut tmp [1 2 3])
+        # SET_VAL_HEAD
+        ((fun () (set tmp (head tmp))))
+        (test:eq tmp 1)
+
+        # STORE_HEAD
+        ((fun () {
+            (let data_head (head data))
+            (test:eq data_head 3) }))
+        ((fun () {
+            (let data_tail (tail data))
+            (test:eq data_tail [4]) }))
+
+        # STORE_HEAD_BY_INDEX
         (let data3 (head data))
+        # SET_VAL_HEAD_BY_INDEX
         (set data (head data))
         (test:eq data3 data)
-        (test:eq data 2) })})
+        (test:eq data 3) })})

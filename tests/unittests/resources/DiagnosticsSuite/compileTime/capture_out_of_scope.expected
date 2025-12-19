@@ -1,4 +1,4 @@
-At &cap @ 2:16
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/capture_out_of_scope.ark:2
     1 | (let bar (fun () (let cap 0)))
     2 | (let foo (fun (&cap) ()))
       |                ^~~~

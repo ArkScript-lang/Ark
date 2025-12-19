@@ -1,7 +1,12 @@
 Function string:setAt expected 3 arguments but got 1
-  -> string (String)
-  -> index (Number) was not provided
-  -> value (String) was not provided
+Call
+  ↳ (string:setAt 1)
+Signature
+  ↳ (string:setAt string index value)
+Arguments
+  → `string' (expected String) ✓
+  → `index' (expected Number) was not provided
+  → `value' (expected String) was not provided
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/stringsetat_str.ark:1
     1 | (builtin__string:setAt "1")

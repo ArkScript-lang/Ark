@@ -1,4 +1,4 @@
-At (import error__this_file_will_never_exist) @ 1:1
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/import_not_found.ark:1
     1 | (import error__this_file_will_never_exist)
       | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     2 |

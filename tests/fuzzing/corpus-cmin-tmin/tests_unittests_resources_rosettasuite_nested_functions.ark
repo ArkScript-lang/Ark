@@ -1,0 +1,9 @@
+(let makeList (fun (separator) {
+ (mut counter 1)
+  (let makeItem (fun (item) {
+    (let res (format "{}{}{}\n" counter separator item))
+    (set counter (+ 1 counter))
+    res }))
+  (+ (makeItem "00000") (makeItem "000000") (makeItem "000r0")) }))
+
+(print (makeList "00"))

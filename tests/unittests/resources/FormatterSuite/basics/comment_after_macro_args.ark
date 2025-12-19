@@ -1,0 +1,5 @@
+(macro bar (
+a
+b
+) # c
+())

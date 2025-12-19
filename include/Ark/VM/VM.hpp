@@ -1,6 +1,6 @@
 /**
  * @file VM.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief The ArkScript virtual machine
  * @date 2020-10-27
  *
@@ -30,8 +30,8 @@
 #include <Ark/VM/ErrorKind.hpp>
 #include <Ark/VM/ExecutionContext.hpp>
 #include <Ark/Builtins/Builtins.hpp>
-#include <Ark/Platform.hpp>
-#include <Ark/VM/Plugin.hpp>
+#include <Ark/Utils/Platform.hpp>
+#include <Ark/VM/SharedLibrary.hpp>
 #include <Ark/VM/Future.hpp>
 
 namespace Ark
@@ -157,6 +157,11 @@ namespace Ark
          */
         [[noreturn]] static void throwVMError(internal::ErrorKind kind, const std::string& message);
 
+        inline const bytecode_t& bytecode() const
+        {
+            return m_state.m_bytecode;
+        }
+
         friend class Value;
         friend class internal::Closure;
         friend class Repl;
@@ -166,7 +171,7 @@ namespace Ark
         std::vector<std::unique_ptr<internal::ExecutionContext>> m_execution_contexts;
         int m_exit_code;  ///< VM exit code, defaults to 0. Can be changed through `sys:exit`
         bool m_running;
-        std::mutex m_mutex;
+        std::mutex m_mutex, m_mutex_futures;
         std::vector<std::shared_ptr<internal::SharedLibrary>> m_shared_lib_objects;
         std::vector<std::unique_ptr<internal::Future>> m_futures;  ///< Storing the promises while we are resolving them
 
@@ -238,7 +243,9 @@ namespace Ark
          */
         inline void setVal(uint16_t id, const Value* val, internal::ExecutionContext& context);
 
-        Value getField(Value* closure, uint16_t id, internal::ExecutionContext& context);
+        inline void jump(uint16_t address, internal::ExecutionContext& context);
+
+        Value getField(Value* closure, uint16_t id, const internal::ExecutionContext& context);
 
         Value createList(std::size_t count, internal::ExecutionContext& context);
 
@@ -270,7 +277,7 @@ namespace Ark
          * @param value
          * @param context
          */
-        inline void push(const Value& value, internal::ExecutionContext& context);
+        inline void push(const Value& value, internal::ExecutionContext& context) noexcept;
 
         /**
          * @brief Push a value on the stack
@@ -278,7 +285,7 @@ namespace Ark
          * @param value
          * @param context
          */
-        inline void push(Value&& value, internal::ExecutionContext& context);
+        inline void push(Value&& value, internal::ExecutionContext& context) noexcept;
 
         /**
          * @brief Push a value on the stack as a reference
@@ -286,7 +293,7 @@ namespace Ark
          * @param valptr
          * @param context
          */
-        inline void push(Value* valptr, internal::ExecutionContext& context);
+        inline void push(Value* valptr, internal::ExecutionContext& context) noexcept;
 
         /**
          * @brief Pop a value from the stack and resolve it if possible, then return it
@@ -353,9 +360,9 @@ namespace Ark
          * @param pp
          * @return std::optional<InstLoc>
          */
-        std::optional<internal::InstLoc> findSourceLocation(std::size_t ip, std::size_t pp);
+        std::optional<internal::InstLoc> findSourceLocation(std::size_t ip, std::size_t pp) const;
 
-        std::string debugShowSource();
+        std::string debugShowSource() const;
 
         /**
          * @brief Display a backtrace when the VM encounter an exception
@@ -388,13 +395,6 @@ namespace Ark
     };
 
 #include "VM.inl"
-
-    /// ArkScript Nil value
-    const auto Nil = Value(ValueType::Nil);
-    /// ArkScript False value
-    const auto False = Value(ValueType::False);
-    /// ArkScript True value
-    const auto True = Value(ValueType::True);
 }
 
 #endif

@@ -1,8 +1,8 @@
 #include <boost/ut.hpp>
 
-#include <Ark/Files.hpp>
+#include <Ark/Utils/Files.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 
 #include <sstream>
 #include <algorithm>
@@ -57,7 +57,7 @@ ut::suite<"Parser"> parser_suite = [] {
                 };
 
                 std::string ast = astToString(parser);
-                ltrim(rtrim(ast));
+                Ark::Utils::ltrim(Ark::Utils::rtrim(ast));
 
                 should("output the same AST and imports (" + data.stem + ")") = [&] {
                     expectOrDiff(data.expected, ast);
@@ -79,8 +79,10 @@ ut::suite<"Parser"> parser_suite = [] {
                 {
                     should("output the same error message (" + data.stem + ")") = [&] {
                         std::string tested = sanitizeCodeError(e);
-                        ltrim(rtrim(tested));
+                        Ark::Utils::ltrim(Ark::Utils::rtrim(tested));
                         expectOrDiff(data.expected, tested);
+                        if (shouldWriteNewDiffsTofile() && data.expected != tested)
+                            updateExpectedFile(data, tested);
                     };
                 }
                 catch (...)

@@ -1,4 +1,4 @@
-At d @ 2:10
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/self_concat.ark:2
     1 | (mut d [4 5 6])
     2 | (concat! d d)
       |          ^

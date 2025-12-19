@@ -1,6 +1,6 @@
 /**
  * @file ScopeResolver.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Handle scope resolution at compile time
  * @date 2024-11-30
  *
@@ -118,6 +118,8 @@ namespace Ark::internal
 
     private:
         std::vector<std::unique_ptr<StaticScope>> m_scopes;
+
+        std::string currentNamespace() const;
     };
 }
 

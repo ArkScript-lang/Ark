@@ -1,0 +1,5 @@
+In file tests/unittests/resources/ParserSuite/failure/incomplete_field.ark:1
+    1 | (print a.)
+      |          ^
+    2 |
+        Expected a field name: <symbol>.<field>

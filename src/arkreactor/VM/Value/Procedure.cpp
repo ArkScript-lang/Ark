@@ -10,10 +10,9 @@ namespace Ark
         return m_procedure(args, vm);
     }
 
-    Procedure::Procedure(PointerType c_pointer)
-    {
-        m_procedure = c_pointer;
-    }
+    Procedure::Procedure(PointerType c_pointer) :
+        m_procedure(c_pointer)
+    {}
 
     bool Procedure::operator<(const Procedure&) const noexcept
     {

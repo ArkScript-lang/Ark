@@ -1,2 +1,2 @@
-(macro b0($symcat c))
+(macro b ($symcat c))
 (p0000 b)

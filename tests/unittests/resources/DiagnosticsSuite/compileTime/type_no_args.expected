@@ -1,4 +1,4 @@
-At type @ 1:9
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/type_no_args.ark:1
     1 | (print (type))
       |         ^~~~
     2 |

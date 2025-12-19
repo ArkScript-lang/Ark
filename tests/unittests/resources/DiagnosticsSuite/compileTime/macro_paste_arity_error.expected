@@ -1,6 +1,6 @@
-At ($as-is b []) @ 1:11
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_paste_arity_error.ark:1
     1 | (macro a ($as-is b []))
-      | │         └─ error
+      | │        └─ error
       | │
       | └─ macro expansion started here
     2 | (print a)

@@ -1,0 +1,21 @@
+Function len expected 1 argument
+Call
+  ↳ (len 1)
+Signature
+  ↳ (len value)
+Arguments
+  → `value' (expected List), got 1 (Number)
+
+Alternative 2:
+Signature
+  ↳ (len value)
+Arguments
+  → `value' (expected String), got 1 (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/lt_len_sym_jump_if_false_num.ark:3
+    1 | (let data 1)
+    2 | (mut i 0)
+    3 | (while (< i (len data)) {
+      | ^~~~~~~~~~~~~~~~~~~~~~~~
+    4 |   (print i " " (@ data i))
+    5 |   (set i (+ 1 i)) })

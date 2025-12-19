@@ -1,6 +1,15 @@
 Function f expected 2 arguments but got 1
-  -> n (Number)
-  -> m (Number) was not provided
+Call
+  ↳ (f 1)
+Signature
+  ↳ (f n m)
+Arguments
+  → `n' (expected Number) ✓
+  → `m' (expected Number) was not provided
+
 Alternative 2:
-  -> n (Number)
-  -> m (String) was not provided
+Signature
+  ↳ (f n m)
+Arguments
+  → `n' (expected Number) ✓
+  → `m' (expected String) was not provided

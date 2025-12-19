@@ -1,0 +1,19 @@
+Function * expected 2 arguments
+Call
+  ↳ (* 5 6)
+Signature
+  ↳ (* a b)
+Arguments
+  → `a' (expected Number), got 5 (String)
+  → `b' (expected Number) ✓
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mul_by_str.ark:2
+    1 | (let a "5")
+    2 | (print ((fun () (* a 6))))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~
+    3 |
+
+[   2] In function `???' (tests/unittests/resources/DiagnosticsSuite/typeChecking/mul_by_str.ark:2)
+[   1] In global scope (tests/unittests/resources/DiagnosticsSuite/typeChecking/mul_by_str.ark:2)
+
+Current scope variables values:

@@ -1,6 +1,11 @@
 Function list:find expected 2 arguments
-  -> list (List) was of type String
-  -> value (any)
+Call
+  ↳ (list:find hello 1)
+Signature
+  ↳ (list:find list value)
+Arguments
+  → `list' (expected List), got hello (String)
+  → `value' (expected any) ✓
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listfind_str_num.ark:1
     1 | (builtin__list:find "hello" 1)

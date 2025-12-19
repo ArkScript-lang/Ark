@@ -17,7 +17,15 @@
 (let neigh (fun (board_ index) {
   (let x (math:floor (mod index width)))
   (let y (math:floor (/ index width)))
-  (+ (get board_ (- x 1) y) (get board_ (+ x 1) y) (get board_ x (- y 1)) (get board_ x (+ y 1)) (get board_ (- x 1) (- y 1)) (get board_ (+ x 1) (- y 1)) (get board_ (- x 1) (+ y 1)) (get board_ (+ x 1) (+ y 1))) }))
+  (+
+    (get board_ (- x 1) y)
+    (get board_ (+ x 1) y)
+    (get board_ x (- y 1))
+    (get board_ x (+ y 1))
+    (get board_ (- x 1) (- y 1))
+    (get board_ (+ x 1) (- y 1))
+    (get board_ (- x 1) (+ y 1))
+    (get board_ (+ x 1) (+ y 1))) }))
 
 (let indices (list:iota 0 (* height width)))
 (let update (fun (board) {

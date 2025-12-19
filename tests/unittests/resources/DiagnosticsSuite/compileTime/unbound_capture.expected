@@ -1,4 +1,4 @@
-At &d @ 1:14
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/unbound_capture.ark:1
     1 | (mut d (fun (&d) (print d)))
       |              ^~
     2 |

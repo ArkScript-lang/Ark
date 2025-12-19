@@ -1,6 +1,6 @@
-At test_func1!2 @ 13:28
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/argcount_unknown_arg.ark:13
+      | ┌─ macro expansion started here
     1 | (macro suffix-dup (sym x) {
-      | ^ macro expansion started here
     2 |     ($if (> x 1)
     3 |         (suffix-dup sym (- x 1)))
   ... |

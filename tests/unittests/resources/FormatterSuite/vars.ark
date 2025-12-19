@@ -1,8 +1,0 @@
-(let a
-1)
-(mut b (if true 3 4))
-(set c {
-    (let d 5)
-    (+ 5 d)
-})
-(let e (fun (f g) (+ f g)))

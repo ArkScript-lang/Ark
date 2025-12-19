@@ -1,8 +1,8 @@
-name: "Building and testing ArkScript"
+name: "Testing ArkScript"
 
 on:
   push:
-    branches: [ dev, master ]
+    branches: [ dev ]
     paths-ignore:
       - '.github/workflows/benchmarks.yml'
       - '.github/workflows/docker.yml'
@@ -42,9 +42,9 @@ jobs:
           - 'src'
           - 'include'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Run clang-format style check for C/C++/Protobuf programs.
-        uses: jidicula/clang-format-action@4726374d1aa3c6aecf132e5197e498979588ebc8  # v4.15.0
+        uses: jidicula/clang-format-action@6cd220de46c89139a0365edae93eee8eb30ca8fe  # v4.16.0
         with:
           clang-format-version: '13'
           check-path: ${{ matrix.path }}
@@ -61,7 +61,7 @@ jobs:
           - examples
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Format check
         uses: ArkScript-lang/action-format@master
         with:
@@ -73,12 +73,12 @@ jobs:
     needs: [ check ]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
       - name: Setup emsdk
-        uses: mymindstorm/setup-emsdk@6ab9eb1bda2574c4ddb79809fc9247783eaf9021 # v14
+        uses: pyodide/setup-emsdk@ca2dd8aef8c2a0e11743c5c36f0b430ddb694b5c  # v15
         with:
           version: ${{ env.EMSDK_VERSION }}
           actions-cache-folder: 'emsdk-cache'
@@ -129,13 +129,13 @@ jobs:
             artifact: "windows-msvc-22"
           }
           - {
-            os: macos-latest, name: "MacOS Clang 16",
+            os: macos-14, name: "MacOS Clang 16",
             artifact: "macos-clang-16",
             compiler: clang, compiler_version: 16, sanitizers: "On"
           }
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -165,7 +165,7 @@ jobs:
           # Generic
           cp lib/*.arkm artifact/lib
           cp lib/std/*.ark artifact/lib/std
-          rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}
+          cp tests/unittests/*.arkm artifact/lib
 
       - name: Organize temp artifact
         shell: bash
@@ -173,16 +173,17 @@ jobs:
           mkdir -p temp/tests/unittests/
           cp build/unittests temp/ || true
           cp build/$BUILD_TYPE/unittests.exe temp/ || true
+          cp tests/unittests/*.arkm temp/tests/unittests
           cp -r tests/unittests temp/tests/unittests
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.config.artifact }}
           path: artifact
 
       - name: Upload temp artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: temp-${{ matrix.config.artifact }}
           path: temp
@@ -193,7 +194,7 @@ jobs:
     name: Coverage
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -238,10 +239,10 @@ jobs:
           - { os: ubuntu-24.04,  name: "Ubuntu Clang 16", artifact: "ubuntu-clang-16", compiler_version: 16, }
           - { os: ubuntu-24.04,  name: "Ubuntu GCC 14",   artifact: "ubuntu-gcc-14", compiler_version: 14, }
           - { os: windows-latest, name: "Windows VS 2022", artifact: "windows-msvc-22", compiler_version: 22, }
-          - { os: macos-latest,   name: "MacOS Clang 16",  artifact: "macos-clang-16", compiler_version: 16, }
+          - { os: macos-14,   name: "MacOS Clang 16",  artifact: "macos-clang-16", compiler_version: 16, }
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -257,7 +258,7 @@ jobs:
           export ASAN_OPTIONS=detect_odr_violation=0
           ./unittests
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         if: ${{ ! startsWith(matrix.config.name, 'Windows') }}
         with:
           python-version: '3.13'
@@ -291,13 +292,13 @@ jobs:
         FUZZER_TIMEOUT_EXEC_MS: 500
         AFL_NO_STARTUP_CALIBRATION: 1
         AFL_CMPLOG_ONLY_NEW: 1
-        AFL_MAP_SIZE: 223723
+        AFL_MAP_SIZE: 312000
       volumes:
         - ${{ github.workspace }}:/src
       options: --cpus 4
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -320,9 +321,9 @@ jobs:
             -s $FUZZER_SEED \
             -t $FUZZER_TIMEOUT_EXEC_MS \
             -V $FUZZ_TIME_SEC \
-            -- ${BUILD_FOLDER}/arkscript @@ -L ./lib
+            -- ${BUILD_FOLDER}/arkscript -L ./lib @@
 
-      - uses: 8BitJonny/gh-get-current-pr@3.0.0
+      - uses: 8BitJonny/gh-get-current-pr@4.0.0
         id: PR
         with:
           sha: ${{ github.event.pull_request.head.sha }}
@@ -345,7 +346,7 @@ jobs:
         run: |
           echo "FUZZ_SUMMARY<<EOF" >> $GITHUB_ENV
           afl-whatsup -s -d output >> $GITHUB_ENV
-          afl-showmap -C -i output -o /dev/null -- ./${BUILD_FOLDER}/arkscript @@ -L ./lib | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g" | grep -v Reading | grep -v Scanning >> $GITHUB_ENV
+          afl-showmap -C -i output -o /dev/null -- ./${BUILD_FOLDER}/arkscript -L ./lib @@ | sed -r "s/\x1B\[([0-9]{1,3}(;[0-9]{1,2};?)?)?[mGK]//g" | grep -v Reading | grep -v Scanning >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - name: Summarize
@@ -353,10 +354,10 @@ jobs:
         shell: bash
         run: |
           afl-whatsup -s -d output
-          afl-showmap -C -i output -o /dev/null -- ./${BUILD_FOLDER}/arkscript @@ -L ./lib
+          afl-showmap -C -i output -o /dev/null -- ./${BUILD_FOLDER}/arkscript -L ./lib @@
 
       - name: Find Comment
-        uses: peter-evans/find-comment@v3
+        uses: peter-evans/find-comment@v4
         if: steps.PR.outputs.pr_found == 'true'
         id: fc
         with:
@@ -365,7 +366,7 @@ jobs:
           body-includes: Fuzzing report
 
       - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5.0.0
         if: steps.PR.outputs.pr_found == 'true'
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
@@ -385,7 +386,7 @@ jobs:
 
       - name: Upload crashes
         continue-on-error: true
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: crashes
           path: crashes.tar.gz
@@ -396,13 +397,13 @@ jobs:
     needs: [ build ]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
       - name: Download artifact
         id: download
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: "ubuntu-clang-valgrind"
           path: build
@@ -444,4 +445,4 @@ jobs:
             --verbose -s \
             --demangle=yes \
             --error-exitcode=1 \
-            build/arkscript tests/unittests/resources/LangSuite/unittests.ark -L ./lib valgrind
+            build/arkscript -L ./lib tests/unittests/resources/LangSuite/unittests.ark valgrind

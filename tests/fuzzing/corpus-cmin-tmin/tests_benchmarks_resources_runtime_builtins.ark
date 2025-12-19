@@ -2,8 +2,8 @@
 
 (mut i 0)
 (while (< i 1000) {
-  (builtin__list:slice in 1 4 2)
- (builtin__math:exp 0)
+ (builtin__list:slice in 1 4 2)
+  (builtin__math:exp 0)
   (builtin__math:ln 6)
   (builtin__list:sort in)
 

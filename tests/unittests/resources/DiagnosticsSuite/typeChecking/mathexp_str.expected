@@ -1,5 +1,10 @@
 Function math:exp expected 1 argument
-  -> value (Number) was of type String
+Call
+  ↳ (math:exp 1)
+Signature
+  ↳ (math:exp value)
+Arguments
+  → `value' (expected Number), got 1 (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathexp_str.ark:1
     1 | (builtin__math:exp "1")

@@ -1,4 +1,4 @@
-At nil? @ 2:10
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/freestanding.ark:2
     1 | (let ba0 (fun (a b) ()))
     2 | (ba0 0 0 nil?)
       |          ^~~~

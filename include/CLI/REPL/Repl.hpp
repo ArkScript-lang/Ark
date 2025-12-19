@@ -1,6 +1,6 @@
 /**
  * @file Repl.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript REPL - Read Eval Print Loop
  * @date 2020-10-27
  *

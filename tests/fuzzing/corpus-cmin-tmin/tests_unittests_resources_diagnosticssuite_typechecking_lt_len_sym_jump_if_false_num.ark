@@ -1,0 +1,5 @@
+(let d0t0 1)
+(mut i 0)
+(while (< i (len d0t0)){
+  (print i "0" (@ d0t0 i))
+  (set i (+ 1 i)) })

@@ -1,18 +1,18 @@
 (macro a 0)
 (macro b()0)
 (macro
-c#0000000000
+c#00000000
 (#000000000
 d#000000000000000
 e
 )
-0 #00000
+0#00000
 )
 (macro f(g)0)
 (macro h(i j) (let a 0))
 
-(macro h (i j) (let a (if i 0 0)))
+(macro h (i j) (let a0(if i 0 0)))
 (macro k (l ...m) (p0000 l m))
-(macro n (
+(macro n(
 ...p
 ) (p0000 p))

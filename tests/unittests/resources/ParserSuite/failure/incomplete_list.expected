@@ -1,7 +1,6 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_list.ark:3
-At EOF @ 3:7
+      | ┌─ expression started here
     1 | [
-      | ^ expression started here
     2 |     1
     3 |     2 3
       |       ^

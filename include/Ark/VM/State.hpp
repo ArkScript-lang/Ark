@@ -1,6 +1,6 @@
 /**
  * @file State.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief State used by the virtual machine: it loads the bytecode, can compile it if needed, load C++ functions...
  * @date 2020-10-27
  *
@@ -20,7 +20,7 @@
 #include <Ark/VM/Value.hpp>
 #include <Ark/VM/Value/Procedure.hpp>
 #include <Ark/Compiler/Common.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/InstLoc.hpp>
 
 namespace Ark
@@ -43,29 +43,31 @@ namespace Ark
          * @brief Feed the state by giving it the path to an existing bytecode file
          *
          * @param bytecode_filename
+         * @param fail_with_exception
          * @return true on success
          * @return false on failure
          */
-        bool feed(const std::string& bytecode_filename);
+        bool feed(const std::string& bytecode_filename, bool fail_with_exception = false);
 
         /**
          * @brief Feed the state with ArkScript bytecode
          *
          * @param bytecode
+         * @param fail_with_exception
          * @return true on success
          * @return false on failure
          */
-        bool feed(const bytecode_t& bytecode);
+        bool feed(const bytecode_t& bytecode, bool fail_with_exception = false);
 
         /**
          * @brief Compile a file, and use the resulting bytecode
          *
-         * @param file path to an ArkScript code file
+         * @param file_path path to an ArkScript code file
          * @param features compiler features to enable/disable
          * @return true on success
          * @return false on failure
          */
-        bool doFile(const std::string& file, uint16_t features = DefaultFeatures);
+        bool doFile(const std::string& file_path, uint16_t features = DefaultFeatures);
 
         /**
          * @brief Compile a string (representing ArkScript code) and store resulting bytecode in m_bytecode

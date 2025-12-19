@@ -1,0 +1,6 @@
+(let a (dict "key" "value"
+  1 12
+  "yes?" true))
+(let b (dict "key" "value"))
+
+(print a)

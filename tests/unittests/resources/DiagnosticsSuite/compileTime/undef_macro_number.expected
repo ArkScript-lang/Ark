@@ -1,4 +1,4 @@
-At 1 @ 1:9
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/undef_macro_number.ark:1
     1 | ($undef 1)
       | │       └─ error
       | │

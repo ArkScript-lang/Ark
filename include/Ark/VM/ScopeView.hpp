@@ -1,6 +1,6 @@
 /**
  * @file Scope.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief The virtual machine scope system
  * @date 2020-10-27
  *
@@ -14,7 +14,7 @@
 #include <array>
 #include <cinttypes>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 #include <Ark/VM/Value.hpp>
 
 namespace Ark::internal
@@ -48,7 +48,7 @@ namespace Ark::internal
          * @param val The value linked to the symbol
          * @return bool true if the allocation succeeded, false otherwise
          */
-        bool push_back(uint16_t id, Value&& val) noexcept;
+        bool pushBack(uint16_t id, Value&& val) noexcept;
 
         /**
          * @brief Put a value in the scope
@@ -57,7 +57,7 @@ namespace Ark::internal
          * @param val The value linked to the symbol
          * @return bool true if the allocation succeeded, false otherwise
          */
-        bool push_back(uint16_t id, const Value& val) noexcept;
+        bool pushBack(uint16_t id, const Value& val) noexcept;
 
         /**
          * @brief Check if the scope maybe holds a specific symbol in memory
@@ -66,7 +66,7 @@ namespace Ark::internal
          * @return true On success
          * @return false Otherwise
          */
-        bool maybeHas(uint16_t id) const noexcept;
+        [[nodiscard]] bool maybeHas(uint16_t id) const noexcept;
 
         /**
          * @brief Get a value from its symbol id
@@ -74,7 +74,7 @@ namespace Ark::internal
          * @param id_to_look_for
          * @return Value* Returns nullptr if the value can not be found
          */
-        Value* operator[](uint16_t id_to_look_for) noexcept;
+        [[nodiscard]] Value* operator[](uint16_t id_to_look_for) noexcept;
 
         /**
          * @brief Get a value from its symbol id
@@ -82,7 +82,7 @@ namespace Ark::internal
          * @param id_to_look_for
          * @return const Value* Returns nullptr if the value can not be found
          */
-        const Value* operator[](uint16_t id_to_look_for) const noexcept;
+        [[nodiscard]] const Value* operator[](uint16_t id_to_look_for) const noexcept;
 
         /**
          * @brief Get the id of a variable based on its value ; used for debug only

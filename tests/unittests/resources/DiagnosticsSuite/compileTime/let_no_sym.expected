@@ -1,4 +1,4 @@
-At ( @ 2:6
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/let_no_sym.ark:2
     1 | (let foo (fun () ()))
     2 | (let (foo a b) 5)
       |      ^

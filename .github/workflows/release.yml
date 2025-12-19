@@ -34,13 +34,13 @@ jobs:
             artifact: "windows-msvc-22"
           }
           - {
-            os: macos-latest, name: "MacOS Clang 16",
+            os: macos-14, name: "MacOS Clang 16",
             artifact: "macos-clang-16",
             compiler: clang, compiler_version: 16,
           }
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -83,7 +83,7 @@ jobs:
           artifact-name: 'arkscript.exe'
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.config.artifact }}
           path: artifact
@@ -95,37 +95,37 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - name: Download artifact Linux GCC 14
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: ubuntu-gcc-14
           path: ark-ubuntu-gcc-14
 
       - name: Download artifact Linux Clang 16
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: ubuntu-clang-16
           path: ark-ubuntu-clang-16
 
       - name: Download artifact Windows MSVC 19
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: windows-msvc-22
           path: ark-windows-msvc-22
 
       - name: Download artifact MacOS Clang
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: macos-clang-16
           path: ark-macos-clang-16
 
       - name: Download artifact Windows InnoSetup installer
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: arkscript.exe
           path: ark-windows-installer
@@ -143,7 +143,7 @@ jobs:
         uses: ffurrer2/extract-release-notes@cae32133495112d23e3569ad04fef240ba4e7bc8 # v2.3.0
 
       - name: Create release
-        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8 # v2.3.2
+        uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2.4.2
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

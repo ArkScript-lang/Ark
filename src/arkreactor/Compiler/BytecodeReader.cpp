@@ -271,6 +271,29 @@ namespace Ark
         return block;
     }
 
+    std::optional<InstLoc> BytecodeReader::findSourceLocation(const std::vector<InstLoc>& inst_locations, const std::size_t ip, const std::size_t pp) const
+    {
+        std::optional<InstLoc> match = std::nullopt;
+
+        for (const auto location : inst_locations)
+        {
+            if (location.page_pointer == pp && !match)
+                match = location;
+
+            // select the best match: we want to find the location that's nearest our instruction pointer,
+            // but not equal to it as the IP will always be pointing to the next instruction,
+            // not yet executed. Thus, the erroneous instruction is the previous one.
+            if (location.page_pointer == pp && match && location.inst_pointer < ip / 4)
+                match = location;
+
+            // early exit because we won't find anything better, as inst locations are ordered by ascending (pp, ip)
+            if (location.page_pointer > pp || (location.page_pointer == pp && location.inst_pointer >= ip / 4))
+                break;
+        }
+
+        return match;
+    }
+
     void BytecodeReader::display(const BytecodeSegment segment,
                                  const std::optional<uint16_t> sStart,
                                  const std::optional<uint16_t> sEnd,
@@ -282,13 +305,16 @@ namespace Ark
             return;
         }
 
-        auto [major, minor, patch] = version();
-        fmt::println("Version:   {}.{}.{}", major, minor, patch);
-        fmt::println("Timestamp: {}", timestamp());
-        fmt::print("SHA256:    ");
-        for (const auto sha = sha256(); unsigned char h : sha)
-            fmt::print("{:02x}", h);
-        fmt::print("\n\n");
+        if (segment == BytecodeSegment::All || segment == BytecodeSegment::HeadersOnly)
+        {
+            auto [major, minor, patch] = version();
+            fmt::println("Version:   {}.{}.{}", major, minor, patch);
+            fmt::println("Timestamp: {}", timestamp());
+            fmt::print("SHA256:    ");
+            for (const auto sha = sha256(); unsigned char h : sha)
+                fmt::print("{:02x}", h);
+            fmt::print("\n\n");
+        }
 
         // reading the different tables, one after another
 
@@ -371,7 +397,7 @@ namespace Ark
                             fmt::println("{}) (PageAddr) {}", j, val.pageAddr());
                             break;
                         default:
-                            fmt::print(fmt::fg(fmt::color::red), "Value type not handled: {}\n", types_to_str[static_cast<std::size_t>(val.valueType())]);
+                            fmt::print(fmt::fg(fmt::color::red), "Value type not handled: {}\n", std::to_string(val.valueType()));
                             break;
                     }
                 }
@@ -430,58 +456,181 @@ namespace Ark
         enum class ArgKind
         {
             Symbol,
-            Value,
+            Constant,
             Builtin,
-            Raw
+            Raw,  ///< eg: Stack index, jump address, number
+            ConstConst,
+            ConstSym,
+            SymConst,
+            SymSym,
+            BuiltinRaw,  ///< Builtin, number
+            ConstRaw,    ///< Constant, number
+            SymRaw,      ///< Symbol, number
+            RawSym,      ///< Symbol index, symbol
+            RawConst,    ///< Symbol index, constant
+            RawRaw,      ///< Symbol index, symbol index
+            RawRawRaw
         };
 
         struct Arg
         {
             ArgKind kind;
+            uint8_t padding;
             uint16_t arg;
+
+            [[nodiscard]] uint16_t primary() const
+            {
+                return arg & 0x0fff;
+            }
+
+            [[nodiscard]] uint16_t secondary() const
+            {
+                return static_cast<uint16_t>((padding << 4) | (arg & 0xf000) >> 12);
+            }
         };
 
         const std::unordered_map<Instruction, ArgKind> arg_kinds = {
             { LOAD_SYMBOL, ArgKind::Symbol },
             { LOAD_SYMBOL_BY_INDEX, ArgKind::Raw },
-            { LOAD_CONST, ArgKind::Value },
+            { LOAD_CONST, ArgKind::Constant },
             { POP_JUMP_IF_TRUE, ArgKind::Raw },
             { STORE, ArgKind::Symbol },
+            { STORE_REF, ArgKind::Symbol },
             { SET_VAL, ArgKind::Symbol },
             { POP_JUMP_IF_FALSE, ArgKind::Raw },
             { JUMP, ArgKind::Raw },
             { CALL, ArgKind::Raw },
-            { CALL_BUILTIN, ArgKind::Raw },
             { CAPTURE, ArgKind::Symbol },
+            { RENAME_NEXT_CAPTURE, ArgKind::Symbol },
             { BUILTIN, ArgKind::Builtin },
             { DEL, ArgKind::Symbol },
-            { MAKE_CLOSURE, ArgKind::Value },
+            { MAKE_CLOSURE, ArgKind::Constant },
             { GET_FIELD, ArgKind::Symbol },
-            { PLUGIN, ArgKind::Value },
+            { PLUGIN, ArgKind::Constant },
             { LIST, ArgKind::Raw },
             { APPEND, ArgKind::Raw },
             { CONCAT, ArgKind::Raw },
             { APPEND_IN_PLACE, ArgKind::Raw },
-            { CONCAT_IN_PLACE, ArgKind::Raw }
+            { CONCAT_IN_PLACE, ArgKind::Raw },
+            { RESET_SCOPE_JUMP, ArgKind::Raw },
+            { GET_CURRENT_PAGE_ADDR, ArgKind::Symbol },
+            { LOAD_CONST_LOAD_CONST, ArgKind::ConstConst },
+            { LOAD_CONST_STORE, ArgKind::ConstSym },
+            { LOAD_CONST_SET_VAL, ArgKind::ConstSym },
+            { STORE_FROM, ArgKind::SymSym },
+            { STORE_FROM_INDEX, ArgKind::RawSym },
+            { SET_VAL_FROM, ArgKind::SymSym },
+            { SET_VAL_FROM_INDEX, ArgKind::RawSym },
+            { INCREMENT, ArgKind::SymRaw },
+            { INCREMENT_BY_INDEX, ArgKind::RawRaw },
+            { INCREMENT_STORE, ArgKind::RawRaw },
+            { DECREMENT, ArgKind::SymRaw },
+            { DECREMENT_BY_INDEX, ArgKind::RawRaw },
+            { DECREMENT_STORE, ArgKind::SymRaw },
+            { STORE_TAIL, ArgKind::SymSym },
+            { STORE_TAIL_BY_INDEX, ArgKind::RawSym },
+            { STORE_HEAD, ArgKind::SymSym },
+            { STORE_HEAD_BY_INDEX, ArgKind::RawSym },
+            { STORE_LIST, ArgKind::RawSym },
+            { SET_VAL_TAIL, ArgKind::SymSym },
+            { SET_VAL_TAIL_BY_INDEX, ArgKind::RawSym },
+            { SET_VAL_HEAD, ArgKind::SymSym },
+            { SET_VAL_HEAD_BY_INDEX, ArgKind::RawSym },
+            { CALL_BUILTIN, ArgKind::BuiltinRaw },
+            { CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, ArgKind::BuiltinRaw },
+            { LT_CONST_JUMP_IF_FALSE, ArgKind::ConstRaw },
+            { LT_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
+            { LT_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
+            { GT_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
+            { GT_CONST_JUMP_IF_FALSE, ArgKind::ConstRaw },
+            { GT_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
+            { EQ_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
+            { EQ_SYM_INDEX_JUMP_IF_TRUE, ArgKind::SymRaw },
+            { NEQ_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
+            { NEQ_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
+            { CALL_SYMBOL, ArgKind::SymRaw },
+            { CALL_CURRENT_PAGE, ArgKind::SymRaw },
+            { GET_FIELD_FROM_SYMBOL, ArgKind::SymSym },
+            { GET_FIELD_FROM_SYMBOL_INDEX, ArgKind::RawSym },
+            { AT_SYM_SYM, ArgKind::SymSym },
+            { AT_SYM_INDEX_SYM_INDEX, ArgKind::RawRaw },
+            { AT_SYM_INDEX_CONST, ArgKind::RawConst },
+            { CHECK_TYPE_OF, ArgKind::SymConst },
+            { CHECK_TYPE_OF_BY_INDEX, ArgKind::RawConst },
+            { APPEND_IN_PLACE_SYM, ArgKind::SymRaw },
+            { APPEND_IN_PLACE_SYM_INDEX, ArgKind::RawRaw },
+            { STORE_LEN, ArgKind::RawSym },
+            { LT_LEN_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
+            { MUL_BY, ArgKind::RawRaw },
+            { MUL_BY_INDEX, ArgKind::RawRaw },
+            { MUL_SET_VAL, ArgKind::RawRaw },
+            { FUSED_MATH, ArgKind::RawRawRaw }
         };
 
-        const auto color_print_inst = [&syms, &vals, &stringify_value](const std::string& name, std::optional<Arg> arg = std::nullopt) {
+        const auto builtin_name = [](const uint16_t idx) {
+            return Builtins::builtins[idx].first;
+        };
+        const auto value_str = [&stringify_value, &vals](const uint16_t idx) {
+            return stringify_value(vals.values[idx]);
+        };
+        const auto symbol_name = [&syms](const uint16_t idx) {
+            return syms.symbols[idx];
+        };
+
+        const auto color_print_inst = [=](const std::string& name, std::optional<Arg> arg = std::nullopt) {
             fmt::print("{}", fmt::styled(name, fmt::fg(fmt::color::gold)));
             if (arg.has_value())
             {
-                switch (auto [kind, idx] = arg.value(); kind)
+                constexpr auto sym_color = fmt::fg(fmt::color::green);
+                constexpr auto const_color = fmt::fg(fmt::color::magenta);
+                constexpr auto raw_color = fmt::fg(fmt::color::red);
+
+                switch (auto [kind, _, idx] = arg.value(); kind)
                 {
                     case ArgKind::Symbol:
-                        fmt::print(fmt::fg(fmt::color::green), " {}\n", syms.symbols[idx]);
+                        fmt::print(sym_color, " {}\n", symbol_name(idx));
                         break;
-                    case ArgKind::Value:
-                        fmt::print(fmt::fg(fmt::color::magenta), " {}\n", stringify_value(vals.values[idx]));
+                    case ArgKind::Constant:
+                        fmt::print(const_color, " {}\n", value_str(idx));
                         break;
                     case ArgKind::Builtin:
-                        fmt::print(" {}\n", Builtins::builtins[idx].first);
+                        fmt::print(" {}\n", builtin_name(idx));
                         break;
                     case ArgKind::Raw:
-                        fmt::print(fmt::fg(fmt::color::red), " ({})\n", idx);
+                        fmt::print(raw_color, " ({})\n", idx);
+                        break;
+                    case ArgKind::ConstConst:
+                        fmt::print(" {}, {}\n", fmt::styled(value_str(arg->primary()), const_color), fmt::styled(value_str(arg->secondary()), const_color));
+                        break;
+                    case ArgKind::ConstSym:
+                        fmt::print(" {}, {}\n", fmt::styled(value_str(arg->primary()), const_color), fmt::styled(symbol_name(arg->secondary()), sym_color));
+                        break;
+                    case ArgKind::SymConst:
+                        fmt::print(" {}, {}\n", fmt::styled(symbol_name(arg->primary()), sym_color), fmt::styled(value_str(arg->secondary()), const_color));
+                        break;
+                    case ArgKind::SymSym:
+                        fmt::print(" {}, {}\n", fmt::styled(symbol_name(arg->primary()), sym_color), fmt::styled(symbol_name(arg->secondary()), sym_color));
+                        break;
+                    case ArgKind::BuiltinRaw:
+                        fmt::print(" {}, {}\n", builtin_name(arg->primary()), fmt::styled(arg->secondary(), raw_color));
+                        break;
+                    case ArgKind::ConstRaw:
+                        fmt::print(" {}, {}\n", fmt::styled(value_str(arg->primary()), const_color), fmt::styled(arg->secondary(), raw_color));
+                        break;
+                    case ArgKind::SymRaw:
+                        fmt::print(" {}, {}\n", fmt::styled(symbol_name(arg->primary()), sym_color), fmt::styled(arg->secondary(), raw_color));
+                        break;
+                    case ArgKind::RawSym:
+                        fmt::print(" {}, {}\n", fmt::styled(arg->primary(), raw_color), fmt::styled(symbol_name(arg->secondary()), sym_color));
+                        break;
+                    case ArgKind::RawConst:
+                        fmt::print(" {}, {}\n", fmt::styled(arg->primary(), raw_color), fmt::styled(value_str(arg->secondary()), const_color));
+                        break;
+                    case ArgKind::RawRaw:
+                        fmt::print(" {}, {}\n", fmt::styled(arg->primary(), raw_color), fmt::styled(arg->secondary(), raw_color));
+                        break;
+                    case ArgKind::RawRawRaw:
+                        fmt::print(" {}, {}, {}\n", fmt::styled(arg->padding, raw_color), fmt::styled((arg->arg & 0xff00) >> 8, raw_color), fmt::styled(arg->arg & 0x00ff, raw_color));
                         break;
                 }
             }
@@ -512,25 +661,35 @@ namespace Ark
                     if (displayCode)
                         fmt::print("NOP");
                 }
-                else
+                else if (cPage.value_or(pp) == pp && segment != BytecodeSegment::HeadersOnly)
                 {
-                    if (cPage.value_or(pp) != pp)
-                        continue;
-                    if (segment == BytecodeSegment::HeadersOnly)
-                        continue;
                     if (sStart.has_value() && sEnd.has_value() && ((sStart.value() > page.size()) || (sEnd.value() > page.size())))
                     {
                         fmt::print(fmt::fg(fmt::color::red), "Slice start or end can't be greater than the segment size: {}\n", page.size());
                         return;
                     }
 
+                    std::optional<InstLoc> previous_loc = std::nullopt;
+
                     for (std::size_t j = sStart.value_or(0), end = sEnd.value_or(page.size()); j < end; j += 4)
                     {
                         const uint8_t inst = page[j];
-                        // TEMP
                         const uint8_t padding = page[j + 1];
                         const auto arg = static_cast<uint16_t>((page[j + 2] << 8) + page[j + 3]);
 
+                        auto maybe_loc = findSourceLocation(inst_locs.locations, j, pp);
+
+                        // location
+                        // we want to print it only when it changed, either the file, the line, or both
+                        if (maybe_loc && (!previous_loc || maybe_loc != previous_loc))
+                        {
+                            if (!previous_loc || previous_loc->filename_id != maybe_loc->filename_id)
+                                fmt::println("{}", files.filenames[maybe_loc->filename_id]);
+                            fmt::print("{:>4}", maybe_loc->line + 1);
+                            previous_loc = maybe_loc;
+                        }
+                        else
+                            fmt::print("    ");
                         // instruction number
                         fmt::print(fmt::fg(fmt::color::cyan), "{:>4}", j / 4);
                         // padding inst arg arg
@@ -540,7 +699,7 @@ namespace Ark
                         {
                             const auto inst_name = InstructionNames[idx];
                             if (const auto iinst = static_cast<Instruction>(inst); arg_kinds.contains(iinst))
-                                color_print_inst(inst_name, Arg { arg_kinds.at(iinst), arg });
+                                color_print_inst(inst_name, Arg { arg_kinds.at(iinst), padding, arg });
                             else
                                 color_print_inst(inst_name);
                         }

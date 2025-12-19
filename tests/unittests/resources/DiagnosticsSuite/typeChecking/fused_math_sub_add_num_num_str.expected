@@ -1,0 +1,16 @@
+Function + expected 2 arguments
+Call
+  ↳ (+ 1 -1)
+Signature
+  ↳ (+ a b)
+Arguments
+  → `a' (expected Number), got 1 (String)
+  → `b' (expected Number) ✓
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/fused_math_sub_add_num_num_str.ark:5
+    2 | (let b 2)
+    3 | (let c 3)
+    4 |
+    5 | (print (+ a (- b c)))
+      | ^~~~~~~~~~~~~~~~~~~~
+    6 |

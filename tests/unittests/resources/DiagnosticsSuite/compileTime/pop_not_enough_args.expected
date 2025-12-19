@@ -1,4 +1,4 @@
-At pop @ 1:2
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/pop_not_enough_args.ark:1
     1 | (pop [])
       |  ^~~
     2 |

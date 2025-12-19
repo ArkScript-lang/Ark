@@ -1,6 +1,6 @@
 /**
  * @file Constants.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Constants used by ArkScript
  * @date 2020-10-27
  *
@@ -12,6 +12,7 @@
 #define INCLUDE_ARK_CONSTANTS_HPP_IN
 
 #include <string_view>
+#include <limits>
 
 // clang-format off
 constexpr int ARK_VERSION_MAJOR = @ARK_VERSION_MAJOR@;
@@ -42,6 +43,10 @@ constexpr std::string_view ARK_FULL_VERSION { "@ARK_VERSION_MAJOR@.@ARK_VERSION_
 #include <cinttypes>
 #include <cstddef>
 
+#ifdef max
+#    undef max
+#endif
+
 namespace Ark
 {
     // Compiler options
@@ -62,10 +67,14 @@ namespace Ark
         | FeatureIROptimizer
         | FeatureNameResolver;
 
-    constexpr std::size_t MaxNestedNodes = 1024;  ///< Maximum number of nodes that can be nested while parsing code
-    constexpr std::size_t MaxMacroProcessingDepth = 256;  ///< Controls the number of recursive calls to MacroProcessor::processNode
+    constexpr uint16_t MaxValue16Bits = std::numeric_limits<uint16_t>::max();
+
+    constexpr std::size_t MaxNestedNodes = 1024;           ///< Maximum number of nodes that can be nested while parsing code
+    constexpr std::size_t MaxMacroProcessingDepth = 256;   ///< Controls the number of recursive calls to MacroProcessor::processNode
     constexpr std::size_t MaxMacroUnificationDepth = 256;  ///< Controls the number of recursive calls to MacroProcessor::unify
     constexpr std::size_t VMStackSize = 4096;
+    constexpr std::size_t VMOverflowBufferSize = 256;                                          ///< Additional number of elements the stack can tolerate
+    constexpr std::size_t VMStackSizeWithOverflowBuffer = VMStackSize + VMOverflowBufferSize;  ///< Exceeding VMStackSize, even if we are below VMStackSizeWithOverflowBuffer, means we stack overflowed
     constexpr std::size_t ScopeStackSize = 8192;
 }
 

@@ -28,7 +28,7 @@ namespace Ark::internal::Builtins::Async
                 "async", { { types::Contract { { types::Typedef("function", { ValueType::PageAddr, ValueType::CProc, ValueType::Closure }), types::Typedef("args", ValueType::Any, /* is_variadic= */ true) } }, types::Contract { { types::Typedef("function", { ValueType::PageAddr, ValueType::CProc, ValueType::Closure }) } } } }, n);
 
         Future* future = vm->createFuture(n);
-        return Value(UserType(future));
+        return Value(UserType(future, &Future::ControlFunctions));
     }
 
     /**

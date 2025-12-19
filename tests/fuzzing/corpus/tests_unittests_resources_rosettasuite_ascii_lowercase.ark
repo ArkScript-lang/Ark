@@ -1,0 +1,9 @@
+(import std.String)
+
+(mut letters "")
+(mut c (string:ord "a"))
+(while (<= c (string:ord "z")) {
+  (set letters (+ letters (string:chr c)))
+  (set c (+ c 1)) })
+
+(assert (= letters string:asciiLowercase) "correctly computed letters")

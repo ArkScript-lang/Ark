@@ -1,15 +1,15 @@
-(import std.List)
+(import 00.0000)
 
-(assert (=
-  (list:sum
-    (list:map
-      [1 2 3 4 5]
+(a00000 (=
+(l000:000
+    (l000:000
+      [0 0 0 0 0]
       (fun (x) (* x x))))
-  55)
+ 00)
   "00000000000000000")
-(assert (=
-  (list:sum
-    (list:map
+(a00000 (=
+  (l000:000
+    (l000:000
       []
       (fun (x) (* x x))))
   0)

@@ -1,5 +1,5 @@
-At ) @ 1:13
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/bad_glob_import.ark:1
     1 | (import a :*)
-      |             ^
+      |            ^
     2 |
         Glob patterns can not be separated from the package, use (import a:*) instead

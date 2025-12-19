@@ -2,17 +2,22 @@ cmake_minimum_required(VERSION 3.16)
 
 project(ark CXX)
 
-# VERSION
+# ArkScript version (have to manually update it)
 set(ARK_VERSION_MAJOR 4)
-set(ARK_VERSION_MINOR 0)
-set(ARK_VERSION_PATCH 0)
+set(ARK_VERSION_MINOR 1)
+set(ARK_VERSION_PATCH 1)
 
-execute_process(
-        COMMAND git rev-parse --short=8 HEAD
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        OUTPUT_VARIABLE GIT_COMMIT_HASH
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-set(ARK_COMMIT ${GIT_COMMIT_HASH})
+# determine whether this is a standalone project or included by other projects
+if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    execute_process(
+            COMMAND git rev-parse --short=8 HEAD
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            OUTPUT_VARIABLE GIT_COMMIT_HASH
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set(ARK_COMMIT ${GIT_COMMIT_HASH})
+else ()
+    set(ARK_COMMIT "deadbeef")
+endif ()
 
 option(ARK_BUILD_EXE "Build a standalone arkscript executable" Off)
 option(ARK_ENABLE_SYSTEM "Enable sys:exec" On)  # enable use of (sys:exec "command here")
@@ -34,63 +39,61 @@ if (NOT ARK_EMSCRIPTEN)
     include(cmake/sanitizers.cmake)
     include(GNUInstallDirs)  # Uses GNU Install directory variables
 endif ()
+
 include(cmake/CPM.cmake)
 
-# configure installer.iss
+#####################################################
+# Configure files
+#####################################################
+
+## installer.iss
 configure_file(
         ${ark_SOURCE_DIR}/Installer.iss.in
         ${ark_SOURCE_DIR}/Installer.iss)
 
-# setting up compilations options
+## Ark/Constants.hpp
+message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}-${ARK_COMMIT}")
+configure_file(
+        ${ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
+        ${ark_SOURCE_DIR}/include/Ark/Constants.hpp)
+
+#####################################################
+# Compilations options and project declaration
+#####################################################
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     set(CMAKE_COMPILER_IS_CLANG ON)
 endif ()
 
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-# files needed for the library ArkReactor
 file(GLOB_RECURSE SOURCE_FILES
         ${ark_SOURCE_DIR}/src/arkreactor/*.cpp
-        ${ark_SOURCE_DIR}/lib/fmt/src/format.cc)
+        ${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc)
 
 add_library(ArkReactor SHARED ${SOURCE_FILES})
+
 if (NOT ARK_EMSCRIPTEN)
     enable_lto(ArkReactor)
 endif ()
+
 target_include_directories(ArkReactor
         PUBLIC
         ${ark_SOURCE_DIR}/include)
+target_include_directories(ArkReactor
+        SYSTEM PUBLIC
+        "${ark_SOURCE_DIR}/thirdparties/picosha2/"
+        "${ark_SOURCE_DIR}/thirdparties/fmt/include")
+
 target_compile_features(ArkReactor PRIVATE cxx_std_20)
+
+if (ARK_ENABLE_SYSTEM)
+    target_compile_definitions(ArkReactor PRIVATE ARK_ENABLE_SYSTEM)
+endif ()
 
 if (ARK_UNITY_BUILD)
     set_target_properties(ArkReactor PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
     set_source_files_properties(src/arkreactor/VM/VM.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION true)
-endif ()
-
-if (ARK_EMSCRIPTEN)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/public")
-
-    # ArkScript lib needs to know if we are building an exe to enable/disable specific code for embedding
-    target_compile_definitions(ArkReactor PRIVATE ARK_BUILD_EXE=1)
-
-    add_executable(ArkEmscripten ${ark_SOURCE_DIR}/src/arkemscripten/main.cpp)
-    target_link_libraries(ArkEmscripten PUBLIC ArkReactor)
-    target_compile_features(ArkEmscripten PRIVATE cxx_std_20)
-
-    # enable_lto(ArkEmscripten)
-
-    if (ARK_JS_ONLY)
-        message(STATUS "Setting compilation target to native JavaScript")
-        set(CMAKE_EXECUTABLE_SUFFIX ".js")
-        set_target_properties(ArkReactor PROPERTIES LINK_FLAGS "-s WASM=0 -s NO_DISABLE_EXCEPTION_CATCHING")
-        set_target_properties(ArkEmscripten PROPERTIES LINK_FLAGS "-s WASM=0 -s NO_DISABLE_EXCEPTION_CATCHING -s EXPORTED_FUNCTIONS='[_main]' -s EXPORTED_RUNTIME_METHODS=['run'] -lembind")
-    else ()
-        message(STATUS "Setting compilation target to WASM")
-        set(CMAKE_EXECUTABLE_SUFFIX ".wasm.js")
-        set_target_properties(ArkReactor PROPERTIES LINK_FLAGS "-s WASM=1 -s NO_DISABLE_EXCEPTION_CATCHING")
-        set_target_properties(ArkEmscripten PROPERTIES LINK_FLAGS "-s WASM=1 -s NO_DISABLE_EXCEPTION_CATCHING -s EXPORTED_FUNCTIONS='[_main]' -s EXPORTED_RUNTIME_METHODS=['run'] -lembind")
-    endif ()
 endif ()
 
 if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
@@ -104,6 +107,8 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
             -Wconversion
             # Allow deprecation warnings to not be treated as errors
             -Wno-error=deprecated-declarations
+            # Allow command line flags to not be treated as errors when unused
+            -Wno-unused-command-line-argument
             # We use pragmas to disable warnings we understand.
             # So we need to disable the warning about pragmas.
             -Wno-unknown-pragmas
@@ -129,18 +134,6 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
         target_compile_options(ArkReactor PRIVATE -Wno-deprecated-declarations)
     endif ()
 
-    # The following sub-modules link with -L/usr/local/lib
-    # This causes a warning that is fatal. To prevent this
-    # we disable this warning until this issue is fixed.
-    #
-    #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/objectc.c.o
-    #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/version.c.o
-    #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/vrefbuffer.c.o
-    #   lib/modules/msgpack/CMakeFiles/msgpack.dir/__/submodules/msgpack-cpp/src/zone.c.o
-    target_compile_options(ArkReactor
-            PRIVATE
-            -Wno-unused-command-line-argument)
-
     # The nlohmann/json.hpp external project has unused typedefs in the code
     # to compensate for this error we remove the following warning.
     if (CMAKE_COMPILER_IS_CLANG)
@@ -165,25 +158,22 @@ elseif (MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /STACK:8000000")  # set stack size to 8MB
 endif ()
 
+#####################################################
 # Link libraries
+#####################################################
 
-target_include_directories(ArkReactor
-        SYSTEM PUBLIC
-        "${ark_SOURCE_DIR}/lib/picosha2/"
-        "${ark_SOURCE_DIR}/lib/fmt/include")
+add_subdirectory("${ark_SOURCE_DIR}/thirdparties/ankerl_unordered_dense" EXCLUDE_FROM_ALL)
+target_link_libraries(ArkReactor PUBLIC unordered_dense::unordered_dense)
 
 if (UNIX OR LINUX)
     find_package(Threads)
     target_link_libraries(ArkReactor PRIVATE ${CMAKE_DL_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 endif ()
 
-# configuring Constants.hpp
-message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}-${ARK_COMMIT}")
-configure_file(
-        ${ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
-        ${ark_SOURCE_DIR}/include/Ark/Constants.hpp)
-
+#####################################################
 # Installation rules
+#####################################################
+
 if (NOT ARK_EMSCRIPTEN)
     # Installs the dynamic library file.
     install(TARGETS ArkReactor
@@ -203,13 +193,11 @@ if (NOT ARK_EMSCRIPTEN)
     endif ()
 endif ()
 
-# COMPILATION RELATED
-
 target_compile_definitions(ArkReactor PRIVATE ARK_EXPORT)
 
-if (ARK_ENABLE_SYSTEM)
-    target_compile_definitions(ArkReactor PRIVATE ARK_ENABLE_SYSTEM)
-endif ()
+#####################################################
+# Create the different (optional) targets
+#####################################################
 
 if (ARK_BUILD_MODULES)
     get_directory_property(old_dir_compile_options COMPILE_OPTIONS)
@@ -219,23 +207,49 @@ if (ARK_BUILD_MODULES)
 endif ()
 
 if (ARK_TESTS OR ARK_BUILD_EXE)
-    add_subdirectory("${ark_SOURCE_DIR}/lib/replxx" EXCLUDE_FROM_ALL)
+    add_subdirectory("${ark_SOURCE_DIR}/thirdparties/replxx" EXCLUDE_FROM_ALL)
+    add_subdirectory("${ark_SOURCE_DIR}/thirdparties/clipp" EXCLUDE_FROM_ALL)
+endif ()
+
+if (ARK_EMSCRIPTEN)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/public")
+
+    # ArkScript lib needs to know if we are building an exe to enable/disable specific code for embedding
+    target_compile_definitions(ArkReactor PRIVATE ARK_BUILD_EXE=1)
+
+    add_executable(ArkEmscripten ${ark_SOURCE_DIR}/src/arkemscripten/main.cpp)
+    target_link_libraries(ArkEmscripten PUBLIC ArkReactor)
+    target_compile_features(ArkEmscripten PRIVATE cxx_std_20)
+
+    if (ARK_JS_ONLY)
+        message(STATUS "Setting compilation target to native JavaScript")
+        set(CMAKE_EXECUTABLE_SUFFIX ".js")
+        set_target_properties(ArkReactor PROPERTIES LINK_FLAGS "-s WASM=0 -s NO_DISABLE_EXCEPTION_CATCHING")
+        set_target_properties(ArkEmscripten PROPERTIES LINK_FLAGS "-s WASM=0 -s NO_DISABLE_EXCEPTION_CATCHING -s EXPORTED_FUNCTIONS='[_main]' -s EXPORTED_RUNTIME_METHODS=['run'] -lembind")
+    else ()
+        message(STATUS "Setting compilation target to WASM")
+        set(CMAKE_EXECUTABLE_SUFFIX ".wasm.js")
+        set_target_properties(ArkReactor PROPERTIES LINK_FLAGS "-s WASM=1 -s NO_DISABLE_EXCEPTION_CATCHING")
+        set_target_properties(ArkEmscripten PROPERTIES LINK_FLAGS "-s WASM=1 -s NO_DISABLE_EXCEPTION_CATCHING -s EXPORTED_FUNCTIONS='[_main]' -s EXPORTED_RUNTIME_METHODS=['run'] -lembind")
+    endif ()
 endif ()
 
 if (ARK_TESTS)
+    add_subdirectory(${ark_SOURCE_DIR}/tests/unittests/TestModule)
+
     file(GLOB_RECURSE SOURCES
             ${ark_SOURCE_DIR}/tests/unittests/*.cpp
             ${ark_SOURCE_DIR}/tests/unittests/Suites/*.cpp
-            ${ark_SOURCE_DIR}/lib/fmt/src/format.cc
+            ${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc
             ${ark_SOURCE_DIR}/src/arkscript/Formatter.cpp
             ${ark_SOURCE_DIR}/src/arkscript/JsonCompiler.cpp
             ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp)
     add_executable(unittests ${SOURCES})
     target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/tests/unittests)
 
-    target_include_directories(unittests SYSTEM PUBLIC ${ark_SOURCE_DIR}/lib/dtl/dtl)
+    target_include_directories(unittests SYSTEM PUBLIC ${ark_SOURCE_DIR}/thirdparties/dtl/dtl)
 
-    add_subdirectory(${ark_SOURCE_DIR}/lib/ut)
+    add_subdirectory(${ark_SOURCE_DIR}/thirdparties/ut)
     target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/include)
     target_link_libraries(unittests PUBLIC ArkReactor ut replxx)
 
@@ -246,6 +260,9 @@ if (ARK_TESTS)
     if (ARK_UNITY_BUILD)
         set_target_properties(unittests PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
     endif ()
+    set_target_properties(unittests PROPERTIES
+            VS_DEBUGGER_WORKING_DIRECTORY "${ark_SOURCE_DIR}"
+            VS_DEBUGGER_COMMAND "$<TARGET_FILE:unittests>")
 
     if (ARK_COVERAGE AND CMAKE_COMPILER_IS_CLANG)
         target_compile_options(unittests PRIVATE -coverage -fcoverage-mapping -fprofile-instr-generate)
@@ -265,7 +282,7 @@ if (ARK_TESTS)
                 --ignore-errors inconsistent
                 --filter range
                 --exclude 'tests/*'
-                --exclude 'lib/*'
+                --exclude 'thirdparties/*'
                 --exclude '/usr/*'
                 --exclude 'build/*'
                 --gcov-tool ${ark_SOURCE_DIR}/tests/llvm-gcov.sh
@@ -306,18 +323,19 @@ if (ARK_BUILD_EXE)
     # additional files needed for the exe (repl, command line and stuff)
     file(GLOB_RECURSE EXE_SOURCES
             ${ark_SOURCE_DIR}/src/arkscript/*.cpp
-            ${ark_SOURCE_DIR}/lib/fmt/src/format.cc)
+            ${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc)
     add_executable(arkscript ${EXE_SOURCES})
 
-    add_subdirectory("${ark_SOURCE_DIR}/lib/clipp" EXCLUDE_FROM_ALL)
-
-    target_include_directories(arkscript SYSTEM PUBLIC "${ark_SOURCE_DIR}/lib/clipp/include")
+    target_include_directories(arkscript SYSTEM PUBLIC "${ark_SOURCE_DIR}/thirdparties/clipp/include")
     target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp)
     target_compile_features(arkscript PRIVATE cxx_std_20)
 
     if (ARK_UNITY_BUILD)
         set_target_properties(arkscript PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
     endif ()
+    set_target_properties(arkscript PROPERTIES
+            VS_DEBUGGER_WORKING_DIRECTORY "${ark_SOURCE_DIR}"
+            VS_DEBUGGER_COMMAND "$<TARGET_FILE:arkscript>")
 
     enable_lto(arkscript)
 

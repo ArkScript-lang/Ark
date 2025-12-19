@@ -1,5 +1,5 @@
-At (or 1) @ 1:2
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/or_not_enough_args.ark:1
     1 | (or 1)
-      |  ^~~~
+      | ^~~~~
     2 |
         Expected at least 2 arguments while compiling 'or', got 1

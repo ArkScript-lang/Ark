@@ -1,0 +1,8 @@
+( Keyword:Fun ( Symbol:a MutArg:b RefArg:c ) Symbol:nil )
+( Keyword:Fun ( MutArg:b RefArg:c ) Symbol:nil )
+( Keyword:Fun ( RefArg:c ) Symbol:nil )
+( Keyword:Fun ( MutArg:c ) Symbol:nil )
+( Keyword:Fun ( Symbol:a Capture:cap MutArg:b RefArg:c ) Symbol:nil )
+( Keyword:Fun ( Capture:cap MutArg:b RefArg:c ) Symbol:nil )
+( Keyword:Fun ( Capture:cap RefArg:c ) Symbol:nil )
+( Keyword:Fun ( Capture:cap MutArg:c ) Symbol:nil )

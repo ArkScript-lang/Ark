@@ -1,6 +1,47 @@
 # Change Log
 
-## [4.0.0] - 2025-XX-XX
+## [Unreleased changes] - 20XX-XX-XX
+### Added
+- the repl prints the output of the last expression it ran
+- new super instructions: `MUL_BY`, `MUL_BY_INDEX`, `MUL_SET_VAL` that can do multiplications (and optional storing in vars) in place
+- new super instruction: `FUSED_MATH`, which can fuse 2 to 3 math operations in one go (ADD, SUB, MUL, DIV)
+
+### Fixed
+- the REPL doesn't color `import` in two colors (red for `imp__t` and blue for `___or_`), it keeps the first color that matched (red for import here)
+- page numbers are correctly counted when using the bytecode reader with '--only-names', instead of displaying `0` every time
+
+### Changed
+
+### Removed
+
+## [4.1.1] - 2025-12-13
+### Fixed
+- the formatter was breaking functions' arguments list containing argument attributes on multiple lines for no reason
+- the formatter was formatting begin nodes inside conditions badly, putting the `{` on the same line as the condition, making it hard to know if the condition had `then` and `else` nodes or a single multi nodes `then` node
+
+### Changed
+- long function calls are split on multiple lines
+
+## [4.1.0] - 2025-12-12
+### Breaking changes
+- Function arguments are now immutable by default and an argument attribute `mut` must be added: `(fun (a b c) (set b 5))` -> `(fun (a (mut b) c) (set b 5))`
+
+### Deprecated
+- `dict:contains`, use `dict:contains?`
+- `math:even`, use `math:even?`
+- `math:odd`, use `math:odd?`
+
+### Added
+- new builtin `disassemble` to print the bytecode of a function
+- new builtin `io:readFileLines` to read lines from a file as a list of strings
+
+### Changed
+- the formatter properly formats dictionaries (key-value pairs on their own line, always)
+- renamed `dict:contains` to `dict:contains?` so that all functions returning booleans have `?` suffix ; added temporary alias `dict:contains`
+- renamed `math:even` to `math:even?`, and `math:odd` to `math:odd?`
+- `string:removeAt` can work with negative indexes
+
+## [4.0.0] - 2025-09-12
 ### Added
 - more tests for the io builtins
 - added lines and code coloration in the error context
@@ -63,13 +104,17 @@
 - wasm export: we can now run ArkScript code on the web!
 - `GET_CURRENT_PAGE_ADDRESS` instruction to push the current page address to the stack
 - `CALL_CURRENT_PAGE` super instruction, calling the current page with a given number of arguments (avoid loading a page address on the stack, then popping it to perform the call)
+- new data type `Dict`, which can be created with `(dict "key" "value" ...)`, and manipulated with `dict:get`, `dict:add`, `dict:contains`, `dict:remove`, `dict:keys` and `dict:size`
+- added program name under `builtin__sys:programName
+- `STORE_LEN` super instruction, to load a symbol by index and store its length (if it's a string or list) in a new variable
+- `AT_SYM_INDEX_CONST` super instruction, to load a value from a container using a constant as the index
 
 ### Changed
 - instructions are on 4 bytes: 1 byte for the instruction, 1 byte of padding, 2 bytes for an immediate argument
 - enhanced the bytecode reader and its command line interface
 - added the padding/instruction/argumentation values when displaying instructions in the bytecode reader
 - fixed underline bug in the error context
-- the str:format functions now expects strings following this syntax: https://fmt.dev/latest/syntax.html
+- the str:format functions now expects strings following this syntax: https://fmt.dev/12.0/syntax/
 - more documentation about the compiler implementation
 - more documentation about the virtual machine
 - closures can be now be compared field per field: `(= closure1 closure2)` will work only if they have the same fields (name) and if the values match
@@ -144,6 +189,14 @@
 - renamed almost all builtins to prefix them with `builtin__`, to have them proxied in the standard library (to be able to import and scope them properly)
 - new super instruction `CALL_BUILTIN_WITHOUT_RETURN_ADDRESS` to optimize the proxied builtins, skipping the return address deletion
 - the VM no longer store a reference to the current function being called in the newly created scope
+- execution contexts can be reused for async calls if they are not active, to avoid constantly requesting memory and creating (heavy) contexts
+  - if there is more than 5 contexts, the 6th one will be destroyed once it completes
+- execution contexts are now marked as free to be reused (or deleted) once a value has been computed, without waiting for a call to `await`
+- captures are not renamed anymore by the NameResolutionPass (which used to fully qualify captured names when possible, which isn't desirable: when you capture `&foo`, you expect to be able to use `.foo` not `.module:foo`)
+- when loading a module, its mappings are loaded in the current scope instead of the global scope
+- argument order in the CLI changed: the file to run (and its optional script arguments) are now last, to be more consistent with all the other existing tooling (Python, Docker...)
+- VM stack size has been upped to 4096 + 256, to have a buffer to be able to catch stack overflows without hindering performances too much
+- we can not create a variable in a function, shadowing said function, to prevent weird bugs when trying to do recursion for example
 
 ### Removed
 - removed unused `NodeType::Closure`

@@ -1,0 +1,8 @@
+(fun (a (mut b) (ref c)) ())
+(fun ((mut b) (ref c)) ())
+(fun ((ref c)) ())
+(fun ((mut c)) ())
+(fun (a &cap (mut b) (ref c)) ())
+(fun (&cap (mut b) (ref c)) ())
+(fun (&cap (ref c)) ())
+(fun (&cap (mut c)) ())

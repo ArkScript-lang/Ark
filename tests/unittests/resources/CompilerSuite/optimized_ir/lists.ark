@@ -1,5 +1,8 @@
 # STORE_LIST
 (mut source [1 2 3 4])
+# STORE_LEN
+(let length (len source))
+
 (let n 1)
 
 (let foo (fun () {
@@ -36,6 +39,9 @@
 
 # AT_SYM_INDEX_SYM_INDEX
 (@ source n)
+
+# AT_SYM_INDEX_CONST
+(@ source 2)
 
 # APPEND_IN_PLACE_SYM_INDEX
 (append! tail_2 5)

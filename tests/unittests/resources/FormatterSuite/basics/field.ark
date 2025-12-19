@@ -1,0 +1,5 @@
+(let a foo.closure.name)
+(foo.closure.name # test
+this.bar.egg.qux)
+(foo.closure.name this.bar.egg.qux)
+(foo.closure.name this.bar.egg.qux 1 2)

@@ -1,4 +1,4 @@
-At concat @ 1:2
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/concat_not_enough_args.ark:1
     1 | (concat [])
       |  ^~~~~~
     2 |

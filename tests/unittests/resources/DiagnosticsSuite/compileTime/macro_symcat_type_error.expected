@@ -1,6 +1,6 @@
-At ($symcat 5 2) @ 1:11
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_symcat_type_error.ark:1
     1 | (macro a ($symcat 5 2))
-      | │         └─ error
+      | │                 └─ error
       | │
       | └─ macro expansion started here
     2 | (print a)

@@ -1,0 +1,16 @@
+Stack overflow. You could consider rewriting your function to make use of tail-call optimization.
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/stackoverflow_recur.ark:4
+    1 | (let A (fun ((mut k) x1 x0 x3 x4 x5) {
+    2 |     (let B (fun () {
+    3 |         (set k (- k 1))
+    4 |     (B k A x1 x0 x3 x4) }))
+      |     ^~~~~~~~~~~~~~~~~~~~~~
+    5 |     (if (<= k 0)
+    6 |         (+ (x4) (x5))
+
+[   3] In function `B' (tests/unittests/resources/DiagnosticsSuite/runtime/stackoverflow_recur.ark:4)
+[   2] In function `A' (tests/unittests/resources/DiagnosticsSuite/runtime/stackoverflow_recur.ark:7)
+[   1] In global scope (tests/unittests/resources/DiagnosticsSuite/runtime/stackoverflow_recur.ark:9)
+
+Current scope variables values:

@@ -1,4 +1,4 @@
-At ...defargs @ 2:18
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/unevaluated_spread.ark:2
     1 | (macro partial {
     2 |   (fun (a) (func ...defargs)) })
       |                  ^~~~~~~~~~

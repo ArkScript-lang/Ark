@@ -53,7 +53,4 @@ for inst in groups:
         continue
 
     doc = get_doc(inst)
-    print(f"""tr
-    td #[code {doc["name"]}] ({doc["value"]})
-    td {doc["args"] or ""}
-    td {doc["role"]}""")
+    print(f"""| `{doc["name"]}` ({doc["value"]}) | {doc["args"] or ""} | {doc["role"]} |""")

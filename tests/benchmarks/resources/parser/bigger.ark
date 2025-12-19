@@ -413,7 +413,7 @@
 # (print (take [1 2 3 4 5 6 7 8 9] 4))  # [1 2 3 4]
 # =end
 # @author https://github.com/rstefanic
-(let take (fun (_L _n) {
+(let take (fun (_L (mut _n)) {
   (mut _index 0)
   (mut _output [])
   (set _n (min _n (len _L)))
@@ -673,7 +673,7 @@
 # (print (list:insert b 1 [1 2]))  # [0 1 2 9]
 # =end
 # @author https://github.com/SuperFola
-(let insert (fun (_L _index _value) {
+(let insert (fun (_L _index (mut _value)) {
   (let _size (len _L))
   (assert (<= _index _size) "list:insert can not insert a value outside the list")
 

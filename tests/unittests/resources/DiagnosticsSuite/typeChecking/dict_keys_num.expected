@@ -1,0 +1,12 @@
+Function dict:keys expected 1 argument
+Call
+  ↳ (dict:keys 1)
+Signature
+  ↳ (dict:keys dictionary)
+Arguments
+  → `dictionary' (expected Dict), got 1 (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/dict_keys_num.ark:1
+    1 | (builtin__dict:keys 1)
+      | ^~~~~~~~~~~~~~~~~~~~~
+    2 |

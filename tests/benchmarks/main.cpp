@@ -35,6 +35,7 @@ ARK_CREATE_RUNTIME_BENCH(binary_trees);
 ARK_CREATE_RUNTIME_BENCH(for_sum);
 ARK_CREATE_RUNTIME_BENCH(create_closure)->Iterations(500);
 ARK_CREATE_RUNTIME_BENCH(create_list)->Iterations(500);
+ARK_CREATE_RUNTIME_BENCH(create_list_with_ref)->Iterations(500);
 ARK_CREATE_RUNTIME_BENCH(n_queens)->Iterations(50);
 
 // --------------------------------------------

@@ -1,4 +1,4 @@
-# ArkScript  ![Latest version](https://img.shields.io/github/v/release/arkscript-lang/ark?style=for-the-badge&include_prereleases)
+ # ArkScript  ![Latest version](https://img.shields.io/github/v/release/arkscript-lang/ark?style=for-the-badge&include_prereleases)
 
 ![Code size](https://img.shields.io/github/languages/code-size/arkscript-lang/ark?style=for-the-badge&logo=github)
 ![Downloads](https://img.shields.io/github/downloads/arkscript-lang/ark/total?color=%2324cc24&style=for-the-badge&logo=github)
@@ -8,11 +8,11 @@
 
 <img align="right" src=".github/images/ArkTransparent-by-mazz.png" width=200px alt="ArkScript log by Mazz">
 
-* [Documentation](https://arkscript-lang.dev/documentation.html)
-* [Discussions](https://github.com/orgs/ArkScript-lang/discussions): to receive help with the language, discuss new features and ideas
-* [Modules](https://github.com/ArkScript-lang/modules)
+* [📚 Documentation](https://arkscript-lang.dev/docs/guides/contributing/)
+* [🛝 Playground](https://playground.arkscript-lang.dev/), try the language online now!
+* [🗣️ Discussions](https://github.com/orgs/ArkScript-lang/discussions): to receive help with the language, discuss new features and ideas
 
-**Nota bene**: the project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark)
+**Note**: the project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark)
 
 ## Key features
 
@@ -22,18 +22,17 @@ ArkScript is
 * **a scripting language**: very easy to embed it in your projects. Registering your own functions in the language is made easy
 * **portable**: a unique bytecode which can be run everywhere the virtual machine is
 * **a functional language**: every parameter is passed by value, everything is immutable unless specified
-* **powerful**: provides closures and explicit capture
-* **promoting functionalities before performances**: expressiveness often brings more productivity, though performances aren't left behind
-* **a Lisp inspired language**, with fewer parentheses: `[...]` is expanded to `(list ...)` and `{}` to `(begin ...)`
+* **expressive**: has only 8 types to represent any data you might need, provides closures with explicit capture
+* **promoting functionalities before performances**: expressiveness often brings more productivity
+* **decent performance wise**: even if performances aren't priority #1, ArkScript has an optimizing compiler and [decent performances](https://arkscript-lang.dev/tools/benchmarks/)
+* **a Lisp inspired language**: your code is data and can be easily manipulated via *macros*
 * **extensible**: supports C++ module to use it in the language, adding functionalities
 
 Also, it has:
 
-* **macros**: if/else, values, and functions
-* tail call optimization
 * a REPL with autocompletion and coloration
-* a growing standard library, composed of ArkScript code (under `lib/std/`) and C++ (under `lib/modules/`)
-* a lot of unit tests (but never enough), which are ran before every release to ensure everything works as expected
+* a built-in opinionated non-configurable code formatter
+* a functional standard library, composed of ArkScript code (under `lib/std/`) and C++ (under `lib/modules/`)
 * docker images:
     * [stable](https://hub.docker.com/r/arkscript/stable), built after each release
     * [nightly](https://hub.docker.com/r/arkscript/nightly), built after each commit
@@ -44,9 +43,9 @@ Also, it has:
 
 ```clojure
 (let fibo (fun (n)
-    (if (< n 2)
-        n
-        (+ (fibo (- n 1)) (fibo (- n 2))))))
+  (if (< n 2)
+    n
+    (+ (fibo (- n 1)) (fibo (- n 2))))))
 
 (print (fibo 28))  # display 317811
 ```
@@ -61,18 +60,18 @@ Also, it has:
     (let guess (toNumber (input "Input a numeric value: ")))
     (if (< guess number)
       {
-        (print "It's more than " guess)
+        (print (format "It's more than {}!" guess))
         (impl (+ tries 1)) }
       (if (= guess number)
         {
           (print "You found it!")
           tries }
         {
-          (print "It's less than " guess)
+          (print (format "It's less than {}!" guess))
           (impl (+ tries 1)) }))}))
 
-  (let tries (impl 0))
-  (print "You won in " tries " tries.") }))
+  (let count (impl 0))
+  (print (format "You won in {} guesses." count)) }))
 
 (game)
 ```
@@ -104,7 +103,7 @@ cmake --install build
 * Create a branch for your feature: `git switch -c feat-my-awesome-idea`
 * When you're done, push it to your fork and submit a pull request
 
-Make sure you follow the [contribution guidelines](CONTRIBUTING.md) before submitting your pull request!
+Make sure you follow the [contribution guidelines](https://arkscript-lang.dev/docs/guides/contributing/) before submitting your pull request!
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/issues) :wink:
 
@@ -115,7 +114,7 @@ We have other projects tightly related to ArkScript, which aren't necessarily C+
 * the [standard library](https://github.com/ArkScript-lang/std), written in ArkScript itself
 * the [standard library modules](https://github.com/ArkScript-lang/modules), extending the capacities of the language, written in C++
 * [ArkDoc](https://github.com/ArkScript-lang/ArkDoc), a documentation generator *à la doxygen* for ArkScript, written in Python 3
-* our [website](https://github.com/ArkScript-lang/website) written in HTML, CSS and JavaScript
+* our [website](https://github.com/ArkScript-lang/website) written in Markdown using a static site generator
 
 ### Our beloved contributors
 
@@ -123,9 +122,9 @@ We have other projects tightly related to ArkScript, which aren't necessarily C+
 
 ### Coding guidelines for contributing
 
-See [C++ Coding guidelines](https://github.com/ArkScript-lang/Ark/blob/dev/CONTRIBUTING.md#c-coding-guidelines) if you want to contribute to ArkScript compiler / runtime.
+See [C++ Coding guidelines](https://arkscript-lang.dev/docs/guides/coding_guidelines/#c-coding-guidelines) if you want to contribute to ArkScript compiler / runtime.
 
-Also, see [ArkScript Coding guidelines](https://arkscript-lang.dev/guidelines/coding.html) for other files, written in ArkScript.
+Also, see [ArkScript Coding guidelines](https://arkscript-lang.dev/docs/guides/coding_guidelines/) for other files, written in ArkScript.
 
 For performance reasons, some functions might be written in C++, in `include/Ark/Builtins/Builtins.hpp` and `src/Builtins/`.
 
@@ -142,7 +141,7 @@ For performance reasons, some functions might be written in C++, in `include/Ark
 
 ⚠️ When passing a specific C++ compiler to CMake, add the corresponding C compiler as ArkScript relies on C code as well ; otherwise you'll cryptic get compilation/linking errors (using `CMAKE_CXX_COMPILER` and `CMAKE_C_COMPILER`).
 
-### Through CMake
+### Using CMake
 
 Different CMake switches are available to customize the build:
 
@@ -153,6 +152,7 @@ Different CMake switches are available to customize the build:
 * `-DARK_SANITIZERS` to enable ASAN and UBSAN
 * `-DARK_TESTS` to build the unit tests (separate target named `unittests`)
   * `-DARK_COVERAGE` to enable coverage analysis ; only works in conjunction with `-DARK_TESTS`, enables the `coverage` target: `cmake --build build --target coverage`
+* `-DARK_JS_ONLY` to build a `.js` instead of `.wasm` when building with emscripten
 
 ```bash
 # first, clone it
@@ -168,7 +168,7 @@ cmake --install build --config Release
 
 Desired output of `arkscript --help`:
 
-```bash
+```
 DESCRIPTION
         ArkScript programming language
 
@@ -177,16 +177,12 @@ SYNOPSIS
         arkscript -v
         arkscript --dev-info
         arkscript -e <expression>
-        arkscript -c <file> [-d] [-f(importsolver|no-importsolver)]
+        arkscript [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
                   [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
-                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir]
-
-        arkscript <file> [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
-                  [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
-                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir]
+                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir] ((-c <file>) | (<file> ))
 
         arkscript -f <file> [--(dry-run|check)]
-        arkscript --ast <file> [-d] [-L <lib_dir>]
+        arkscript [-d] [-L <lib_dir>] --ast <file>
         arkscript -bcr <file> -on
         arkscript -bcr <file> -a [-s <start> <end>]
         arkscript -bcr <file> -st [-s <start> <end>]
@@ -199,20 +195,6 @@ OPTIONS
         --dev-info                  Display development information and exit
         -e, --eval                  Evaluate ArkScript expression
 
-        -c, --compile               Compile the given program to bytecode, but do not run
-        -d, --debug...              Increase debug level (default: 0)
-
-        -f(importsolver|no-importsolver)
-                                    Toggle on and off the import solver pass
-
-        -f(macroprocessor|no-macroprocessor)
-                                    Toggle on and off the macro processor pass
-
-        -f(optimizer|no-optimizer)  Toggle on and off the optimizer pass
-        -f(iroptimizer|no-iroptimizer)
-                                    Toggle on and off the IR optimizer pass
-
-        -fdump-ir                   Dump IR to file.ark.ir
         -d, --debug...              Increase debug level (default: 0)
 
         -L, --lib                   Set the location of the ArkScript standard library. Paths can be
@@ -229,17 +211,18 @@ OPTIONS
                                     Toggle on and off the IR optimizer pass
 
         -fdump-ir                   Dump IR to file.ark.ir
+        -c, --compile               Compile the given program to bytecode, but do not run
         -f, --format                Format the given source file in place
         --dry-run                   Do not modify the file, only print out the changes
         --check                     Check if a file formating is correctly, without modifying it.
                                     Return 1 if formating is needed, 0 otherwise
 
-        --ast                       Compile the given program and output its AST as JSON to stdout
         -d, --debug...              Increase debug level (default: 0)
 
         -L, --lib                   Set the location of the ArkScript standard library. Paths can be
                                     delimited by ';'
 
+        --ast                       Compile the given program and output its AST as JSON to stdout
         -bcr, --bytecode-reader     Launch the bytecode reader
         <file>                      .arkc bytecode file or .ark source file that will be compiled
                                     first
@@ -253,7 +236,7 @@ OPTIONS
         -s, --slice                 Select a slice of instructions in the bytecode
 
 VERSION
-        4.0.0-c24c8f22
+        4.0.0-32c501fb
 
 LICENSE
         Mozilla Public License 2.0
@@ -261,25 +244,17 @@ LICENSE
 
 ### In your own project
 
-Please refer to the [embedding ArkScript](https://arkscript-lang.dev/tutorials/embedding.html) tutorial.
+Please refer to the [embedding ArkScript](https://arkscript-lang.dev/docs/tutorials/embedding/) tutorial.
 
 ## Performances
 
-See https://github.com/ArkScript-lang/benchmarks
+See https://arkscript-lang.dev/tools/benchmarks/
 
-## Games
-
-You can find a snake created in ArkScript in the folder examples/games/snake (run it from there, otherwise it won't find the font and the sprites ; you won't need to install the SFML).
-
-![ArkSnake](.github/images/ArkSnake.png)
-
-Controls are the arrows (left, right, up and down), the game closes itself when you successfully collect the 3 apples.
-
-## The donors
+## The sponsors
 
 Huge thanks to those people for their donations to support the project:
 
-* [TheCountVEVO](https://github.com/TheCountVEVO)
+* TheCountVEVO
 * [llexto](https://github.com/llexto)
 * COUR Eloïse
 * [AKPINAR Dylan](https://github.com/DylanAkp)
@@ -295,6 +270,10 @@ This project was inspired by [game programing patterns](http://gameprogrammingpa
 
 ## Copyright and Licence information
 
-Copyright (c) 2019-2024 Alexandre Plateau. All rights reserved.
+Copyright (c) 2019-2025 Lex Plateau. All rights reserved.
 
-This ArkScript distribution contains no GNU GPL code, which means it can be used in proprietary projects.
+### Using ArkScript in your company
+
+I (Lex Plateau) am working pretty much alone on this project, and I try to do my best to leave it as bug free and as performant as possible. However, this is a side project for which I'm currently **not paid** to work on, thus I can't fix every bug or address every feature request in a timely manner.
+
+Please reach out either by email (lexplt.dev@gmail.com) or via a [discussion](https://github.com/orgs/ArkScript-lang/discussions) before using the language in a company project, so that we can set up a support contract. If you don't want to set up a contract, your issues and support requests won't be prioritized (and possibly left unanswered).

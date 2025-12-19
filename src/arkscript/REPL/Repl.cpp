@@ -1,6 +1,7 @@
 #include <fstream>
 #include <filesystem>
 #include <fmt/core.h>
+#include <fmt/color.h>
 #include <ranges>
 
 #include <Ark/Builtins/Builtins.hpp>
@@ -35,7 +36,7 @@ namespace Ark
             if (maybe_block.has_value() && !maybe_block.value().empty())
             {
                 std::string new_code = m_code + maybe_block.value();
-                if (m_state.doString(new_code))
+                if (m_state.doString(new_code, Ark::DefaultFeatures))
                 {
                     // for only one vm init
                     if (!m_has_init_vm)
@@ -52,6 +53,10 @@ namespace Ark
                         m_code = new_code;
                         // place ip to end of bytecode instruction (HALT)
                         m_vm.m_execution_contexts[0]->ip -= 4;
+
+                        const Value* maybe_value = m_vm.peekAndResolveAsPtr(*m_vm.getDefaultContext());
+                        if (maybe_value != nullptr && maybe_value->valueType() != ValueType::Undefined && maybe_value->valueType() != ValueType::InstPtr)
+                            fmt::println("{}", fmt::styled(maybe_value->toString(m_vm), fmt::fg(fmt::color::chocolate)));
                     }
                     else
                     {

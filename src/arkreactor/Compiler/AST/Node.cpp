@@ -1,7 +1,7 @@
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 
 #include <cassert>
 #include <fmt/core.h>
@@ -9,30 +9,30 @@
 namespace Ark::internal
 {
     Node::Node(const NodeType node_type, const std::string& value) :
-        m_type(node_type), m_value(value)
+        m_type(node_type), m_value(value), m_pos()
     {}
 
     Node::Node(const NodeType node_type) :
-        m_type(node_type)
+        m_type(node_type), m_pos()
     {
         if (m_type == NodeType::List || m_type == NodeType::Macro || m_type == NodeType::Field)
             m_value = std::vector<Node>();
     }
 
     Node::Node(double value) :
-        m_type(NodeType::Number), m_value(value)
+        m_type(NodeType::Number), m_value(value), m_pos()
     {}
 
     Node::Node(const long value) :
-        m_type(NodeType::Number), m_value(static_cast<double>(value))
+        m_type(NodeType::Number), m_value(static_cast<double>(value)), m_pos()
     {}
 
     Node::Node(Keyword value) :
-        m_type(NodeType::Keyword), m_value(value)
+        m_type(NodeType::Keyword), m_value(value), m_pos()
     {}
 
     Node::Node(const Namespace& namespace_) :
-        m_type(NodeType::Namespace), m_value(namespace_)
+        m_type(NodeType::Namespace), m_value(namespace_), m_pos()
     {}
 
     const std::string& Node::string() const noexcept
@@ -85,17 +85,17 @@ namespace Ark::internal
         return m_type == NodeType::List || m_type == NodeType::Macro;
     }
 
-    bool Node::isStringLike() const noexcept
-    {
-        return m_type == NodeType::Symbol || m_type == NodeType::String || m_type == NodeType::Spread;
-    }
-
     bool Node::isFunction() const noexcept
     {
         return m_type == NodeType::List &&
             !constList().empty() &&
             constList()[0].nodeType() == NodeType::Keyword &&
             constList()[0].keyword() == Keyword::Fun;
+    }
+
+    const std::optional<std::string>& Node::getUnqualifiedName() const noexcept
+    {
+        return m_unqualified_name;
     }
 
     void Node::updateValueAndType(const Node& source) noexcept
@@ -109,20 +109,20 @@ namespace Ark::internal
         m_type = type;
     }
 
+    void Node::setUnqualifiedName(const std::string& name) noexcept
+    {
+        m_unqualified_name = name;
+    }
+
     void Node::setString(const std::string& value) noexcept
     {
         m_value = value;
     }
 
-    void Node::setPos(const std::size_t line, const std::size_t col) noexcept
+    void Node::setPositionFrom(const Node& source) noexcept
     {
-        m_line = line;
-        m_col = col;
-    }
-
-    void Node::setFilename(const std::string& filename) noexcept
-    {
-        m_filename = filename;
+        m_filename = source.m_filename;
+        m_pos = source.m_pos;
     }
 
     Node& Node::attachNearestCommentBefore(const std::string& comment)
@@ -146,7 +146,7 @@ namespace Ark::internal
         m_alt_syntax = toggle;
     }
 
-    void Node::setFunctionKind(bool anonymous)
+    void Node::setFunctionKind(const bool anonymous)
     {
         m_is_anonymous_function = anonymous;
     }
@@ -156,19 +156,9 @@ namespace Ark::internal
         return m_is_anonymous_function;
     }
 
-    bool Node::isAltSyntax() const
+    FileSpan Node::position() const noexcept
     {
-        return m_alt_syntax;
-    }
-
-    std::size_t Node::line() const noexcept
-    {
-        return m_line;
-    }
-
-    std::size_t Node::col() const noexcept
-    {
-        return m_col;
+        return m_pos;
     }
 
     const std::string& Node::filename() const noexcept
@@ -193,6 +183,14 @@ namespace Ark::internal
         {
             case NodeType::Symbol:
                 data += string();
+                break;
+
+            case NodeType::MutArg:
+                data += "(mut " + string() + ")";
+                break;
+
+            case NodeType::RefArg:
+                data += "(ref " + string() + ")";
                 break;
 
             case NodeType::Capture:
@@ -292,6 +290,14 @@ namespace Ark::internal
         {
             case NodeType::Symbol:
                 os << "Symbol:" << string();
+                break;
+
+            case NodeType::MutArg:
+                os << "MutArg:" << string();
+                break;
+
+            case NodeType::RefArg:
+                os << "RefArg:" << string();
                 break;
 
             case NodeType::Capture:

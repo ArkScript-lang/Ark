@@ -47,9 +47,10 @@
       (while (!= x 20) {
         (mut case (@ (@ data y) x))
 
-        (if (= case 1) {
-          (sf:set:pos apple_sprite (* 20 x) (* 20 y))
-          (sf:draw apple_sprite) })
+        (if (= case 1)
+          {
+            (sf:set:pos apple_sprite (* 20 x) (* 20 y))
+            (sf:draw apple_sprite) })
         (set x (+ x 1)) })
       (set y (+ 1 y)) })
 
@@ -108,11 +109,7 @@
 
         (return test) }
       (throw "Out of bounds"))))
-  (fun (&data
-    &apple_sprite
-    &draw_board
-    &has_apple_left?
-    &eat_apple_at) ()) }))
+  (fun (&data &apple_sprite &draw_board &has_apple_left? &eat_apple_at) ()) }))
 
 # instanciating
 (let board (create-board-object))
@@ -159,14 +156,7 @@
       (sf:set:pos snake_sprite (* 20 (@ current 0)) (* 20 (@ current 1)))
       (sf:draw snake_sprite)
       (set acc (+ 1 acc)) }) }))
-  (fun (&move
-    &reset_auto_move
-    &auto_move
-    &draw
-    &pos
-    &should_move
-    &last_direction
-    &snake_sprite) ()) }))
+  (fun (&move &reset_auto_move &auto_move &draw &pos &should_move &last_direction &snake_sprite) ()) }))
 
 # instanciating
 (let snake (create-snake-object))
@@ -201,9 +191,10 @@
           (snake.move -1 0 board))]])
 
   # update
-  (if (= 0 (board.has_apple_left?)) {
-    (print "you win!")
-    (sf:window:close) })
+  (if (= 0 (board.has_apple_left?))
+    {
+      (print "you win!")
+      (sf:window:close) })
 
   (if (= 0 (mod frame 20))
     (snake.auto_move board))

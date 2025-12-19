@@ -1,6 +1,11 @@
 Function format expected at least 2 arguments but got 1
-  -> string (String) was of type Number
-  -> variadic value (any) was not provided
+Call
+  ↳ (format 1)
+Signature
+  ↳ (format string value)
+Arguments
+  → `string' (expected String), got 1 (Number)
+  → variadic `value' (expected any) was not provided
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/stringformat_num.ark:1
     1 | (format 1)

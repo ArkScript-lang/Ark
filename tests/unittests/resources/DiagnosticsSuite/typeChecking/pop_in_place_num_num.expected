@@ -1,6 +1,11 @@
 Function pop! expected 2 arguments
-  -> list (List) was of type Number
-  -> index (Number)
+Call
+  ↳ (pop! 5 5)
+Signature
+  ↳ (pop! list index)
+Arguments
+  → `list' (expected List), got 5 (Number)
+  → `index' (expected Number) ✓
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/pop_in_place_num_num.ark:1
     1 | (pop! 5 5)

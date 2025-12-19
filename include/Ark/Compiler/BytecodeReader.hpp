@@ -1,6 +1,6 @@
 /**
  * @file BytecodeReader.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief A bytecode disassembler for ArkScript
  * @date 2020-10-27
  *
@@ -16,7 +16,7 @@
 #include <cinttypes>
 #include <optional>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/VM/Value.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/InstLoc.hpp>
@@ -159,6 +159,15 @@ namespace Ark
          * @return Code
          */
         [[nodiscard]] Code code(const InstLocations& instLocations) const;
+
+        /**
+         * @brief Find the location of an instruction
+         * @param inst_locations
+         * @param ip
+         * @param pp
+         * @return
+         */
+        std::optional<internal::InstLoc> findSourceLocation(const std::vector<internal::InstLoc>& inst_locations, std::size_t ip, std::size_t pp) const;
 
         /**
          * @brief Display the bytecode opcode in a human friendly way.

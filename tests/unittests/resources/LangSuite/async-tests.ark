@@ -1,13 +1,15 @@
 (import std.Testing)
 (import std.List)
+(import std.Sys :sleep)
 
 (let foo (fun (a b) (+ a b)))
 (let async-foo (async foo 1 2))
+(let async-foo-2 (async foo 2 3))
 
 (let size 1000)
 (let data (list:fill size 1))
 
-(let sum (fun (a b src) {
+(let sum (fun ((mut a) b src) {
     (mut acc 0)
     (while (< a b) {
         (set acc (+ acc (@ src a)))
@@ -15,6 +17,13 @@
     acc }))
 
 (test:suite async {
+    (test:case "compare futures" {
+        (test:expect (not (< async-foo async-foo-2)))
+        (test:expect (not (= async-foo async-foo-2)))
+        (test:expect (= async-foo async-foo))
+        (test:expect (not (empty? (toString async-foo-2))))
+        (del async-foo-2) })
+
     (test:case "async-foo should be an awaitable function returning 3" {
         (test:eq (type async-foo) "UserType")
         (test:eq (await async-foo) 3)})
@@ -37,4 +46,20 @@
         (let time-async (- (time) start-async))
 
         (test:eq 1000 res-async)
-        (test:eq 1000 res-non-async)})})
+        (test:eq 1000 res-non-async)})
+
+    (test:case "execution contexts get reused" {
+        # this forces the VM to create more than 5 execution context,
+        # and delete the 6th
+        (async sleep 128)
+        (async sleep 128)
+        (async sleep 128)
+        (async sleep 128)
+        (async sleep 128)
+        (sleep 250)  # wait for the async call to complete
+
+        # we have 5 contexts here, and 4 that are free to be (re)used
+        (async sleep 128) (sleep 200)
+        (async sleep 128) (sleep 200)
+        (async sleep 128) (sleep 200)
+        (async sleep 128) (sleep 200) }) })

@@ -1,6 +1,11 @@
 Function hasField expected 2 arguments
-  -> closure (Closure) was of type Number
-  -> field (String)
+Call
+  ↳ (hasField 1 c)
+Signature
+  ↳ (hasField closure field)
+Arguments
+  → `closure' (expected Closure), got 1 (Number)
+  → `field' (expected String) ✓
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/hasfield_num_str.ark:1
     1 | (hasField 1 "c")

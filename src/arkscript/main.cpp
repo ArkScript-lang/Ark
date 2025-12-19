@@ -1,23 +1,23 @@
 #include <iostream>
 #include <optional>
 #include <filesystem>
-#include <limits>
 #include <cstdlib>
 
 #include <clipp.h>
 #include <fmt/core.h>
 #include <fmt/color.h>
 
-#include <Ark/Files.hpp>
+#include <Ark/Utils/Files.hpp>
 #include <Ark/Compiler/BytecodeReader.hpp>
+#include <Ark/VM/Value/Dict.hpp>
 #include <CLI/JsonCompiler.hpp>
 #include <CLI/REPL/Repl.hpp>
 #include <CLI/Formatter.hpp>
 
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-#    define ARK_ERROR_EXIT_CODE 0
+constexpr int ArkErrorExitCode = 0;
 #else
-#    define ARK_ERROR_EXIT_CODE (-1)
+constexpr int ArkErrorExitCode = -1;
 #endif
 
 int main(int argc, char** argv)
@@ -41,13 +41,11 @@ int main(int argc, char** argv)
 
     unsigned debug = 0;
 
-    constexpr uint16_t max_uint16 = std::numeric_limits<uint16_t>::max();
-
     // Bytecode reader
     // by default, select all pages and segment types, without slicing anything
-    uint16_t bcr_page = max_uint16;
-    uint16_t bcr_start = max_uint16;
-    uint16_t bcr_end = max_uint16;
+    uint16_t bcr_page = Ark::MaxValue16Bits;
+    uint16_t bcr_start = Ark::MaxValue16Bits;
+    uint16_t bcr_end = Ark::MaxValue16Bits;
     auto segment = Ark::BytecodeSegment::All;
     // Eval / Run / AST dump
     std::string file, eval_expression;
@@ -56,7 +54,7 @@ int main(int argc, char** argv)
     bool format_dry_run = false;
     bool format_check = false;
     // Generic arguments
-    std::vector<std::string> wrong, script_args;
+    std::vector<std::string> script_args;
 
     uint16_t passes = Ark::DefaultFeatures | Ark::FeatureASTOptimizer;
 
@@ -85,9 +83,9 @@ int main(int argc, char** argv)
     auto ir_dump = option("-fdump-ir").call([&] { passes |= Ark::FeatureDumpIR; })
         .doc("Dump IR to file.ark.ir");
 
-    const auto compiler_passes_flag = (
+    const auto run_flags = (
         // cppcheck-suppress constStatement
-        import_solver_pass_flag, macro_proc_pass_flag, optimizer_pass_flag, ir_optimizer_pass_flag, ir_dump
+        debug_flag, lib_dir_flag, import_solver_pass_flag, macro_proc_pass_flag, optimizer_pass_flag, ir_optimizer_pass_flag, ir_dump
     );
 
     auto cli = (
@@ -99,19 +97,12 @@ int main(int argc, char** argv)
             & value("expression", eval_expression)
         )
         | (
-            required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
-            & value("file", file)
-            , debug_flag
-            , compiler_passes_flag
-        )
-        | (
-            value("file", file).set(selected, mode::run)
+            run_flags
             , (
-                  debug_flag
-                , lib_dir_flag
-                , compiler_passes_flag
+                required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
+                & value("file", file)
             )
-            , any_other(script_args)
+            | value("file", file).set(selected, mode::run)
         )
         | (
             required("-f", "--format").set(selected, mode::format).doc("Format the given source file in place")
@@ -122,10 +113,10 @@ int main(int argc, char** argv)
             )
         )
         | (
-            required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
-            & value("file", file)
-            , debug_flag
+            debug_flag
             , lib_dir_flag
+            , required("--ast").set(selected, mode::ast).doc("Compile the given program and output its AST as JSON to stdout")
+            & value("file", file)
         )
         | (
             required("-bcr", "--bytecode-reader").set(selected, mode::bytecode_reader).doc("Launch the bytecode reader")
@@ -149,7 +140,7 @@ int main(int argc, char** argv)
                 )
             )
         )
-        , any_other(wrong)
+        , any_other(script_args)
     );
     // clang-format on
 
@@ -166,7 +157,7 @@ int main(int argc, char** argv)
                               .append_section("VERSION", fmt::format("        {}", ARK_FULL_VERSION))
                               .append_section("LICENSE", "        Mozilla Public License 2.0");
 
-    if (parse(argc, argv, cli) && wrong.empty())
+    if (parse(argc, argv, cli))
     {
         using namespace Ark;
 
@@ -204,40 +195,28 @@ int main(int argc, char** argv)
 
             case mode::dev_info:
             {
-                fmt::println(
-                    "Have been compiled with {}\n\n"
-                    "sizeof(Ark::Value)    = {}B\n"
-                    "      sizeof(Value_t) = {}B\n"
-                    "      sizeof(ValueType) = {}B\n"
-                    "      sizeof(Ark::Procedure) = {}B\n"
-                    "      sizeof(Ark::Closure)   = {}B\n"
-                    "      sizeof(Ark::UserType)  = {}B\n"
-                    "\nVirtual Machine\n"
-                    "sizeof(Ark::VM)       = {}B\n"
-                    "      sizeof(Ark::State)    = {}B\n"
-                    "      sizeof(Ark::Scope)    = {}B\n"
-                    "      sizeof(ExecutionContext) = {}B\n"
-                    "\nMisc\n"
-                    "    sizeof(vector<Ark::Value>) = {}B\n"
-                    "    sizeof(char)          = {}B\n"
-                    "\nsizeof(Node)           = {}B",
-                    ARK_COMPILER,
-                    // value
-                    sizeof(Ark::Value),
-                    sizeof(Ark::Value::Value_t),
-                    sizeof(Ark::ValueType),
-                    sizeof(Ark::Procedure),
-                    sizeof(Ark::internal::Closure),
-                    sizeof(Ark::UserType),
-                    // vm
-                    sizeof(Ark::VM),
-                    sizeof(Ark::State),
-                    sizeof(Ark::internal::ScopeView),
-                    sizeof(Ark::internal::ExecutionContext),
-                    // misc
-                    sizeof(std::vector<Ark::Value>),
-                    sizeof(char),
-                    sizeof(Ark::internal::Node));
+                fmt::println("Compiler used: {}\n", ARK_COMPILER);
+                fmt::println("{:^34}|{:^8}|{:^10}", "Type", "SizeOf", "AlignOf");
+
+#define ARK_PRINT_SIZE(type) fmt::println("{:<34}| {:<7}| {:<9}", #type, sizeof(type), alignof(type))
+                ARK_PRINT_SIZE(char);
+
+                ARK_PRINT_SIZE(Ark::Value);
+                ARK_PRINT_SIZE(Ark::Value::Value_t);
+                ARK_PRINT_SIZE(Ark::ValueType);
+                ARK_PRINT_SIZE(Ark::Procedure);
+                ARK_PRINT_SIZE(std::vector<Ark::Value>);
+                ARK_PRINT_SIZE(Ark::Value::Dict_t);
+                ARK_PRINT_SIZE(Ark::internal::Closure);
+                ARK_PRINT_SIZE(Ark::UserType);
+
+                ARK_PRINT_SIZE(Ark::VM);
+                ARK_PRINT_SIZE(Ark::State);
+                ARK_PRINT_SIZE(Ark::internal::ScopeView);
+                ARK_PRINT_SIZE(Ark::internal::ExecutionContext);
+
+                ARK_PRINT_SIZE(Ark::internal::Node);
+#undef ARK_PRINT_SIZE
                 break;
             }
 
@@ -253,8 +232,7 @@ int main(int argc, char** argv)
                 state.setDebug(debug);
 
                 if (!state.doFile(file, passes))
-                    return ARK_ERROR_EXIT_CODE;
-
+                    return ArkErrorExitCode;
                 break;
             }
 
@@ -265,7 +243,7 @@ int main(int argc, char** argv)
                 state.setArgs(script_args);
 
                 if (!state.doFile(file, passes))
-                    return ARK_ERROR_EXIT_CODE;
+                    return ArkErrorExitCode;
 
                 Ark::VM vm(state);
                 return vm.run();
@@ -279,7 +257,7 @@ int main(int argc, char** argv)
                 if (!state.doString(eval_expression))
                 {
                     std::cerr << "Could not evaluate expression\n";
-                    return ARK_ERROR_EXIT_CODE;
+                    return ArkErrorExitCode;
                 }
 
                 Ark::VM vm(state);
@@ -311,11 +289,11 @@ int main(int argc, char** argv)
                         bcr.feed(welder.bytecode());
                     }
 
-                    if (bcr_page == max_uint16 && bcr_start == max_uint16)
+                    if (bcr_page == Ark::MaxValue16Bits && bcr_start == Ark::MaxValue16Bits)
                         bcr.display(segment);
-                    else if (bcr_page != max_uint16 && bcr_start == max_uint16)
+                    else if (bcr_page != Ark::MaxValue16Bits && bcr_start == Ark::MaxValue16Bits)
                         bcr.display(segment, std::nullopt, std::nullopt, bcr_page);
-                    else if (bcr_page == max_uint16 && bcr_start != max_uint16)
+                    else if (bcr_page == Ark::MaxValue16Bits && bcr_start != Ark::MaxValue16Bits)
                         bcr.display(segment, bcr_start, bcr_end);
                     else
                         bcr.display(segment, bcr_start, bcr_end, bcr_page);
@@ -323,7 +301,7 @@ int main(int argc, char** argv)
                 catch (const std::exception& e)
                 {
                     std::cerr << e.what() << std::endl;
-                    return ARK_ERROR_EXIT_CODE;
+                    return ArkErrorExitCode;
                 }
                 break;
             }
@@ -339,13 +317,6 @@ int main(int argc, char** argv)
                     return 1;
             }
         }
-    }
-    else
-    {
-        for (const auto& arg : wrong)
-            std::cerr << "'" << arg.c_str() << "' isn't a valid argument\n";
-
-        std::cout << usage_lines(cli, fmt) << std::endl;
     }
 
     return 0;

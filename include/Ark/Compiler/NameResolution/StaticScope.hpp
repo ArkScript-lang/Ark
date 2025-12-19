@@ -1,6 +1,6 @@
 /**
  * @file StaticScope.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Static scopes (for functions, loops) and namespace scopes (for packages) definitions, used at compile time
  * @date 2024-11-30
  *
@@ -18,7 +18,7 @@
 #include <ranges>
 #include <unordered_set>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 
 namespace Ark::internal
 {
@@ -65,10 +65,11 @@ namespace Ark::internal
         /**
          * @brief Try to return a Declaration from this scope with a given name.
          * @param name
+         * @param origin_namespace unused in StaticScope
          * @param extensive_lookup unused in StaticScope
          * @return std::optional<Declaration> std::nullopt if the Declaration isn't in scope
          */
-        [[nodiscard]] virtual std::optional<Declaration> get(const std::string& name, bool extensive_lookup);
+        [[nodiscard]] virtual std::optional<Declaration> get(const std::string& name, const std::string& origin_namespace, bool extensive_lookup);
 
         /**
          * @brief Given a Declaration name, compute its fully qualified name
@@ -86,7 +87,6 @@ namespace Ark::internal
         virtual bool saveNamespace(std::unique_ptr<StaticScope>&);
 
         [[nodiscard]] virtual bool isNamespace() const;
-        [[nodiscard]] inline virtual bool withPrefix() const { return false; }
         [[nodiscard]] inline virtual bool isGlob() const { return false; }
         [[nodiscard]] inline virtual std::string prefix() const { return ""; }
         [[nodiscard]] inline virtual bool hasSymbol(const std::string&) const { return false; }
@@ -116,10 +116,11 @@ namespace Ark::internal
         /**
          * @brief Try to return a Declaration from this scope with a given name.
          * @param name
+         * @param origin_namespace namespace's name of the variable we are trying to find
          * @param extensive_lookup if true, use the additional saved namespaces
          * @return std::optional<Declaration> std::nullopt if the Declaration isn't in scope
          */
-        [[nodiscard]] std::optional<Declaration> get(const std::string& name, bool extensive_lookup) override;
+        [[nodiscard]] std::optional<Declaration> get(const std::string& name, const std::string& origin_namespace, bool extensive_lookup) override;
 
         /**
          * @brief Given a Declaration name, compute its fully qualified name
@@ -137,7 +138,6 @@ namespace Ark::internal
         bool saveNamespace(std::unique_ptr<StaticScope>&) override;
 
         [[nodiscard]] bool isNamespace() const override;
-        [[nodiscard]] inline bool withPrefix() const override { return m_with_prefix; }
         [[nodiscard]] inline bool isGlob() const override { return m_is_glob; }
         [[nodiscard]] inline std::string prefix() const override { return m_namespace; }
         [[nodiscard]] inline bool hasSymbol(const std::string& symbol) const override { return std::ranges::find(m_symbols, symbol) != m_symbols.end(); }

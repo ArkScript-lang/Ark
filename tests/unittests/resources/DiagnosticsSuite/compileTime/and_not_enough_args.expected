@@ -1,5 +1,5 @@
-At (and) @ 1:2
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/and_not_enough_args.ark:1
     1 | (and)
-      |  ^~~
+      | ^~~~
     2 |
         Expected at least 2 arguments while compiling 'and', got 0

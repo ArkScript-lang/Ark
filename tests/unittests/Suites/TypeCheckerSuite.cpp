@@ -5,9 +5,11 @@
 #include <sstream>
 #include <fmt/core.h>
 
+#include <Ark/VM/State.hpp>
+#include <Ark/VM/VM.hpp>
 #include <Ark/VM/Value.hpp>
 #include <Ark/TypeChecker.hpp>
-#include <Ark/Utils.hpp>
+#include <Ark/Utils/Utils.hpp>
 #include <TestsHelper.hpp>
 
 using namespace boost;
@@ -138,6 +140,9 @@ Input parse_input(const std::string& path)
                 case Ark::ValueType::Closure:
                     // unsupported
                     [[fallthrough]];
+                case Ark::ValueType::Dict:
+                    // unsupported
+                    [[fallthrough]];
                 case Ark::ValueType::User:
                     // unsupported
                     [[fallthrough]];
@@ -204,17 +209,22 @@ ut::suite<"TypeChecker"> type_checker_suite = [] {
             }
 
             should("generate error message " + data.stem) = [inputs, contracts, data] {
+                Ark::State dummy_state;
+                Ark::VM dummy_VM(dummy_state);
                 std::stringstream stream;
                 Ark::types::generateError(
                     inputs.front().func,
                     contracts,
                     inputs.front().given_args,
+                    dummy_VM,
                     stream,
                     /* colorize= */ false);
 
                 auto result = stream.str();
-                rtrim(ltrim(result));
+                Ark::Utils::rtrim(Ark::Utils::ltrim(result));
                 expectOrDiff(data.expected, result);
+                if (shouldWriteNewDiffsTofile() && data.expected != result)
+                    updateExpectedFile(data, result);
             };
         },
         { .skip_folders = false });

@@ -1,5 +1,10 @@
 Function math:tan expected 1 argument
-  -> value (Number) was of type String
+Call
+  ↳ (math:tan 1)
+Signature
+  ↳ (math:tan value)
+Arguments
+  → `value' (expected Number), got 1 (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathtan_str.ark:1
     1 | (builtin__math:tan "1")

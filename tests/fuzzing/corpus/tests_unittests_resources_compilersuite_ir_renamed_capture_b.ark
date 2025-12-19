@@ -1,0 +1,2 @@
+(mut inner 0)
+(let child (fun (&inner) ()))

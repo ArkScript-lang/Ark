@@ -1,14 +1,14 @@
 #include <Ark/Compiler/Lowerer/ASTLowerer.hpp>
 
-#include <limits>
 #include <ranges>
 #include <utility>
-#include <ranges>
 #include <algorithm>
 #include <fmt/core.h>
 #include <fmt/color.h>
 
-#include <Ark/Literals.hpp>
+#include <Ark/Error/Exceptions.hpp>
+#include <Ark/Error/Diagnostics.hpp>
+#include <Ark/Utils/Literals.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
 namespace Ark::internal
@@ -132,7 +132,7 @@ namespace Ark::internal
 
     void ASTLowerer::buildAndThrowError(const std::string& message, const Node& node)
     {
-        throw CodeError(message, CodeErrorContext(node.filename(), node.line(), node.col(), node.repr()));
+        throw CodeError(message, CodeErrorContext(node.filename(), node.position()));
     }
 
     void ASTLowerer::compileExpression(Node& x, const Page p, const bool is_result_unused, const bool is_terminal)
@@ -149,7 +149,7 @@ namespace Ark::internal
                 uint16_t i = addSymbol(*it);
                 page(p).emplace_back(GET_FIELD, i);
             }
-            page(p).back().setSourceLocation(x.filename(), x.line());
+            page(p).back().setSourceLocation(x.filename(), x.position().start.line);
         }
         // register values
         else if (x.nodeType() == NodeType::String || x.nodeType() == NodeType::Number)
@@ -222,7 +222,7 @@ namespace Ark::internal
 
                 case Keyword::Del:
                     page(p).emplace_back(DEL, addSymbol(x.constList()[1]));
-                    page(p).back().setSourceLocation(x.constList()[1].filename(), x.constList()[1].line());
+                    page(p).back().setSourceLocation(x.filename(), x.position().start.line);
                     break;
             }
         }
@@ -240,7 +240,7 @@ namespace Ark::internal
                 x);
     }
 
-    void ASTLowerer::compileSymbol(Node& x, const Page p, const bool is_result_unused)
+    void ASTLowerer::compileSymbol(const Node& x, const Page p, const bool is_result_unused)
     {
         const std::string& name = x.string();
 
@@ -257,10 +257,13 @@ namespace Ark::internal
                 page(p).emplace_back(LOAD_SYMBOL, addSymbol(x));
         }
 
+        page(p).back().setSourceLocation(x.filename(), x.position().start.line);
+
         if (is_result_unused)
         {
             warning("Statement has no effect", x);
             page(p).emplace_back(POP);
+            page(p).back().setSourceLocation(x.filename(), x.position().start.line);
         }
     }
 
@@ -275,8 +278,8 @@ namespace Ark::internal
         // error, can not use append/concat/pop (and their in place versions) with a <2 length argument list
         if (argc < 2 && APPEND <= inst && inst <= POP)
             buildAndThrowError(fmt::format("Can not use {} with less than 2 arguments", name), head);
-        if (inst <= POP && std::cmp_greater(argc, std::numeric_limits<uint16_t>::max()))
-            buildAndThrowError(fmt::format("Too many arguments ({}), exceeds 65'535", argc), x);
+        if (inst <= POP && std::cmp_greater(argc, MaxValue16Bits))
+            buildAndThrowError(fmt::format("Too many arguments ({}), exceeds {}", argc, MaxValue16Bits), x);
         if (argc != 3 && inst == SET_AT_INDEX)
             buildAndThrowError(fmt::format("Expected 3 arguments (list, index, value) for {}, got {}", name, argc), head);
         if (argc != 4 && inst == SET_AT_2_INDEX)
@@ -316,7 +319,7 @@ namespace Ark::internal
                 break;
         }
         page(p).emplace_back(inst, static_cast<uint16_t>(inst_argc));
-        page(p).back().setSourceLocation(head.filename(), head.line());
+        page(p).back().setSourceLocation(head.filename(), head.position().start.line);
 
         if (is_result_unused && name.back() != '!' && inst <= POP_LIST_IN_PLACE)  // in-place functions never push a value
         {
@@ -327,9 +330,14 @@ namespace Ark::internal
 
     void ASTLowerer::compileIf(Node& x, const Page p, const bool is_result_unused, const bool is_terminal)
     {
+        if (x.constList().size() == 1)
+            buildAndThrowError("Invalid condition: missing 'cond' and 'then' nodes, expected (if cond then)", x);
+        if (x.constList().size() == 2)
+            buildAndThrowError(fmt::format("Invalid condition: missing 'then' node, expected (if {} then)", x.constList()[1].repr()), x);
+
         // compile condition
         compileExpression(x.list()[1], p, false, false);
-        page(p).back().setSourceLocation(x.constList()[1].filename(), x.constList()[1].line());
+        page(p).back().setSourceLocation(x.constList()[1].filename(), x.constList()[1].position().start.line);
 
         // jump only if needed to the "true" branch
         const auto label_then = IR::Entity::Label(m_current_label++);
@@ -340,7 +348,7 @@ namespace Ark::internal
         {
             m_locals_locator.saveScopeLengthForBranch();
             compileExpression(x.list()[3], p, is_result_unused, is_terminal);
-            page(p).back().setSourceLocation(x.constList()[3].filename(), x.constList()[3].line());
+            page(p).back().setSourceLocation(x.constList()[3].filename(), x.constList()[3].position().start.line);
             m_locals_locator.dropVarsForBranch();
         }
 
@@ -353,7 +361,7 @@ namespace Ark::internal
         // if code
         m_locals_locator.saveScopeLengthForBranch();
         compileExpression(x.list()[2], p, is_result_unused, is_terminal);
-        page(p).back().setSourceLocation(x.constList()[2].filename(), x.constList()[2].line());
+        page(p).back().setSourceLocation(x.constList()[2].filename(), x.constList()[2].position().start.line);
         m_locals_locator.dropVarsForBranch();
         // set jump to end pos
         page(p).emplace_back(label_end);
@@ -372,7 +380,20 @@ namespace Ark::internal
         {
             if (node.nodeType() == NodeType::Capture)
             {
-                page(p).emplace_back(CAPTURE, addSymbol(node));
+                const uint16_t symbol_id = addSymbol(node);
+
+                // We have an unqualified name that isn't the captured name
+                // This means we need to rename the captured value
+                if (const auto& maybe_nqn = node.getUnqualifiedName(); maybe_nqn.has_value() && maybe_nqn.value() != node.string())
+                {
+                    const uint16_t nqn_id = addSymbol(Node(NodeType::Symbol, maybe_nqn.value()));
+
+                    page(p).emplace_back(RENAME_NEXT_CAPTURE, nqn_id);
+                    page(p).emplace_back(CAPTURE, symbol_id);
+                }
+                else
+                    page(p).emplace_back(CAPTURE, symbol_id);
+
                 ++capture_inst_count;
             }
         }
@@ -392,9 +413,14 @@ namespace Ark::internal
         // pushing arguments from the stack into variables in the new scope
         for (const auto& node : x.constList()[1].constList())
         {
-            if (node.nodeType() == NodeType::Symbol)
+            if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::MutArg)
             {
                 page(function_body_page).emplace_back(STORE, addSymbol(node));
+                m_locals_locator.addLocal(node.string());
+            }
+            else if (node.nodeType() == NodeType::RefArg)
+            {
+                page(function_body_page).emplace_back(STORE_REF, addSymbol(node));
                 m_locals_locator.addLocal(node.string());
             }
         }
@@ -404,7 +430,7 @@ namespace Ark::internal
         // (let name (fun (e) (map lst (fun (e) (name e)))))
         // Otherwise, `name` would have been optimized to a GET_CURRENT_PAGE_ADDRESS, which would have returned the wrong page.
         if (x.isAnonymousFunction())
-            m_opened_vars.push("#anonymous");
+            m_opened_vars.emplace("#anonymous");
         // push body of the function
         compileExpression(x.list()[2], function_body_page, false, true);
         if (x.isAnonymousFunction())
@@ -432,6 +458,9 @@ namespace Ark::internal
         const std::string name = x.constList()[1].string();
         uint16_t i = addSymbol(x.constList()[1]);
 
+        if (!m_opened_vars.empty() && m_opened_vars.top() == name)
+            buildAndThrowError("Can not define a variable using the same name as the function it is defined inside", x);
+
         const bool is_function = x.constList()[2].isFunction();
         if (is_function)
         {
@@ -454,7 +483,7 @@ namespace Ark::internal
 
         if (is_function)
             m_opened_vars.pop();
-        page(p).back().setSourceLocation(x.filename(), x.line());
+        page(p).back().setSourceLocation(x.filename(), x.position().start.line);
     }
 
     void ASTLowerer::compileWhile(Node& x, const Page p)
@@ -464,7 +493,7 @@ namespace Ark::internal
 
         m_locals_locator.createScope();
         page(p).emplace_back(CREATE_SCOPE);
-        page(p).back().setSourceLocation(x.filename(), x.line());
+        page(p).back().setSourceLocation(x.filename(), x.position().start.line);
 
         // save current position to jump there at the end of the loop
         const auto label_loop = IR::Entity::Label(m_current_label++);
@@ -490,7 +519,7 @@ namespace Ark::internal
         m_locals_locator.deleteScope();
     }
 
-    void ASTLowerer::compilePluginImport(Node& x, const Page p)
+    void ASTLowerer::compilePluginImport(const Node& x, const Page p)
     {
         std::string path;
         const Node package_node = x.constList()[1];
@@ -506,7 +535,7 @@ namespace Ark::internal
         uint16_t id = addValue(Node(NodeType::String, path));
         // add plugin instruction + id of the constant referring to the plugin path
         page(p).emplace_back(PLUGIN, id);
-        page(p).back().setSourceLocation(x.filename(), x.line());
+        page(p).back().setSourceLocation(x.filename(), x.position().start.line);
     }
 
     void ASTLowerer::pushFunctionCallArguments(Node& call, const Page p, const bool is_tail_call)
@@ -586,11 +615,14 @@ namespace Ark::internal
 
                 // jump to the top of the function
                 page(p).emplace_back(JUMP, 0_u16);
-                page(p).back().setSourceLocation(node.filename(), node.line());
+                page(p).back().setSourceLocation(node.filename(), node.position().start.line);
                 return;  // skip the potential Instruction::POP at the end
             }
             else
             {
+                if (!nodeProducesOutput(node))
+                    buildAndThrowError(fmt::format("Can not call `{}', as it doesn't return a value", node.repr()), node);
+
                 m_temp_pages.emplace_back();
                 const auto proc_page = Page { .index = m_temp_pages.size() - 1u, .is_temp = true };
 
@@ -601,7 +633,7 @@ namespace Ark::internal
                     // We can skip the LOAD_SYMBOL function_name and directly push the current
                     // function page, which will be quicker than a local variable resolution.
                     // We set its argument to the symbol id of the function we are calling,
-                    // so that the VM knowns the name of the last called function.
+                    // so that the VM knows the name of the last called function.
                     page(proc_page).emplace_back(GET_CURRENT_PAGE_ADDR, addSymbol(node));
                 }
                 else
@@ -615,6 +647,7 @@ namespace Ark::internal
 
                 const auto label_return = IR::Entity::Label(m_current_label++);
                 page(p).emplace_back(IR::Entity::Goto(label_return, PUSH_RETURN_ADDRESS));
+                page(p).back().setSourceLocation(x.filename(), x.position().start.line);
 
                 pushFunctionCallArguments(x, p, /* is_tail_call= */ false);
                 // push proc from temp page
@@ -631,7 +664,7 @@ namespace Ark::internal
                 }
                 // call the procedure
                 page(p).emplace_back(CALL, args_count);
-                page(p).back().setSourceLocation(node.filename(), node.line());
+                page(p).back().setSourceLocation(node.filename(), node.position().start.line);
 
                 // patch the PUSH_RETURN_ADDRESS instruction with the return location (IP=CALL instruction IP)
                 page(p).emplace_back(label_return);
@@ -678,7 +711,7 @@ namespace Ark::internal
             else if (exp_count <= 1)
                 buildAndThrowError(fmt::format("Operator needs two arguments, but was called with {}", exp_count), x.constList()[0]);
 
-            page(p).back().setSourceLocation(x.filename(), x.line());
+            page(p).back().setSourceLocation(x.filename(), x.position().start.line);
 
             // need to check we didn't push the (op A B C D...) things for operators not supporting it
             if (exp_count > 2)
@@ -720,9 +753,9 @@ namespace Ark::internal
         }
 
         const auto distance = std::distance(m_symbols.begin(), it);
-        if (distance < std::numeric_limits<uint16_t>::max())
+        if (std::cmp_less(distance, MaxValue16Bits))
             return static_cast<uint16_t>(distance);
-        buildAndThrowError("Too many symbols (exceeds 65'536), aborting compilation.", sym);
+        buildAndThrowError(fmt::format("Too many symbols (exceeds {}), aborting compilation.", MaxValue16Bits), sym);
     }
 
     uint16_t ASTLowerer::addValue(const Node& x)
@@ -736,9 +769,9 @@ namespace Ark::internal
         }
 
         const auto distance = std::distance(m_values.begin(), it);
-        if (distance < std::numeric_limits<uint16_t>::max())
+        if (std::cmp_less(distance, MaxValue16Bits))
             return static_cast<uint16_t>(distance);
-        buildAndThrowError("Too many values (exceeds 65'536), aborting compilation.", x);
+        buildAndThrowError(fmt::format("Too many values (exceeds {}), aborting compilation.", MaxValue16Bits), x);
     }
 
     uint16_t ASTLowerer::addValue(const std::size_t page_id, const Node& current)
@@ -752,8 +785,8 @@ namespace Ark::internal
         }
 
         const auto distance = std::distance(m_values.begin(), it);
-        if (distance < std::numeric_limits<uint16_t>::max())
+        if (std::cmp_less(distance, MaxValue16Bits))
             return static_cast<uint16_t>(distance);
-        buildAndThrowError("Too many values (exceeds 65'536), aborting compilation.", current);
+        buildAndThrowError(fmt::format("Too many values (exceeds {}), aborting compilation.", MaxValue16Bits), current);
     }
 }

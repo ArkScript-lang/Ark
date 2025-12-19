@@ -1,6 +1,6 @@
 /**
  * @file Closure.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value type, handling closures
  * @date 2024-04-21
  *
@@ -12,10 +12,9 @@
 #define VM_VALUE_CLOSURE_HPP
 
 #include <memory>
-#include <iostream>
 #include <string>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 
 namespace Ark
 {
@@ -78,6 +77,7 @@ namespace Ark::internal
 
         friend ARK_API bool operator==(const Closure& A, const Closure& B) noexcept;
         friend ARK_API_INLINE bool operator<(const Closure& A, const Closure& B) noexcept;
+        friend struct std::hash<Ark::internal::Closure>;
 
     private:
         std::shared_ptr<ClosureScope> m_scope;
@@ -90,5 +90,14 @@ namespace Ark::internal
         return A.m_page_addr < B.m_page_addr;
     }
 }
+
+template <>
+struct std::hash<Ark::internal::Closure>
+{
+    [[nodiscard]] std::size_t operator()(const Ark::internal::Closure& s) const noexcept
+    {
+        return std::hash<Ark::internal::ClosureScope*> {}(s.m_scope.get());
+    }
+};
 
 #endif

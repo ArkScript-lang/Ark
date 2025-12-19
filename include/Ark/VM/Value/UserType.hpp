@@ -1,6 +1,6 @@
 /**
  * @file UserType.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value, capable of handling any C++ type
  * @date 2020-10-27
  *
@@ -8,13 +8,14 @@
  *
  */
 
-#ifndef VM_VALUE_USERTYPE_HPP
-#define VM_VALUE_USERTYPE_HPP
+#ifndef ARK_VM_VALUE_USERTYPE_HPP
+#define ARK_VM_VALUE_USERTYPE_HPP
 
 #include <iostream>
 #include <cinttypes>
+#include <functional>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 
 namespace Ark
 {
@@ -52,8 +53,8 @@ namespace Ark
          */
         struct ControlFuncs
         {
-            std::ostream& (*ostream_func)(std::ostream&, const UserType&) = nullptr;
-            void (*deleter)(void*) = nullptr;
+            std::function<std::ostream&(std::ostream&, const UserType&)> ostream_func = nullptr;
+            std::function<void(void*)> deleter = nullptr;
         };
 
         /**
@@ -74,7 +75,7 @@ namespace Ark
          * @brief Free memory through the control functions block
          *
          */
-        void del();
+        void del() const;
 
         /**
          * @brief Get the pointer to the object
@@ -135,13 +136,22 @@ namespace Ark
         friend ARK_API bool operator==(const UserType& A, const UserType& B) noexcept;
         friend ARK_API bool operator<(const UserType& A, const UserType& B) noexcept;
         friend ARK_API std::ostream& operator<<(std::ostream& os, const UserType& A) noexcept;
+        friend struct std::hash<Ark::UserType>;
 
     private:
         uint16_t m_type_id;
         void* m_data;
         ControlFuncs* m_funcs;
     };
-
 }
+
+template <>
+struct std::hash<Ark::UserType>
+{
+    [[nodiscard]] std::size_t operator()(const Ark::UserType& s) const noexcept
+    {
+        return std::hash<void*> {}(s.m_data);
+    }
+};
 
 #endif

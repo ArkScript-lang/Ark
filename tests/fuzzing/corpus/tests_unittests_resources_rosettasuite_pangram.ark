@@ -1,0 +1,16 @@
+(import std.String)
+(import std.List)
+(import std.Dict)
+
+(let pangram? (fun (str) {
+  (mut d (dict))
+  (let keys
+    (list:filter
+      (list:map str (fun (c) (string:toLower c)))
+      (fun (c) (!= -1 (string:find string:asciiLowercase c)))))
+  (list:forEach keys
+    (fun (k) (dict:add d k (if (nil? (dict:get d k)) 0 (+ 1 (dict:get d k))))))
+  (= (len string:asciiLowercase) (len (dict:keys d))) }))
+
+(assert (pangram? "The quick brown fox jumps over the lazy dog") "pangram is detected")
+(assert (not (pangram? "abcdfghmnopqruvxy")) "no pangram should be detected")

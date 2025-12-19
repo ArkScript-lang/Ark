@@ -1,9 +1,9 @@
-At (foo 1 2) @ 4:2
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_spread_not_enough_args.ark:4
+      | ┌─ macro expansion started here
     1 | (macro foo (a b c ...d)
-      | ^ macro expansion started here
     2 |     (+ a b c ...d))
     3 |
     4 | (foo 1 2)
-      |  ^~~~~~~
+      | ^~~~~~~~
     5 |
         Macro `foo' got 2 argument(s) but needed at least 3

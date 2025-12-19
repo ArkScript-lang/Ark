@@ -1,7 +1,6 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_call_2.ark:10
-At EOF @ 10:0
+      | ┌─ expression started here
     1 | (a b c
-      | ^ expression started here
     2 | # test comment
     3 | # cropped
   ... |
@@ -9,5 +8,4 @@ At EOF @ 10:0
     8 |   1
     9 |   2)
    10 |
-      | ^
         Missing ')' in function call to `a'

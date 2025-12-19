@@ -14,11 +14,11 @@ jobs:
   static_analysis:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 2
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.9'
 
@@ -50,7 +50,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Find Comment
-        uses: peter-evans/find-comment@3eae4d37986fb5a8592848f6a574fdf654e61f9e # v3.1.0
+        uses: peter-evans/find-comment@fec22f13a3d7a949297e4b5f6b9f99a423eabba1 # v3.1.0
         id: fc
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -58,7 +58,7 @@ jobs:
           body-includes: Static analysis report
 
       - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4.0.0
+        uses: peter-evans/create-or-update-comment@cf911f109bd9a26f1d626a8c3276384ddec0e552 # v4.0.0
         with:
           comment-id: ${{ steps.fc.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}

@@ -1,6 +1,6 @@
 /**
  * @file NameResolutionPass.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Resolves names and fully qualify them in the AST (prefixing them with the package they are from)
  * @date 2024-07-22
  *
@@ -15,7 +15,7 @@
 #include <string>
 #include <unordered_set>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/NameResolution/ScopeResolver.hpp>
 

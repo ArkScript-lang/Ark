@@ -2,21 +2,16 @@
 
 #include <utility>
 #include <numeric>
-#include <limits>
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include <fmt/ostream.h>
 
-#include <Ark/Files.hpp>
-#include <Ark/Utils.hpp>
+#include <Ark/Utils/Files.hpp>
+#include <Ark/Utils/Utils.hpp>
+#include <Ark/Error/Diagnostics.hpp>
 #include <Ark/TypeChecker.hpp>
+#include <Ark/VM/ModuleMapping.hpp>
 #include <Ark/Compiler/Instructions.hpp>
-
-struct mapping
-{
-    char* name;
-    Ark::Value (*value)(std::vector<Ark::Value>&, Ark::VM*);
-};
 
 namespace Ark
 {
@@ -113,6 +108,37 @@ namespace Ark
                         types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
                     { container, index });
         }
+
+        inline double doMath(double a, double b, const Instruction op)
+        {
+            if (op == ADD)
+                a += b;
+            else if (op == SUB)
+                a -= b;
+            else if (op == MUL)
+                a *= b;
+            else if (op == DIV)
+            {
+                if (b == 0)
+                    Ark::VM::throwVMError(ErrorKind::DivisionByZero, fmt::format("Can not compute expression (/ {} {})", a, b));
+                a /= b;
+            }
+
+            return a;
+        }
+
+        inline std::string mathInstToStr(const Instruction op)
+        {
+            if (op == ADD)
+                return "+";
+            if (op == SUB)
+                return "-";
+            if (op == MUL)
+                return "*";
+            if (op == DIV)
+                return "/";
+            return "???";
+        }
     }
 
     VM::VM(State& state) noexcept :
@@ -151,11 +177,11 @@ namespace Ark
         {
             auto it = std::ranges::find(m_state.m_symbols, sym_id);
             if (it != m_state.m_symbols.end())
-                context.locals[0].push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), value);
+                context.locals[0].pushBack(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), value);
         }
     }
 
-    Value VM::getField(Value* closure, const uint16_t id, ExecutionContext& context)
+    Value VM::getField(Value* closure, const uint16_t id, const ExecutionContext& context)
     {
         if (closure->valueType() != ValueType::Closure)
         {
@@ -165,13 +191,13 @@ namespace Ark
                     fmt::format(
                         "`{}' is a {}, not a Closure, can not get the field `{}' from it",
                         m_state.m_symbols[context.last_symbol],
-                        types_to_str[static_cast<std::size_t>(closure->valueType())],
+                        std::to_string(closure->valueType()),
                         m_state.m_symbols[id]));
             else
                 throwVMError(ErrorKind::Type,
                              fmt::format(
                                  "{} is not a Closure, can not get the field `{}' from it",
-                                 types_to_str[static_cast<std::size_t>(closure->valueType())],
+                                 std::to_string(closure->valueType()),
                                  m_state.m_symbols[id]));
         }
 
@@ -208,7 +234,7 @@ namespace Ark
         if (count != 0)
             l.list().reserve(count);
 
-        for (uint16_t i = 0; i < count; ++i)
+        for (std::size_t i = 0; i < count; ++i)
             l.push_back(*popAndResolveAsPtr(context));
 
         return l;
@@ -223,7 +249,7 @@ namespace Ark
                 args.push_back(*popAndResolveAsPtr(context));
             throw types::TypeCheckingError(
                 "append!",
-                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any, /* variadic= */ true) } } } },
+                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any, /* is_variadic= */ true) } } } },
                 args);
         }
 
@@ -242,7 +268,7 @@ namespace Ark
         }
 
         const auto dist = std::distance(m_state.m_symbols.begin(), it);
-        if (std::cmp_less(dist, std::numeric_limits<uint16_t>::max()))
+        if (std::cmp_less(dist, MaxValue16Bits))
         {
             ExecutionContext& context = *m_execution_contexts.front();
 
@@ -311,18 +337,20 @@ namespace Ark
         // load the mapping from the dynamic library
         try
         {
+            std::vector<ScopeView::pair_t> data;
             const mapping* map = m_shared_lib_objects.back()->get<mapping* (*)()>("getFunctionsMapping")();
-            // load the mapping data
+
             std::size_t i = 0;
             while (map[i].name != nullptr)
             {
-                // put it in the global frame, aka the first one
-                auto it = std::ranges::find(m_state.m_symbols, std::string(map[i].name));
+                const auto it = std::ranges::find(m_state.m_symbols, std::string(map[i].name));
                 if (it != m_state.m_symbols.end())
-                    context.locals[0].push_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
+                    data.emplace_back(static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)), Value(map[i].value));
 
                 ++i;
             }
+
+            context.locals.back().insertFront(data);
         }
         catch (const std::system_error& e)
         {
@@ -344,18 +372,53 @@ namespace Ark
     {
         const std::lock_guard lock(m_mutex);
 
-        m_execution_contexts.push_back(std::make_unique<ExecutionContext>());
-        ExecutionContext* ctx = m_execution_contexts.back().get();
-        ctx->stacked_closure_scopes.emplace_back(nullptr);
+        ExecutionContext* ctx = nullptr;
 
-        ctx->locals.reserve(m_execution_contexts.front()->locals.size());
-        ctx->scopes_storage = m_execution_contexts.front()->scopes_storage;
-        for (const auto& local : m_execution_contexts.front()->locals)
+        // Try and find a free execution context.
+        // If there is only one context, this is the primary one, which can't be reused.
+        // Otherwise, we can check if a context is marked as free and reserve it!
+        // It is possible that all contexts are being used, thus we will create one (active by default) in that case.
+
+        if (m_execution_contexts.size() > 1)
         {
-            auto& scope = ctx->locals.emplace_back(ctx->scopes_storage.data(), local.m_start);
-            scope.m_size = local.m_size;
-            scope.m_min_id = local.m_min_id;
-            scope.m_max_id = local.m_max_id;
+            const auto it = std::ranges::find_if(
+                m_execution_contexts,
+                [](const std::unique_ptr<ExecutionContext>& context) -> bool {
+                    return !context->primary && context->isFree();
+                });
+
+            if (it != m_execution_contexts.end())
+            {
+                ctx = it->get();
+                ctx->setActive(true);
+                // reset the context before using it
+                ctx->sp = 0;
+                ctx->saved_scope.reset();
+                ctx->stacked_closure_scopes.clear();
+                ctx->locals.clear();
+            }
+        }
+
+        if (ctx == nullptr)
+            ctx = m_execution_contexts.emplace_back(std::make_unique<ExecutionContext>()).get();
+
+        assert(!ctx->primary && "The new context shouldn't be marked as primary!");
+        assert(ctx != m_execution_contexts.front().get() && "The new context isn't really new!");
+
+        const ExecutionContext& primary_ctx = *m_execution_contexts.front();
+        ctx->locals.reserve(primary_ctx.locals.size());
+        ctx->scopes_storage = primary_ctx.scopes_storage;
+        ctx->stacked_closure_scopes.emplace_back(nullptr);
+        ctx->fc = 1;
+
+        for (const auto& scope_view : primary_ctx.locals)
+        {
+            auto& new_scope = ctx->locals.emplace_back(ctx->scopes_storage.data(), scope_view.m_start);
+            for (std::size_t i = 0; i < scope_view.size(); ++i)
+            {
+                const auto& [id, val] = scope_view.atPos(i);
+                new_scope.pushBack(id, val);
+            }
         }
 
         return ctx;
@@ -365,43 +428,54 @@ namespace Ark
     {
         const std::lock_guard lock(m_mutex);
 
-        const auto it =
-            std::ranges::remove_if(
-                m_execution_contexts,
-                [ec](const std::unique_ptr<ExecutionContext>& ctx) {
-                    return ctx.get() == ec;
-                })
-                .begin();
-        m_execution_contexts.erase(it);
+        // 1 + 4 additional contexts, it's a bit much (~600kB per context) to have in memory
+        if (m_execution_contexts.size() > 5)
+        {
+            const auto it =
+                std::ranges::remove_if(
+                    m_execution_contexts,
+                    [ec](const std::unique_ptr<ExecutionContext>& ctx) {
+                        return ctx.get() == ec;
+                    })
+                    .begin();
+            m_execution_contexts.erase(it);
+        }
+        else
+        {
+            // mark the used context as ready to be used again
+            for (std::size_t i = 1; i < m_execution_contexts.size(); ++i)
+            {
+                if (m_execution_contexts[i].get() == ec)
+                {
+                    ec->setActive(false);
+                    break;
+                }
+            }
+        }
     }
 
     Future* VM::createFuture(std::vector<Value>& args)
     {
+        const std::lock_guard lock(m_mutex_futures);
+
         ExecutionContext* ctx = createAndGetContext();
         // so that we have access to the presumed symbol id of the function we are calling
         // assuming that the callee is always the global context
         ctx->last_symbol = m_execution_contexts.front()->last_symbol;
 
-        // doing this after having created the context
-        // because the context uses the mutex and we don't want a deadlock
-        const std::lock_guard lock(m_mutex);
         m_futures.push_back(std::make_unique<Future>(ctx, this, args));
-
         return m_futures.back().get();
     }
 
     void VM::deleteFuture(Future* f)
     {
-        const std::lock_guard lock(m_mutex);
+        const std::lock_guard lock(m_mutex_futures);
 
-        const auto it =
-            std::ranges::remove_if(
-                m_futures,
-                [f](const std::unique_ptr<Future>& future) {
-                    return future.get() == f;
-                })
-                .begin();
-        m_futures.erase(it);
+        std::erase_if(
+            m_futures,
+            [f](const std::unique_ptr<Future>& future) {
+                return future.get() == f;
+            });
     }
 
     bool VM::forceReloadPlugins() const
@@ -411,7 +485,7 @@ namespace Ark
         {
             for (const auto& shared_lib : m_shared_lib_objects)
             {
-                const mapping* map = shared_lib->template get<mapping* (*)()>("getFunctionsMapping")();
+                const mapping* map = shared_lib->get<mapping* (*)()>("getFunctionsMapping")();
                 // load the mapping data
                 std::size_t i = 0;
                 while (map[i].name != nullptr)
@@ -419,7 +493,7 @@ namespace Ark
                     // put it in the global frame, aka the first one
                     auto it = std::ranges::find(m_state.m_symbols, std::string(map[i].name));
                     if (it != m_state.m_symbols.end())
-                        m_execution_contexts[0]->locals[0].push_back(
+                        m_execution_contexts[0]->locals[0].pushBack(
                             static_cast<uint16_t>(std::distance(m_state.m_symbols.begin(), it)),
                             Value(map[i].value));
 
@@ -462,14 +536,22 @@ namespace Ark
 #    define GOTO_HALT() break
 #endif
 
-#define NEXTOPARG()                                                                   \
-    do                                                                                \
-    {                                                                                 \
-        inst = m_state.inst(context.pp, context.ip);                                  \
-        padding = m_state.inst(context.pp, context.ip + 1);                           \
-        arg = static_cast<uint16_t>((m_state.inst(context.pp, context.ip + 2) << 8) + \
-                                    m_state.inst(context.pp, context.ip + 3));        \
-        context.ip += 4;                                                              \
+#define NEXTOPARG()                                                                                                               \
+    do                                                                                                                            \
+    {                                                                                                                             \
+        inst = m_state.inst(context.pp, context.ip);                                                                              \
+        padding = m_state.inst(context.pp, context.ip + 1);                                                                       \
+        arg = static_cast<uint16_t>((m_state.inst(context.pp, context.ip + 2) << 8) +                                             \
+                                    m_state.inst(context.pp, context.ip + 3));                                                    \
+        context.ip += 4;                                                                                                          \
+        context.inst_exec_counter = (context.inst_exec_counter + 1) % VMOverflowBufferSize;                                       \
+        if (context.inst_exec_counter < 2 && context.sp >= VMStackSize)                                                           \
+        {                                                                                                                         \
+            if (context.pp != 0)                                                                                                  \
+                throw Error("Stack overflow. You could consider rewriting your function to make use of tail-call optimization."); \
+            else                                                                                                                  \
+                throw Error("Stack overflow. Are you trying to call a function with too many arguments?");                        \
+        }                                                                                                                         \
     } while (false)
 #define DISPATCH() \
     NEXTOPARG();   \
@@ -492,6 +574,7 @@ namespace Ark
                 &&TARGET_LOAD_CONST,
                 &&TARGET_POP_JUMP_IF_TRUE,
                 &&TARGET_STORE,
+                &&TARGET_STORE_REF,
                 &&TARGET_SET_VAL,
                 &&TARGET_POP_JUMP_IF_FALSE,
                 &&TARGET_JUMP,
@@ -500,6 +583,7 @@ namespace Ark
                 &&TARGET_PUSH_RETURN_ADDRESS,
                 &&TARGET_CALL,
                 &&TARGET_CAPTURE,
+                &&TARGET_RENAME_NEXT_CAPTURE,
                 &&TARGET_BUILTIN,
                 &&TARGET_DEL,
                 &&TARGET_MAKE_CLOSURE,
@@ -585,10 +669,17 @@ namespace Ark
                 &&TARGET_GET_FIELD_FROM_SYMBOL_INDEX,
                 &&TARGET_AT_SYM_SYM,
                 &&TARGET_AT_SYM_INDEX_SYM_INDEX,
+                &&TARGET_AT_SYM_INDEX_CONST,
                 &&TARGET_CHECK_TYPE_OF,
                 &&TARGET_CHECK_TYPE_OF_BY_INDEX,
                 &&TARGET_APPEND_IN_PLACE_SYM,
-                &&TARGET_APPEND_IN_PLACE_SYM_INDEX
+                &&TARGET_APPEND_IN_PLACE_SYM_INDEX,
+                &&TARGET_STORE_LEN,
+                &&TARGET_LT_LEN_SYM_JUMP_IF_FALSE,
+                &&TARGET_MUL_BY,
+                &&TARGET_MUL_BY_INDEX,
+                &&TARGET_MUL_SET_VAL,
+                &&TARGET_FUSED_MATH
             };
 
         static_assert(opcode_targets.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instructions are not implemented in the VM");
@@ -640,13 +731,22 @@ namespace Ark
                     TARGET(POP_JUMP_IF_TRUE)
                     {
                         if (Value boolean = *popAndResolveAsPtr(context); !!boolean)
-                            context.ip = arg * 4;  // instructions are 4 bytes
+                            jump(arg, context);
                         DISPATCH();
                     }
 
                     TARGET(STORE)
                     {
                         store(arg, popAndResolveAsPtr(context), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(STORE_REF)
+                    {
+                        // Not resolving a potential ref is on purpose!
+                        // This instruction is only used by functions when storing arguments
+                        const Value* tmp = pop(context);
+                        store(arg, tmp, context);
                         DISPATCH();
                     }
 
@@ -659,13 +759,13 @@ namespace Ark
                     TARGET(POP_JUMP_IF_FALSE)
                     {
                         if (Value boolean = *popAndResolveAsPtr(context); !boolean)
-                            context.ip = arg * 4;  // instructions are 4 bytes
+                            jump(arg, context);
                         DISPATCH();
                     }
 
                     TARGET(JUMP)
                     {
-                        context.ip = arg * 4;  // instructions are 4 bytes
+                        jump(arg, context);
                         DISPATCH();
                     }
 
@@ -714,6 +814,7 @@ namespace Ark
                         push(Value(static_cast<PageAddr_t>(context.pp)), context);
                         // arg * 4 to skip over the call instruction, so that the return address points to AFTER the call
                         push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(arg * 4)), context);
+                        context.inst_exec_counter++;
                         DISPATCH();
                     }
 
@@ -736,9 +837,17 @@ namespace Ark
                         else
                         {
                             ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
-                            context.saved_scope.value().push_back(arg, *ptr);
+                            uint16_t id = context.capture_rename_id.value_or(arg);
+                            context.saved_scope.value().push_back(id, *ptr);
+                            context.capture_rename_id.reset();
                         }
 
+                        DISPATCH();
+                    }
+
+                    TARGET(RENAME_NEXT_CAPTURE)
+                    {
+                        context.capture_rename_id = arg;
                         DISPATCH();
                     }
 
@@ -1022,7 +1131,7 @@ namespace Ark
                     TARGET(SHORTCIRCUIT_AND)
                     {
                         if (!*peekAndResolveAsPtr(context))
-                            context.ip = arg * 4;
+                            jump(arg, context);
                         else
                             pop(context);
                         DISPATCH();
@@ -1031,7 +1140,7 @@ namespace Ark
                     TARGET(SHORTCIRCUIT_OR)
                     {
                         if (!!*peekAndResolveAsPtr(context))
-                            context.ip = arg * 4;
+                            jump(arg, context);
                         else
                             pop(context);
                         DISPATCH();
@@ -1046,7 +1155,7 @@ namespace Ark
                     TARGET(RESET_SCOPE_JUMP)
                     {
                         context.locals.back().reset();
-                        context.ip = arg * 4;  // instructions are 4 bytes
+                        jump(arg, context);
                         DISPATCH();
                     }
 
@@ -1333,7 +1442,7 @@ namespace Ark
                     TARGET(TYPE)
                     {
                         const Value* a = popAndResolveAsPtr(context);
-                        push(Value(types_to_str[static_cast<unsigned>(a->valueType())]), context);
+                        push(Value(std::to_string(a->valueType())), context);
                         DISPATCH();
                     }
 
@@ -1376,6 +1485,7 @@ namespace Ark
                         UNPACK_ARGS();
                         push(loadConstAsPtr(primary_arg), context);
                         push(loadConstAsPtr(secondary_arg), context);
+                        context.inst_exec_counter++;
                         DISPATCH();
                     }
 
@@ -1475,7 +1585,7 @@ namespace Ark
 
                             if (var->valueType() == ValueType::Number)
                             {
-                                Value val = Value(var->number() + secondary_arg);
+                                auto val = Value(var->number() + secondary_arg);
                                 setVal(primary_arg, &val, context);
                             }
                             else
@@ -1541,7 +1651,7 @@ namespace Ark
 
                             if (var->valueType() == ValueType::Number)
                             {
-                                Value val = Value(var->number() - secondary_arg);
+                                auto val = Value(var->number() - secondary_arg);
                                 setVal(primary_arg, &val, context);
                             }
                             else
@@ -1676,7 +1786,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (!(*sym < *loadConstAsPtr(primary_arg)))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1685,7 +1795,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (*sym < *loadConstAsPtr(primary_arg))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1694,7 +1804,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (!(*sym < *loadSymbol(primary_arg, context)))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1704,7 +1814,7 @@ namespace Ark
                         const Value* sym = popAndResolveAsPtr(context);
                         const Value* cst = loadConstAsPtr(primary_arg);
                         if (*cst < *sym)
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1714,7 +1824,7 @@ namespace Ark
                         const Value* sym = popAndResolveAsPtr(context);
                         const Value* cst = loadConstAsPtr(primary_arg);
                         if (!(*cst < *sym))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1724,7 +1834,7 @@ namespace Ark
                         const Value* sym = popAndResolveAsPtr(context);
                         const Value* rhs = loadSymbol(primary_arg, context);
                         if (!(*rhs < *sym))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1733,7 +1843,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (*sym == *loadConstAsPtr(primary_arg))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1742,7 +1852,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (*sym == *loadSymbolFromIndex(primary_arg, context))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1751,7 +1861,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (*sym != *loadConstAsPtr(primary_arg))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1760,7 +1870,7 @@ namespace Ark
                         UNPACK_ARGS();
                         const Value* sym = popAndResolveAsPtr(context);
                         if (*sym == *loadSymbol(primary_arg, context))
-                            context.ip = secondary_arg * 4;
+                            jump(secondary_arg, context);
                         DISPATCH();
                     }
 
@@ -1811,6 +1921,13 @@ namespace Ark
                         DISPATCH();
                     }
 
+                    TARGET(AT_SYM_INDEX_CONST)
+                    {
+                        UNPACK_ARGS();
+                        push(helper::at(*loadSymbolFromIndex(primary_arg, context), *loadConstAsPtr(secondary_arg), *this), context);
+                        DISPATCH();
+                    }
+
                     TARGET(CHECK_TYPE_OF)
                     {
                         UNPACK_ARGS();
@@ -1818,7 +1935,7 @@ namespace Ark
                         const Value* cst = loadConstAsPtr(secondary_arg);
                         push(
                             cst->valueType() == ValueType::String &&
-                                    types_to_str[static_cast<unsigned>(sym->valueType())] == cst->string()
+                                    std::to_string(sym->valueType()) == cst->string()
                                 ? Builtins::trueSym
                                 : Builtins::falseSym,
                             context);
@@ -1832,7 +1949,7 @@ namespace Ark
                         const Value* cst = loadConstAsPtr(secondary_arg);
                         push(
                             cst->valueType() == ValueType::String &&
-                                    types_to_str[static_cast<unsigned>(sym->valueType())] == cst->string()
+                                    std::to_string(sym->valueType()) == cst->string()
                                 ? Builtins::trueSym
                                 : Builtins::falseSym,
                             context);
@@ -1850,6 +1967,167 @@ namespace Ark
                     {
                         UNPACK_ARGS();
                         listAppendInPlace(loadSymbolFromIndex(primary_arg, context), secondary_arg, context);
+                        DISPATCH();
+                    }
+
+                    TARGET(STORE_LEN)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* a = loadSymbolFromIndex(primary_arg, context);
+                            Value len;
+                            if (a->valueType() == ValueType::List)
+                                len = Value(static_cast<int>(a->constList().size()));
+                            else if (a->valueType() == ValueType::String)
+                                len = Value(static_cast<int>(a->string().size()));
+                            else
+                                throw types::TypeCheckingError(
+                                    "len",
+                                    { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                        types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                    { *a });
+                            store(secondary_arg, &len, context);
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(LT_LEN_SYM_JUMP_IF_FALSE)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            const Value* sym = loadSymbol(primary_arg, context);
+                            Value size;
+
+                            if (sym->valueType() == ValueType::List)
+                                size = Value(static_cast<int>(sym->constList().size()));
+                            else if (sym->valueType() == ValueType::String)
+                                size = Value(static_cast<int>(sym->string().size()));
+                            else
+                                throw types::TypeCheckingError(
+                                    "len",
+                                    { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                        types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                    { *sym });
+
+                            if (!(*popAndResolveAsPtr(context) < size))
+                                jump(secondary_arg, context);
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(MUL_BY)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* var = loadSymbol(primary_arg, context);
+                            const int other = static_cast<int>(secondary_arg) - 2048;
+
+                            // use internal reference, shouldn't break anything so far, unless it's already a ref
+                            if (var->valueType() == ValueType::Reference)
+                                var = var->reference();
+
+                            if (var->valueType() == ValueType::Number)
+                                push(Value(var->number() * other), context);
+                            else
+                                throw types::TypeCheckingError(
+                                    "*",
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *var, Value(other) });
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(MUL_BY_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* var = loadSymbolFromIndex(primary_arg, context);
+                            const int other = static_cast<int>(secondary_arg) - 2048;
+
+                            // use internal reference, shouldn't break anything so far, unless it's already a ref
+                            if (var->valueType() == ValueType::Reference)
+                                var = var->reference();
+
+                            if (var->valueType() == ValueType::Number)
+                                push(Value(var->number() * other), context);
+                            else
+                                throw types::TypeCheckingError(
+                                    "*",
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *var, Value(other) });
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(MUL_SET_VAL)
+                    {
+                        UNPACK_ARGS();
+                        {
+                            Value* var = loadSymbol(primary_arg, context);
+                            const int other = static_cast<int>(secondary_arg) - 2048;
+
+                            // use internal reference, shouldn't break anything so far, unless it's already a ref
+                            if (var->valueType() == ValueType::Reference)
+                                var = var->reference();
+
+                            if (var->valueType() == ValueType::Number)
+                            {
+                                auto val = Value(var->number() * other);
+                                setVal(primary_arg, &val, context);
+                            }
+                            else
+                                throw types::TypeCheckingError(
+                                    "*",
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *var, Value(other) });
+                        }
+                        DISPATCH();
+                    }
+
+                    TARGET(FUSED_MATH)
+                    {
+                        const auto op1 = static_cast<Instruction>(padding),
+                                   op2 = static_cast<Instruction>((arg & 0xff00) >> 8),
+                                   op3 = static_cast<Instruction>(arg & 0x00ff);
+                        const std::size_t arg_count = (op1 != NOP) + (op2 != NOP) + (op3 != NOP);
+
+                        const Value* d = popAndResolveAsPtr(context);
+                        const Value* c = popAndResolveAsPtr(context);
+                        const Value* b = popAndResolveAsPtr(context);
+
+                        if (d->valueType() != ValueType::Number || c->valueType() != ValueType::Number)
+                            throw types::TypeCheckingError(
+                                helper::mathInstToStr(op1),
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *c, *d });
+
+                        double temp = helper::doMath(c->number(), d->number(), op1);
+                        if (b->valueType() != ValueType::Number)
+                            throw types::TypeCheckingError(
+                                helper::mathInstToStr(op2),
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *b, Value(temp) });
+                        temp = helper::doMath(b->number(), temp, op2);
+
+                        if (arg_count == 2)
+                            push(Value(temp), context);
+                        else if (arg_count == 3)
+                        {
+                            const Value* a = popAndResolveAsPtr(context);
+                            if (a->valueType() != ValueType::Number)
+                                throw types::TypeCheckingError(
+                                    helper::mathInstToStr(op3),
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *a, Value(temp) });
+
+                            temp = helper::doMath(a->number(), temp, op3);
+                            push(Value(temp), context);
+                        }
+                        else
+                            throw Error(
+                                fmt::format(
+                                    "FUSED_MATH got {} arguments, expected 2 or 3. Arguments: {:x}{:x}{:x}. There is a bug in the codegen!",
+                                    arg_count, static_cast<uint8_t>(op1), static_cast<uint8_t>(op2), static_cast<uint8_t>(op3)));
                         DISPATCH();
                     }
 #pragma endregion
@@ -1870,10 +2148,10 @@ namespace Ark
                 backtrace(context, stream, /* colorize= */ false);
                 // It's important we have an Ark::Error here, as the constructor for NestedError
                 // does more than just aggregate error messages, hence the code duplication.
-                throw NestedError(e, stream.str());
+                throw NestedError(e, stream.str(), *this);
             }
             else
-                showBacktraceWithException(Error(e.details(/* colorize= */ true)), context);
+                showBacktraceWithException(Error(e.details(/* colorize= */ true, *this)), context);
         }
         catch (const std::exception& e)
         {
@@ -1909,7 +2187,7 @@ namespace Ark
             if (const auto id = local.idFromValue(value); id < m_state.m_symbols.size())
                 return id;
         }
-        return std::numeric_limits<uint16_t>::max();
+        return MaxValue16Bits;
     }
 
     void VM::throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, internal::ExecutionContext& context)
@@ -1920,7 +2198,8 @@ namespace Ark
             arg_names.emplace_back("");  // for formatting, so that we have a space between the function and the args
 
         std::size_t index = 0;
-        while (m_state.inst(context.pp, index) == STORE)
+        while (m_state.inst(context.pp, index) == STORE ||
+               m_state.inst(context.pp, index) == STORE_REF)
         {
             const auto id = static_cast<uint16_t>((m_state.inst(context.pp, index + 2) << 8) + m_state.inst(context.pp, index + 3));
             arg_names.push_back(m_state.m_symbols[id]);
@@ -1984,7 +2263,7 @@ namespace Ark
 #endif
     }
 
-    std::optional<InstLoc> VM::findSourceLocation(const std::size_t ip, const std::size_t pp)
+    std::optional<InstLoc> VM::findSourceLocation(const std::size_t ip, const std::size_t pp) const
     {
         std::optional<InstLoc> match = std::nullopt;
 
@@ -2007,7 +2286,7 @@ namespace Ark
         return match;
     }
 
-    std::string VM::debugShowSource()
+    std::string VM::debugShowSource() const
     {
         const auto& context = m_execution_contexts.front();
         auto maybe_source_loc = findSourceLocation(context->ip, context->pp);
@@ -2024,7 +2303,7 @@ namespace Ark
         const std::size_t saved_ip = context.ip;
         const std::size_t saved_pp = context.pp;
         const uint16_t saved_sp = context.sp;
-        const std::size_t max_consecutive_traces = 7;
+        constexpr std::size_t max_consecutive_traces = 7;
 
         const auto maybe_location = findSourceLocation(context.ip, context.pp);
         if (maybe_location)
@@ -2033,14 +2312,12 @@ namespace Ark
 
             if (Utils::fileExists(filename))
                 Diagnostics::makeContext(
+                    Diagnostics::ErrorLocation {
+                        .filename = filename,
+                        .start = FilePos { .line = maybe_location->line, .column = 0 },
+                        .end = std::nullopt },
                     os,
-                    filename,
-                    /* expr= */ std::nullopt,
-                    /* sym_size= */ 0,
-                    maybe_location->line,
-                    /* col_start= */ 0,
                     /* maybe_context= */ std::nullopt,
-                    /* whole_line= */ true,
                     /* colorize= */ colorize);
             fmt::println(os, "");
         }
@@ -2054,46 +2331,43 @@ namespace Ark
             std::size_t displayed_traces = 0;
             std::size_t consecutive_similar_traces = 0;
 
-            while (context.fc != 0)
+            while (context.fc != 0 && context.pp != 0)
             {
                 const auto maybe_call_loc = findSourceLocation(context.ip, context.pp);
                 const auto loc_as_text = maybe_call_loc ? fmt::format(" ({}:{})", m_state.m_filenames[maybe_call_loc->filename_id], maybe_call_loc->line + 1) : "";
 
-                if (context.pp != 0)
+                const uint16_t id = findNearestVariableIdWithValue(
+                    Value(static_cast<PageAddr_t>(context.pp)),
+                    context);
+                const std::string& func_name = (id < m_state.m_symbols.size()) ? m_state.m_symbols[id] : "???";
+
+                if (func_name + loc_as_text != previous_trace)
                 {
-                    const uint16_t id = findNearestVariableIdWithValue(
-                        Value(static_cast<PageAddr_t>(context.pp)),
-                        context);
-                    const auto func_name = (id < m_state.m_symbols.size()) ? m_state.m_symbols[id] : "???";
-
-                    if (func_name + loc_as_text != previous_trace)
-                    {
-                        fmt::println(
-                            os,
-                            "[{:4}] In function `{}'{}",
-                            fmt::styled(context.fc, colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()),
-                            fmt::styled(func_name, colorize ? fmt::fg(fmt::color::green) : fmt::text_style()),
-                            loc_as_text);
-                        previous_trace = func_name + loc_as_text;
-                        ++displayed_traces;
-                        consecutive_similar_traces = 0;
-                    }
-                    else if (consecutive_similar_traces == 0)
-                    {
-                        fmt::println(os, "       ...");
-                        ++consecutive_similar_traces;
-                    }
-
-                    const Value* ip;
-                    do
-                    {
-                        ip = popAndResolveAsPtr(context);
-                    } while (ip->valueType() != ValueType::InstPtr);
-
-                    context.ip = ip->pageAddr();
-                    context.pp = pop(context)->pageAddr();
-                    returnFromFuncCall(context);
+                    fmt::println(
+                        os,
+                        "[{:4}] In function `{}'{}",
+                        fmt::styled(context.fc, colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()),
+                        fmt::styled(func_name, colorize ? fmt::fg(fmt::color::green) : fmt::text_style()),
+                        loc_as_text);
+                    previous_trace = func_name + loc_as_text;
+                    ++displayed_traces;
+                    consecutive_similar_traces = 0;
                 }
+                else if (consecutive_similar_traces == 0)
+                {
+                    fmt::println(os, "       ...");
+                    ++consecutive_similar_traces;
+                }
+
+                const Value* ip;
+                do
+                {
+                    ip = popAndResolveAsPtr(context);
+                } while (ip->valueType() != ValueType::InstPtr);
+
+                context.ip = ip->pageAddr();
+                context.pp = pop(context)->pageAddr();
+                returnFromFuncCall(context);
 
                 if (displayed_traces > max_consecutive_traces)
                 {

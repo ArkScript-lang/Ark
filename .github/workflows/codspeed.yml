@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout ArkScript
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           submodules: recursive
 
@@ -36,7 +36,8 @@ jobs:
           cmake --build build --config RelWithDebInfo -- -j 4
 
       - name: Run the benchmarks
-        uses: CodSpeedHQ/action@ad71f92d9429aabfcf70738be9defdbbfc7b75e2  # v3.6.1
+        uses: CodSpeedHQ/action@c6574d0c2a990bca2842ce9af71549c5bfd7fbe0  # v4.2.1
         with:
           run: ./build/bench
           token: ${{ secrets.CODSPEED_TOKEN }}
+          mode: instrumentation

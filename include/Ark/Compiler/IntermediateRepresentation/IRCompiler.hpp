@@ -1,6 +1,6 @@
 /**
  * @file IRCompiler.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Compile the intermediate representation to bytecode
  * @date 2024-10-05
  *
@@ -14,8 +14,8 @@
 #include <vector>
 #include <string>
 
-#include <Ark/Platform.hpp>
-#include <Ark/Logger.hpp>
+#include <Ark/Utils/Platform.hpp>
+#include <Ark/Utils/Logger.hpp>
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/Compiler/ValTableElem.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>

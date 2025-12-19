@@ -5,7 +5,7 @@
 #include <string>
 #include <numeric>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 
 namespace Ark::internal
 {
@@ -53,9 +53,13 @@ namespace Ark::internal
          */
         [[nodiscard]] std::string toPackageString() const
         {
-            return std::accumulate(package.begin() + 1, package.end(), package.front(), [](const std::string& left, const std::string& right) {
-                return left + "." + right;
-            });
+            return std::accumulate(
+                package.begin() + 1,
+                package.end(),
+                package.front(),
+                [](const std::string& left, const std::string& right) {
+                    return left + "." + right;
+                });
         }
 
         /**

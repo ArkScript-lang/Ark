@@ -26,9 +26,10 @@ def run_file(file: str):
 def handle_command(i: int, count: int, file: str):
     command = input(f"[{i}/{count}] o,c,r,x,s,q,? > ").strip().lower()
     if command == "o":
-        os.rename(file, f"fct-ok/{os.path.basename(file)}")
+        os.rename(file, f"fct-ok/{os.path.basename(file)}.ark")
     elif command == "c":
-        os.rename(file, f"fct-bad/{os.path.basename(file)}")
+        basename = os.path.basename(file).split(".")[0]
+        os.rename(file, f"fct-bad/{basename}.ark")
     elif command == "r":
         run_file(file)
         return True

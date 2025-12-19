@@ -4,46 +4,46 @@
 
 namespace Ark::internal
 {
-    Parser::Parser(const unsigned debug, const bool interpret) :
-        BaseParser(), m_interpret(interpret), m_logger("Parser", debug),
+    Parser::Parser(const unsigned debug, const ParserMode mode) :
+        BaseParser(), m_mode(mode), m_logger("Parser", debug),
         m_ast(NodeType::List), m_imports({}), m_allow_macro_behavior(0),
         m_nested_nodes(0)
     {
         m_ast.push_back(Node(Keyword::Begin));
 
         m_parsers = {
-            [this]() {
+            [this](FilePosition) {
                 return wrapped(&Parser::letMutSet, "variable assignment or declaration");
             },
-            [this]() {
+            [this](FilePosition) {
                 return wrapped(&Parser::function, "function");
             },
-            [this]() {
+            [this](FilePosition) {
                 return wrapped(&Parser::condition, "condition");
             },
-            [this]() {
+            [this](FilePosition) {
                 return wrapped(&Parser::loop, "loop");
             },
-            [this]() {
-                return import_();
+            [this](const FilePosition filepos) {
+                return import_(filepos);
             },
-            [this]() {
-                return block();
+            [this](const FilePosition filepos) {
+                return block(filepos);
             },
-            [this]() {
+            [this](FilePosition) {
                 return wrapped(&Parser::macroCondition, "$if");
             },
-            [this]() {
-                return macro();
+            [this](const FilePosition filepos) {
+                return macro(filepos);
             },
-            [this]() {
+            [this](FilePosition) {
                 return wrapped(&Parser::del, "del");
             },
-            [this]() {
-                return functionCall();
+            [this](const FilePosition filepos) {
+                return functionCall(filepos);
             },
-            [this]() {
-                return list();
+            [this](const FilePosition filepos) {
+                return list(filepos);
             }
         };
     }
@@ -55,8 +55,7 @@ namespace Ark::internal
 
         while (!isEOF())
         {
-            std::string comment;
-            newlineOrComment(&comment);
+            std::string comment = newlineOrComment();
             if (isEOF())
             {
                 if (!comment.empty())
@@ -68,9 +67,7 @@ namespace Ark::internal
             if (auto n = node())
             {
                 m_ast.push_back(n->attachNearestCommentBefore(n->comment() + comment));
-                comment.clear();
-                if (spaceComment(&comment))
-                    m_ast.list().back().attachCommentAfter(comment);
+                m_ast.list().back().attachCommentAfter(spaceComment());
             }
             else
             {
@@ -102,14 +99,32 @@ namespace Ark::internal
         return m_imports;
     }
 
-    Node& Parser::setNodePosAndFilename(Node& node, const std::optional<FilePosition>& cursor) const
+    Node Parser::positioned(Node node, const FilePosition cursor) const
     {
-        if (node.line() != 0 || node.col() != 0)
+        const auto [row, col] = cursor;
+        const auto [end_row, end_col] = getCursor();
+
+        node.m_filename = m_filename;
+        node.m_pos = FileSpan {
+            .start = FilePos { .line = row, .column = col },
+            .end = FilePos { .line = end_row, .column = end_col }
+        };
+        return node;
+    }
+
+    std::optional<Node>& Parser::positioned(std::optional<Node>& node, const FilePosition cursor) const
+    {
+        if (!node)
             return node;
 
-        const auto [row, col] = cursor.value_or(getCursor());
-        node.setPos(row, col);
-        node.setFilename(m_filename);
+        const auto [row, col] = cursor;
+        const auto [end_row, end_col] = getCursor();
+
+        node->m_filename = m_filename;
+        node->m_pos = FileSpan {
+            .start = FilePos { .line = row, .column = col },
+            .end = FilePos { .line = end_row, .column = end_col }
+        };
         return node;
     }
 
@@ -122,11 +137,12 @@ namespace Ark::internal
 
         // save current position in buffer to be able to go back if needed
         const auto position = getCount();
+        const auto filepos = getCursor();
         std::optional<Node> result = std::nullopt;
 
         for (auto&& parser : m_parsers)
         {
-            result = parser();
+            result = parser(filepos);
 
             if (result)
                 break;
@@ -138,16 +154,15 @@ namespace Ark::internal
         return result;
     }
 
-    std::optional<Node> Parser::letMutSet()
+    std::optional<Node> Parser::letMutSet(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
         std::string token;
         if (!oneOf({ "let", "mut", "set" }, &token))
             return std::nullopt;
-        std::string comment;
-        newlineOrComment(&comment);
+
+        std::string comment = newlineOrComment();
         leaf->attachNearestCommentBefore(comment);
 
         if (token == "let")
@@ -160,13 +175,14 @@ namespace Ark::internal
         if (m_allow_macro_behavior > 0)
         {
             const auto position = getCount();
+            const auto value_pos = getCursor();
             if (const auto value = nodeOrValue(); value.has_value())
             {
-                const auto sym = value.value();
+                const Node& sym = value.value();
                 if (sym.nodeType() == NodeType::List || sym.nodeType() == NodeType::Symbol || sym.nodeType() == NodeType::Macro || sym.nodeType() == NodeType::Spread)
                     leaf->push_back(sym);
                 else
-                    error(fmt::format("Can not use a {} as a symbol name, even in a macro", nodeTypes[static_cast<std::size_t>(sym.nodeType())]), sym.repr());
+                    error(fmt::format("Can not use a {} as a symbol name, even in a macro", nodeTypes[static_cast<std::size_t>(sym.nodeType())]), value_pos);
             }
             else
                 backtrack(position);
@@ -182,28 +198,24 @@ namespace Ark::internal
             leaf->push_back(Node(NodeType::Symbol, symbol_name));
         }
 
-        comment.clear();
-        newlineOrComment(&comment);
-
+        comment = newlineOrComment();
         if (auto value = nodeOrValue(); value.has_value())
             leaf->push_back(value.value().attachNearestCommentBefore(comment));
         else
             errorWithNextToken("Expected a value");
 
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
-    std::optional<Node> Parser::del()
+    std::optional<Node> Parser::del(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
         if (!oneOf({ "del" }))
             return std::nullopt;
         leaf->push_back(Node(Keyword::Del));
 
-        std::string comment;
-        newlineOrComment(&comment);
+        const std::string comment = newlineOrComment();
 
         std::string symbol_name;
         if (!name(&symbol_name))
@@ -211,21 +223,18 @@ namespace Ark::internal
 
         leaf->push_back(Node(NodeType::Symbol, symbol_name));
         leaf->list().back().attachNearestCommentBefore(comment);
-        setNodePosAndFilename(leaf->list().back());
 
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
-    std::optional<Node> Parser::condition()
+    std::optional<Node> Parser::condition(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
         if (!oneOf({ "if" }))
             return std::nullopt;
 
-        std::string comment;
-        newlineOrComment(&comment);
+        std::string comment = newlineOrComment();
 
         leaf->push_back(Node(Keyword::If));
 
@@ -234,42 +243,32 @@ namespace Ark::internal
         else
             errorWithNextToken("`if' needs a valid condition");
 
-        comment.clear();
-        newlineOrComment(&comment);
-
+        comment = newlineOrComment();
         if (auto value_if_true = nodeOrValue(); value_if_true.has_value())
             leaf->push_back(value_if_true.value().attachNearestCommentBefore(comment));
         else
             errorWithNextToken("Expected a node or value after condition");
 
-        comment.clear();
-        newlineOrComment(&comment);
-
+        comment = newlineOrComment();
         if (auto value_if_false = nodeOrValue(); value_if_false.has_value())
         {
             leaf->push_back(value_if_false.value().attachNearestCommentBefore(comment));
-            comment.clear();
-            if (newlineOrComment(&comment))
-                leaf->list().back().attachCommentAfter(comment);
+            leaf->list().back().attachCommentAfter(newlineOrComment());
         }
         else if (!comment.empty())
             leaf->attachCommentAfter(comment);
 
-        setNodePosAndFilename(leaf->list().back());
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
-    std::optional<Node> Parser::loop()
+    std::optional<Node> Parser::loop(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
         if (!oneOf({ "while" }))
             return std::nullopt;
 
-        std::string comment;
-        newlineOrComment(&comment);
-
+        std::string comment = newlineOrComment();
         leaf->push_back(Node(Keyword::While));
 
         if (auto cond_expr = nodeOrValue(); cond_expr.has_value())
@@ -277,41 +276,35 @@ namespace Ark::internal
         else
             errorWithNextToken("`while' needs a valid condition");
 
-        comment.clear();
-        newlineOrComment(&comment);
-
+        comment = newlineOrComment();
         if (auto body = nodeOrValue(); body.has_value())
             leaf->push_back(body.value().attachNearestCommentBefore(comment));
         else
             errorWithNextToken("Expected a node or value after loop condition");
 
-        setNodePosAndFilename(leaf->list().back());
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
-    std::optional<Node> Parser::import_()
+    std::optional<Node> Parser::import_(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
-        const auto [row, col] = getCursor();
-        auto context = generateErrorContext("(");
+        auto context = generateErrorContextAtCurrentPosition();
         if (!accept(IsChar('(')))
             return std::nullopt;
 
-        std::string comment;
-        newlineOrComment(&comment);
+        std::string comment = newlineOrComment();
         leaf->attachNearestCommentBefore(comment);
 
         if (!oneOf({ "import" }))
             return std::nullopt;
-        comment.clear();
-        newlineOrComment(&comment);
+
+        comment = newlineOrComment();
         leaf->push_back(Node(Keyword::Import));
 
         Import import_data;
-        import_data.col = col;
-        import_data.line = row;
+        import_data.col = filepos.col;
+        import_data.line = filepos.row;
 
         const auto pos = getCount();
         if (!packageName(&import_data.prefix))
@@ -324,23 +317,25 @@ namespace Ark::internal
         }
         import_data.package.push_back(import_data.prefix);
 
-        Node packageNode(NodeType::List);
-        setNodePosAndFilename(packageNode.attachNearestCommentBefore(comment));
+        Node packageNode = positioned(Node(NodeType::List), getCursor()).attachNearestCommentBefore(comment);
         packageNode.push_back(Node(NodeType::Symbol, import_data.prefix));
 
         // first, parse the package name
         while (!isEOF())
         {
+            const auto item_pos = getCursor();
+
             // parsing package folder.foo.bar.yes
             if (accept(IsChar('.')))
             {
+                const auto package_pos = getCursor();
                 std::string path;
                 if (!packageName(&path))
                     errorWithNextToken("Package name expected after '.'");
                 else
                 {
-                    packageNode.push_back(Node(NodeType::Symbol, path));
-                    setNodePosAndFilename(packageNode.list().back());
+                    packageNode.push_back(positioned(Node(NodeType::Symbol, path), package_pos));
+
                     import_data.package.push_back(path);
                     import_data.prefix = path;  // in the end we will store the last element of the package, which is what we want
 
@@ -351,11 +346,10 @@ namespace Ark::internal
                     }
                 }
             }
-            else if (accept(IsChar(':')) && accept(IsChar('*')))  // parsing :*
+            else if (accept(IsChar(':')) && accept(IsChar('*')))  // parsing :*, terminal in imports
             {
                 leaf->push_back(packageNode);
-                leaf->push_back(Node(NodeType::Symbol, "*"));
-                setNodePosAndFilename(leaf->list().back());
+                leaf->push_back(positioned(Node(NodeType::Symbol, "*"), item_pos));
 
                 space();
                 expectSuffixOrError(')', fmt::format("in import `{}'", import_data.toPackageString()), context);
@@ -365,39 +359,35 @@ namespace Ark::internal
                 import_data.is_glob = true;
                 m_imports.push_back(import_data);
 
-                return leaf;
+                return positioned(leaf, filepos);
             }
             else
                 break;
         }
 
-        Node symbols(NodeType::List);
-        setNodePosAndFilename(symbols);
+        Node symbols = positioned(Node(NodeType::List), getCursor());
         // then parse the symbols to import, if any
         if (space())
         {
-            comment.clear();
-            newlineOrComment(&comment);
+            comment = newlineOrComment();
 
             while (!isEOF())
             {
                 if (accept(IsChar(':')))  // parsing potential :a :b :c
                 {
+                    const auto symbol_pos = getCursor();
                     std::string symbol_name;
                     if (!name(&symbol_name))
                         errorWithNextToken("Expected a valid symbol to import");
                     if (symbol_name == "*")
-                        error(fmt::format("Glob patterns can not be separated from the package, use (import {}:*) instead", import_data.toPackageString()), symbol_name);
+                        error(fmt::format("Glob patterns can not be separated from the package, use (import {}:*) instead", import_data.toPackageString()), symbol_pos);
 
                     if (symbol_name.size() >= 2 && symbol_name[symbol_name.size() - 2] == ':' && symbol_name.back() == '*')
-                    {
-                        backtrack(getCount() - 2);  // we can backtrack n-2 safely here because we know the previous chars were ":*"
-                        error("Glob pattern can not follow a symbol to import", ":*");
-                    }
+                        error("Glob pattern can not follow a symbol to import", FilePosition { .row = symbol_pos.row, .col = symbol_pos.col + symbol_name.size() - 2 });
 
-                    symbols.push_back(Node(NodeType::Symbol, symbol_name).attachNearestCommentBefore(comment));
+                    symbols.push_back(positioned(Node(NodeType::Symbol, symbol_name).attachNearestCommentBefore(comment), symbol_pos));
                     comment.clear();
-                    setNodePosAndFilename(symbols.list().back());
+
                     import_data.symbols.push_back(symbol_name);
                     // we do not need the prefix when importing specific symbols
                     import_data.with_prefix = false;
@@ -405,8 +395,7 @@ namespace Ark::internal
 
                 if (!space())
                     break;
-                comment.clear();
-                newlineOrComment(&comment);
+                comment = newlineOrComment();
             }
 
             if (!comment.empty() && !symbols.list().empty())
@@ -418,25 +407,24 @@ namespace Ark::internal
         // save the import data
         m_imports.push_back(import_data);
 
-        comment.clear();
-        if (newlineOrComment(&comment))
+        comment = newlineOrComment();
+        if (!comment.empty())
             leaf->list().back().attachCommentAfter(comment);
 
         expectSuffixOrError(')', fmt::format("in import `{}'", import_data.toPackageString()), context);
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
-    std::optional<Node> Parser::block()
+    std::optional<Node> Parser::block(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
-        auto context = generateErrorContext("(");
+        auto context = generateErrorContextAtCurrentPosition();
         bool alt_syntax = false;
         std::string comment;
         if (accept(IsChar('(')))
         {
-            newlineOrComment(&comment);
+            comment = newlineOrComment();
             if (!oneOf({ "begin" }))
                 return std::nullopt;
         }
@@ -448,36 +436,31 @@ namespace Ark::internal
         leaf->setAltSyntax(alt_syntax);
         leaf->push_back(Node(Keyword::Begin).attachNearestCommentBefore(comment));
 
-        comment.clear();
-        newlineOrComment(&comment);
+        comment = newlineOrComment();
 
         while (!isEOF())
         {
             if (auto value = nodeOrValue(); value.has_value())
             {
                 leaf->push_back(value.value().attachNearestCommentBefore(comment));
-                comment.clear();
-                newlineOrComment(&comment);
+                comment = newlineOrComment();
             }
             else
                 break;
         }
 
-        newlineOrComment(&comment);
+        comment += newlineOrComment();
         expectSuffixOrError(alt_syntax ? '}' : ')', "to close block", context);
-        setNodePosAndFilename(leaf->list().back());
         leaf->list().back().attachCommentAfter(comment);
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
-    std::optional<Node> Parser::functionArgs()
+    std::optional<Node> Parser::functionArgs(const FilePosition filepos)
     {
         expect(IsChar('('));
         std::optional<Node> args { NodeType::List };
-        setNodePosAndFilename(args.value());
 
-        std::string comment;
-        newlineOrComment(&comment);
+        std::string comment = newlineOrComment();
         args->attachNearestCommentBefore(comment);
 
         bool has_captures = false;
@@ -490,48 +473,70 @@ namespace Ark::internal
                 has_captures = true;
                 std::string capture;
                 if (!name(&capture))
-                    break;
-                Node capture_node = Node(NodeType::Capture, capture).attachNearestCommentBefore(comment);
-                setNodePosAndFilename(capture_node, pos);
-                args->push_back(capture_node);
+                    error("No symbol provided to capture", pos);
+
+                args->push_back(positioned(Node(NodeType::Capture, capture), pos));
+            }
+            else if (accept(IsChar('(')))
+            {
+                // attribute modifiers: mut, ref
+                std::string modifier;
+                std::ignore = newlineOrComment();
+                if (!oneOf({ "mut", "ref" }, &modifier))
+                    // We cannot return an error like this:
+                    //   error("Expected an attribute modifier, either `mut' or `ref'", pos);
+                    // Because it would break on macro instantiations like (fun ((suffix-dup a 3)) ())
+                    return std::nullopt;
+
+                NodeType type = NodeType::Unused;
+                if (modifier == "mut")
+                    type = NodeType::MutArg;
+                else if (modifier == "ref")
+                    type = NodeType::RefArg;
+
+                Node arg_with_attr = Node(type);
+                std::string comment2 = newlineOrComment();
+                arg_with_attr.attachCommentAfter(comment2);
+
+                std::string symbol_name;
+                if (!name(&symbol_name))
+                    error(fmt::format("Expected a symbol name for the attribute with modifier `{}'", modifier), pos);
+                arg_with_attr.setString(symbol_name);
+
+                args->push_back(positioned(arg_with_attr, pos));
+                std::ignore = newlineOrComment();
+                expect(IsChar(')'));
             }
             else
             {
-                const auto count = getCount();
                 std::string symbol_name;
                 if (!name(&symbol_name))
                     break;
                 if (has_captures)
-                {
-                    backtrack(count);
-                    error("Captured variables should be at the end of the argument list", symbol_name);
-                }
+                    error("Captured variables should be at the end of the argument list", pos);
 
-                Node arg_node = Node(NodeType::Symbol, symbol_name).attachNearestCommentBefore(comment);
-                setNodePosAndFilename(arg_node, pos);
-                args->push_back(arg_node);
+                args->push_back(positioned(Node(NodeType::Symbol, symbol_name), pos));
             }
 
-            comment.clear();
-            newlineOrComment(&comment);
+            if (!comment.empty())
+                args->list().back().attachNearestCommentBefore(comment);
+            comment = newlineOrComment();
         }
 
         if (accept(IsChar(')')))
-            return args;
+            return positioned(args, filepos);
         return std::nullopt;
     }
 
-    std::optional<Node> Parser::function()
+    std::optional<Node> Parser::function(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
         if (!oneOf({ "fun" }))
             return std::nullopt;
         leaf->push_back(Node(Keyword::Fun));
 
-        std::string comment_before_args;
-        newlineOrComment(&comment_before_args);
+        const std::string comment_before_args = newlineOrComment();
 
         while (m_allow_macro_behavior > 0)
         {
@@ -542,8 +547,7 @@ namespace Ark::internal
             {
                 // if value is nil, just add an empty argument bloc to prevent bugs when
                 // declaring functions inside macros
-                Node args = value.value();
-                setNodePosAndFilename(args);
+                const Node& args = value.value();
                 if (args.nodeType() == NodeType::Symbol && args.string() == "nil")
                     leaf->push_back(Node(NodeType::List));
                 else
@@ -555,19 +559,18 @@ namespace Ark::internal
                 break;
             }
 
-            std::string comment;
-            newlineOrComment(&comment);
+            const std::string comment = newlineOrComment();
             // body
             if (auto value = nodeOrValue(); value.has_value())
                 leaf->push_back(value.value().attachNearestCommentBefore(comment));
             else
                 errorWithNextToken("Expected a body for the function");
-            setNodePosAndFilename(leaf->list().back());
-            return leaf;
+            return positioned(leaf, filepos);
         }
 
         const auto position = getCount();
-        if (auto args = functionArgs(); args.has_value())
+        const auto args_file_pos = getCursor();
+        if (auto args = functionArgs(args_file_pos); args.has_value())
             leaf->push_back(args.value().attachNearestCommentBefore(comment_before_args));
         else
         {
@@ -579,29 +582,25 @@ namespace Ark::internal
                 errorWithNextToken("Expected an argument list");
         }
 
-        std::string comment;
-        newlineOrComment(&comment);
+        const std::string comment = newlineOrComment();
 
         if (auto value = nodeOrValue(); value.has_value())
             leaf->push_back(value.value().attachNearestCommentBefore(comment));
         else
             errorWithNextToken("Expected a body for the function");
 
-        setNodePosAndFilename(leaf->list().back());
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
-    std::optional<Node> Parser::macroCondition()
+    std::optional<Node> Parser::macroCondition(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::Macro };
-        setNodePosAndFilename(leaf.value());
 
         if (!oneOf({ "$if" }))
             return std::nullopt;
         leaf->push_back(Node(Keyword::If));
 
-        std::string comment;
-        newlineOrComment(&comment);
+        std::string comment = newlineOrComment();
         leaf->attachNearestCommentBefore(comment);
 
         if (const auto cond_expr = nodeOrValue(); cond_expr.has_value())
@@ -609,39 +608,31 @@ namespace Ark::internal
         else
             errorWithNextToken("$if need a valid condition");
 
-        comment.clear();
-        newlineOrComment(&comment);
-
+        comment = newlineOrComment();
         if (auto value_if_true = nodeOrValue(); value_if_true.has_value())
             leaf->push_back(value_if_true.value().attachNearestCommentBefore(comment));
         else
             errorWithNextToken("Expected a node or value after condition");
 
-        comment.clear();
-        newlineOrComment(&comment);
-
+        comment = newlineOrComment();
         if (auto value_if_false = nodeOrValue(); value_if_false.has_value())
         {
             leaf->push_back(value_if_false.value().attachNearestCommentBefore(comment));
-            comment.clear();
-            newlineOrComment(&comment);
+            comment = newlineOrComment();
             leaf->list().back().attachCommentAfter(comment);
         }
 
-        setNodePosAndFilename(leaf->list().back());
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
-    std::optional<Node> Parser::macroArgs()
+    std::optional<Node> Parser::macroArgs(const FilePosition filepos)
     {
         if (!accept(IsChar('(')))
             return std::nullopt;
 
         std::optional<Node> args { NodeType::List };
-        setNodePosAndFilename(args.value());
 
-        std::string comment;
-        newlineOrComment(&comment);
+        std::string comment = newlineOrComment();
         args->attachNearestCommentBefore(comment);
 
         std::vector<std::string> names;
@@ -652,8 +643,8 @@ namespace Ark::internal
             std::string arg_name;
             if (!name(&arg_name))
                 break;
-            comment.clear();
-            newlineOrComment(&comment);
+
+            comment = newlineOrComment();
             args->push_back(Node(NodeType::Symbol, arg_name).attachNearestCommentBefore(comment));
 
             if (std::ranges::find(names, arg_name) != names.end())
@@ -670,11 +661,9 @@ namespace Ark::internal
             std::string spread_name;
             if (!name(&spread_name))
                 errorWithNextToken("Expected a name for the variadic arguments list");
-            args->push_back(Node(NodeType::Spread, spread_name));
 
-            comment.clear();
-            if (newlineOrComment(&comment))
-                args->list().back().attachCommentAfter(comment);
+            args->push_back(Node(NodeType::Spread, spread_name));
+            args->list().back().attachCommentAfter(newlineOrComment());
 
             if (std::ranges::find(names, spread_name) != names.end())
             {
@@ -685,44 +674,37 @@ namespace Ark::internal
 
         if (!accept(IsChar(')')))
             return std::nullopt;
-        comment.clear();
-        if (newlineOrComment(&comment))
-        {
-            if (args->list().empty())
-                args->attachCommentAfter(comment);
-            else
-                args->list().back().attachCommentAfter(comment);
-        }
 
-        return args;
+        comment = newlineOrComment();
+        if (!comment.empty())
+            args->attachCommentAfter(comment);
+
+        return positioned(args, filepos);
     }
 
-    std::optional<Node> Parser::macro()
+    std::optional<Node> Parser::macro(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::Macro };
-        setNodePosAndFilename(leaf.value());
 
-        auto context = generateErrorContext("(");
+        auto context = generateErrorContextAtCurrentPosition();
         if (!accept(IsChar('(')))
             return std::nullopt;
-        std::string comment;
-        newlineOrComment(&comment);
 
         if (!oneOf({ "macro" }))
             return std::nullopt;
-        newlineOrComment(&comment);
+        std::string comment = newlineOrComment();
         leaf->attachNearestCommentBefore(comment);
 
         std::string symbol_name;
         if (!name(&symbol_name))
             errorWithNextToken("Expected a symbol to declare a macro");
-        comment.clear();
-        newlineOrComment(&comment);
 
+        comment = newlineOrComment();
         leaf->push_back(Node(NodeType::Symbol, symbol_name).attachNearestCommentBefore(comment));
 
         const auto position = getCount();
-        if (const auto args = macroArgs(); args.has_value())
+        const auto args_file_pos = getCursor();
+        if (const auto args = macroArgs(args_file_pos); args.has_value())
             leaf->push_back(args.value());
         else
         {
@@ -738,12 +720,9 @@ namespace Ark::internal
             else
                 errorWithNextToken(fmt::format("Expected an argument list, atom or node while defining macro `{}'", symbol_name));
 
-            setNodePosAndFilename(leaf->list().back());
-            comment.clear();
-            if (newlineOrComment(&comment))
-                leaf->list().back().attachCommentAfter(comment);
+            leaf->list().back().attachCommentAfter(newlineOrComment());
             expectSuffixOrError(')', fmt::format("to close macro `{}'", symbol_name), context);
-            return leaf;
+            return positioned(leaf, filepos);
         }
 
         ++m_allow_macro_behavior;
@@ -754,13 +733,10 @@ namespace Ark::internal
             leaf->push_back(value.value());
         else if (leaf->list().size() == 2)  // the argument list is actually a function call and it's okay
         {
-            setNodePosAndFilename(leaf->list().back());
-            comment.clear();
-            if (newlineOrComment(&comment))
-                leaf->list().back().attachCommentAfter(comment);
+            leaf->list().back().attachCommentAfter(newlineOrComment());
 
             expectSuffixOrError(')', fmt::format("to close macro `{}'", symbol_name), context);
-            return leaf;
+            return positioned(leaf, filepos);
         }
         else
         {
@@ -768,24 +744,20 @@ namespace Ark::internal
             errorWithNextToken(fmt::format("Expected a value while defining macro `{}'", symbol_name), context);
         }
 
-        setNodePosAndFilename(leaf->list().back());
-        comment.clear();
-        if (newlineOrComment(&comment))
-            leaf->list().back().attachCommentAfter(comment);
+        leaf->list().back().attachCommentAfter(newlineOrComment());
 
         expectSuffixOrError(')', fmt::format("to close macro `{}'", symbol_name), context);
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
-    std::optional<Node> Parser::functionCall()
+    std::optional<Node> Parser::functionCall(const FilePosition filepos)
     {
-        auto context = generateErrorContext("(");
+        auto context = generateErrorContextAtCurrentPosition();
         if (!accept(IsChar('(')))
             return std::nullopt;
-        std::string comment;
-        newlineOrComment(&comment);
-        auto cursor = getCursor();
+        std::string comment = newlineOrComment();
 
+        const auto func_name_pos = getCursor();
         std::optional<Node> func;
         if (auto sym_or_field = anyAtomOf({ NodeType::Symbol, NodeType::Field }); sym_or_field.has_value())
             func = sym_or_field->attachNearestCommentBefore(comment);
@@ -793,59 +765,54 @@ namespace Ark::internal
             func = nested->attachNearestCommentBefore(comment);
         else
             return std::nullopt;
-        comment.clear();
-        newlineOrComment(&comment);
+
+        if (func.value().nodeType() == NodeType::Symbol && func.value().string() == "ref")
+            error("`ref' can not be used outside a function's arguments list.", func_name_pos);
 
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value(), cursor);
-        setNodePosAndFilename(func.value(), cursor);
-        leaf->push_back(func.value());
+        leaf->push_back(positioned(func.value(), func_name_pos));
+
+        comment = newlineOrComment();
 
         while (!isEOF())
         {
             if (auto arg = nodeOrValue(); arg.has_value())
             {
                 leaf->push_back(arg.value().attachNearestCommentBefore(comment));
-                comment.clear();
-                newlineOrComment(&comment);
+                comment = newlineOrComment();
             }
             else
                 break;
         }
 
         leaf->list().back().attachCommentAfter(comment);
-
-        comment.clear();
-        if (newlineOrComment(&comment))
+        comment = newlineOrComment();
+        if (!comment.empty())
             leaf->list().back().attachCommentAfter(comment);
 
         expectSuffixOrError(')', fmt::format("in function call to `{}'", func.value().repr()), context);
-        return leaf;
+        return positioned(leaf, filepos);
     }
 
-    std::optional<Node> Parser::list()
+    std::optional<Node> Parser::list(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
-        setNodePosAndFilename(leaf.value());
 
-        auto context = generateErrorContext("[");
+        auto context = generateErrorContextAtCurrentPosition();
         if (!accept(IsChar('[')))
             return std::nullopt;
         leaf->setAltSyntax(true);
         leaf->push_back(Node(NodeType::Symbol, "list"));
 
-        std::string comment;
-        newlineOrComment(&comment);
+        std::string comment = newlineOrComment();
         leaf->attachNearestCommentBefore(comment);
 
-        comment.clear();
         while (!isEOF())
         {
             if (auto value = nodeOrValue(); value.has_value())
             {
                 leaf->push_back(value.value().attachNearestCommentBefore(comment));
-                comment.clear();
-                newlineOrComment(&comment);
+                comment = newlineOrComment();
             }
             else
                 break;
@@ -853,34 +820,203 @@ namespace Ark::internal
         leaf->list().back().attachCommentAfter(comment);
 
         expectSuffixOrError(']', "to end list definition", context);
-        return leaf;
+        return positioned(leaf, filepos);
+    }
+
+    std::optional<Node> Parser::number(const FilePosition filepos)
+    {
+        std::string res;
+        if (signedNumber(&res))
+        {
+            double output;
+            if (Utils::isDouble(res, &output))
+                return positioned(Node(output), filepos);
+
+            error("Is not a valid number", filepos);
+        }
+        return std::nullopt;
+    }
+
+    std::optional<Node> Parser::string(const FilePosition filepos)
+    {
+        std::string res;
+        if (accept(IsChar('"')))
+        {
+            while (true)
+            {
+                const auto pos = getCursor();
+
+                if (accept(IsChar('\\')))
+                {
+                    if (m_mode != ParserMode::Interpret)
+                        res += '\\';
+
+                    if (accept(IsChar('"')))
+                        res += '"';
+                    else if (accept(IsChar('\\')))
+                        res += '\\';
+                    else if (accept(IsChar('n')))
+                        res += m_mode == ParserMode::Interpret ? '\n' : 'n';
+                    else if (accept(IsChar('t')))
+                        res += m_mode == ParserMode::Interpret ? '\t' : 't';
+                    else if (accept(IsChar('v')))
+                        res += m_mode == ParserMode::Interpret ? '\v' : 'v';
+                    else if (accept(IsChar('r')))
+                        res += m_mode == ParserMode::Interpret ? '\r' : 'r';
+                    else if (accept(IsChar('a')))
+                        res += m_mode == ParserMode::Interpret ? '\a' : 'a';
+                    else if (accept(IsChar('b')))
+                        res += m_mode == ParserMode::Interpret ? '\b' : 'b';
+                    else if (accept(IsChar('f')))
+                        res += m_mode == ParserMode::Interpret ? '\f' : 'f';
+                    else if (accept(IsChar('u')))
+                    {
+                        std::string seq;
+                        if (hexNumber(4, &seq))
+                        {
+                            if (m_mode == ParserMode::Interpret)
+                            {
+                                char utf8_str[5];
+                                utf8::decode(seq.c_str(), utf8_str);
+                                if (*utf8_str == '\0')
+                                    error("Invalid escape sequence", pos);
+                                res += utf8_str;
+                            }
+                            else
+                                res += "u" + seq;
+                        }
+                        else
+                            error("Invalid escape sequence, expected 4 hex digits: \\uabcd", pos);
+                    }
+                    else if (accept(IsChar('U')))
+                    {
+                        std::string seq;
+                        if (hexNumber(8, &seq))
+                        {
+                            if (m_mode == ParserMode::Interpret)
+                            {
+                                std::size_t begin = 0;
+                                for (; seq[begin] == '0'; ++begin)
+                                    ;
+                                char utf8_str[5];
+                                utf8::decode(seq.c_str() + begin, utf8_str);
+                                if (*utf8_str == '\0')
+                                    error("Invalid escape sequence", pos);
+                                res += utf8_str;
+                            }
+                            else
+                                res += "U" + seq;
+                        }
+                        else
+                            error("Invalid escape sequence, expected 8 hex digits: \\UABCDEF78", pos);
+                    }
+                    else
+                    {
+                        backtrack(getCount() - 1);
+                        error("Unknown escape sequence", pos);
+                    }
+                }
+                else
+                    accept(IsNot(IsEither(IsChar('\\'), IsChar('"'))), &res);
+
+                if (accept(IsChar('"')))
+                    break;
+                if (isEOF())
+                    expectSuffixOrError('"', "after string");
+            }
+
+            return positioned(Node(NodeType::String, res), filepos);
+        }
+        return std::nullopt;
+    }
+
+    std::optional<Node> Parser::field(const FilePosition filepos)
+    {
+        std::string sym;
+        if (!name(&sym))
+            return std::nullopt;
+
+        std::optional<Node> leaf { Node(NodeType::Field) };
+        leaf->push_back(Node(NodeType::Symbol, sym));
+
+        while (true)
+        {
+            if (leaf->list().size() == 1 && !accept(IsChar('.')))  // Symbol:abc
+                return std::nullopt;
+
+            if (leaf->list().size() > 1 && !accept(IsChar('.')))
+                break;
+
+            const auto filepos_inner = getCursor();
+            std::string res;
+            if (!name(&res))
+                errorWithNextToken("Expected a field name: <symbol>.<field>");
+            leaf->push_back(positioned(Node(NodeType::Symbol, res), filepos_inner));
+        }
+
+        return positioned(leaf, filepos);
+    }
+
+    std::optional<Node> Parser::symbol(const FilePosition filepos)
+    {
+        std::string res;
+        if (!name(&res))
+            return std::nullopt;
+        return positioned(Node(NodeType::Symbol, res), filepos);
+    }
+
+    std::optional<Node> Parser::spread(const FilePosition filepos)
+    {
+        std::string res;
+        if (sequence("..."))
+        {
+            if (!name(&res))
+                errorWithNextToken("Expected a name for the variadic");
+            return positioned(Node(NodeType::Spread, res), filepos);
+        }
+        return std::nullopt;
+    }
+
+    std::optional<Node> Parser::nil(const FilePosition filepos)
+    {
+        if (!accept(IsChar('(')))
+            return std::nullopt;
+
+        const std::string comment = newlineOrComment();
+        if (!accept(IsChar(')')))
+            return std::nullopt;
+
+        if (m_mode == ParserMode::Interpret)
+            return positioned(Node(NodeType::Symbol, "nil").attachNearestCommentBefore(comment), filepos);
+        return positioned(Node(NodeType::List).attachNearestCommentBefore(comment), filepos);
     }
 
     std::optional<Node> Parser::atom()
     {
         const auto pos = getCount();
+        const auto filepos = getCursor();
 
-        if (auto res = Parser::number(); res.has_value())
+        if (auto res = Parser::number(filepos); res.has_value())
             return res;
         backtrack(pos);
 
-        if (auto res = Parser::string(); res.has_value())
+        if (auto res = Parser::string(filepos); res.has_value())
             return res;
         backtrack(pos);
 
-        if (auto res = Parser::spread(); m_allow_macro_behavior > 0 && res.has_value())
+        if (auto res = Parser::spread(filepos); m_allow_macro_behavior > 0 && res.has_value())
             return res;
         backtrack(pos);
 
-        if (auto res = Parser::field(); res.has_value())
+        if (auto res = Parser::field(filepos); res.has_value())
             return res;
         backtrack(pos);
 
-        if (auto res = Parser::symbol(); res.has_value())
+        if (auto res = Parser::symbol(filepos); res.has_value())
             return res;
         backtrack(pos);
 
-        if (auto res = Parser::nil(); res.has_value())
+        if (auto res = Parser::nil(filepos); res.has_value())
             return res;
         backtrack(pos);
 
@@ -889,10 +1025,8 @@ namespace Ark::internal
 
     std::optional<Node> Parser::anyAtomOf(const std::initializer_list<NodeType> types)
     {
-        auto cursor = getCursor();
         if (auto value = atom(); value.has_value())
         {
-            setNodePosAndFilename(value.value(), cursor);
             for (const auto type : types)
             {
                 if (value->nodeType() == type)
@@ -904,47 +1038,31 @@ namespace Ark::internal
 
     std::optional<Node> Parser::nodeOrValue()
     {
-        auto cursor = getCursor();
         if (auto value = atom(); value.has_value())
-        {
-            setNodePosAndFilename(value.value(), cursor);
             return value;
-        }
         if (auto sub_node = node(); sub_node.has_value())
-        {
-            setNodePosAndFilename(sub_node.value(), cursor);
             return sub_node;
-        }
 
         return std::nullopt;
     }
 
-    std::optional<Node> Parser::wrapped(std::optional<Node> (Parser::*parser)(), const std::string& name)
+    std::optional<Node> Parser::wrapped(std::optional<Node> (Parser::*parser)(FilePosition), const std::string& name)
     {
-        auto cursor = getCursor();
-        auto context = generateErrorContext("(");
+        const auto cursor = getCursor();
+        auto context = generateErrorContextAtCurrentPosition();
         if (!prefix('('))
             return std::nullopt;
-        std::string comment;
-        newlineOrComment(&comment);
 
-        if (auto result = (this->*parser)(); result.has_value())
+        const std::string comment = newlineOrComment();
+
+        if (auto result = (this->*parser)(cursor); result.has_value())
         {
             result->attachNearestCommentBefore(result->comment() + comment);
-            setNodePosAndFilename(result.value(), cursor);
+            result.value().attachCommentAfter(newlineOrComment());
 
-            comment.clear();
-            if (newlineOrComment(&comment))
-                result.value().attachCommentAfter(comment);
-
-            if (result->isListLike())
-                setNodePosAndFilename(result->list().back());
             expectSuffixOrError(')', "after " + name, context);
 
-            comment.clear();
-            if (spaceComment(&comment))
-                result.value().attachCommentAfter(comment);
-
+            result.value().attachCommentAfter(spaceComment());
             return result;
         }
 

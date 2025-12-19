@@ -10,6 +10,7 @@ RUN apk --no-cache add git
 WORKDIR /out
 COPY .git .git
 COPY lib lib
+COPY thirdparties thirdparties
 COPY .gitmodules .
 
 RUN git rev-parse --short=8 HEAD > /rev

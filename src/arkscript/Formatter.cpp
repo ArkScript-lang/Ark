@@ -4,19 +4,22 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 
-#include <Ark/Files.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Utils/Files.hpp>
+#include <Ark/Error/Exceptions.hpp>
+#include <Ark/Error/Diagnostics.hpp>
 #include <Ark/Compiler/Common.hpp>
+#include <Ark/Utils/Literals.hpp>
 
 using namespace Ark;
 using namespace Ark::internal;
+using namespace Ark::literals;
 
 Formatter::Formatter(const bool dry_run) :
-    m_dry_run(dry_run), m_parser(/* debug= */ 0, /* interpret= */ false), m_updated(false)
+    m_dry_run(dry_run), m_parser(/* debug= */ 0, ParserMode::Raw), m_updated(false)
 {}
 
 Formatter::Formatter(std::string filename, const bool dry_run) :
-    m_filename(std::move(filename)), m_dry_run(dry_run), m_parser(/* debug= */ 0, /* interpret= */ false), m_updated(false)
+    m_filename(std::move(filename)), m_dry_run(dry_run), m_parser(/* debug= */ 0, ParserMode::Raw), m_updated(false)
 {}
 
 void Formatter::run()
@@ -87,11 +90,15 @@ void Formatter::processAst(const Node& ast)
 
 void Formatter::warnIfCommentsWereRemoved(const std::string& original_code, const std::string& filename)
 {
-    if (std::ranges::count(original_code, '#') != std::ranges::count(m_output, '#'))
+    const std::size_t before_count = std::ranges::count(original_code, '#');
+    const std::size_t after_count = std::ranges::count(m_output, '#');
+
+    if (before_count != after_count)
     {
         fmt::println(
-            "{}: one or more comments from the original source code seem to have been removed by mistake while formatting {}",
+            "{}: one or more comments from the original source code seem to have been {} by mistake while formatting {}",
             fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)),
+            before_count > after_count ? "removed" : "duplicated",
             filename != ARK_NO_NAME_FILE ? filename : "file");
         fmt::println("Please fill an issue on GitHub: https://github.com/ArkScript-lang/Ark");
     }
@@ -121,23 +128,36 @@ std::size_t Formatter::lineOfLastNodeIn(const Node& node)
 {
     if (node.isListLike() && !node.constList().empty())
     {
-        std::size_t child_line = lineOfLastNodeIn(node.constList().back());
-        if (child_line < node.line())
-            return node.line();
+        const std::size_t child_line = lineOfLastNodeIn(node.constList().back());
+        if (child_line < node.position().start.line)
+            return node.position().start.line;
         return child_line;
     }
-    return node.line();
+    return node.position().start.line;
+}
+
+bool Formatter::isLongLine(const Node& node)
+{
+    const std::string formatted = format(node, 0, false);
+    const std::size_t max_len =
+        std::ranges::max(
+            Utils::splitString(formatted, '\n'),
+            [](const std::string& lhs, const std::string& rhs) {
+                return lhs.size() < rhs.size();
+            })
+            .size();
+    const std::size_t newlines = std::ranges::count(formatted, '\n');
+
+    // split on multiple lines if we have a very long node,
+    // or if we added many line breaks while doing dumb formatting
+    return max_len >= FormatterConfig::LongLineLength || (newlines > 0 && node.isListLike() && newlines + 1 >= node.constList().size());
 }
 
 bool Formatter::shouldSplitOnNewline(const Node& node)
 {
-    const std::string formatted = format(node, 0, false);
-    const std::string::size_type sz = formatted.find_first_of('\n');
-
-    const bool is_long_line = !((sz < FormatterConfig::LongLineLength || (sz == std::string::npos && formatted.size() < FormatterConfig::LongLineLength)));
     if (node.comment().empty() && (isBeginBlock(node) || isFuncCall(node)))
         return false;
-    if (is_long_line || (node.isListLike() && node.constList().size() > 1) || !node.comment().empty())
+    if (isLongLine(node) || (node.isListLike() && node.constList().size() > 1) || !node.comment().empty())
         return true;
     return false;
 }
@@ -148,7 +168,7 @@ bool Formatter::shouldAddNewLineBetweenNodes(const Node& node, const std::size_t
         return false;
 
     const auto& list = node.constList();
-    std::size_t previous_line = lineOfLastNodeIn(list[at - 1]);
+    const std::size_t previous_line = lineOfLastNodeIn(list[at - 1]);
 
     const auto& child = list[at];
 
@@ -156,11 +176,11 @@ bool Formatter::shouldAddNewLineBetweenNodes(const Node& node, const std::size_t
     // and the line count between the two nodes is more than 1,
     // maybe we should add a new line to preserve user spacing.
     // However, if the current node has a comment, do not add a new line, this is causing the spacing.
-    if (child.line() - previous_line > 1 && child.comment().empty())
+    if (child.position().start.line - previous_line > 1 && child.comment().empty())
         return true;
     // If we do have a comment but the spacing is more than 2,
     // then add a newline to preserve user spacing.
-    if (child.line() - previous_line > 2 && !child.comment().empty())
+    if (child.position().start.line - previous_line > 2 && !child.comment().empty())
         return true;
     return false;
 }
@@ -180,6 +200,12 @@ std::string Formatter::format(const Node& node, std::size_t indent, bool after_n
     {
         case NodeType::Symbol:
             result += node.string();
+            break;
+        case NodeType::MutArg:
+            result += fmt::format("(mut {})", node.string());
+            break;
+        case NodeType::RefArg:
+            result += fmt::format("(ref {})", node.string());
             break;
         case NodeType::Capture:
             result += "&" + node.string();
@@ -291,7 +317,7 @@ std::string Formatter::formatFunction(const Node& node, const std::size_t indent
     {
         bool comment_in_args = false;
         std::string args;
-        const bool split = shouldSplitOnNewline(args_node);
+        const bool split = (isLongLine(args_node) || !args_node.comment().empty());
 
         for (std::size_t i = 0, end = args_node.constList().size(); i < end; ++i)
         {
@@ -316,16 +342,14 @@ std::string Formatter::formatFunction(const Node& node, const std::size_t indent
 
 std::string Formatter::formatVariable(const Node& node, const std::size_t indent)
 {
-    std::string keyword = std::string(keywords[static_cast<std::size_t>(node.constList()[0].keyword())]);
+    const auto keyword = std::string(keywords[static_cast<std::size_t>(node.constList()[0].keyword())]);
 
     const Node body_node = node.constList()[2];
     const std::string formatted_bind = format(node.constList()[1], indent, false);
 
     // we don't want to add another indentation level here, because it would result in a (let a (fun ()\n{indent+=4}...))
-    if (isFuncDef(body_node))
+    if (isFuncDef(body_node) || !shouldSplitOnNewline(body_node))
         return fmt::format("({} {} {})", keyword, formatted_bind, format(body_node, indent, false));
-    if (!shouldSplitOnNewline(body_node))
-        return fmt::format("({} {} {})", keyword, formatted_bind, format(body_node, indent + 1, false));
     return fmt::format("({} {}\n{})", keyword, formatted_bind, format(body_node, indent + 1, true));
 }
 
@@ -345,7 +369,7 @@ std::string Formatter::formatCondition(const Node& node, const std::size_t inden
         cond_on_newline ? "\n" : " ",
         formatted_cond);
 
-    const bool split_then_newline = shouldSplitOnNewline(then_node);
+    const bool split_then_newline = shouldSplitOnNewline(then_node) || isBeginBlock(then_node);
 
     // (if cond then)
     if (node.constList().size() == 3)
@@ -479,11 +503,16 @@ std::string Formatter::formatDel(const Node& node, const std::size_t indent)
 std::string Formatter::formatCall(const Node& node, const std::size_t indent)
 {
     bool is_list = false;
-    if (!node.constList().empty() && node.constList().front().nodeType() == NodeType::Symbol &&
-        node.constList().front().string() == "list")
-        is_list = true;
-
+    bool is_dict = false;
     bool is_multiline = false;
+
+    if (!node.constList().empty() && node.constList().front().nodeType() == NodeType::Symbol)
+    {
+        if (node.constList().front().string() == "list")
+            is_list = true;
+        else if (node.constList().front().string() == "dict")
+            is_dict = true;
+    }
 
     std::vector<std::string> formatted_args;
     for (std::size_t i = 1, end = node.constList().size(); i < end; ++i)
@@ -495,16 +524,39 @@ std::string Formatter::formatCall(const Node& node, const std::size_t indent)
     }
 
     std::string result = is_list ? "[" : ("(" + format(node.constList()[0], indent, false));
+
+    // Split args on multiple lines even if, individually, they fit in the configured line length, if grouped together
+    // on a single line they are too long
+    const std::size_t args_line_length = std::accumulate(
+        formatted_args.begin(),
+        formatted_args.end(),
+        result.size() + 1,  // +1 to count the closing paren/bracket
+        [](const std::size_t acc, const std::string& val) {
+            return acc + val.size() + 1_z;
+        });
+    if (args_line_length >= FormatterConfig::LongLineLength)
+        is_multiline = true;
+
     for (std::size_t i = 0, end = formatted_args.size(); i < end; ++i)
     {
-        const std::string formatted_node = formatted_args[i];
-        if (is_multiline)
+        const std::string& formatted_node = formatted_args[i];
+        if (is_dict)
+        {
+            if (i % 2 == 0 && formatted_args.size() > 2)  // one pair per line if we have at least 2 key-value pairs
+                result += "\n" + format(node.constList()[i + 1], indent + 1, true);
+            else
+                result += " " + formatted_node;
+        }
+        else if (is_multiline)
             result += "\n" + format(node.constList()[i + 1], indent + 1, true);
-        else
-            result += (is_list && i == 0 ? "" : " ") + formatted_node;
+        else if (is_list && i == 0)
+            result += formatted_node;
+        else  // put all arguments on the same line
+            result += " " + formatted_node;
     }
     if (!node.constList().back().commentAfter().empty())
         result += "\n" + prefix(indent);
+
     result += is_list ? "]" : ")";
     return result;
 }

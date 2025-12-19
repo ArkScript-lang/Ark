@@ -1,6 +1,6 @@
 /**
  * @file TypeChecker.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief
  * @date 2022-01-16
  *
@@ -16,8 +16,13 @@
 #include <ostream>
 #include <sstream>
 
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 #include <Ark/VM/Value.hpp>
+
+namespace Ark
+{
+    class VM;
+}
 
 namespace Ark::types
 {
@@ -92,6 +97,7 @@ namespace Ark::types
      * @param funcname ArkScript name of the function
      * @param contracts types contracts the function can follow
      * @param args provided argument list
+     * @param vm reference to the VM used for pretty printing closures
      * @param os output stream, default to cout
      * @param colorize enable output colorizing
      */
@@ -99,10 +105,11 @@ namespace Ark::types
         const std::string_view& funcname,
         const std::vector<Contract>& contracts,
         const std::vector<Value>& args,
+        VM& vm,
         std::ostream& os = std::cout,
         bool colorize = true);
 
-    class ARK_API TypeCheckingError : public Error
+    class ARK_API TypeCheckingError final : public Error
     {
     public:
         TypeCheckingError(std::string&& funcname, const std::vector<Contract>& contracts, const std::vector<Value>& args) :
@@ -112,10 +119,10 @@ namespace Ark::types
             m_passed_args(args)
         {}
 
-        [[nodiscard]] std::string details(const bool colorize) const override
+        [[nodiscard]] std::string details(const bool colorize, VM& vm) const override
         {
             std::stringstream stream;
-            generateError(m_funcname, m_contracts, m_passed_args, stream, colorize);
+            generateError(m_funcname, m_contracts, m_passed_args, vm, stream, colorize);
             return stream.str();
         }
 

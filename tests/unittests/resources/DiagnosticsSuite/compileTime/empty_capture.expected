@@ -1,0 +1,5 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/empty_capture.ark:1
+    1 | (let foo (fun (a b &) ()))
+      |                    ^
+    2 |
+        No symbol provided to capture

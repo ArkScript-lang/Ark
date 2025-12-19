@@ -1,4 +1,4 @@
-At 1 @ 1:12
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/invalid_import_symbol.ark:1
     1 | (import a :123)
       |            ^~~
     2 |

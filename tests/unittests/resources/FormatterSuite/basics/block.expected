@@ -1,0 +1,4 @@
+{
+  (print 1)
+  (print 2)
+  (let a 3) }

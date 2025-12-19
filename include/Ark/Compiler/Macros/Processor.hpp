@@ -1,6 +1,6 @@
 /**
  * @file Processor.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Handles the macros and their expansion in ArkScript source code
  * @date 2021-02-18
  *
@@ -11,7 +11,7 @@
 #ifndef COMPILER_MACROS_PROCESSOR_HPP
 #define COMPILER_MACROS_PROCESSOR_HPP
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/Macros/MacroScope.hpp>
 #include <Ark/Compiler/Pass.hpp>
@@ -151,9 +151,10 @@ namespace Ark::internal
          * @param node a list node with a macro application, eg (= a b)
          * @param expected expected argument count, not counting the macro
          * @param name the name of the macro being applied
+         * @param is_expansion if the error message should switch from "Interpreting ..." to "When expanding ..."
          * @param kind the macro kind, empty by default (eg "operator", "condition")
          */
-        void checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, const std::string& kind = "");
+        void checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, bool is_expansion = false, const std::string& kind = "");
 
         /**
          * @brief Check if the given node has at least the provided argument count, otherwise throws an error

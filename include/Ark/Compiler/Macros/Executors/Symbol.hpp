@@ -1,6 +1,6 @@
 /**
  * @file Symbol.hpp
- * @author Ray John Alovera (rakista112@gmail.com), Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Ray John Alovera (rakista112@gmail.com), Lex Plateau (lexplt.dev@gmail.com)
  * @brief Executor for Symbol Macros
  * @date 2021-05-04
  *

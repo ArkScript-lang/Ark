@@ -1,5 +1,5 @@
-At ((begin)) @ 1:4
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/can_not_call.ark:1
     1 |  (((begin)))
-      |    ^~~~~~~~
+      |    ^~~~~~~
     2 |
-        Can not call (begin)
+        Can not call `(begin)', as it doesn't return a value

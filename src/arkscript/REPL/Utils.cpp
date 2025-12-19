@@ -125,7 +125,7 @@ namespace Ark::internal
         const std::string prefix = context.substr(prefix_len);
         for (const auto& e : words)
         {
-            if (e.starts_with(prefix) == 0)
+            if (e.starts_with(prefix))
                 completions.emplace_back(e.c_str());
         }
 
@@ -149,7 +149,10 @@ namespace Ark::internal
 
                 pos += codepointLength(prefix);
                 for (std::size_t i = 0; i < len; ++i)
-                    colors.at(pos + i) = color;
+                {
+                    if (colors.at(pos + i) == replxx::Replxx::Color::DEFAULT)
+                        colors.at(pos + i) = color;
+                }
 
                 pos += len;
                 str = match.suffix();

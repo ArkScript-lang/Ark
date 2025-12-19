@@ -29,14 +29,14 @@ Value VM::call(const std::string& name, Args&&... args)
     }
 
     // find function object and push it if it's a pageaddr/closure
-    if (const auto dist = std::distance(m_state.m_symbols.begin(), it); std::cmp_less(dist, std::numeric_limits<uint16_t>::max()))
+    if (const auto dist = std::distance(m_state.m_symbols.begin(), it); std::cmp_less(dist, MaxValue16Bits))
     {
         const uint16_t id = static_cast<uint16_t>(dist);
         Value* var = findNearestVariable(id, context);
         assert(var != nullptr && "Couldn't find variable");
 
         if (!var->isFunction())
-            throwVMError(ErrorKind::Type, fmt::format("Can't call '{}': it isn't a Function but a {}", name, types_to_str[static_cast<std::size_t>(var->valueType())]));
+            throwVMError(ErrorKind::Type, fmt::format("Can't call '{}': it isn't a Function but a {}", name, std::to_string(var->valueType())));
 
         push(Value(var), context);
         context.last_symbol = id;
@@ -60,7 +60,7 @@ Value VM::call(const std::string& name, Args&&... args)
 inline Value VM::resolve(internal::ExecutionContext* context, const std::vector<Value>& n)
 {
     if (!n[0].isFunction())
-        throw TypeError(fmt::format("VM::resolve couldn't resolve a non-function ({})", types_to_str[static_cast<std::size_t>(n[0].valueType())]));
+        throw TypeError(fmt::format("VM::resolve couldn't resolve a non-function ({})", std::to_string(n[0].valueType())));
 
     const std::size_t ip = context->ip;
     const std::size_t pp = context->pp;
@@ -117,6 +117,8 @@ inline Value* VM::loadSymbolFromIndex(const uint16_t index, internal::ExecutionC
     // treatment only for function calls.
     auto& [id, value] = context.locals.back().atPosReverse(index);
     context.last_symbol = id;
+    if (value.valueType() == ValueType::Reference)
+        return value.reference();
     return &value;
 }
 
@@ -131,7 +133,7 @@ inline void VM::store(const uint16_t id, const Value* val, internal::ExecutionCo
     Value* local = context.locals.back()[id];
     if (local == nullptr) [[likely]]
     {
-        if (!context.locals.back().push_back(id, *val))
+        if (!context.locals.back().pushBack(id, *val))
             throw Error(fmt::format("Can not create variable: no more heap space (limit: {}). If you are using a recursive algorithm, try making use of tail call optimization to reduce the number of allocated scopes.", ScopeStackSize));
     }
     else
@@ -154,6 +156,12 @@ inline void VM::setVal(const uint16_t id, const Value* val, internal::ExecutionC
                 "Unbound variable `{}', can not change its value to {}",
                 m_state.m_symbols[id],
                 val->toString(*this)));
+}
+
+inline void VM::jump(const uint16_t address, internal::ExecutionContext& context)
+{
+    // instructions are on 4 bytes!
+    context.ip = address * 4;
 }
 
 #pragma endregion
@@ -182,19 +190,19 @@ inline Value* VM::peekAndResolveAsPtr(internal::ExecutionContext& context)
     return &m_undefined_value;
 }
 
-inline void VM::push(const Value& value, internal::ExecutionContext& context)
+inline void VM::push(const Value& value, internal::ExecutionContext& context) noexcept
 {
     context.stack[context.sp] = value;
     ++context.sp;
 }
 
-inline void VM::push(Value&& value, internal::ExecutionContext& context)
+inline void VM::push(Value&& value, internal::ExecutionContext& context) noexcept
 {
     context.stack[context.sp] = std::move(value);
     ++context.sp;
 }
 
-inline void VM::push(Value* valptr, internal::ExecutionContext& context)
+inline void VM::push(Value* valptr, internal::ExecutionContext& context) noexcept
 {
     context.stack[context.sp].m_type = ValueType::Reference;
     context.stack[context.sp].m_value = valptr;
@@ -311,7 +319,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
                 ErrorKind::Type,
                 fmt::format(
                     "{} is not a Function but a {}",
-                    maybe_value_ptr->toString(*this), types_to_str[static_cast<std::size_t>(call_type)]));
+                    maybe_value_ptr->toString(*this), std::to_string(call_type)));
         }
     }
 
@@ -320,7 +328,8 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
                 needed_argc = 0;
 
     // every argument is a MUT declaration in the bytecode
-    while (m_state.inst(context.pp, index) == STORE)
+    while (m_state.inst(context.pp, index) == STORE ||
+           m_state.inst(context.pp, index) == STORE_REF)
     {
         needed_argc += 1;
         index += 4;  // instructions are on 4 bytes

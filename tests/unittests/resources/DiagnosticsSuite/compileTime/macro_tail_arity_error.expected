@@ -1,6 +1,6 @@
-At (tail 1 2) @ 1:11
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_tail_arity_error.ark:1
     1 | (macro a (tail 1 2))
-      |           ^~~~~~~~~
+      |          ^~~~~~~~~~
     2 | (print a)
     3 |
         When expanding `tail' inside a macro, got 2 arguments, expected 1

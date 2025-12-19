@@ -1,6 +1,6 @@
 /**
  * @file ImportSolver.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Handle imports, resolve them with modules and everything
  * @date 2024-07-21
  *
@@ -17,7 +17,7 @@
 #include <filesystem>
 #include <unordered_map>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Import.hpp>
@@ -83,10 +83,10 @@ namespace Ark::internal
          * @brief Search for an import file, using the root file path
          *
          * @param file path to the file containing the import
-         * @param import current import directive
+         * @param import_ current import directive
          * @return std::filesystem::path
          */
-        [[nodiscard]] std::filesystem::path findFile(const std::filesystem::path& file, const Import& import) const;
+        [[nodiscard]] std::filesystem::path findFile(const std::filesystem::path& file, const Import& import_) const;
     };
 }
 

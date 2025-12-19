@@ -1,0 +1,19 @@
+Function + expected 2 arguments
+Call
+  ↳ (+ 0 Function@1)
+Signature
+  ↳ (+ a b)
+Arguments
+  → `a' (expected Number), got 0 (String)
+  → `b' (expected Number), got Function@1 (Function)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/increment_index_str_num.ark:2
+    1 | (mut i "0")
+    2 | ((fun () (+ i 1)))
+      | ^~~~~~~~~~~~~~~~~
+    3 |
+
+[   2] In function `???' (tests/unittests/resources/DiagnosticsSuite/typeChecking/increment_index_str_num.ark:2)
+[   1] In global scope (tests/unittests/resources/DiagnosticsSuite/typeChecking/increment_index_str_num.ark:2)
+
+Current scope variables values:

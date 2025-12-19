@@ -1,0 +1,15 @@
+(let sortByKey (fun (
+(ref _L)
+_key) {
+  (if (empty? _L)
+    []
+    {
+      (let _pivot_val (head _L))
+      (let _pivot (_key _pivot_val))
+
+      (mut _rest (tail _L))
+      (mut _less (sortByKey (filter _rest (fun (e) (< (_key e) _pivot))) _key))
+      (let _more (sortByKey (filter _rest (fun (e) (>= (_key e) _pivot))) _key))
+
+      (concat! _less [_pivot_val] _more)
+      _less }) }))

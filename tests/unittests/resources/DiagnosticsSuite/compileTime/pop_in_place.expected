@@ -1,4 +1,4 @@
-At a @ 2:7
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/pop_in_place.ark:2
     1 | (let a [])
     2 | (pop! a 1)
       |       ^

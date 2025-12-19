@@ -1,7 +1,5 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_if.ark:2
-At EOF @ 2:0
+      | ┌─ expression started here
     1 | (if 1 2 3
-      | ^ expression started here
     2 |
-      | ^
         Missing ')' after condition

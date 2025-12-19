@@ -1,6 +1,6 @@
 /**
  * @file Common.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Common code for the compiler
  * @date 2021-10-02
  *
@@ -43,6 +43,8 @@ namespace Ark::internal
     enum class NodeType
     {
         Symbol,
+        MutArg,
+        RefArg,
         Capture,
         Keyword,
         String,
@@ -56,8 +58,10 @@ namespace Ark::internal
     };
 
     /// Node types as string, in the same order as the enum NodeType
-    constexpr std::array<std::string_view, 11> nodeTypes = {
+    constexpr std::array<std::string_view, 13> nodeTypes = {
         "Symbol",
+        "MutArg",
+        "RefArg",
         "Capture",
         "Keyword",
         "String",
@@ -125,6 +129,7 @@ namespace Ark::internal
         };
 
         constexpr std::string_view SysArgs = "builtin__sys:args";
+        constexpr std::string_view SysProgramName = "builtin__sys:programName";
 
         constexpr std::string_view And = "and";
         constexpr std::string_view Or = "or";
@@ -134,13 +139,15 @@ namespace Ark::internal
         constexpr std::string_view Argcount = "$argcount";
         constexpr std::string_view Repr = "$repr";
         constexpr std::string_view AsIs = "$as-is";
+        constexpr std::string_view Type = "$type";
 
         constexpr std::array macros = {
             Undef,
             Symcat,
             Argcount,
             Repr,
-            AsIs
+            AsIs,
+            Type
         };
 
         // This list is related to include/Ark/Compiler/Instructions.hpp

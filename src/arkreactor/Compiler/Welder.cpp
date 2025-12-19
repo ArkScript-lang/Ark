@@ -5,8 +5,9 @@
 #include <Ark/Compiler/AST/Optimizer.hpp>
 #include <Ark/Compiler/Macros/Processor.hpp>
 #include <Ark/Compiler/NameResolution/NameResolutionPass.hpp>
-#include <Ark/Files.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Utils/Files.hpp>
+#include <Ark/Error/Exceptions.hpp>
+#include <Ark/Error/Diagnostics.hpp>
 
 #include <sstream>
 #include <fmt/ostream.h>

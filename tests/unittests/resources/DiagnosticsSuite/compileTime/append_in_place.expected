@@ -1,4 +1,4 @@
-At a @ 2:10
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/append_in_place.ark:2
     1 | (let a [])
     2 | (append! a 5)
       |          ^

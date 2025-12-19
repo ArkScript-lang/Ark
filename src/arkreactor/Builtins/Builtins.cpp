@@ -42,6 +42,7 @@ namespace Ark::internal::Builtins
         { "builtin__io:writeFile", Value(IO::writeFile) },
         { "builtin__io:appendToFile", Value(IO::appendToFile) },
         { "builtin__io:readFile", Value(IO::readFile) },
+        { "builtin__io:readLinesFile", Value(IO::readLinesFile) },
         { "builtin__io:fileExists?", Value(IO::fileExists) },
         { "builtin__io:listFiles", Value(IO::listFiles) },
         { "builtin__io:dir?", Value(IO::isDirectory) },
@@ -94,6 +95,18 @@ namespace Ark::internal::Builtins
 
         // Async
         { "async", Value(Async::async) },
-        { "await", Value(Async::await) }
+        { "await", Value(Async::await) },
+
+        // Dict
+        { "dict", Value(Dict::dict) },
+        { "builtin__dict:get", Value(Dict::get) },
+        { "builtin__dict:add", Value(Dict::add) },
+        { "builtin__dict:contains", Value(Dict::contains) },
+        { "builtin__dict:remove", Value(Dict::remove) },
+        { "builtin__dict:keys", Value(Dict::keys) },
+        { "builtin__dict:size", Value(Dict::size) },
+
+        // Bytecode
+        { "disassemble", Value(Bytecode::disassemble) }
     };
 }

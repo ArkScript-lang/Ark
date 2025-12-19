@@ -1,5 +1,10 @@
 Function sys:sleep expected 1 argument
-  -> duration (Number) was of type String
+Call
+  ↳ (sys:sleep 1)
+Signature
+  ↳ (sys:sleep duration)
+Arguments
+  → `duration' (expected Number), got 1 (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/syssleep_str.ark:1
     1 | (builtin__sys:sleep "1")

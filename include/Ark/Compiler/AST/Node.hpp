@@ -1,6 +1,6 @@
 /**
  * @file Node.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief AST node used by the parser, optimizer and compiler
  * @date 2020-10-27
  *
@@ -15,10 +15,12 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <optional>
 
 #include <Ark/Compiler/AST/Namespace.hpp>
 #include <Ark/Compiler/Common.hpp>
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
+#include <Ark/Utils/Position.hpp>
 
 namespace Ark::internal
 {
@@ -112,18 +114,18 @@ namespace Ark::internal
         [[nodiscard]] bool isListLike() const noexcept;
 
         /**
-         * @brief Check if the node is a string like node
-         * @return true if the node is either a symbol, a string or a spread
-         * @return false
-         */
-        [[nodiscard]] bool isStringLike() const noexcept;
-
-        /**
          * @brief Check if the node is a function
          * @return true if the node is a function declaration
          * @return false
          */
         [[nodiscard]] bool isFunction() const noexcept;
+
+        /**
+         * @brief Get the unqualified name, if it has been set
+         *
+         * @return const std::optional<std::string>&
+         */
+        [[nodiscard]] const std::optional<std::string>& getUnqualifiedName() const noexcept;
 
         /**
          * @brief Copy a node to the current one, while keeping the filename and position in the file
@@ -140,6 +142,13 @@ namespace Ark::internal
         void setNodeType(NodeType type) noexcept;
 
         /**
+         * @brief Set the unqualified name (used by Capture nodes)
+         *
+         * @param name
+         */
+        void setUnqualifiedName(const std::string& name) noexcept;
+
+        /**
          * @brief Set the String object
          *
          * @param value
@@ -147,19 +156,11 @@ namespace Ark::internal
         void setString(const std::string& value) noexcept;
 
         /**
-         * @brief Set the Position of the node in the text
+         * @brief Position the current node at a given span in a file
          *
-         * @param line
-         * @param col
+         * @param source node to copy filename and position from
          */
-        void setPos(std::size_t line, std::size_t col) noexcept;
-
-        /**
-         * @brief Set the original Filename where the node was
-         *
-         * @param filename
-         */
-        void setFilename(const std::string& filename) noexcept;
+        void setPositionFrom(const Node& source) noexcept;
 
         /**
          * @brief Set the comment field with the nearest comment before this node
@@ -195,24 +196,11 @@ namespace Ark::internal
         [[nodiscard]] bool isAnonymousFunction() const noexcept;
 
         /**
-         * @brief Check if a node is alt syntax
-         * @return bool
-         */
-        [[nodiscard]] bool isAltSyntax() const;
-
-        /**
-         * @brief Get the line at which this node was created
+         * @brief Get the span of the node (start and end)
          *
-         * @return std::size_t
+         * @return const FileSpan
          */
-        [[nodiscard]] std::size_t line() const noexcept;
-
-        /**
-         * @brief Get the column at which this node was created
-         *
-         * @return std::size_t
-         */
-        [[nodiscard]] std::size_t col() const noexcept;
+        [[nodiscard]] FileSpan position() const noexcept;
 
         /**
          * @brief Return the filename in which this node was created
@@ -248,12 +236,14 @@ namespace Ark::internal
 
         friend bool operator==(const Node& A, const Node& B);
         friend bool operator<(const Node& A, const Node& B);
+        friend class Parser;
 
     private:
         NodeType m_type { NodeType::Unused };
         Value m_value;
+        std::optional<std::string> m_unqualified_name { std::nullopt };  ///< Used by Capture nodes, to have the FQN in the value, and the captured name here
         // position of the node in the original code, useful when it comes to parser errors
-        std::size_t m_line = 0, m_col = 0;
+        FileSpan m_pos;
         std::string m_filename;
         std::string m_comment;
         std::string m_after_comment;          ///< Comment after node

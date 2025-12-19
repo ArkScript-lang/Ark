@@ -5,7 +5,7 @@
     ($000000 s00 x)})
 
 (macro partial (func ...defar0s) {
-    (macro b0000(s00000-000 a (len defar0s)))
+    (macro b0o0 (s00000-000 a (len defar0s)))
     (fun (b0o0) (func ...defar0s b000))
     ($00000 b000)})
 

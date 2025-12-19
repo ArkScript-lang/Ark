@@ -1,4 +1,4 @@
-At ber @ 2:8
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/unbound_var_suggestion.ark:2
     1 | (let bar 12)
     2 | (let a ber)
       |        ^~~

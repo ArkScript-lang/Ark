@@ -1,4 +1,4 @@
-At a @ 2:10
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/concat_in_place.ark:2
     1 | (let a [])
     2 | (concat! a [5])
       |          ^

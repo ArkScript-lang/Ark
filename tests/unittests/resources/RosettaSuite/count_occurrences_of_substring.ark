@@ -1,0 +1,12 @@
+(import std.String)
+
+(let count (fun (str word) {
+  (mut total 0)
+  (mut next (string:find str word))
+  (while (!= -1 next) {
+    (set total (+ 1 total))
+    (set next (string:findAfter str word (+ next (len word)))) })
+  total }))
+
+(assert (= 3 (count "the three truths" "th")) "3 th in the string")
+(assert (= 2 (count "ababababab" "abab")) "2 abab in the string")

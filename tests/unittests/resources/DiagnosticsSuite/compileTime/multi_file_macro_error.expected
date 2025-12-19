@@ -1,0 +1,14 @@
+Error originated from file tests/unittests/resources/DiagnosticsSuite/compileTime/package/macro_unpack.ark:1
+      | ┌─ macro expansion started here
+    1 | (macro unpackPair (pair outx outy) {
+    2 |   (let outx ($as-is (@ pair 0)))
+    3 |   (let outy ($as-is (@ pair 1))) })
+    4 |
+      | └─ ... and ended here
+
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/multi_file_macro_error.ark:2
+    1 | (import package.macro_unpack)
+    2 | (unpackPair in out)
+      | ^~~~~~~~~~~~~~~~~~
+    3 |
+        Macro `unpackPair' got 2 argument(s) but needed 3

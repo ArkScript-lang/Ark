@@ -1,7 +1,7 @@
 #include <Ark/VM/State.hpp>
 
 #include <Ark/Constants.hpp>
-#include <Ark/Files.hpp>
+#include <Ark/Utils/Files.hpp>
 #include <Ark/Compiler/Welder.hpp>
 
 #ifdef _MSC_VER
@@ -25,17 +25,19 @@ namespace Ark
         // default value for builtin__sys:args is empty list
         const Value val(ValueType::List);
         m_binded[std::string(internal::Language::SysArgs)] = val;
+
+        m_binded[std::string(internal::Language::SysProgramName)] = Value("");
     }
 
-    bool State::feed(const std::string& bytecode_filename)
+    bool State::feed(const std::string& bytecode_filename, const bool fail_with_exception)
     {
         if (!Utils::fileExists(bytecode_filename))
             return false;
 
-        return feed(Utils::readFileAsBytes(bytecode_filename));
+        return feed(Utils::readFileAsBytes(bytecode_filename), fail_with_exception);
     }
 
-    bool State::feed(const bytecode_t& bytecode)
+    bool State::feed(const bytecode_t& bytecode, const bool fail_with_exception)
     {
         BytecodeReader bcr;
         bcr.feed(bytecode);
@@ -49,8 +51,11 @@ namespace Ark
             configure(bcr);
             return true;
         }
-        catch (const std::exception& e)  // FIXME I don't like this shit
+        catch (const std::exception& e)
         {
+            if (fail_with_exception)
+                throw;
+
             fmt::println("{}", e.what());
             return false;
         }
@@ -74,30 +79,30 @@ namespace Ark
         return true;
     }
 
-    bool State::doFile(const std::string& file, const uint16_t features)
+    bool State::doFile(const std::string& file_path, const uint16_t features)
     {
-        if (!Utils::fileExists(file))
+        if (!Utils::fileExists(file_path))
         {
-            fmt::print(fmt::fg(fmt::color::red), "Can not find file '{}'\n", file);
+            fmt::print(fmt::fg(fmt::color::red), "Can not find file '{}'\n", file_path);
             return false;
         }
-        m_filename = file;
+        m_filename = file_path;
+        m_binded[std::string(internal::Language::SysProgramName)] = Value(std::filesystem::path(m_filename).filename().string());
 
-        const bytecode_t bytecode = Utils::readFileAsBytes(file);
+        const bytecode_t bytecode = Utils::readFileAsBytes(file_path);
         BytecodeReader bcr;
         bcr.feed(bytecode);
         if (!bcr.checkMagic())  // couldn't read magic number, it's a source file
         {
             // check if it's in the arkscript cache
-            const std::string short_filename = (std::filesystem::path(file)).filename().string();
-            const std::string filename = short_filename.substr(0, short_filename.find_last_of('.')) + ".arkc";
-            const std::filesystem::path directory = (std::filesystem::path(file)).parent_path() / ARK_CACHE_DIRNAME;
-            const std::string path = (directory / filename).string();
+            const std::string filename = std::filesystem::path(file_path).filename().replace_extension(".arkc").string();
+            const std::filesystem::path cache_directory = std::filesystem::path(file_path).parent_path() / ARK_CACHE_DIRNAME;
+            const std::string bytecode_path = (cache_directory / filename).string();
 
-            if (!exists(directory))  // create ark cache directory
-                create_directory(directory);
+            if (!exists(cache_directory))
+                create_directory(cache_directory);
 
-            if (compile(file, path, features) && feed(path))
+            if (compile(file_path, bytecode_path, features) && feed(bytecode_path))
                 return true;
         }
         else if (feed(bytecode))  // it's a bytecode file
@@ -150,9 +155,7 @@ namespace Ark
         const auto [major, minor, patch] = bcr.version();
         if (major != ARK_VERSION_MAJOR)
         {
-            std::string str_version = std::to_string(major) + "." +
-                std::to_string(minor) + "." +
-                std::to_string(patch);
+            const std::string str_version = fmt::format("{}.{}.{}", major, minor, patch);
             throwStateError(fmt::format("Compiler and VM versions don't match: got {} while running {}", str_version, ARK_VERSION));
         }
 
@@ -212,6 +215,8 @@ namespace Ark
         // default value for builtin__sys:args is empty list
         const Value val(ValueType::List);
         m_binded[std::string(internal::Language::SysArgs)] = val;
+
+        m_binded[std::string(internal::Language::SysProgramName)] = Value("");
     }
 }
 

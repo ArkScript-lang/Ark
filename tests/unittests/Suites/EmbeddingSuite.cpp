@@ -1,7 +1,8 @@
 #include <boost/ut.hpp>
 
 #include <Ark/Ark.hpp>
-#include <Ark/Literals.hpp>
+#include <Ark/Utils/Literals.hpp>
+#include <Ark/Utils/Utils.hpp>
 #include <vector>
 #include <iostream>
 
@@ -28,6 +29,12 @@ Ark::Value my_function(std::vector<Ark::Value>& args, Ark::VM* vm [[maybe_unused
 
     // type is automatically deducted from the argument
     return Ark::Value(a.number() * b.number() - c.number() / d.number());
+}
+
+Ark::Value bad_resolve(std::vector<Ark::Value>& args, Ark::VM* vm [[maybe_unused]])
+{
+    vm->resolve(vm->getDefaultContext(), args);
+    return Ark::Nil;
 }
 
 enum class Breakfast
@@ -67,6 +74,7 @@ ut::suite<"Embedding"> embedding_suite = [] {
 
     "[run string and call arkscript function from cpp without args]"_test = [] {
         Ark::State state;
+        state.setDebug(3);  // so that the logger branches can be used as well, and covered
 
         should("compile the string without any error") = [&] {
             expect(mut(state).doString("(let foo (fun () 4))"));
@@ -115,6 +123,37 @@ ut::suite<"Embedding"> embedding_suite = [] {
         should("get nil when retrieving unbound symbol") = [&] {
             const auto value = mut(vm)["unknown"];
             expect(value.valueType() == Ark::ValueType::Nil);
+        };
+    };
+
+    "[run string and try to call an arkscript number from cpp]"_test = [] {
+        Ark::State state;
+
+        should("compile the string without any error") = [&] {
+            expect(mut(state).doString("(let foo 5)"));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+        };
+
+        should("have symbol foo registered") = [&] {
+            const auto func = mut(vm)["foo"];
+            expect(func.valueType() == Ark::ValueType::Number);
+        };
+
+        should("(foo) should not be callable") = [&] {
+            try
+            {
+                const auto value = mut(vm).call("foo");
+                expect(false) << "calling foo should result in an error";
+            }
+            catch (const std::exception& e)
+            {
+                std::string msg = e.what();
+                expect(that % Ark::Utils::ltrim(Ark::Utils::rtrim(msg)) == std::string("TypeError: Can't call 'foo': it isn't a Function but a Number"));
+            }
         };
     };
 
@@ -227,6 +266,42 @@ ut::suite<"Embedding"> embedding_suite = [] {
             auto egg = mut(vm)["egg"];
             expect(egg.valueType() == Ark::ValueType::Number);
             expect(egg.number() == 3_i);
+        };
+    };
+
+    "[errors in C++ functions called in ArkScript bubble up]"_test = [] {
+        constexpr uint16_t features = Ark::DefaultFeatures | Ark::FeatureTestFailOnException;
+
+        Ark::State state;
+        state.loadFunction("my_function", my_function);
+
+        should("compile the string without any error") = [&] {
+            expect(mut(state).doString("(let bar (my_function 1 2 nil 1))", features));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 1") = [&] {
+            expect(throws([&] {
+                mut(vm).run(/* fail_with_exception= */ true);
+            }));
+        };
+    };
+
+    "[errors in C++ functions called in ArkScript bubble up when resolving a non-function]"_test = [] {
+        constexpr uint16_t features = Ark::DefaultFeatures | Ark::FeatureTestFailOnException;
+
+        Ark::State state;
+        state.loadFunction("bad_resolve", bad_resolve);
+
+        should("compile the string without any error") = [&] {
+            expect(mut(state).doString("(let bar (bad_resolve 1 2))", features));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 1") = [&] {
+            expect(throws([&] {
+                mut(vm).run(/* fail_with_exception= */ true);
+            }));
         };
     };
 

@@ -1,5 +1,4 @@
 In file tests/unittests/resources/ParserSuite/failure/incomplete_arguments.ark:1
-At EOF @ 1:7
     1 | (fun (a
       |      │└─ error
       |      │

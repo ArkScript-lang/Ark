@@ -1,5 +1,5 @@
-At import @ 1:1
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/import_not_in_package.ark:1
     1 | (import package.b :test)
-      | ^~~~~~
+      | ^~~~~~~~~~~~~~~~~~~~~~~
     2 |
         ImportError: Can not import symbol test from b, as it isn't in the package

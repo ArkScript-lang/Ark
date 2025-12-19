@@ -1,4 +1,5 @@
 #include <boost/ut.hpp>
+#include <TestsHelper.hpp>
 
 #include <filesystem>
 

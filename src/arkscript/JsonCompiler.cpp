@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <ranges>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Error/Exceptions.hpp>
 
 #include <fmt/ranges.h>
 #include <fmt/format.h>
@@ -34,6 +34,22 @@ std::string JsonCompiler::_compile(const Node& node)
         {
             json += fmt::format(
                 R"({{"type": "Symbol", "name": "{}"}})",
+                node.string());
+            break;
+        }
+
+        case NodeType::MutArg:
+        {
+            json += fmt::format(
+                R"({{"type": "MutArg", "name": "{}"}})",
+                node.string());
+            break;
+        }
+
+        case NodeType::RefArg:
+        {
+            json += fmt::format(
+                R"({{"type": "RefArg", "name": "{}"}})",
                 node.string());
             break;
         }
@@ -253,8 +269,8 @@ std::string JsonCompiler::_compile(const Node& node)
                 "Not handled NodeType::{} ({} at {}:{}), please report this error on GitHub",
                 nodeTypes[static_cast<std::size_t>(node.nodeType())].data(),
                 node.filename(),
-                node.line(),
-                node.col()));
+                node.position().start.line,
+                node.position().start.column));
     }
     return json;
 }

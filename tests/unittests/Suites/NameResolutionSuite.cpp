@@ -181,4 +181,40 @@ ut::suite<"NameResolution"> name_resolution_suite = [] {
             expect(a_ok.valueType() == Ark::ValueType::True) << "(and (= foo \"b:foo\") (= bar \"c:bar\"))\n";
         };
     };
+
+    "[importing two symbols with the same name from two different files]"_test = [] {
+        Ark::State state({ lib_path });
+
+        should("compile the resource without any error") = [&] {
+            expect(mut(state).doFile(getResourcePath("NameResolutionSuite/symbol_imports_same_name/a.ark")));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+        };
+
+        should("resolve symbols from all namespaces without generating bad fully qualified names") = [&] {
+            const auto a_ok = mut(vm).operator[]("ok");
+            expect(a_ok.valueType() == Ark::ValueType::True) << "(and (= find \"b.ark\") (= b:find \"b.ark\") (= c:find \"c.ark\"))\n";
+        };
+    };
+
+    "[importing two symbols with the same name from two different files, one prefixed, one unprefixed]"_test = [] {
+        Ark::State state({ lib_path });
+
+        should("compile the resource without any error") = [&] {
+            expect(mut(state).doFile(getResourcePath("NameResolutionSuite/resolve_prefixed_in_correct_import/a.ark")));
+        };
+
+        Ark::VM vm(state);
+        should("return exit code 0") = [&] {
+            expect(mut(vm).run() == 0_i);
+        };
+
+        should("resolve symbols from all namespaces without generating bad fully qualified names") = [&] {
+            const auto a_ok = mut(vm).operator[]("ok");
+            expect(a_ok.valueType() == Ark::ValueType::True) << "(and (= forEach \"b\") (= c:forEach \"c\") (= b:forEach \"b\"))\n";
+        };
+    };
 };

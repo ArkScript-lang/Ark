@@ -1,6 +1,6 @@
 /**
  * @file Optimizer.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Optimizes a given ArkScript AST
  * @date 2024-07-09
  *
@@ -15,7 +15,7 @@
 #include <unordered_map>
 #include <string>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 #include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 

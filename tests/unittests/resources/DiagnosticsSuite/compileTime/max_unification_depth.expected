@@ -1,21 +1,18 @@
-At (macro partial (func ...defargs) {(macro bloc (suffix-dup a (len defargs))) (fun (bloc) (func ...defargs bloc)) ($undef bloc)}) @ 17:17
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/max_unification_depth.ark:18
     4 |         (macro p (a b c) (* a b c)))
     5 |     ($symcat sym x)})
     6 |
+      | ┌─ macro expansion started here
     7 | (macro partial (func ...defargs) {
-      | ^ macro expansion started here
     8 |     (macro bloc (suffix-dup a (len defargs)))
     9 |     (fun (bloc) (func ...defargs bloc))
   ... |
-   14 |         (* a b)
    15 |         (let inner (partial te t_func 0))
    16 |         (let est_func
    17 |                 (macro partial (func ...defargs) {
-      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    18 |                     (macro bloc (suffix-dup a (len defargs)))
       |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    19 |                     (fun (bloc) (func ...defargs bloc))
-      |                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    20 |                     ($undef bloc)}))))
-      |                     ^~~~~~~~~~~~~~~~
+   21 |
         Max macro unification depth reached (256). You may have a macro trying to evaluate itself, try splitting your code in multiple nodes.

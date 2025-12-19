@@ -1,7 +1,7 @@
-At bar @ 3:8
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/unbound_but_namespace.ark:3
     1 | (import package.b)
     2 |
     3 | (print bar)
       |        ^~~
     4 |
-        Unbound variable "bar". However, it exists in a namespace as "b:bar", did you forget to prefix it with its namespace?
+        Unbound variable error "bar" (did you mean "b:bar"? You either forgot to import it in the symbol list (eg `(import b :bar)') or need to fully qualify it by adding the namespace)

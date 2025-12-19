@@ -14,7 +14,7 @@ namespace Ark::internal::Builtins::String
     /**
      * @name format
      * @brief Format a String given replacements
-     * @details https://fmt.dev/latest/syntax.html
+     * @details https://fmt.dev/12.0/syntax/
      * @param format the String to format
      * @param values as any argument as you need, of any valid ArkScript type
      * =begin
@@ -99,12 +99,15 @@ namespace Ark::internal::Builtins::String
                 { { types::Contract { { types::Typedef("string", ValueType::String), types::Typedef("index", ValueType::Number) } } } },
                 n);
 
-        long id = static_cast<long>(n[1].number());
-        if (id < 0 || std::cmp_greater_equal(id, n[0].stringRef().size()))
-            throw std::runtime_error(fmt::format("string:removeAt: index {} out of range (length: {})", id, n[0].stringRef().size()));
-
-        n[0].stringRef().erase(static_cast<std::size_t>(id), 1);
-        return n[0];
+        long num = static_cast<long>(n[1].number());
+        const auto i = static_cast<std::size_t>(num < 0 ? static_cast<long>(n[0].stringRef().size()) + num : num);
+        if (i < n[0].stringRef().size())
+        {
+            n[0].stringRef().erase(i, 1);
+            return n[0];
+        }
+        else
+            throw std::runtime_error(fmt::format("string:removeAt: index {} out of range (length: {})", num, n[0].stringRef().size()));
     }
 
     Value ord(std::vector<Value>& n, VM* vm [[maybe_unused]])

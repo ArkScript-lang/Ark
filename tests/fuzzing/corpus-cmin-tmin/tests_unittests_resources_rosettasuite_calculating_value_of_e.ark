@@ -1,21 +1,21 @@
-(import std.Range :range)
-(import std.List)
-(import std.Math)
+(import 000.00000 :r0000)
+(import 000.0000)
+(import 000.0000)
 
-(let fact (fun (n acc) {
+(let f000 (fun (n a00) {
   (if (> n 0)
-    (fact (- n 1) (* acc n))
-    acc) }))
+    (f000 (- n 0) (* a00 n))
+    a00) }))
 
-(let r (range 1 18))
+(let r (r0000 0 00))
 (let p
-  (list:sum
-    (list:map
-      (list:reverse (r.asList))
+  (l000:000
+    (l000:000
+      (l000:0000000 (r.a00000))
       (fun (n)
-        (/ 1 (fact n 1)) ))))
+        (/ 0 (f000 n 0)) ))))
 
-(import std.Math :abs)
+(import 000.0000 :a00)
 
-(let m0_e (+ p 1))
-(assert (< (abs (- m0_e math:e)) (toNumber "00005")) "00000000000000000000000000000")
+(let m0_0 (+ p 0))
+(a00000 (< (a00 (- m0_0 m00000)) (t0000000 "00000")) "00000000000000000000000000000")

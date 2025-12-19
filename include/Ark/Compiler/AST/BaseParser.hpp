@@ -5,8 +5,8 @@
 #include <vector>
 #include <initializer_list>
 
-#include <Ark/Platform.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Utils/Platform.hpp>
+#include <Ark/Error/Exceptions.hpp>
 #include <Ark/Compiler/AST/Predicates.hpp>
 #include <Ark/Compiler/AST/utf8_char.hpp>
 
@@ -53,15 +53,16 @@ namespace Ark::internal
 
         [[nodiscard]] FilePosition getCursor() const;
 
-        [[nodiscard]] CodeErrorContext generateErrorContext(const std::string& expr);
+        [[nodiscard]] CodeErrorContext generateErrorContextAtCurrentPosition() const;
 
         /**
+         * @brief Create an error context and throw an error containing said context
          *
          * @param error an error message
-         * @param exp the expression causing the error
+         * @param start_at position in the file where the parsing for the erroneous token started
          * @param additional_context optional context created when a node is being parsed
          */
-        void error(const std::string& error, std::string exp, const std::optional<CodeErrorContext>& additional_context = std::nullopt);
+        void error(const std::string& error, FilePosition start_at, const std::optional<CodeErrorContext>& additional_context = std::nullopt) const;
 
         /**
          * @brief Fetch the next token (space and paren delimited) to generate an error
@@ -129,8 +130,8 @@ namespace Ark::internal
         bool space(std::string* s = nullptr);
         bool inlineSpace(std::string* s = nullptr);
         bool comment(std::string* s = nullptr);
-        bool spaceComment(std::string* s = nullptr);
-        bool newlineOrComment(std::string* s = nullptr);
+        [[nodiscard]] std::string spaceComment();
+        [[nodiscard]] std::string newlineOrComment();
         bool prefix(char c);
         bool number(std::string* s = nullptr);
         bool signedNumber(std::string* s = nullptr);

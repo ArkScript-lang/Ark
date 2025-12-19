@@ -1,5 +1,5 @@
-At (mut c 1) @ 1:3
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/invalid_node_in_list.ark:1
     1 | [(mut c 1)]
-      |   ^~~~~~~~
+      |  ^~~~~~~~
     2 |
         Invalid node inside call to list

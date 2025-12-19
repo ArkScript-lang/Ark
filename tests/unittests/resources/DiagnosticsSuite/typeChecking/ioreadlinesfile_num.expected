@@ -1,0 +1,12 @@
+Function io:readLinesFile expected 1 argument
+Call
+  ↳ (io:readLinesFile 1)
+Signature
+  ↳ (io:readLinesFile filename)
+Arguments
+  → `filename' (expected String), got 1 (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/ioreadlinesfile_num.ark:1
+    1 | (builtin__io:readLinesFile 1)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

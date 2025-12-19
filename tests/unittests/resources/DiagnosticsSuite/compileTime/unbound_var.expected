@@ -1,4 +1,4 @@
-At b @ 1:8
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/unbound_var.ark:1
     1 | (let a b)
       |        ^
     2 |

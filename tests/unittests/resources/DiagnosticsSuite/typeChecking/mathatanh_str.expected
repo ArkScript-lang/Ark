@@ -1,5 +1,10 @@
 Function math:atanh expected 1 argument
-  -> value (Number) was of type String
+Call
+  ↳ (math:atanh 1)
+Signature
+  ↳ (math:atanh value)
+Arguments
+  → `value' (expected Number), got 1 (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathatanh_str.ark:1
     1 | (builtin__math:atanh "1")

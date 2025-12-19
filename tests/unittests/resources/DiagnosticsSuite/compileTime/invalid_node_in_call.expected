@@ -1,4 +1,4 @@
-At {} @ 2:6
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/invalid_node_in_call.ark:2
     1 | (let foo (fun (a) ()))
     2 | (foo {})
       |      ^~

@@ -1,0 +1,5 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/can_not_call_let.ark:1
+    1 | ((let in (list 0 0 3 4 5)) builtin__list:slice in 1 1 2)
+      |  ^~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |
+        Can not call `(let in (list 0 0 3 4 5))', as it doesn't return a value

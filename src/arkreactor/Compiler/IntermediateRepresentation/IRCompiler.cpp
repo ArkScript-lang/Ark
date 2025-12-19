@@ -8,7 +8,7 @@
 #include <fmt/ostream.h>
 
 #include <Ark/Constants.hpp>
-#include <Ark/Literals.hpp>
+#include <Ark/Utils/Literals.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/InstLoc.hpp>
 #include <Ark/Compiler/Serialization/IntegerSerializer.hpp>
 #include <Ark/Compiler/Serialization/IEEE754Serializer.hpp>
@@ -94,6 +94,10 @@ namespace Ark::internal
                     case IR::Kind::Opcode2Args:
                         fmt::println(stream, "\t{} {}, {}", InstructionNames[entity.inst()], entity.primaryArg(), entity.secondaryArg());
                         break;
+
+                    case IR::Kind::Opcode3Args:
+                        fmt::println(stream, "\t{} {}, {}, {}", InstructionNames[entity.inst()], entity.primaryArg(), entity.secondaryArg(), entity.tertiaryArg());
+                        break;
                 }
             }
 
@@ -121,8 +125,8 @@ namespace Ark::internal
             const auto page_size = std::ranges::count_if(page, [](const auto& a) {
                 return a.kind() != IR::Kind::Label;
             });
-            if (std::cmp_greater(page_size, std::numeric_limits<uint16_t>::max()))
-                throw std::overflow_error(fmt::format("Size of page {} exceeds the maximum size of 2^16 - 1", i));
+            if (std::cmp_greater(page_size, MaxValue16Bits))
+                throw std::overflow_error(fmt::format("Size of page {} exceeds the maximum size of {}", i, MaxValue16Bits));
 
             m_bytecode.push_back(CODE_SEGMENT_START);
             serializeOn2BytesToVecBE(page_size, m_bytecode);
@@ -158,6 +162,8 @@ namespace Ark::internal
                     case IR::Kind::Opcode:
                         [[fallthrough]];
                     case IR::Kind::Opcode2Args:
+                        [[fallthrough]];
+                    case IR::Kind::Opcode3Args:
                         pushWord(inst.bytecode());
                         break;
 
@@ -210,8 +216,8 @@ namespace Ark::internal
     void IRCompiler::pushSymbolTable(const std::vector<std::string>& symbols)
     {
         const std::size_t symbol_size = symbols.size();
-        if (symbol_size > std::numeric_limits<uint16_t>::max())
-            throw std::overflow_error(fmt::format("Too many symbols: {}, exceeds the maximum size of 2^16 - 1", symbol_size));
+        if (std::cmp_greater(symbol_size, MaxValue16Bits))
+            throw std::overflow_error(fmt::format("Too many symbols: {}, exceeds the maximum size of {}", symbol_size, MaxValue16Bits));
 
         m_bytecode.push_back(SYM_TABLE_START);
         serializeOn2BytesToVecBE(symbol_size, m_bytecode);
@@ -229,8 +235,8 @@ namespace Ark::internal
     void IRCompiler::pushValueTable(const std::vector<ValTableElem>& values)
     {
         const std::size_t value_size = values.size();
-        if (value_size > std::numeric_limits<uint16_t>::max())
-            throw std::overflow_error(fmt::format("Too many values: {}, exceeds the maximum size of 2^16 - 1", value_size));
+        if (std::cmp_greater(value_size, MaxValue16Bits))
+            throw std::overflow_error(fmt::format("Too many values: {}, exceeds the maximum size of {}", value_size, MaxValue16Bits));
 
         m_bytecode.push_back(VAL_TABLE_START);
         serializeOn2BytesToVecBE(value_size, m_bytecode);
@@ -274,8 +280,8 @@ namespace Ark::internal
 
     void IRCompiler::pushFilenameTable()
     {
-        if (m_filenames.size() > std::numeric_limits<uint16_t>::max())
-            throw std::overflow_error(fmt::format("Too many filenames: {}, exceeds the maximum size of 2^16 - 1", m_filenames.size()));
+        if (std::cmp_greater(m_filenames.size(), MaxValue16Bits))
+            throw std::overflow_error(fmt::format("Too many filenames: {}, exceeds the maximum size of {}", m_filenames.size(), MaxValue16Bits));
 
         m_bytecode.push_back(FILENAMES_TABLE_START);
         // push number of elements

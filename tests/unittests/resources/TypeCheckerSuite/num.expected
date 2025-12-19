@@ -1,2 +1,7 @@
 Function f expected 1 argument
-  -> n (Number) was of type String
+Call
+  ↳ (f hello)
+Signature
+  ↳ (f n)
+Arguments
+  → `n' (expected Number), got hello (String)

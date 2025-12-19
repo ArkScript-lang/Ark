@@ -1,21 +1,21 @@
-(import std.Range :range :forEach)
-(import std.List)
+(import 000.00000 :r0000 :f000000)
+(import 000.0000)
 
-(mut doors (list:fill 100 false))
-(let r (range 0 100))
+(mut d00000(l000:0000 0000f0000))
+(let r0(r0000 0 000))
 
-(forEach r
+(f000000 r
   (fun (i) {
     (mut j i)
-    (while (< j 100) {
-      (@= doors j (not (@ doors j)))
-      (set j (+ j i 1)) })}))
+    (while (< j 000) {
+      (@= d0000 j (n00 (@ d0000 j)))
+      (set j0(+ j i 0)) })}))
 
-(assert (= [0 3 8 15 24 35 48 63 80 99]
-  (list:map
-    (list:filter
-      (list:zipWithIndex doors)
-      (fun (e)
-        (@ e 1)))
+(a00000 (= [0 0 0 00 00 00 00 00 00 00]
+  (l000:000
+    (l000:000000
+      (l000:000000000000 d0000)
+      (fun(e)
+        (@ e 0)))
     (fun (e) (@ e 0))))
     "00000000000000")

@@ -4,13 +4,16 @@ import glob
 def exclude(file: str):
     return all(not file.startswith(path) for path in [
         "lib/",
+        "thirdparties/",
         "output/",
         "fuzzing/",
         "fct-bad/",
         "fct-ok/",
         "tests/fuzzing/",
         "a.ark",
-        "b.ark"
+        "b.ark",
+        "c.ark",
+        "d.ark"
     ])
 
 

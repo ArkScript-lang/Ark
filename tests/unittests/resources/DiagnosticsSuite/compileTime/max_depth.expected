@@ -1,4 +1,4 @@
-At / @ 1:14
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/max_depth.ark:1
     1 | (macro size (/ size 4))
       |              ^
     2 | (let sum size)

@@ -1,0 +1,5 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/if_missing_cond_then.ark:1
+    1 | (if ($if false 0) ($if false 1))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |
+        Invalid condition: missing 'cond' and 'then' nodes, expected (if cond then)

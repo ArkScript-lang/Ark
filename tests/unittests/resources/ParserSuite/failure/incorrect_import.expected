@@ -1,5 +1,4 @@
 In file tests/unittests/resources/ParserSuite/failure/incorrect_import.ark:1
-At : @ 1:15
     1 | (import a.b :c:*)
       |               ^~
         Glob pattern can not follow a symbol to import

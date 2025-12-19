@@ -1,6 +1,6 @@
 /**
  * @file Welder.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief In charge of welding everything needed to compile code
  * @date 2023-03-26
  *
@@ -22,7 +22,7 @@
 #include <Ark/Compiler/IntermediateRepresentation/IROptimizer.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/IRCompiler.hpp>
 #include <Ark/Constants.hpp>
-#include <Ark/Logger.hpp>
+#include <Ark/Utils/Logger.hpp>
 #include <Ark/Compiler/Package/ImportSolver.hpp>
 #include <Ark/Compiler/Macros/Processor.hpp>
 #include <Ark/Compiler/AST/Optimizer.hpp>

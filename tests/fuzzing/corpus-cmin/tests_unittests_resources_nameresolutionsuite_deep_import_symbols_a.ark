@@ -1,0 +1,5 @@
+(import b :test)
+(import c :abs)
+
+(let c_ok (= (abs -1) -1))
+(let b_ok (= (test 5) 5))

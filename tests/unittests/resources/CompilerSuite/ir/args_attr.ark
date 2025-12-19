@@ -1,0 +1,6 @@
+(let foo (fun ((mut a) (ref b)) {
+  (set a (len b))
+  a }))
+
+(let data [1 2 3])
+(print (foo 1 data))

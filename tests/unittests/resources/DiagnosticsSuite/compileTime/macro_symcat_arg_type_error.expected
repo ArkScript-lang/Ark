@@ -1,4 +1,4 @@
-At [] @ 1:21
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_symcat_arg_type_error.ark:1
     1 | (macro a ($symcat b []))
       | │                   └─ error
       | │

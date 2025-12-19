@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <fmt/core.h>
 
-#include <Ark/Files.hpp>
-#include <Ark/Exceptions.hpp>
+#include <Ark/Utils/Files.hpp>
+#include <Ark/Error/Exceptions.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 
 namespace Ark::internal
@@ -16,7 +16,8 @@ namespace Ark::internal
 
     ImportSolver& ImportSolver::setup(const std::filesystem::path& root, const std::vector<Import>& origin_imports)
     {
-        m_root = root.parent_path();
+        // keep the given root if it's a directory, it means it comes from a code string evaluation in the state, where we don't have a filename
+        m_root = is_directory(root) ? root : root.parent_path();
 
         for (const auto& origin_import : std::ranges::reverse_view(origin_imports))
             m_imports.push({ root, origin_import });
@@ -106,8 +107,8 @@ namespace Ark::internal
                             .with_prefix = import.with_prefix,
                             .symbols = import.symbols,
                             .ast = std::make_shared<Node>(findAndReplaceImports(x).first) });
-                        x.arkNamespace().ast->setPos(ast.line(), ast.col());
-                        x.arkNamespace().ast->setFilename(ast.filename());
+
+                        x.arkNamespace().ast->setPositionFrom(ast);
                     }
                     // we parsed an import node, return true in the pair to notify the caller
                     return std::make_pair(x, /* is_import= */ true);
@@ -196,9 +197,9 @@ namespace Ark::internal
         return {};
     }
 
-    std::filesystem::path ImportSolver::findFile(const std::filesystem::path& file, const Import& import) const
+    std::filesystem::path ImportSolver::findFile(const std::filesystem::path& file, const Import& import_) const
     {
-        const std::string package_path = import.packageToPath();
+        const std::string package_path = import_.packageToPath();
         if (auto maybe_path = testExtensions(m_root, package_path); maybe_path.has_value())
             return maybe_path.value();
 
@@ -212,11 +213,9 @@ namespace Ark::internal
         // fallback, we couldn't find the file
         throw CodeError(
             fmt::format("While processing file {}, couldn't import {}: file not found",
-                        file.filename().string(), import.toPackageString()),
+                        file.filename().string(), import_.toPackageString()),
             CodeErrorContext(
                 file.generic_string(),
-                import.line,
-                import.col,
-                fmt::format("(import {})", import.toPackageString())));
+                FileSpan { .start = FilePos { .line = import_.line, .column = import_.col }, .end = std::nullopt }));
     }
 }

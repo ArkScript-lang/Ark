@@ -1,6 +1,6 @@
-At ( @ 1:15
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/bad_macro.ark:1
     1 | (macro f00 100( a b c))
-      | │            └─ error
+      | │             └─ error
       | │
       | └─ expression started here
     2 |

@@ -1,6 +1,6 @@
 /**
  * @file Pass.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Interface for a compiler pass (take in an AST, output an AST)
  * @date 2024-07-21
  *
@@ -10,9 +10,9 @@
 #ifndef ARK_COMPILER_PASS_HPP
 #define ARK_COMPILER_PASS_HPP
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
-#include <Ark/Logger.hpp>
+#include <Ark/Utils/Logger.hpp>
 
 namespace Ark::internal
 {

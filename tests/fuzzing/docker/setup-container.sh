@@ -28,4 +28,4 @@ echo "Starting sub-fuzzer" && tmux new-session -d './tests/fuzzing/docker/2-fuzz
 echo "Starting sub-fuzzer" && tmux new-session -d './tests/fuzzing/docker/2-fuzz.sh 3'
 echo "Starting sub-fuzzer" && tmux new-session -d './tests/fuzzing/docker/2-fuzz.sh 4'
 
-tmux attach 0
+tmux attach -t 0

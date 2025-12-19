@@ -1,8 +1,8 @@
 #include <boost/ut.hpp>
 
-#include <Ark/Literals.hpp>
-#include <Ark/Utils.hpp>
-#include <Ark/Files.hpp>
+#include <Ark/Utils/Literals.hpp>
+#include <Ark/Utils/Utils.hpp>
+#include <Ark/Utils/Files.hpp>
 
 using namespace boost;
 

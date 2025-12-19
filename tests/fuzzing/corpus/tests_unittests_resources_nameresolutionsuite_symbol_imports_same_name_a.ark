@@ -1,0 +1,4 @@
+(import b :find)
+(import c :find)
+
+(let ok (and (= find "b.ark") (= b:find "b.ark") (= c:find "c.ark")))

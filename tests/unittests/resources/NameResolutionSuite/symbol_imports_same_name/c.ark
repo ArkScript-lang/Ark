@@ -1,0 +1,4 @@
+(let find "c.ark")
+(let test (fun () find))
+
+(let bar "c:bar")

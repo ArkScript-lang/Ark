@@ -1,0 +1,5 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_plus_not_enough_args.ark:1
+    1 | (macro a (+ 1))
+      |          ^~~~~
+    2 |
+        Interpreting a `+' operator with 1 argument, expected at least 2.

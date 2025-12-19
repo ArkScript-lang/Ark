@@ -1,0 +1,3 @@
+(macro unpackPair (pair outx outy) {
+  (let outx ($as-is (@ pair 0)))
+  (let outy ($as-is (@ pair 1))) })

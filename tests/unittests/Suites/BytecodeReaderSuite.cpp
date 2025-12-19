@@ -2,7 +2,7 @@
 
 #include <Ark/Compiler/BytecodeReader.hpp>
 #include <Ark/Compiler/Welder.hpp>
-#include <Ark/Literals.hpp>
+#include <Ark/Utils/Literals.hpp>
 #include <Proxy/Picosha2.hpp>
 
 #include <string>

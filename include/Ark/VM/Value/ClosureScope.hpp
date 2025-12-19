@@ -1,6 +1,6 @@
 /**
  * @file ClosureScope.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value type, handling closures
  * @date 2025-03-17
  *
@@ -15,7 +15,7 @@
 #include <utility>
 #include <cinttypes>
 
-#include <Ark/Platform.hpp>
+#include <Ark/Utils/Platform.hpp>
 #include <Ark/VM/Value.hpp>
 
 namespace Ark::internal

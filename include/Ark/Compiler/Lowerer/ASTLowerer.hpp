@@ -1,6 +1,6 @@
 /**
  * @file ASTLowerver.hpp
- * @author Alexandre Plateau (lexplt.dev@gmail.com)
+ * @author Lex Plateau (lexplt.dev@gmail.com)
  * @brief ArkScript compiler is in charge of transforming the AST into IR
  * @date 2020-10-27
  *
@@ -17,8 +17,8 @@
 #include <cinttypes>
 #include <optional>
 
-#include <Ark/Platform.hpp>
-#include <Ark/Logger.hpp>
+#include <Ark/Utils/Platform.hpp>
+#include <Ark/Utils/Logger.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
@@ -180,13 +180,13 @@ namespace Ark::internal
          */
         void compileExpression(Node& x, Page p, bool is_result_unused, bool is_terminal);
 
-        void compileSymbol(Node& x, Page p, bool is_result_unused);
+        void compileSymbol(const Node& x, Page p, bool is_result_unused);
         void compileListInstruction(Node& x, Page p, bool is_result_unused);
         void compileIf(Node& x, Page p, bool is_result_unused, bool is_terminal);
         void compileFunction(Node& x, Page p, bool is_result_unused);
         void compileLetMutSet(Keyword n, Node& x, Page p);
         void compileWhile(Node& x, Page p);
-        void compilePluginImport(Node& x, Page p);
+        void compilePluginImport(const Node& x, Page p);
         void pushFunctionCallArguments(Node& call, Page p, bool is_tail_call);
         void handleCalls(Node& x, Page p, bool is_result_unused, bool is_terminal);
 
