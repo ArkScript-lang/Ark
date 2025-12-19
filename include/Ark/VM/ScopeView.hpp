@@ -60,6 +60,14 @@ namespace Ark::internal
         bool pushBack(uint16_t id, const Value& val) noexcept;
 
         /**
+         * @brief Insert one or more pairs at the beginning of the scope
+         * @details This can ONLY be called on the last known scope, otherwise it will override the data of the next scope!
+         *
+         * @param values
+         */
+        void insertFront(const std::vector<pair_t>& values) noexcept;
+
+        /**
          * @brief Check if the scope maybe holds a specific symbol in memory
          *
          * @param id The id of the symbol
