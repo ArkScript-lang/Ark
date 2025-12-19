@@ -1,0 +1,9 @@
+DivisionByZero: Can not compute expression (/ 1 0)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/fused_math_add_div_num_num_0.ark:5
+    2 | (let b -3)
+    3 | (let c 3)
+    4 |
+    5 | (print (/ a (+ b c)))
+      | ^~~~~~~~~~~~~~~~~~~~
+    6 |
