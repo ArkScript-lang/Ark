@@ -292,7 +292,7 @@ jobs:
         FUZZER_TIMEOUT_EXEC_MS: 500
         AFL_NO_STARTUP_CALIBRATION: 1
         AFL_CMPLOG_ONLY_NEW: 1
-        AFL_MAP_SIZE: 223723
+        AFL_MAP_SIZE: 312000
       volumes:
         - ${{ github.workspace }}:/src
       options: --cpus 4
