@@ -94,6 +94,10 @@ namespace Ark::internal
                     case IR::Kind::Opcode2Args:
                         fmt::println(stream, "\t{} {}, {}", InstructionNames[entity.inst()], entity.primaryArg(), entity.secondaryArg());
                         break;
+
+                    case IR::Kind::Opcode3Args:
+                        fmt::println(stream, "\t{} {}, {}, {}", InstructionNames[entity.inst()], entity.primaryArg(), entity.secondaryArg(), entity.tertiaryArg());
+                        break;
                 }
             }
 
@@ -158,6 +162,8 @@ namespace Ark::internal
                     case IR::Kind::Opcode:
                         [[fallthrough]];
                     case IR::Kind::Opcode2Args:
+                        [[fallthrough]];
+                    case IR::Kind::Opcode3Args:
                         pushWord(inst.bytecode());
                         break;
 

@@ -432,6 +432,7 @@ namespace Ark::internal
         MUL_BY = 0x6c,
         MUL_BY_INDEX = 0x6d,
         MUL_SET_VAL = 0x6e,
+        FUSED_MATH = 0x6f,
 
         InstructionsCount
     };
@@ -549,7 +550,8 @@ namespace Ark::internal
         "LT_LEN_SYM_JUMP_IF_FALSE",
         "MUL_BY",
         "MUL_BY_INDEX",
-        "MUL_SET_VAL"
+        "MUL_SET_VAL",
+        "FUSED_MATH"
     };
 
     static_assert(InstructionNames.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instruction names appear to be missing");

@@ -17,6 +17,11 @@ namespace Ark::internal::IR
         m_inst(inst), m_primary_arg(primary_arg), m_secondary_arg(secondary_arg)
     {}
 
+    Entity::Entity(const Instruction inst, const uint8_t inst2, const uint8_t inst3, const uint8_t inst4) :
+        m_kind(Kind::Opcode3Args),
+        m_inst(inst), m_primary_arg(inst2), m_secondary_arg(inst3), m_tertiary_arg(inst4)
+    {}
+
     Entity Entity::Label(const label_t value)
     {
         auto entity = Entity(Kind::Label);
@@ -55,6 +60,12 @@ namespace Ark::internal::IR
             return Word(m_inst, m_primary_arg);
         if (m_kind == Kind::Opcode2Args)
             return Word(m_inst, m_primary_arg, m_secondary_arg);
+        if (m_kind == Kind::Opcode3Args)
+            return Word(
+                m_inst,
+                static_cast<uint8_t>(m_primary_arg),
+                static_cast<uint8_t>(m_secondary_arg),
+                static_cast<uint8_t>(m_tertiary_arg));
         return Word(0, 0);
     }
 

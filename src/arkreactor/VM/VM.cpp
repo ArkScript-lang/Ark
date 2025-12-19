@@ -108,6 +108,24 @@ namespace Ark
                         types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
                     { container, index });
         }
+
+        inline double doMath(double a, double b, const Instruction op)
+        {
+            if (op == ADD)
+                a += b;
+            else if (op == SUB)
+                a -= b;
+            else if (op == MUL)
+                a *= b;
+            else if (op == DIV)
+            {
+                if (b == 0)
+                    Ark::VM::throwVMError(ErrorKind::DivisionByZero, fmt::format("Can not compute expression (/ {} {})", a, b));
+                a /= b;
+            }
+
+            return a;
+        }
     }
 
     VM::VM(State& state) noexcept :
@@ -647,7 +665,8 @@ namespace Ark
                 &&TARGET_LT_LEN_SYM_JUMP_IF_FALSE,
                 &&TARGET_MUL_BY,
                 &&TARGET_MUL_BY_INDEX,
-                &&TARGET_MUL_SET_VAL
+                &&TARGET_MUL_SET_VAL,
+                &&TARGET_FUSED_MATH
             };
 
         static_assert(opcode_targets.size() == static_cast<std::size_t>(Instruction::InstructionsCount) && "Some instructions are not implemented in the VM");
@@ -2049,6 +2068,53 @@ namespace Ark
                                     { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
                                     { *var, Value(other) });
                         }
+                        DISPATCH();
+                    }
+
+                    TARGET(FUSED_MATH)
+                    {
+                        const auto op1 = static_cast<Instruction>(padding),
+                                   op2 = static_cast<Instruction>((arg & 0xff00) >> 8),
+                                   op3 = static_cast<Instruction>(arg & 0x00ff);
+                        const std::size_t arg_count = (op1 != NOP) + (op2 != NOP) + (op3 != NOP);
+
+                        const Value* d = popAndResolveAsPtr(context);
+                        const Value* c = popAndResolveAsPtr(context);
+                        const Value* b = popAndResolveAsPtr(context);
+
+                        if (d->valueType() != ValueType::Number || c->valueType() != ValueType::Number)
+                            throw types::TypeCheckingError(
+                                InstructionNames[op1],
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *c, *d });
+
+                        double temp = helper::doMath(c->number(), d->number(), op1);
+                        if (b->valueType() != ValueType::Number)
+                            throw types::TypeCheckingError(
+                                InstructionNames[op2],
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *b, Value(temp) });
+                        temp = helper::doMath(b->number(), temp, op2);
+
+                        if (arg_count == 2)
+                            push(Value(temp), context);
+                        else if (arg_count == 3)
+                        {
+                            const Value* a = popAndResolveAsPtr(context);
+                            if (a->valueType() != ValueType::Number)
+                                throw types::TypeCheckingError(
+                                    InstructionNames[op3],
+                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                    { *a, Value(temp) });
+
+                            temp = helper::doMath(a->number(), temp, op3);
+                            push(Value(temp), context);
+                        }
+                        else
+                            throw Error(
+                                fmt::format(
+                                    "FUSED_MATH got {} arguments, expected 2 or 3. Arguments: {:x}{:x}{:x}. There is a bug in the codegen!",
+                                    arg_count, static_cast<uint8_t>(op1), static_cast<uint8_t>(op2), static_cast<uint8_t>(op3)));
                         DISPATCH();
                     }
 #pragma endregion

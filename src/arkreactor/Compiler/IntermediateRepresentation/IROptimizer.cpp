@@ -9,6 +9,16 @@
 
 namespace Ark::internal
 {
+    IR::Entity fuseMathOps3(const std::span<const IR::Entity> e)
+    {
+        return IR::Entity(FUSED_MATH, e[0].inst(), e[1].inst(), e[2].inst());
+    }
+
+    IR::Entity fuseMathOps2(const std::span<const IR::Entity> e)
+    {
+        return IR::Entity(FUSED_MATH, e[0].inst(), e[1].inst(), NOP);
+    }
+
     IROptimizer::IROptimizer(const unsigned debug) :
         m_logger("IROptimizer", debug)
     {
@@ -234,6 +244,24 @@ namespace Ark::internal
                       return IR::Entity::GotoWithArg(e[3], LT_LEN_SYM_JUMP_IF_FALSE, e[0].primaryArg());
                   } },
         };
+
+        const auto math_ops = { ADD, SUB, MUL, DIV };
+        for (const auto& one : math_ops)
+        {
+            for (const auto& two : math_ops)
+            {
+                for (const auto& three : math_ops)
+                    m_ruleset.emplace_back(Rule { { one, two, three }, fuseMathOps3 });
+            }
+        }
+
+        for (const auto& one : math_ops)
+        {
+            for (const auto& two : math_ops)
+                m_ruleset.emplace_back(Rule { { one, two }, fuseMathOps2 });
+        }
+
+        m_logger.debug("Loaded {} rules", m_ruleset.size());
     }
 
     void IROptimizer::process(const std::vector<IR::Block>& pages, const std::vector<std::string>& symbols, const std::vector<ValTableElem>& values)
