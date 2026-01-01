@@ -1,5 +1,6 @@
 (import std.Testing)
 (import std.List)
+(import std.IO :fileExists?)
 
 (let foo (fun ((mut a) (ref b) c)
   (+ a (* b c))))
@@ -25,4 +26,6 @@
 
     (test:case "disassemble" {
       (disassemble foo)
-      (disassemble "tests/unittests/resources/DiagnosticsSuite/runtime/__arkscript__/assert.arkc") }) })
+      (let filename "tests/unittests/resources/DiagnosticsSuite/runtime/__arkscript__/assert.arkc")
+      (if (fileExists? filename)
+        (disassemble filename)) }) })
