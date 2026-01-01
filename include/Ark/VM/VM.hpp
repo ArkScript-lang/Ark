@@ -31,6 +31,7 @@
 #include <Ark/VM/ExecutionContext.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Utils/Platform.hpp>
+#include <Ark/Utils/Literals.hpp>
 #include <Ark/VM/SharedLibrary.hpp>
 #include <Ark/VM/Future.hpp>
 

@@ -347,6 +347,8 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
 
 inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& builtin, const uint16_t argc, const bool remove_return_address)
 {
+    using namespace Ark::literals;
+
     // drop arguments from the stack
     std::vector<Value> args;
     args.reserve(argc);
@@ -362,7 +364,7 @@ inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& bu
         args.emplace_back(*val);
     }
     // +2 to skip PP/IP that were pushed by PUSH_RETURN_ADDRESS
-    context.sp -= argc + (remove_return_address ? 2 : 0);
+    context.sp -= static_cast<uint16_t>(argc + (remove_return_address ? 2_u16 : 0_u16));
     // call proc
     push(builtin.proc()(args, this), context);
 }
