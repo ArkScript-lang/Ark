@@ -1,11 +1,11 @@
 Function - expected 2 arguments
 Call
-  ↳ (- 1 2)
+  ↳ (- "1" "2")
 Signature
   ↳ (- a b)
 Arguments
-  → `a' (expected Number), got 1 (String)
-  → `b' (expected Number), got 2 (String)
+  → `a' (expected Number), got "1" (String)
+  → `b' (expected Number), got "2" (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/sub_str_str.ark:1
     1 | (- "1" "2")

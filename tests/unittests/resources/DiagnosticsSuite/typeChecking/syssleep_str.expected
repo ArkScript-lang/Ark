@@ -1,10 +1,10 @@
 Function sys:sleep expected 1 argument
 Call
-  ↳ (sys:sleep 1)
+  ↳ (sys:sleep "1")
 Signature
   ↳ (sys:sleep duration)
 Arguments
-  → `duration' (expected Number), got 1 (String)
+  → `duration' (expected Number), got "1" (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/syssleep_str.ark:1
     1 | (builtin__sys:sleep "1")

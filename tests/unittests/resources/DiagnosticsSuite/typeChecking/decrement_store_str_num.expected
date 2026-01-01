@@ -1,10 +1,10 @@
 Function - expected 2 arguments
 Call
-  ↳ (- 0 Function@1)
+  ↳ (- "0" Function@1)
 Signature
   ↳ (- a b)
 Arguments
-  → `a' (expected Number), got 0 (String)
+  → `a' (expected Number), got "0" (String)
   → `b' (expected Number), got Function@1 (Function)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/decrement_store_str_num.ark:2

@@ -1,10 +1,10 @@
 Function list:fill expected 2 arguments but got 1
 Call
-  ↳ (list:fill hello)
+  ↳ (list:fill "hello")
 Signature
   ↳ (list:fill size value)
 Arguments
-  → `size' (expected Number), got hello (String)
+  → `size' (expected Number), got "hello" (String)
   → `value' (expected any) was not provided
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listfill_str.ark:1

@@ -1,10 +1,10 @@
 Function string:chr expected 1 argument
 Call
-  ↳ (string:chr 1)
+  ↳ (string:chr "1")
 Signature
   ↳ (string:chr codepoint)
 Arguments
-  → `codepoint' (expected Number), got 1 (String)
+  → `codepoint' (expected Number), got "1" (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/stringchr_str.ark:1
     1 | (builtin__string:chr "1")

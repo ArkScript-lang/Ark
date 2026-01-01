@@ -11,6 +11,7 @@
 - page numbers are correctly counted when using the bytecode reader with '--only-names', instead of displaying `0` every time
 
 ### Changed
+- quotes are added around strings in type errors
 
 ### Removed
 

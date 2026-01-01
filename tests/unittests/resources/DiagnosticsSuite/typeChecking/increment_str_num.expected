@@ -1,10 +1,10 @@
 Function + expected 2 arguments
 Call
-  ↳ (+ 1 Function@1)
+  ↳ (+ "1" Function@1)
 Signature
   ↳ (+ a b)
 Arguments
-  → `a' (expected Number), got 1 (String)
+  → `a' (expected Number), got "1" (String)
   → `b' (expected Number), got Function@1 (Function)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/increment_str_num.ark:2

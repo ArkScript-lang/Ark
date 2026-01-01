@@ -1,10 +1,10 @@
 Function math:arctan expected 1 argument
 Call
-  ↳ (math:arctan 1)
+  ↳ (math:arctan "1")
 Signature
   ↳ (math:arctan value)
 Arguments
-  → `value' (expected Number), got 1 (String)
+  → `value' (expected Number), got "1" (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/matharctan_str.ark:1
     1 | (builtin__math:arctan "1")

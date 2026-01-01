@@ -1,8 +1,8 @@
 Function f expected 1 argument but got 2
 Call
-  ↳ (f 1 hello)
+  ↳ (f 1 "hello")
 Signature
   ↳ (f n)
 Arguments
   → `n' (expected Number) ✓
-  → unexpected additional args: hello (String)
+  → unexpected additional args: "hello" (String)

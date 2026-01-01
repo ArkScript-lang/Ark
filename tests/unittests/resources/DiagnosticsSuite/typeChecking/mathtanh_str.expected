@@ -1,10 +1,10 @@
 Function math:tanh expected 1 argument
 Call
-  ↳ (math:tanh 1)
+  ↳ (math:tanh "1")
 Signature
   ↳ (math:tanh value)
 Arguments
-  → `value' (expected Number), got 1 (String)
+  → `value' (expected Number), got "1" (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathtanh_str.ark:1
     1 | (builtin__math:tanh "1")

@@ -1,7 +1,7 @@
 Function f expected 1 argument
 Call
-  ↳ (f hello)
+  ↳ (f "hello")
 Signature
   ↳ (f n)
 Arguments
-  → `n' (expected Number), got hello (String)
+  → `n' (expected Number), got "hello" (String)

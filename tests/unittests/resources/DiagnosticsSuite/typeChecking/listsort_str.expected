@@ -1,10 +1,10 @@
 Function list:sort expected 1 argument
 Call
-  ↳ (list:sort hello)
+  ↳ (list:sort "hello")
 Signature
   ↳ (list:sort list)
 Arguments
-  → `list' (expected List), got hello (String)
+  → `list' (expected List), got "hello" (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listsort_str.ark:1
     1 | (builtin__list:sort "hello")

@@ -1,10 +1,10 @@
 Function math:cos expected 1 argument
 Call
-  ↳ (math:cos 1)
+  ↳ (math:cos "1")
 Signature
   ↳ (math:cos value)
 Arguments
-  → `value' (expected Number), got 1 (String)
+  → `value' (expected Number), got "1" (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathcos_str.ark:1
     1 | (builtin__math:cos "1")

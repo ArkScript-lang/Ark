@@ -77,7 +77,7 @@ namespace Ark::types
                     }
                     formatted_varargs += fmt::format(
                         "\n    {} ({}) {}",
-                        args[j].toString(vm),
+                        args[j].toString(vm, /* show_as_code= */ true),
                         std::to_string(args[j].valueType()),
                         type_ok ? checkmark : crossmark);
                 }
@@ -108,7 +108,7 @@ namespace Ark::types
                     const auto type = std::to_string(args[i].valueType());
 
                     fmt::dynamic_format_arg_store<fmt::format_context> store;
-                    store.push_back(args[i].toString(vm));
+                    store.push_back(args[i].toString(vm, /* show_as_code= */ true));
                     if (colorize)
                         store.push_back(fmt::styled(type, fmt::fg(fmt::color::red)));
                     else
@@ -138,7 +138,7 @@ namespace Ark::types
             fmt::print(os, "  → unexpected additional args: ");
             for (std::size_t i = contract.arguments.size(), end = args.size(); i < end; ++i)
             {
-                fmt::print(os, "{} ({})", args[i].toString(vm), std::to_string(args[i].valueType()));
+                fmt::print(os, "{} ({})", args[i].toString(vm, /* show_as_code= */ true), std::to_string(args[i].valueType()));
                 if (i + 1 != end)
                     fmt::print(os, ", ");
             }
@@ -224,7 +224,7 @@ namespace Ark::types
 
         fmt::print(os, "\nCall\n  ↳ ({}", funcname);
         for (const Value& arg : args)
-            fmt::print(os, " {}", arg.toString(vm));
+            fmt::print(os, " {}", arg.toString(vm, /* show_as_code= */ true));
         fmt::print(os, ")\n");
 
         displayContract(funcname, contracts[0], sanitizedArgs, vm, os, colorize);

@@ -1,11 +1,11 @@
 Function + expected 2 arguments
 Call
-  ↳ (+ 1 2)
+  ↳ (+ 1 "2")
 Signature
   ↳ (+ a b)
 Arguments
   → `a' (expected Number) ✓
-  → `b' (expected Number), got 2 (String)
+  → `b' (expected Number), got "2" (String)
 
 Alternative 2:
 Signature

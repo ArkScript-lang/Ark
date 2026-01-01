@@ -1,10 +1,10 @@
 Function math:arccos expected 1 argument
 Call
-  ↳ (math:arccos 1)
+  ↳ (math:arccos "1")
 Signature
   ↳ (math:arccos value)
 Arguments
-  → `value' (expected Number), got 1 (String)
+  → `value' (expected Number), got "1" (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/matharccos_str.ark:1
     1 | (builtin__math:arccos "1")

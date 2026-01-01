@@ -1,6 +1,6 @@
 Function string:setAt expected 3 arguments but got 1
 Call
-  ↳ (string:setAt 1)
+  ↳ (string:setAt "1")
 Signature
   ↳ (string:setAt string index value)
 Arguments

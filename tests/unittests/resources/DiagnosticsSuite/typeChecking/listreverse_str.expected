@@ -1,10 +1,10 @@
 Function list:reverse expected 1 argument
 Call
-  ↳ (list:reverse hello)
+  ↳ (list:reverse "hello")
 Signature
   ↳ (list:reverse list)
 Arguments
-  → `list' (expected List), got hello (String)
+  → `list' (expected List), got "hello" (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listreverse_str.ark:1
     1 | (builtin__list:reverse "hello")

@@ -1,10 +1,10 @@
 Function / expected 2 arguments
 Call
-  ↳ (/ 1 5)
+  ↳ (/ "1" 5)
 Signature
   ↳ (/ a b)
 Arguments
-  → `a' (expected Number), got 1 (String)
+  → `a' (expected Number), got "1" (String)
   → `b' (expected Number) ✓
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/fused_math_add_div_num_num_str.ark:5

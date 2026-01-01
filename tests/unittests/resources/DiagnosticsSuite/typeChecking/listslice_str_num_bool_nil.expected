@@ -1,10 +1,10 @@
 Function list:slice expected 4 arguments
 Call
-  ↳ (list:slice hello 1 true nil)
+  ↳ (list:slice "hello" 1 true nil)
 Signature
   ↳ (list:slice list start end step)
 Arguments
-  → `list' (expected List), got hello (String)
+  → `list' (expected List), got "hello" (String)
   → `start' (expected Number) ✓
   → `end' (expected Number), got true (Bool)
   → `step' (expected Number), got nil (Nil)

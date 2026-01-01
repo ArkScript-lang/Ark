@@ -1,10 +1,10 @@
 Function math:floor expected 1 argument
 Call
-  ↳ (math:floor 1)
+  ↳ (math:floor "1")
 Signature
   ↳ (math:floor value)
 Arguments
-  → `value' (expected Number), got 1 (String)
+  → `value' (expected Number), got "1" (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathfloor_str.ark:1
     1 | (builtin__math:floor "1")

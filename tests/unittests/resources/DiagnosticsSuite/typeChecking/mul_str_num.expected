@@ -1,10 +1,10 @@
 Function * expected 2 arguments
 Call
-  ↳ (* 3 4)
+  ↳ (* "3" 4)
 Signature
   ↳ (* a b)
 Arguments
-  → `a' (expected Number), got 3 (String)
+  → `a' (expected Number), got "3" (String)
   → `b' (expected Number) ✓
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mul_str_num.ark:1

@@ -1,10 +1,10 @@
 Function math:ln expected 1 argument
 Call
-  ↳ (math:ln 1)
+  ↳ (math:ln "1")
 Signature
   ↳ (math:ln value)
 Arguments
-  → `value' (expected Number), got 1 (String)
+  → `value' (expected Number), got "1" (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathln_str.ark:1
     1 | (builtin__math:ln "1")

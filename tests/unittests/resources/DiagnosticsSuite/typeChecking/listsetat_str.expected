@@ -1,10 +1,10 @@
 Function list:setAt expected 3 arguments but got 1
 Call
-  ↳ (list:setAt hello)
+  ↳ (list:setAt "hello")
 Signature
   ↳ (list:setAt list index value)
 Arguments
-  → `list' (expected List), got hello (String)
+  → `list' (expected List), got "hello" (String)
   → `index' (expected Number) was not provided
   → `value' (expected any) was not provided
 

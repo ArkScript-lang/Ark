@@ -1,10 +1,10 @@
 Function list:sort expected 1 argument
 Call
-  ↳ (list:sort live)
+  ↳ (list:sort "live")
 Signature
   ↳ (list:sort list)
 Arguments
-  → `list' (expected List), got live (String)
+  → `list' (expected List), got "live" (String)
 
 In file /lib/std/List.ark:51
    48 | # (list:sort [4 2 3])  # [1 2 4]

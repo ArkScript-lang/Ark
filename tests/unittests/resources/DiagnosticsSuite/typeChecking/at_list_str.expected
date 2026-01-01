@@ -1,18 +1,18 @@
 Function @ expected 2 arguments
 Call
-  ↳ (@ [] 1)
+  ↳ (@ [] "1")
 Signature
   ↳ (@ src idx)
 Arguments
   → `src' (expected List) ✓
-  → `idx' (expected Number), got 1 (String)
+  → `idx' (expected Number), got "1" (String)
 
 Alternative 2:
 Signature
   ↳ (@ src idx)
 Arguments
   → `src' (expected String), got [] (List)
-  → `idx' (expected Number), got 1 (String)
+  → `idx' (expected Number), got "1" (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/at_list_str.ark:1
     1 | (@ [] "1")

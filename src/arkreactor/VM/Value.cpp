@@ -74,7 +74,7 @@ namespace Ark
         list().emplace_back(std::move(value));
     }
 
-    std::string Value::toString(VM& vm) const noexcept
+    std::string Value::toString(VM& vm, const bool show_as_code) const noexcept
     {
         switch (valueType())
         {
@@ -82,6 +82,8 @@ namespace Ark
                 return fmt::format("{}", number());
 
             case ValueType::String:
+                if (show_as_code)
+                    return fmt::format("\"{}\"", string());
                 return string();
 
             case ValueType::PageAddr:

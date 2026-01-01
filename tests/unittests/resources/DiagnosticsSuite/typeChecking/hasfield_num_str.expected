@@ -1,6 +1,6 @@
 Function hasField expected 2 arguments
 Call
-  ↳ (hasField 1 c)
+  ↳ (hasField 1 "c")
 Signature
   ↳ (hasField closure field)
 Arguments

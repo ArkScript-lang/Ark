@@ -1,10 +1,10 @@
 Function math:asinh expected 1 argument
 Call
-  ↳ (math:asinh 1)
+  ↳ (math:asinh "1")
 Signature
   ↳ (math:asinh value)
 Arguments
-  → `value' (expected Number), got 1 (String)
+  → `value' (expected Number), got "1" (String)
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/mathasinh_str.ark:1
     1 | (builtin__math:asinh "1")
