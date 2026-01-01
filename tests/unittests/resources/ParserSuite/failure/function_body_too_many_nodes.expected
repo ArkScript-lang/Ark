@@ -1,0 +1,9 @@
+In file tests/unittests/resources/ParserSuite/failure/function_body_too_many_nodes.ark:3
+      |          ┌─ expression started here
+    1 | (let foo (fun (a b c)
+    2 |   (let res (+ a b c))
+    3 |   res))
+      |   ^~~
+    4 |
+    5 | (print (foo 1 2 3))
+        Missing ')' after function body. Did you forget to wrap the body with `{}'?

@@ -1060,7 +1060,10 @@ namespace Ark::internal
             result->attachNearestCommentBefore(result->comment() + comment);
             result.value().attachCommentAfter(newlineOrComment());
 
-            expectSuffixOrError(')', "after " + name, context);
+            if (name == "function")
+                expectSuffixOrError(')', "after function body. Did you forget to wrap the body with `{}'?", context);
+            else
+                expectSuffixOrError(')', "after " + name, context);
 
             result.value().attachCommentAfter(spaceComment());
             return result;

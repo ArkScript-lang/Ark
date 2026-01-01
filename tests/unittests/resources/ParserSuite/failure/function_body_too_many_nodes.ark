@@ -1,0 +1,5 @@
+(let foo (fun (a b c)
+  (let res (+ a b c))
+  res))
+
+(print (foo 1 2 3))
