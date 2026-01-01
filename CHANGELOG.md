@@ -12,6 +12,7 @@
 
 ### Changed
 - quotes are added around strings in type errors
+- `disassemble` can show a file bytecode
 
 ### Removed
 

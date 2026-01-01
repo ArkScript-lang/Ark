@@ -24,4 +24,5 @@
         (test:expect (and (<= r 2147483647) (>= r -2147483648))) })
 
     (test:case "disassemble" {
-      (disassemble foo) }) })
+      (disassemble foo)
+      (disassemble "tests/unittests/resources/DiagnosticsSuite/runtime/__arkscript__/assert.arkc") }) })

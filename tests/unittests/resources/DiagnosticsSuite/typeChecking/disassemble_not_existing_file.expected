@@ -1,0 +1,6 @@
+`disassemble': can not read file this_file_should_not_exist.1234
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/disassemble_not_existing_file.ark:1
+    1 | (disassemble "this_file_should_not_exist.1234")
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

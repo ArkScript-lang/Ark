@@ -6,6 +6,12 @@ Signature
 Arguments
   → `f' (expected Function), got 1 (Number)
 
+Alternative 2:
+Signature
+  ↳ (disassemble filename)
+Arguments
+  → `filename' (expected String), got 1 (Number)
+
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/disassemble_num.ark:1
     1 | (disassemble 1)
       | ^~~~~~~~~~~~~~
