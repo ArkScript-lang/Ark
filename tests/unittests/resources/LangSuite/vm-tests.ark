@@ -71,6 +71,8 @@
         (test:eq (len []) 0)
         (test:expect (empty? ""))
         (test:expect (empty? []))
+        (test:expect (empty? nil))
+        (test:expect (empty? ()))
         (test:expect (not []))
         (test:eq (tail "") "")
         (test:eq (tail "a") "")

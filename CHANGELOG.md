@@ -13,6 +13,7 @@
 ### Changed
 - quotes are added around strings in type errors
 - `disassemble` can show a file bytecode
+- `empty?` now accepts `nil` and returns `true` for this value
 
 ### Removed
 

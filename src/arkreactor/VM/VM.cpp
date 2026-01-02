@@ -1303,10 +1303,13 @@ namespace Ark
                             push(a->constList().empty() ? Builtins::trueSym : Builtins::falseSym, context);
                         else if (a->valueType() == ValueType::String)
                             push(a->string().empty() ? Builtins::trueSym : Builtins::falseSym, context);
+                        else if (a->valueType() == ValueType::Nil)
+                            push(Builtins::trueSym, context);
                         else
                             throw types::TypeCheckingError(
                                 "empty?",
                                 { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                    types::Contract { { types::Typedef("value", ValueType::Nil) } },
                                     types::Contract { { types::Typedef("value", ValueType::String) } } } },
                                 { *a });
                         DISPATCH();
