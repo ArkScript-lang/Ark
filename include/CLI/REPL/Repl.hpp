@@ -41,6 +41,7 @@ namespace Ark
         replxx::Replxx m_repl;
         unsigned m_line_count;
         std::string m_code;
+        std::string m_temp_additional_code;
         bool m_running;
 
         std::size_t m_old_ip;

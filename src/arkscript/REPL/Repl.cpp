@@ -58,7 +58,8 @@ namespace Ark
                     if (m_vm.safeRun(*m_vm.m_execution_contexts[0]) == 0)
                     {
                         // save good code
-                        m_code = new_code;
+                        m_code = new_code + m_temp_additional_code;
+                        m_temp_additional_code.clear();
                         // place ip to end of bytecode instruction (HALT)
                         m_vm.m_execution_contexts[0]->ip -= 4;
 
@@ -75,8 +76,6 @@ namespace Ark
                     m_state.reset();
                     registerBuiltins();
                 }
-                else
-                    fmt::println("\nCouldn't run code");
             }
         }
 
@@ -126,6 +125,7 @@ namespace Ark
         m_state.loadFunction("repl:history", [this]([[maybe_unused]] std::vector<Value>&, [[maybe_unused]] VM*) {
             return Value(m_code);
         });
+
         m_state.loadFunction("repl:save", [this](std::vector<Value>& n, [[maybe_unused]] VM*) {
             if (!types::check(n, ValueType::String))
                 throw types::TypeCheckingError(
@@ -135,6 +135,22 @@ namespace Ark
 
             std::ofstream history_file(n[0].string());
             history_file << m_code;
+            return Nil;
+        });
+
+        m_state.loadFunction("repl:load", [this](std::vector<Value>& n, [[maybe_unused]] VM*) {
+            if (!types::check(n, ValueType::String))
+                throw types::TypeCheckingError(
+                    "repl:load",
+                    { { types::Contract { { types::Typedef("filename", ValueType::String) } } } },
+                    n);
+
+            const std::string path = n[0].string();
+            if (!Utils::fileExists(path))
+                throw Error(fmt::format("`repl:load` expected a valid path to a file. {} doesn't exist, or can't be reached (try with an absolute path?)", path));
+
+            // we use += so that it can be called multiple times without overwriting previous code
+            m_temp_additional_code += fmt::format("## (repl:load \"{}\") ##\n{}\n## END ##\n", path, Utils::readFile(path));
             return Nil;
         });
     }
@@ -170,6 +186,10 @@ namespace Ark
             fmt::println("  save -- save the history to disk");
             fmt::println("  history -- print saved code");
             fmt::println("  reset -- reset the VM state");
+            fmt::println("Available builtins:");
+            fmt::println("(repl:history): returns the REPL history as a string");
+            fmt::println("(repl:save filename): saves the REPL history to a file");
+            fmt::println("(repl:load filename): loads code from a file in the REPL");
 
             return std::nullopt;
         }
