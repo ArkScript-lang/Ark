@@ -56,6 +56,8 @@ namespace Ark
          */
         void cuiSetup();
 
+        void registerBuiltins();
+
         /**
          * @brief Get a line via replxx and handle commands
          * @param continuation if the prompt needs to be modified because a code block isn't entirely closed, set to true

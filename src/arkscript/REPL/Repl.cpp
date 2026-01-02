@@ -5,6 +5,9 @@
 #include <ranges>
 
 #include <Ark/Builtins/Builtins.hpp>
+#include <Ark/VM/DefaultValues.hpp>
+#include <Ark/TypeChecker.hpp>
+#include <Ark/Utils/Files.hpp>
 
 #include <CLI/REPL/Repl.hpp>
 #include <CLI/REPL/Utils.hpp>
@@ -27,6 +30,10 @@ namespace Ark
         fmt::println("ArkScript REPL -- Version {} [LICENSE: Mozilla Public License 2.0] -- Built on {}", ARK_FULL_VERSION, ARK_BUILD_DATE);
         fmt::println(R"(Type "quit" to quit. Try "help" for more information)");
         cuiSetup();
+        registerBuiltins();
+
+        if (const char* arkrc = std::getenv("ARKSCRIPT_REPL_STARTUP"))
+            m_code = fmt::format("## Loaded via ARKSCRIPT_REPL_STARTUP environment variable: ##\n{}\n## END ##\n", Utils::readFile(arkrc));
 
         while (m_running)
         {
@@ -66,6 +73,7 @@ namespace Ark
                     }
 
                     m_state.reset();
+                    registerBuiltins();
                 }
                 else
                     fmt::println("\nCouldn't run code");
@@ -111,6 +119,24 @@ namespace Ark
         m_repl.bind_key_internal(Replxx::KEY::control('D'), "send_eof");
         m_repl.bind_key_internal(Replxx::KEY::control('C'), "abort_line");
         m_repl.bind_key_internal(Replxx::KEY::control('T'), "transpose_characters");
+    }
+
+    void Repl::registerBuiltins()
+    {
+        m_state.loadFunction("repl:history", [this]([[maybe_unused]] std::vector<Value>&, [[maybe_unused]] VM*) {
+            return Value(m_code);
+        });
+        m_state.loadFunction("repl:save", [this](std::vector<Value>& n, [[maybe_unused]] VM*) {
+            if (!types::check(n, ValueType::String))
+                throw types::TypeCheckingError(
+                    "repl:save",
+                    { { types::Contract { { types::Typedef("filename", ValueType::String) } } } },
+                    n);
+
+            std::ofstream history_file(n[0].string());
+            history_file << m_code;
+            return Nil;
+        });
     }
 
     std::optional<std::string> Repl::getLine(const bool continuation)

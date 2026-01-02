@@ -14,6 +14,8 @@
 - quotes are added around strings in type errors
 - `disassemble` can show a file bytecode
 - `empty?` now accepts `nil` and returns `true` for this value
+- the REPL adds `(repl:history)` and `(repl:save filename)` as builtins
+- the REPL attempts to load a file from `ARKSCRIPT_REPL_STARTUP` environment variable, to preload code
 
 ### Removed
 
