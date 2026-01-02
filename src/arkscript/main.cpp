@@ -155,6 +155,7 @@ int main(int argc, char** argv)
     const auto man_page = make_man_page(cli, "arkscript", fmt)
                               .prepend_section("DESCRIPTION", "        ArkScript programming language")
                               .append_section("VERSION", fmt::format("        {}", ARK_FULL_VERSION))
+                              .append_section("BUILD DATE", fmt::format("        {}", ARK_BUILD_DATE))
                               .append_section("LICENSE", "        Mozilla Public License 2.0");
 
     if (parse(argc, argv, cli))

@@ -12,11 +12,16 @@ if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     execute_process(
             COMMAND git rev-parse --short=8 HEAD
             WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-            OUTPUT_VARIABLE GIT_COMMIT_HASH
+            OUTPUT_VARIABLE ARK_COMMIT
             OUTPUT_STRIP_TRAILING_WHITESPACE)
-    set(ARK_COMMIT ${GIT_COMMIT_HASH})
+    execute_process(
+            COMMAND date +%Y-%m-%dT%H:%M:%SZ
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+            OUTPUT_VARIABLE ARK_BUILD_DATE
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
 else ()
     set(ARK_COMMIT "deadbeef")
+    set(ARK_BUILD_DATE "2026-01-02T17:56:00Z")
 endif ()
 
 option(ARK_BUILD_EXE "Build a standalone arkscript executable" Off)
@@ -253,7 +258,7 @@ if (ARK_TESTS)
     target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/include)
     target_link_libraries(unittests PUBLIC ArkReactor ut replxx)
 
-    add_compile_definitions(BOOST_UT_DISABLE_MODULE)
+    set(BOOST_UT_DISABLE_MODULE On)
     target_compile_features(unittests PRIVATE cxx_std_20)
     target_compile_definitions(unittests PRIVATE ARK_TESTS_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
 
