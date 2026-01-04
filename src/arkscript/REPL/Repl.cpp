@@ -108,12 +108,10 @@ namespace Ark
         m_repl.bind_key_internal(Replxx::KEY::control(Replxx::KEY::RIGHT), "move_cursor_one_word_right");
         m_repl.bind_key_internal(Replxx::KEY::control(Replxx::KEY::UP), "hint_previous");
         m_repl.bind_key_internal(Replxx::KEY::control(Replxx::KEY::DOWN), "hint_next");
-        m_repl.bind_key_internal(Replxx::KEY::control(Replxx::KEY::ENTER), "commit_line");
         m_repl.bind_key_internal(Replxx::KEY::control('R'), "history_incremental_search");
         m_repl.bind_key_internal(Replxx::KEY::control('W'), "kill_to_begining_of_word");
         m_repl.bind_key_internal(Replxx::KEY::control('U'), "kill_to_begining_of_line");
         m_repl.bind_key_internal(Replxx::KEY::control('K'), "kill_to_end_of_line");
-        m_repl.bind_key_internal(Replxx::KEY::control('Y'), "yank");
         m_repl.bind_key_internal(Replxx::KEY::control('L'), "clear_screen");
         m_repl.bind_key_internal(Replxx::KEY::control('D'), "send_eof");
         m_repl.bind_key_internal(Replxx::KEY::control('C'), "abort_line");
@@ -187,9 +185,9 @@ namespace Ark
             fmt::println("  history -- print saved code");
             fmt::println("  reset -- reset the VM state");
             fmt::println("Available builtins:");
-            fmt::println("(repl:history): returns the REPL history as a string");
-            fmt::println("(repl:save filename): saves the REPL history to a file");
-            fmt::println("(repl:load filename): loads code from a file in the REPL");
+            fmt::println("  (repl:history): returns the REPL history as a string");
+            fmt::println("  (repl:save filename): saves the REPL history to a file");
+            fmt::println("  (repl:load filename): loads code from a file in the REPL");
 
             return std::nullopt;
         }
