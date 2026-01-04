@@ -1,10 +1,10 @@
 /**
  * @file Instructions.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief The different instructions used by the compiler and virtual machine
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2025
+ * @copyright Copyright (c) 2020-2026
  *
  */
 

@@ -1,10 +1,10 @@
 /**
  * @file Builtins.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Host the declaration of all the ArkScript builtins
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2025
+ * @copyright Copyright (c) 2020-2026
  *
  */
 

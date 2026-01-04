@@ -1,10 +1,10 @@
 /**
  * @file Dict.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Define how dictionaries are handled
  * @date 2025-08-03
  *
- * @copyright Copyright (c) 2025
+ * @copyright Copyright (c) 2025-2026
  *
  */
 

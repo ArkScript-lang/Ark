@@ -1,10 +1,10 @@
 /**
  * @file Word.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Describe an instruction and its immediate argument
  * @date 2022-07-02
  *
- * @copyright Copyright (c) 2022-2025
+ * @copyright Copyright (c) 2022-2026
  *
  */
 

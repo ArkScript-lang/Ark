@@ -1,10 +1,10 @@
 /**
  * @file Literals.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief User defined literals for Ark internals
  * @date 2021-10-2
  *
- * @copyright Copyright (c) 2020-2025
+ * @copyright Copyright (c) 2020-2026
  *
  */
 

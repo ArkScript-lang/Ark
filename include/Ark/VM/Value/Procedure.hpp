@@ -4,7 +4,7 @@
  * @brief Wrapper object for user-defined functions
  * @date 2025-06-09
  *
- * @copyright Copyright (c) 2025
+ * @copyright Copyright (c) 2025-2026
  *
  */
 

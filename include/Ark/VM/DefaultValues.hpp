@@ -1,10 +1,10 @@
 /*
  * @file DefaultValues.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Defines default values to be used by the VM
  * @date 2025-08-10
  *
- * @copyright Copyright (c) 2025
+ * @copyright Copyright (c) 2025-2026
  *
  */
 

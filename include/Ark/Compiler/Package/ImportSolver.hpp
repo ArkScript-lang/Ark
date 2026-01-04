@@ -1,10 +1,10 @@
 /**
  * @file ImportSolver.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Handle imports, resolve them with modules and everything
  * @date 2024-07-21
  *
- * @copyright Copyright (c) 2020-2025
+ * @copyright Copyright (c) 2020-2026
  *
  */
 

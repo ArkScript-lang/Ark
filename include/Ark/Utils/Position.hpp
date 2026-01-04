@@ -1,10 +1,10 @@
 /**
  * @file Position.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Defines position utilities (for text in a file) for the parser, formatter, diagnostics
  * @date 2025-08-18
  *
- * @copyright Copyright (c) 2025
+ * @copyright Copyright (c) 2025-2026
  *
  */
 

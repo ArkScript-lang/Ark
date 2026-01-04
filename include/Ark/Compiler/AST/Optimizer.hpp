@@ -1,10 +1,10 @@
 /**
  * @file Optimizer.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Optimizes a given ArkScript AST
  * @date 2024-07-09
  *
- * @copyright Copyright (c) 2020-2025
+ * @copyright Copyright (c) 2020-2026
  *
  */
 

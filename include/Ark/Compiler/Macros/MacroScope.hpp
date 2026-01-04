@@ -1,10 +1,10 @@
 /**
  * @file MacroScope.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Defines tools to handle macro definitions
  * @date 2023-02-18
  *
- * @copyright Copyright (c) 2023-2025
+ * @copyright Copyright (c) 2023-2026
  *
  */
 

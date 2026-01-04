@@ -1,10 +1,10 @@
 /**
  * @file Processor.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Handles the macros and their expansion in ArkScript source code
  * @date 2021-02-18
  *
- * @copyright Copyright (c) 2021-2025
+ * @copyright Copyright (c) 2021-2026
  *
  */
 

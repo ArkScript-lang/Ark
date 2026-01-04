@@ -1,10 +1,10 @@
 /**
  * @file ClosureScope.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Subtype of the value type, handling closures
  * @date 2025-03-17
  *
- * @copyright Copyright (c) 2025
+ * @copyright Copyright (c) 2025-2026
  *
  */
 

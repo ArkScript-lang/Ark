@@ -1,10 +1,10 @@
 /**
  * @file TypeChecker.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief
  * @date 2022-01-16
  *
- * @copyright Copyright (c) 2022-2025
+ * @copyright Copyright (c) 2022-2026
  *
  */
 

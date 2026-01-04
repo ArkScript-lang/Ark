@@ -1,10 +1,10 @@
 /**
  * @file Exceptions.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com), Max (madstk1@pm.me)
+ * @author Lexy Plateau (lexplt.dev@gmail.com), Max (madstk1@pm.me)
  * @brief ArkScript homemade exceptions
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2025
+ * @copyright Copyright (c) 2020-2026
  *
  */
 

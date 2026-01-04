@@ -1,10 +1,10 @@
 /**
  * @file Node.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief AST node used by the parser, optimizer and compiler
  * @date 2020-10-27
  *
- * @copyright Copyright (c) 2020-2025
+ * @copyright Copyright (c) 2020-2026
  *
  */
 

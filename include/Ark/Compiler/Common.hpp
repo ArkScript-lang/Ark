@@ -1,10 +1,10 @@
 /**
  * @file Common.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Common code for the compiler
  * @date 2021-10-02
  *
- * @copyright Copyright (c) 2021-2025
+ * @copyright Copyright (c) 2021-2026
  *
  */
 

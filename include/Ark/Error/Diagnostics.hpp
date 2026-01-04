@@ -1,10 +1,10 @@
 /**
  * @file Diagnostics.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Tools to report code errors nicely to the user
  * @date 2025-08-16
  *
- * @copyright Copyright (c) 2025
+ * @copyright Copyright (c) 2025-2026
  *
  */
 

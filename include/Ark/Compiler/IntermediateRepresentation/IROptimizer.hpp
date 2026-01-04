@@ -1,10 +1,10 @@
 /**
  * @file IROptimizer.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Optimize IR based on IR entity grouped by 2 (or more)
  * @date 2024-10-11
  *
- * @copyright Copyright (c) 2024-2025
+ * @copyright Copyright (c) 2024-2026
  *
  */
 #ifndef ARK_COMPILER_INTERMEDIATEREPRESENTATION_IROPTIMIZER_HPP

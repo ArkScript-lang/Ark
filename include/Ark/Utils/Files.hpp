@@ -1,10 +1,10 @@
 /**
  * @file Files.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Lots of utilities about the filesystem
  * @date 2024-07-09
  *
- * @copyright Copyright (c) 2021-2025
+ * @copyright Copyright (c) 2021-2026
  *
  */
 

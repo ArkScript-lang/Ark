@@ -270,7 +270,7 @@ This project was inspired by [game programing patterns](http://gameprogrammingpa
 
 ## Copyright and Licence information
 
-Copyright (c) 2019-2025 Lex Plateau. All rights reserved.
+Copyright (c) 2019-2026 Lexy Plateau. All rights reserved.
 
 ### Using ArkScript in your company
 

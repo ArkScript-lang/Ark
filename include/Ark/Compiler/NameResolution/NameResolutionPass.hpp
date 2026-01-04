@@ -1,10 +1,10 @@
 /**
  * @file NameResolutionPass.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Resolves names and fully qualify them in the AST (prefixing them with the package they are from)
  * @date 2024-07-22
  *
- * @copyright Copyright (c) 2024-2025
+ * @copyright Copyright (c) 2024-2026
  *
  */
 

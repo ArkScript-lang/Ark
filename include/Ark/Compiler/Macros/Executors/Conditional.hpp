@@ -4,7 +4,7 @@
  * @brief Executor for Conditional Macros
  * @date 2021-05-04
  *
- * @copyright Copyright (c) 2021-2025
+ * @copyright Copyright (c) 2021-2026
  *
  */
 

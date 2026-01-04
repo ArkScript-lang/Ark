@@ -1,10 +1,10 @@
 /**
  * @file IRCompiler.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Compile the intermediate representation to bytecode
  * @date 2024-10-05
  *
- * @copyright Copyright (c) 2024-2025
+ * @copyright Copyright (c) 2024-2026
  *
  */
 

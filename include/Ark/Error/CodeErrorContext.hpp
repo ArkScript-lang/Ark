@@ -1,10 +1,10 @@
 /**
  * @file CodeErrorContext.hpp
- * @author Lex Plateau (lexplt.dev@gmail.com)
+ * @author Lexy Plateau (lexplt.dev@gmail.com)
  * @brief Defines a code error context
  * @date 2025-08-16
  *
- * @copyright Copyright (c) 2025
+ * @copyright Copyright (c) 2025-2026
  *
  */
 
