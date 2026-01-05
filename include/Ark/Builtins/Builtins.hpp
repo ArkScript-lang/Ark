@@ -70,6 +70,7 @@ namespace Ark::internal::Builtins
         ARK_BUILTIN(system_);
         ARK_BUILTIN(sleep);
         ARK_BUILTIN(exit_);
+        ARK_BUILTIN(assert_);
     }
 
     namespace String

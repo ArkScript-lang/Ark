@@ -1,5 +1,12 @@
 # Change Log
 
+## [Unreleased changes] - 20XX-XX-XX
+### Breaking changes
+- `assert` is no longer an instruction but a builtin
+
+### Added
+- added `BREAKPOINT` instruction
+
 ## [4.1.2] - 2026-01-09
 ### Added
 - the repl prints the output of the last expression it ran

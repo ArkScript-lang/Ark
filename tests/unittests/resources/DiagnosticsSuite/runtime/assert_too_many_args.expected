@@ -1,0 +1,14 @@
+Function assert expected 2 arguments but got 4
+Call
+  ↳ (assert true 1 2 3)
+Signature
+  ↳ (assert expr message)
+Arguments
+  → `expr' (expected any) ✓
+  → `message' (expected String), got 1 (Number)
+  → unexpected additional args: 2 (Number), 3 (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/assert_too_many_args.ark:1
+    1 | (assert true 1 2 3)
+      | ^~~~~~~~~~~~~~~~~~
+    2 |
