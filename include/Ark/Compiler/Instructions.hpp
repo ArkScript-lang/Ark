@@ -171,10 +171,10 @@ namespace Ark::internal
         // @role Push the current page address as a value on the stack
         GET_CURRENT_PAGE_ADDR = 0x25,
 
+        FIRST_OPERATOR = 0x26,
+
         // @role Pop the top of the stack, if it's true, trigger the debugger
         BREAKPOINT = 0x26,
-
-        FIRST_OPERATOR = 0x27,
 
         // @role Push `TS1 + TS`
         ADD = 0x27,
@@ -491,8 +491,8 @@ namespace Ark::internal
         "RESET_SCOPE_JUMP",
         "POP_SCOPE",
         "GET_CURRENT_PAGE_ADDR",
-        "BREAKPOINT",
         // operators
+        "BREAKPOINT",
         "ADD",
         "SUB",
         "MUL",
