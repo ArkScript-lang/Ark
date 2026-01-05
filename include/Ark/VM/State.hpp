@@ -131,11 +131,10 @@ namespace Ark
          *
          * @param file the path of file code to compile
          * @param output set path of .arkc file
-         * @param features compiler features to enable/disable
          * @return true on success
          * @return false on failure and raise an exception
          */
-        [[nodiscard]] bool compile(const std::string& file, const std::string& output, uint16_t features) const;
+        [[nodiscard]] bool compile(const std::string& file, const std::string& output) const;
 
         static void throwStateError(const std::string& message)
         {
@@ -143,6 +142,7 @@ namespace Ark
         }
 
         unsigned m_debug_level;
+        uint16_t m_features;
 
         bytecode_t m_bytecode;
         std::vector<std::filesystem::path> m_libenv;
@@ -157,7 +157,7 @@ namespace Ark
         bytecode_t m_code;
 
         // related to the execution
-        std::unordered_map<std::string, Value> m_binded;  ///< Values binded to the State, to be used by the VM
+        std::unordered_map<std::string, Value> m_bound;  ///< Values bound to the State, to be used by the VM
 
         /**
          * @brief Get an instruction in a given page, with a given instruction pointer
