@@ -97,6 +97,7 @@ namespace Ark::internal
     {
         switch (inst)
         {
+            case BREAKPOINT: [[fallthrough]];
             case NOT: [[fallthrough]];
             case LEN: [[fallthrough]];
             case IS_EMPTY: [[fallthrough]];
@@ -684,7 +685,8 @@ namespace Ark::internal
         else  // operator
         {
             // retrieve operator
-            auto op = maybe_operator.value();
+            const auto op = maybe_operator.value();
+            const auto op_name = Language::operators[static_cast<std::size_t>(op - FIRST_OPERATOR)];
 
             if (op == BREAKPOINT)
                 is_result_unused = false;
@@ -710,17 +712,17 @@ namespace Ark::internal
             if (isUnaryInst(op))
             {
                 if (exp_count != 1)
-                    buildAndThrowError(fmt::format("Operator needs one argument, but was called with {}", exp_count), x.constList()[0]);
+                    buildAndThrowError(fmt::format("`{}' expected one argument, but was called with {}", op_name, exp_count), x.constList()[0]);
                 page(p).emplace_back(op);
             }
             else if (isTernaryInst(op))
             {
                 if (exp_count != 3)
-                    buildAndThrowError(fmt::format("Operator needs three arguments, but was called with {}", exp_count), x.constList()[0]);
+                    buildAndThrowError(fmt::format("`{}' expected three arguments, but was called with {}", op_name, exp_count), x.constList()[0]);
                 page(p).emplace_back(op);
             }
             else if (exp_count <= 1)
-                buildAndThrowError(fmt::format("Operator needs two arguments, but was called with {}", exp_count), x.constList()[0]);
+                buildAndThrowError(fmt::format("`{}' expected two arguments, but was called with {}", op_name, exp_count), x.constList()[0]);
 
             page(p).back().setSourceLocation(x.filename(), x.position().start.line);
 
@@ -739,12 +741,7 @@ namespace Ark::internal
                         break;
 
                     default:
-                        buildAndThrowError(
-                            fmt::format(
-                                "`{}' requires 2 arguments, but got {}.",
-                                Language::operators[static_cast<std::size_t>(op - FIRST_OPERATOR)],
-                                exp_count),
-                            x);
+                        buildAndThrowError(fmt::format("`{}' requires 2 arguments, but got {}.", op_name, exp_count), x);
                 }
             }
         }

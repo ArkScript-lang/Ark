@@ -3,4 +3,4 @@ In file tests/unittests/resources/DiagnosticsSuite/compileTime/at_at_not_enough_
     2 | (print (@@ lst 1))
       |         ^~
     3 |
-        Operator needs three arguments, but was called with 2
+        `@@' expected three arguments, but was called with 2
