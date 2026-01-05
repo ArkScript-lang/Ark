@@ -1,0 +1,19 @@
+(breakpoint true)
+
+(let foo (fun (a b c) {
+  (breakpoint (> a 5))
+  (print (format "a={}, b={}, c={}" a b c))
+  (let res (* a b (breakpoint (< c 0)) c 5))
+  (print (breakpoint true) res (breakpoint false))
+  res }))
+
+(foo 1 2 3)
+
+(if (> (breakpoint true) 2 1)
+  {
+    (print "before call")
+    (foo 1 (breakpoint false) 2 3)
+    (print "after call") })
+
+(let bar (fun () ()))
+(bar (breakpoint true))

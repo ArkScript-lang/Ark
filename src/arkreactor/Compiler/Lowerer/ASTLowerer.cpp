@@ -75,6 +75,13 @@ namespace Ark::internal
         return std::nullopt;
     }
 
+    bool ASTLowerer::isBreakpoint(const Node& node)
+    {
+        if (node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Symbol)
+            return node.constList().front().string() == "breakpoint";
+        return false;
+    }
+
     bool ASTLowerer::nodeProducesOutput(const Node& node)
     {
         if (node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Keyword)
@@ -557,7 +564,8 @@ namespace Ark::internal
         // value for argument b, but loaded it as a reference.
         for (Node& value : std::ranges::drop_view(call.list(), 1) | std::views::reverse)
         {
-            if (nodeProducesOutput(value))
+            // FIXME: in (foo a b (breakpoint (< c 0)) c), we will push c before the breakpoint
+            if (nodeProducesOutput(value) || isBreakpoint(value))
             {
                 // we have to disallow usage of references in tail calls, because if we shuffle arguments around while using refs, they will end up with the same value
                 if (value.nodeType() == NodeType::Symbol && is_tail_call)
@@ -671,7 +679,7 @@ namespace Ark::internal
                 std::size_t args_count = 0;
                 for (auto it = x.constList().begin() + start_index, it_end = x.constList().end(); it != it_end; ++it)
                 {
-                    if (it->nodeType() != NodeType::Capture)
+                    if (it->nodeType() != NodeType::Capture && !isBreakpoint(*it))
                         args_count++;
                 }
                 // call the procedure
@@ -695,17 +703,18 @@ namespace Ark::internal
             std::size_t exp_count = 0;
             for (std::size_t index = start_index, size = x.constList().size(); index < size; ++index)
             {
-                if (nodeProducesOutput(x.constList()[index]))
+                const bool is_breakpoint = isBreakpoint(x.constList()[index]);
+                if (nodeProducesOutput(x.constList()[index]) || is_breakpoint)
                     compileExpression(x.list()[index], p, false, false);
                 else
                     buildAndThrowError(fmt::format("Invalid node inside call to operator `{}'", node.repr()), x.constList()[index]);
 
-                if ((index + 1 < size && x.constList()[index + 1].nodeType() != NodeType::Capture) || index + 1 == size)
+                if (!is_breakpoint && ((index + 1 < size && x.constList()[index + 1].nodeType() != NodeType::Capture) || index + 1 == size))
                     exp_count++;
 
                 // in order to be able to handle things like (op A B C D...)
                 // which should be transformed into A B op C op D op...
-                if (exp_count >= 2 && !isTernaryInst(op))
+                if (exp_count >= 2 && !isTernaryInst(op) && !is_breakpoint)
                     page(p).emplace_back(op);
             }
 

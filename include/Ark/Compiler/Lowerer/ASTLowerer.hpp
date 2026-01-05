@@ -129,6 +129,14 @@ namespace Ark::internal
         static std::optional<Instruction> getListInstruction(const std::string& name) noexcept;
 
         /**
+         * Checks if a node is a list and is a call to 'breakpoint'
+         * @param node node to check
+         * @return true if the node is a 'breakpoint' call: (breakpoint <cond>)
+         * @return false otherwise
+         */
+        static bool isBreakpoint(const Node& node);
+
+        /**
          * Checks if a node is a list and has a keyboard as its first node, indicating if it's producing a value on the stack or not
          * @param node node to check
          * @return true if the node produces an output on the stack (fun, if, begin)
