@@ -80,4 +80,19 @@ namespace Ark::internal::Builtins::System
         vm->exit(static_cast<int>(n[0].number()));
         return nil;
     }
+
+    // cppcheck-suppress constParameterReference
+    Value assert_(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Any, ValueType::String))
+            throw types::TypeCheckingError(
+                "assert",
+                { { types::Contract { { types::Typedef("expr", ValueType::Any), types::Typedef("message", ValueType::String) } } } },
+                n);
+
+        if (n[0] == Builtins::falseSym)
+            throw AssertionFailed(n[1].stringRef());
+
+        return nil;
+    }
 }

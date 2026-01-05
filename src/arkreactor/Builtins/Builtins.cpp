@@ -57,6 +57,7 @@ namespace Ark::internal::Builtins
         { "builtin__sys:exec", Value(System::system_) },
         { "builtin__sys:sleep", Value(System::sleep) },
         { "builtin__sys:exit", Value(System::exit_) },
+        { "assert", Value(System::assert_) },
 
         // String
         { "format", Value(String::format) },

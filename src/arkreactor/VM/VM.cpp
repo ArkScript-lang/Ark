@@ -606,6 +606,7 @@ namespace Ark
                 &&TARGET_RESET_SCOPE_JUMP,
                 &&TARGET_POP_SCOPE,
                 &&TARGET_GET_CURRENT_PAGE_ADDR,
+                &&TARGET_BREAKPOINT,
                 &&TARGET_ADD,
                 &&TARGET_SUB,
                 &&TARGET_MUL,
@@ -621,7 +622,6 @@ namespace Ark
                 &&TARGET_TAIL,
                 &&TARGET_HEAD,
                 &&TARGET_IS_NIL,
-                &&TARGET_ASSERT,
                 &&TARGET_TO_NUM,
                 &&TARGET_TO_STR,
                 &&TARGET_AT,
@@ -1180,6 +1180,16 @@ namespace Ark
                         DISPATCH();
                     }
 
+                    TARGET(BREAKPOINT)
+                    {
+                        {
+                            const Value cond = *popAndResolveAsPtr(context);
+                            if (cond == Builtins::trueSym)  // todo: trigger debugger
+                            {}
+                        }
+                        DISPATCH();
+                    }
+
 #pragma endregion
 
 #pragma region "Operators"
@@ -1341,22 +1351,6 @@ namespace Ark
                     {
                         const Value* a = popAndResolveAsPtr(context);
                         push((*a == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(ASSERT)
-                    {
-                        Value* const b = popAndResolveAsPtr(context);
-                        Value* const a = popAndResolveAsPtr(context);
-
-                        if (b->valueType() != ValueType::String)
-                            throw types::TypeCheckingError(
-                                "assert",
-                                { { types::Contract { { types::Typedef("expr", ValueType::Any), types::Typedef("message", ValueType::String) } } } },
-                                { *a, *b });
-
-                        if (*a == Builtins::falseSym)
-                            throw AssertionFailed(b->stringRef());
                         DISPATCH();
                     }
 

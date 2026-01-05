@@ -94,6 +94,8 @@ ut::suite<"Compiler"> compiler_suite = [] {
 
                     Ark::Utils::ltrim(Ark::Utils::rtrim(ir));
                     expectOrDiff(data.expected, ir);
+                    if (shouldWriteNewDiffsTofile() && data.expected != ir)
+                        updateExpectedFile(data, ir);
                 };
             });
     };
@@ -116,6 +118,8 @@ ut::suite<"Compiler"> compiler_suite = [] {
 
                     Ark::Utils::ltrim(Ark::Utils::rtrim(ir));
                     expectOrDiff(data.expected, ir);
+                    if (shouldWriteNewDiffsTofile() && data.expected != ir)
+                        updateExpectedFile(data, ir);
                 };
             });
     };

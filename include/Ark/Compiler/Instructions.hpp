@@ -171,55 +171,55 @@ namespace Ark::internal
         // @role Push the current page address as a value on the stack
         GET_CURRENT_PAGE_ADDR = 0x25,
 
-        FIRST_OPERATOR = 0x26,
+        // @role Pop the top of the stack, if it's true, trigger the debugger
+        BREAKPOINT = 0x26,
+
+        FIRST_OPERATOR = 0x27,
 
         // @role Push `TS1 + TS`
-        ADD = 0x26,
+        ADD = 0x27,
 
         // @role Push `TS1 - TS`
-        SUB = 0x27,
+        SUB = 0x28,
 
         // @role Push `TS1 * TS`
-        MUL = 0x28,
+        MUL = 0x29,
 
         // @role Push `TS1 / TS`
-        DIV = 0x29,
+        DIV = 0x2a,
 
         // @role Push `TS1 > TS`
-        GT = 0x2a,
+        GT = 0x2b,
 
         // @role Push `TS1 < TS`
-        LT = 0x2b,
+        LT = 0x2c,
 
         // @role Push `TS1 <= TS`
-        LE = 0x2c,
+        LE = 0x2d,
 
         // @role Push `TS1 >= TS`
-        GE = 0x2d,
+        GE = 0x2e,
 
         // @role Push `TS1 != TS`
-        NEQ = 0x2e,
+        NEQ = 0x2f,
 
         // @role Push `TS1 == TS`
-        EQ = 0x2f,
+        EQ = 0x30,
 
         // @role Push `len(TS)`, TS must be a list
-        LEN = 0x30,
+        LEN = 0x31,
 
         // @role Push `empty?(TS)`, TS must be a list or string
-        IS_EMPTY = 0x31,
+        IS_EMPTY = 0x32,
 
         // @role Push `tail(TS)`, all the elements of TS except the first one. TS must be a list or string
-        TAIL = 0x32,
+        TAIL = 0x33,
 
         // @role Push `head(TS)`, the first element of TS or nil if empty. TS must be a list or string
-        HEAD = 0x33,
+        HEAD = 0x34,
 
         // @role Push true if TS is nil, false otherwise
-        IS_NIL = 0x34,
-
-        // @role Throw an exception if TS1 is false, and display TS (must be a string). Do not push anything on the stack
-        ASSERT = 0x35,
+        IS_NIL = 0x35,
 
         // @role Convert TS to number (must be a string)
         TO_NUM = 0x36,
@@ -491,6 +491,7 @@ namespace Ark::internal
         "RESET_SCOPE_JUMP",
         "POP_SCOPE",
         "GET_CURRENT_PAGE_ADDR",
+        "BREAKPOINT",
         // operators
         "ADD",
         "SUB",
@@ -507,7 +508,6 @@ namespace Ark::internal
         "TAIL",
         "HEAD",
         "IS_NIL",
-        "ASSERT",
         "TO_NUM",
         "TO_STR",
         "AT",

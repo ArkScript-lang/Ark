@@ -86,10 +86,10 @@ namespace Ark::internal
                 (node.constList()[0].keyword() == Keyword::If &&
                  nodeProducesOutput(node.constList()[2]) &&
                  (node.constList().size() == 3 || nodeProducesOutput(node.constList()[3])));
-        // in place list instruction, as well as assert, do not produce values
+        // in place list instruction, as well as breakpoint, do not produce values
         if (node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Symbol)
             return std::ranges::find(Language::UpdateRef, node.constList().front().string()) == Language::UpdateRef.end() &&
-                node.constList().front().string() != "assert";
+                node.constList().front().string() != "breakpoint";
         return true;  // any other node, function call, symbol, number...
     }
 
@@ -686,7 +686,7 @@ namespace Ark::internal
             // retrieve operator
             auto op = maybe_operator.value();
 
-            if (op == ASSERT)
+            if (op == BREAKPOINT)
                 is_result_unused = false;
 
             // push arguments on current page
