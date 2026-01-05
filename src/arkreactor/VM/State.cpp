@@ -18,15 +18,16 @@ namespace Ark
 {
     State::State(const std::vector<std::filesystem::path>& libenv) noexcept :
         m_debug_level(0),
+        m_features(0),
         m_libenv(libenv),
         m_filename(ARK_NO_NAME_FILE),
         m_max_page_size(0)
     {
         // default value for builtin__sys:args is empty list
         const Value val(ValueType::List);
-        m_binded[std::string(internal::Language::SysArgs)] = val;
+        m_bound[std::string(internal::Language::SysArgs)] = val;
 
-        m_binded[std::string(internal::Language::SysProgramName)] = Value("");
+        m_bound[std::string(internal::Language::SysProgramName)] = Value("");
     }
 
     bool State::feed(const std::string& bytecode_filename, const bool fail_with_exception)
@@ -61,11 +62,11 @@ namespace Ark
         }
     }
 
-    bool State::compile(const std::string& file, const std::string& output, const uint16_t features) const
+    bool State::compile(const std::string& file, const std::string& output) const
     {
-        Welder welder(m_debug_level, m_libenv, features);
-        for (const auto& p : m_binded)
-            welder.registerSymbol(p.first);
+        Welder welder(m_debug_level, m_libenv, m_features);
+        for (const auto& key : m_bound | std::views::keys)
+            welder.registerSymbol(key);
 
         if (!welder.computeASTFromFile(file))
             return false;
@@ -81,13 +82,15 @@ namespace Ark
 
     bool State::doFile(const std::string& file_path, const uint16_t features)
     {
+        m_features = features;
+
         if (!Utils::fileExists(file_path))
         {
             fmt::print(fmt::fg(fmt::color::red), "Can not find file '{}'\n", file_path);
             return false;
         }
         m_filename = file_path;
-        m_binded[std::string(internal::Language::SysProgramName)] = Value(std::filesystem::path(m_filename).filename().string());
+        m_bound[std::string(internal::Language::SysProgramName)] = Value(std::filesystem::path(m_filename).filename().string());
 
         const bytecode_t bytecode = Utils::readFileAsBytes(file_path);
         BytecodeReader bcr;
@@ -102,7 +105,7 @@ namespace Ark
             if (!exists(cache_directory))
                 create_directory(cache_directory);
 
-            if (compile(file_path, bytecode_path, features) && feed(bytecode_path))
+            if (compile(file_path, bytecode_path) && feed(bytecode_path))
                 return true;
         }
         else if (feed(bytecode))  // it's a bytecode file
@@ -112,8 +115,10 @@ namespace Ark
 
     bool State::doString(const std::string& code, const uint16_t features)
     {
-        Welder welder(m_debug_level, m_libenv, features);
-        for (const auto& p : m_binded)
+        m_features = features;
+
+        Welder welder(m_debug_level, m_libenv, m_features);
+        for (const auto& p : m_bound)
             welder.registerSymbol(p.first);
 
         if (!welder.computeASTFromString(code))
@@ -125,7 +130,7 @@ namespace Ark
 
     void State::loadFunction(const std::string& name, Procedure::CallbackType&& function) noexcept
     {
-        m_binded[name] = Value(std::move(function));
+        m_bound[name] = Value(std::move(function));
     }
 
     void State::setArgs(const std::vector<std::string>& args) noexcept
@@ -135,7 +140,7 @@ namespace Ark
             return Value(arg);
         });
 
-        m_binded[std::string(internal::Language::SysArgs)] = val;
+        m_bound[std::string(internal::Language::SysArgs)] = val;
     }
 
     void State::setDebug(const unsigned level) noexcept
@@ -210,13 +215,13 @@ namespace Ark
         m_inst_locations.clear();
         m_max_page_size = 0;
         m_code.clear();
-        m_binded.clear();
+        m_bound.clear();
 
         // default value for builtin__sys:args is empty list
         const Value val(ValueType::List);
-        m_binded[std::string(internal::Language::SysArgs)] = val;
+        m_bound[std::string(internal::Language::SysArgs)] = val;
 
-        m_binded[std::string(internal::Language::SysProgramName)] = Value("");
+        m_bound[std::string(internal::Language::SysProgramName)] = Value("");
     }
 }
 

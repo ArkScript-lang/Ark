@@ -80,12 +80,15 @@ int main(int argc, char** argv)
         option("-firoptimizer").call([&] { passes |= Ark::FeatureIROptimizer; })
         | option("-fno-iroptimizer").call([&] { passes &= ~Ark::FeatureIROptimizer; })
     ).doc("Toggle on and off the IR optimizer pass");
+    auto vm_debugger_flag = (
+        option("-fdebugger").call([&] { passes |= Ark::FeatureVMDebugger; })
+    ).doc("Turn on the debugger");
     auto ir_dump = option("-fdump-ir").call([&] { passes |= Ark::FeatureDumpIR; })
         .doc("Dump IR to file.ark.ir");
 
     const auto run_flags = (
         // cppcheck-suppress constStatement
-        debug_flag, lib_dir_flag, import_solver_pass_flag, macro_proc_pass_flag, optimizer_pass_flag, ir_optimizer_pass_flag, ir_dump
+        debug_flag, lib_dir_flag, import_solver_pass_flag, macro_proc_pass_flag, optimizer_pass_flag, ir_optimizer_pass_flag, vm_debugger_flag, ir_dump
     );
 
     auto cli = (

@@ -173,7 +173,7 @@ namespace Ark
 
         // loading bound stuff
         // put them in the global frame if we can, aka the first one
-        for (const auto& [sym_id, value] : m_state.m_binded)
+        for (const auto& [sym_id, value] : m_state.m_bound)
         {
             auto it = std::ranges::find(m_state.m_symbols, sym_id);
             if (it != m_state.m_symbols.end())
@@ -1180,6 +1180,10 @@ namespace Ark
                         DISPATCH();
                     }
 
+#pragma endregion
+
+#pragma region "Operators"
+
                     TARGET(BREAKPOINT)
                     {
                         {
@@ -1189,10 +1193,6 @@ namespace Ark
                         }
                         DISPATCH();
                     }
-
-#pragma endregion
-
-#pragma region "Operators"
 
                     TARGET(ADD)
                     {
@@ -2260,6 +2260,11 @@ namespace Ark
             text += '\n';
         fmt::println("{}", text);
         backtrace(context);
+
+        if (m_state.m_features & FeatureVMDebugger)
+        {
+            // TODO: launch debugger
+        }
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
         // don't report a "failed" exit code so that the fuzzers can more accurately triage crashes
         m_exit_code = 0;
