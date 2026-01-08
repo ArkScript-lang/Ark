@@ -569,8 +569,8 @@ namespace Ark
             constexpr std::array opcode_targets = {
                 // cppcheck-suppress syntaxError ; cppcheck do not know about labels addresses (GCC extension)
                 &&TARGET_NOP,
-                &&TARGET_LOAD_SYMBOL,
-                &&TARGET_LOAD_SYMBOL_BY_INDEX,
+                &&TARGET_LOAD_FAST,
+                &&TARGET_LOAD_FAST_BY_INDEX,
                 &&TARGET_LOAD_CONST,
                 &&TARGET_POP_JUMP_IF_TRUE,
                 &&TARGET_STORE,
@@ -710,13 +710,13 @@ namespace Ark
                         DISPATCH();
                     }
 
-                    TARGET(LOAD_SYMBOL)
+                    TARGET(LOAD_FAST)
                     {
                         push(loadSymbol(arg, context), context);
                         DISPATCH();
                     }
 
-                    TARGET(LOAD_SYMBOL_BY_INDEX)
+                    TARGET(LOAD_FAST_BY_INDEX)
                     {
                         push(loadSymbolFromIndex(arg, context), context);
                         DISPATCH();

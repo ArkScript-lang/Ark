@@ -252,9 +252,9 @@ namespace Ark::internal
         {
             const std::optional<std::size_t> maybe_local_idx = m_locals_locator.lookupLastScopeByName(name);
             if (maybe_local_idx.has_value())
-                page(p).emplace_back(LOAD_SYMBOL_BY_INDEX, static_cast<uint16_t>(maybe_local_idx.value()));
+                page(p).emplace_back(LOAD_FAST_BY_INDEX, static_cast<uint16_t>(maybe_local_idx.value()));
             else
-                page(p).emplace_back(LOAD_SYMBOL, addSymbol(x));
+                page(p).emplace_back(LOAD_FAST, addSymbol(x));
         }
 
         page(p).back().setSourceLocation(x.filename(), x.position().start.line);
@@ -552,7 +552,7 @@ namespace Ark::internal
         for (Node& value : std::ranges::drop_view(call.list(), 1) | std::views::reverse)
         {
             if (nodeProducesOutput(value))
-                compileExpression(value, p, false, false);
+                compileExpression(value, p, false, false);  // todo: force pushing something that isn't a ref
             else
             {
                 std::string message;
@@ -630,7 +630,7 @@ namespace Ark::internal
                 if (node.nodeType() == NodeType::Symbol && !m_opened_vars.empty() && m_opened_vars.top() == node.string())
                 {
                     // The function is trying to call itself, but this isn't a tail call.
-                    // We can skip the LOAD_SYMBOL function_name and directly push the current
+                    // We can skip the LOAD_FAST function_name and directly push the current
                     // function page, which will be quicker than a local variable resolution.
                     // We set its argument to the symbol id of the function we are calling,
                     // so that the VM knows the name of the last called function.

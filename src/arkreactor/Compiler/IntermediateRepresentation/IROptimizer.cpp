@@ -26,25 +26,25 @@ namespace Ark::internal
             Rule { { LOAD_CONST, LOAD_CONST }, LOAD_CONST_LOAD_CONST },
             Rule { { LOAD_CONST, STORE }, LOAD_CONST_STORE },
             Rule { { LOAD_CONST, SET_VAL }, LOAD_CONST_SET_VAL },
-            Rule { { LOAD_SYMBOL, STORE }, STORE_FROM },
-            Rule { { LOAD_SYMBOL_BY_INDEX, STORE }, STORE_FROM_INDEX },
-            Rule { { LOAD_SYMBOL, SET_VAL }, SET_VAL_FROM },
-            Rule { { LOAD_SYMBOL_BY_INDEX, SET_VAL }, SET_VAL_FROM_INDEX },
-            Rule { { STORE, PUSH_RETURN_ADDRESS, LOAD_SYMBOL_BY_INDEX, BUILTIN, CALL },
+            Rule { { LOAD_FAST, STORE }, STORE_FROM },
+            Rule { { LOAD_FAST_BY_INDEX, STORE }, STORE_FROM_INDEX },
+            Rule { { LOAD_FAST, SET_VAL }, SET_VAL_FROM },
+            Rule { { LOAD_FAST_BY_INDEX, SET_VAL }, SET_VAL_FROM_INDEX },
+            Rule { { STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
                    [](const Entities entities, const std::size_t start_idx) {
                        return Builtins::builtins[entities[3].primaryArg()].second.isFunction() && start_idx == 0;
                    },
                    [](const Entities e) {
                        return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[3].primaryArg(), 1);
                    } },
-            Rule { { STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, BUILTIN, CALL },
+            Rule { { STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
                    [](const Entities entities, const std::size_t start_idx) {
                        return Builtins::builtins[entities[5].primaryArg()].second.isFunction() && start_idx == 0;
                    },
                    [](const Entities e) {
                        return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[5].primaryArg(), 2);
                    } },
-            Rule { { STORE, STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, BUILTIN, CALL },
+            Rule { { STORE, STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
                    [](const Entities entities, const std::size_t start_idx) {
                        return Builtins::builtins[entities[7].primaryArg()].second.isFunction() && start_idx == 0;
                    },
@@ -54,137 +54,137 @@ namespace Ark::internal
             Rule { { BUILTIN, CALL }, CALL_BUILTIN, [](const Entities entities, const std::size_t) {
                       return Builtins::builtins[entities[0].primaryArg()].second.isFunction();
                   } },
-            Rule { { LOAD_SYMBOL, CALL }, CALL_SYMBOL },
+            Rule { { LOAD_FAST, CALL }, CALL_SYMBOL },
             Rule { { GET_CURRENT_PAGE_ADDR, CALL }, CALL_CURRENT_PAGE },
-            Rule { { LOAD_SYMBOL, GET_FIELD }, GET_FIELD_FROM_SYMBOL },
-            Rule { { LOAD_SYMBOL_BY_INDEX, GET_FIELD }, GET_FIELD_FROM_SYMBOL_INDEX },
+            Rule { { LOAD_FAST, GET_FIELD }, GET_FIELD_FROM_SYMBOL },
+            Rule { { LOAD_FAST_BY_INDEX, GET_FIELD }, GET_FIELD_FROM_SYMBOL_INDEX },
             Rule { { LIST, STORE }, STORE_LIST },
-            Rule { { LOAD_SYMBOL, APPEND_IN_PLACE }, APPEND_IN_PLACE_SYM },
-            Rule { { LOAD_SYMBOL_BY_INDEX, APPEND_IN_PLACE }, APPEND_IN_PLACE_SYM_INDEX },
-            // LOAD_CONST, LOAD_SYMBOL a, MUL, SET_VAL / LOAD_SYMBOL a, LOAD_CONST, MUL, SET_VAL
+            Rule { { LOAD_FAST, APPEND_IN_PLACE }, APPEND_IN_PLACE_SYM },
+            Rule { { LOAD_FAST_BY_INDEX, APPEND_IN_PLACE }, APPEND_IN_PLACE_SYM_INDEX },
+            // LOAD_CONST, LOAD_FAST a, MUL, SET_VAL / LOAD_FAST a, LOAD_CONST, MUL, SET_VAL
             // ---> MUL_SET_VAL a value
-            Rule { { LOAD_CONST, LOAD_SYMBOL, MUL, SET_VAL }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_CONST, LOAD_FAST, MUL, SET_VAL }, [this](const Entities e, const std::size_t) {
                       return isSmallerNumberInlinable(e[0].primaryArg()) && e[1].primaryArg() == e[3].primaryArg();
                   },
                    [this](const Entities e) {
                        return IR::Entity(MUL_SET_VAL, e[1].primaryArg(), smallerNumberAsArg(e[0].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL, LOAD_CONST, MUL, SET_VAL }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_FAST, LOAD_CONST, MUL, SET_VAL }, [this](const Entities e, const std::size_t) {
                       return isSmallerNumberInlinable(e[1].primaryArg()) && e[0].primaryArg() == e[3].primaryArg();
                   },
                    [this](const Entities e) {
                        return IR::Entity(MUL_SET_VAL, e[0].primaryArg(), smallerNumberAsArg(e[1].primaryArg()));
                    } },
-            // LOAD_CONST, LOAD_SYMBOL a, MUL / LOAD_SYMBOL a, LOAD_CONST, MUL
+            // LOAD_CONST, LOAD_FAST a, MUL / LOAD_FAST a, LOAD_CONST, MUL
             // ---> MUL_(BY|BY_INDEX) a value
-            Rule { { LOAD_CONST, LOAD_SYMBOL, MUL }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_CONST, LOAD_FAST, MUL }, [this](const Entities e, const std::size_t) {
                       return isSmallerNumberInlinable(e[0].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(MUL_BY, e[1].primaryArg(), smallerNumberAsArg(e[0].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL, LOAD_CONST, MUL }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_FAST, LOAD_CONST, MUL }, [this](const Entities e, const std::size_t) {
                       return isSmallerNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(MUL_BY, e[0].primaryArg(), smallerNumberAsArg(e[1].primaryArg()));
                    } },
-            Rule { { LOAD_CONST, LOAD_SYMBOL_BY_INDEX, MUL }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_CONST, LOAD_FAST_BY_INDEX, MUL }, [this](const Entities e, const std::size_t) {
                       return isSmallerNumberInlinable(e[0].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(MUL_BY_INDEX, e[1].primaryArg(), smallerNumberAsArg(e[0].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, MUL }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_FAST_BY_INDEX, LOAD_CONST, MUL }, [this](const Entities e, const std::size_t) {
                       return isSmallerNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(MUL_BY_INDEX, e[0].primaryArg(), smallerNumberAsArg(e[1].primaryArg()));
                    } },
-            // (LOAD_SYMBOL a | LOAD_SYMBOL_BY_INDEX index), LOAD_CONST n (=1), (ADD | SUB), STORE
+            // (LOAD_FAST a | LOAD_FAST_BY_INDEX index), LOAD_CONST n (=1), (ADD | SUB), STORE
             // ---> INCREMENT_STORE / DECREMENT_STORE a value
-            Rule { { LOAD_CONST, LOAD_SYMBOL, ADD, SET_VAL }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_CONST, LOAD_FAST, ADD, SET_VAL }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[0].primaryArg()) && e[1].primaryArg() == e[3].primaryArg();
                   },
                    [this](const Entities e) {
                        return IR::Entity(INCREMENT_STORE, e[1].primaryArg(), numberAsArg(e[0].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL, LOAD_CONST, ADD, SET_VAL }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_FAST, LOAD_CONST, ADD, SET_VAL }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[1].primaryArg()) && e[0].primaryArg() == e[3].primaryArg();
                   },
                    [this](const Entities e) {
                        return IR::Entity(INCREMENT_STORE, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL, LOAD_CONST, SUB, SET_VAL }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_FAST, LOAD_CONST, SUB, SET_VAL }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[1].primaryArg()) && e[0].primaryArg() == e[3].primaryArg();
                   },
                    [this](const Entities e) {
                        return IR::Entity(DECREMENT_STORE, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
             // without the final store, just increment/decrement
-            Rule { { LOAD_CONST, LOAD_SYMBOL, ADD }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_CONST, LOAD_FAST, ADD }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[0].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(INCREMENT, e[1].primaryArg(), numberAsArg(e[0].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL, LOAD_CONST, ADD }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_FAST, LOAD_CONST, ADD }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(INCREMENT, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL, LOAD_CONST, SUB }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_FAST, LOAD_CONST, SUB }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(DECREMENT, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
-            Rule { { LOAD_CONST, LOAD_SYMBOL_BY_INDEX, ADD }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_CONST, LOAD_FAST_BY_INDEX, ADD }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[0].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(INCREMENT_BY_INDEX, e[1].primaryArg(), numberAsArg(e[0].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, ADD }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_FAST_BY_INDEX, LOAD_CONST, ADD }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(INCREMENT_BY_INDEX, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
-            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, SUB }, [this](const Entities e, const std::size_t) {
+            Rule { { LOAD_FAST_BY_INDEX, LOAD_CONST, SUB }, [this](const Entities e, const std::size_t) {
                       return isPositiveNumberInlinable(e[1].primaryArg());
                   },
                    [this](const Entities e) {
                        return IR::Entity(DECREMENT_BY_INDEX, e[0].primaryArg(), numberAsArg(e[1].primaryArg()));
                    } },
-            // LOAD_SYMBOL list, (TAIL | HEAD), (STORE | SET_VAL a)
+            // LOAD_FAST list, (TAIL | HEAD), (STORE | SET_VAL a)
             // ---> STORE_TAIL list a ; STORE_HEAD ; SET_VAL_TAIL ; SET_VAL_HEAD
-            Rule { { LOAD_SYMBOL, TAIL, STORE }, [](const Entities e) {
+            Rule { { LOAD_FAST, TAIL, STORE }, [](const Entities e) {
                       return IR::Entity(STORE_TAIL, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { { LOAD_SYMBOL, TAIL, SET_VAL }, [](const Entities e) {
+            Rule { { LOAD_FAST, TAIL, SET_VAL }, [](const Entities e) {
                       return IR::Entity(SET_VAL_TAIL, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { { LOAD_SYMBOL, HEAD, STORE }, [](const Entities e) {
+            Rule { { LOAD_FAST, HEAD, STORE }, [](const Entities e) {
                       return IR::Entity(STORE_HEAD, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { { LOAD_SYMBOL, HEAD, SET_VAL }, [](const Entities e) {
+            Rule { { LOAD_FAST, HEAD, SET_VAL }, [](const Entities e) {
                       return IR::Entity(SET_VAL_HEAD, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { { LOAD_SYMBOL_BY_INDEX, TAIL, STORE }, [](const Entities e) {
+            Rule { { LOAD_FAST_BY_INDEX, TAIL, STORE }, [](const Entities e) {
                       return IR::Entity(STORE_TAIL_BY_INDEX, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { { LOAD_SYMBOL_BY_INDEX, TAIL, SET_VAL }, [](const Entities e) {
+            Rule { { LOAD_FAST_BY_INDEX, TAIL, SET_VAL }, [](const Entities e) {
                       return IR::Entity(SET_VAL_TAIL_BY_INDEX, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { { LOAD_SYMBOL_BY_INDEX, HEAD, STORE }, [](const Entities e) {
+            Rule { { LOAD_FAST_BY_INDEX, HEAD, STORE }, [](const Entities e) {
                       return IR::Entity(STORE_HEAD_BY_INDEX, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { { LOAD_SYMBOL_BY_INDEX, HEAD, SET_VAL }, [](const Entities e) {
+            Rule { { LOAD_FAST_BY_INDEX, HEAD, SET_VAL }, [](const Entities e) {
                       return IR::Entity(SET_VAL_HEAD_BY_INDEX, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            // (LOAD_CONST id | LOAD_SYMBOL id), <comparison operator>, POP_JUMP_IF_(FALSE|TRUE)
+            // (LOAD_CONST id | LOAD_FAST id), <comparison operator>, POP_JUMP_IF_(FALSE|TRUE)
             // ---> <OP>_(CONST|SYM)_JUMP_IF_(FALSE|TRUE)
             Rule { { LOAD_CONST, LT, POP_JUMP_IF_FALSE }, [](const Entities e) {
                       return IR::Entity::GotoWithArg(e[2], LT_CONST_JUMP_IF_FALSE, e[0].primaryArg());
@@ -192,7 +192,7 @@ namespace Ark::internal
             Rule { { LOAD_CONST, LT, POP_JUMP_IF_TRUE }, [](const Entities e) {
                       return IR::Entity::GotoWithArg(e[2], LT_CONST_JUMP_IF_TRUE, e[0].primaryArg());
                   } },
-            Rule { { LOAD_SYMBOL, LT, POP_JUMP_IF_FALSE }, [](const Entities e) {
+            Rule { { LOAD_FAST, LT, POP_JUMP_IF_FALSE }, [](const Entities e) {
                       return IR::Entity::GotoWithArg(e[2], LT_SYM_JUMP_IF_FALSE, e[0].primaryArg());
                   } },
             Rule { { LOAD_CONST, GT, POP_JUMP_IF_TRUE }, [](const Entities e) {
@@ -201,46 +201,46 @@ namespace Ark::internal
             Rule { { LOAD_CONST, GT, POP_JUMP_IF_FALSE }, [](const Entities e) {
                       return IR::Entity::GotoWithArg(e[2], GT_CONST_JUMP_IF_FALSE, e[0].primaryArg());
                   } },
-            Rule { { LOAD_SYMBOL, GT, POP_JUMP_IF_FALSE }, [](const Entities e) {
+            Rule { { LOAD_FAST, GT, POP_JUMP_IF_FALSE }, [](const Entities e) {
                       return IR::Entity::GotoWithArg(e[2], GT_SYM_JUMP_IF_FALSE, e[0].primaryArg());
                   } },
             Rule { { LOAD_CONST, EQ, POP_JUMP_IF_TRUE }, [](const Entities e) {
                       return IR::Entity::GotoWithArg(e[2], EQ_CONST_JUMP_IF_TRUE, e[0].primaryArg());
                   } },
-            Rule { { LOAD_SYMBOL_BY_INDEX, EQ, POP_JUMP_IF_TRUE }, [](const Entities e) {
+            Rule { { LOAD_FAST_BY_INDEX, EQ, POP_JUMP_IF_TRUE }, [](const Entities e) {
                       return IR::Entity::GotoWithArg(e[2], EQ_SYM_INDEX_JUMP_IF_TRUE, e[0].primaryArg());
                   } },
             Rule { { LOAD_CONST, NEQ, POP_JUMP_IF_TRUE }, [](const Entities e) {
                       return IR::Entity::GotoWithArg(e[2], NEQ_CONST_JUMP_IF_TRUE, e[0].primaryArg());
                   } },
-            Rule { { LOAD_SYMBOL, NEQ, POP_JUMP_IF_FALSE }, [](const Entities e) {
+            Rule { { LOAD_FAST, NEQ, POP_JUMP_IF_FALSE }, [](const Entities e) {
                       return IR::Entity::GotoWithArg(e[2], NEQ_SYM_JUMP_IF_FALSE, e[0].primaryArg());
                   } },
-            // LOAD_SYMBOL id, LOAD_SYMBOL id2, AT
+            // LOAD_FAST id, LOAD_FAST id2, AT
             // ---> AT_SYM_SYM id id2
-            Rule { { LOAD_SYMBOL, LOAD_SYMBOL, AT }, AT_SYM_SYM },
-            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_SYMBOL_BY_INDEX, AT }, AT_SYM_INDEX_SYM_INDEX },
-            Rule { { LOAD_SYMBOL_BY_INDEX, LOAD_CONST, AT }, AT_SYM_INDEX_CONST },
-            // LOAD_SYMBOL sym, TYPE, LOAD_CONST cst, EQ
+            Rule { { LOAD_FAST, LOAD_FAST, AT }, AT_SYM_SYM },
+            Rule { { LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, AT }, AT_SYM_INDEX_SYM_INDEX },
+            Rule { { LOAD_FAST_BY_INDEX, LOAD_CONST, AT }, AT_SYM_INDEX_CONST },
+            // LOAD_FAST sym, TYPE, LOAD_CONST cst, EQ
             // ---> CHECK_TYPE_OF sym, cst
-            // also works with LOAD_CONST cst, LOAD_SYMBOL sym, TYPE, EQ, but args will be flipped
-            Rule { { LOAD_SYMBOL, TYPE, LOAD_CONST, EQ }, [](const Entities e) {
+            // also works with LOAD_CONST cst, LOAD_FAST sym, TYPE, EQ, but args will be flipped
+            Rule { { LOAD_FAST, TYPE, LOAD_CONST, EQ }, [](const Entities e) {
                       return IR::Entity(CHECK_TYPE_OF, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { { LOAD_CONST, LOAD_SYMBOL, TYPE, EQ }, [](const Entities e) {
+            Rule { { LOAD_CONST, LOAD_FAST, TYPE, EQ }, [](const Entities e) {
                       return IR::Entity(CHECK_TYPE_OF, e[1].primaryArg(), e[0].primaryArg());
                   } },
-            Rule { { LOAD_SYMBOL_BY_INDEX, TYPE, LOAD_CONST, EQ }, [](const Entities e) {
+            Rule { { LOAD_FAST_BY_INDEX, TYPE, LOAD_CONST, EQ }, [](const Entities e) {
                       return IR::Entity(CHECK_TYPE_OF_BY_INDEX, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { { LOAD_CONST, LOAD_SYMBOL_BY_INDEX, TYPE, EQ }, [](const Entities e) {
+            Rule { { LOAD_CONST, LOAD_FAST_BY_INDEX, TYPE, EQ }, [](const Entities e) {
                       return IR::Entity(CHECK_TYPE_OF_BY_INDEX, e[1].primaryArg(), e[0].primaryArg());
                   } },
             // ---
-            Rule { { LOAD_SYMBOL_BY_INDEX, LEN, STORE }, [](const Entities e) {
+            Rule { { LOAD_FAST_BY_INDEX, LEN, STORE }, [](const Entities e) {
                       return IR::Entity(STORE_LEN, e[0].primaryArg(), e[2].primaryArg());
                   } },
-            Rule { { LOAD_SYMBOL, LEN, LT, POP_JUMP_IF_FALSE }, [](const Entities e) {
+            Rule { { LOAD_FAST, LEN, LT, POP_JUMP_IF_FALSE }, [](const Entities e) {
                       return IR::Entity::GotoWithArg(e[3], LT_LEN_SYM_JUMP_IF_FALSE, e[0].primaryArg());
                   } },
         };

@@ -37,12 +37,12 @@ namespace Ark::internal
         INST_LOC_TABLE_START = 0xA5,
 
         // @args symbol id
-        // @role Load a symbol from its ID onto the stack
-        LOAD_SYMBOL = 0x01,
+        // @role Load a symbol from its ID onto the stack, as a reference unless it's already one
+        LOAD_FAST = 0x01,
 
         // @args stack index
-        // @role Load a symbol from the locals stack by its index (starting from the end of the current scope)
-        LOAD_SYMBOL_BY_INDEX = 0x02,
+        // @role Load a symbol from the locals stack by its index (starting from the end of the current scope), as a reference unless it's already one
+        LOAD_FAST_BY_INDEX = 0x02,
 
         // @args constant id
         // @role Load a constant from its ID onto the stack
