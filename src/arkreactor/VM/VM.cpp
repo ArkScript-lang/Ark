@@ -571,6 +571,7 @@ namespace Ark
                 &&TARGET_NOP,
                 &&TARGET_LOAD_FAST,
                 &&TARGET_LOAD_FAST_BY_INDEX,
+                &&TARGET_LOAD_SYMBOL,
                 &&TARGET_LOAD_CONST,
                 &&TARGET_POP_JUMP_IF_TRUE,
                 &&TARGET_STORE,
@@ -719,6 +720,13 @@ namespace Ark
                     TARGET(LOAD_FAST_BY_INDEX)
                     {
                         push(loadSymbolFromIndex(arg, context), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(LOAD_SYMBOL)
+                    {
+                        // force resolving the reference
+                        push(*loadSymbol(arg, context), context);
                         DISPATCH();
                     }
 
