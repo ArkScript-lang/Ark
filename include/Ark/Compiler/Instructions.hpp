@@ -207,7 +207,7 @@ namespace Ark::internal
         LEN = 0x30,
 
         // @role Push `empty?(TS)`, TS must be a list or string
-        EMPTY = 0x31,
+        IS_EMPTY = 0x31,
 
         // @role Push `tail(TS)`, all the elements of TS except the first one. TS must be a list or string
         TAIL = 0x32,
@@ -216,7 +216,7 @@ namespace Ark::internal
         HEAD = 0x33,
 
         // @role Push true if TS is nil, false otherwise
-        ISNIL = 0x34,
+        IS_NIL = 0x34,
 
         // @role Throw an exception if TS1 is false, and display TS (must be a string). Do not push anything on the stack
         ASSERT = 0x35,
@@ -240,7 +240,7 @@ namespace Ark::internal
         TYPE = 0x3b,
 
         // @role Check if TS1 is a closure field of TS. TS must be a Closure, TS1 a String
-        HASFIELD = 0x3c,
+        HAS_FIELD = 0x3c,
 
         // @role Push `!TS`
         NOT = 0x3d,
@@ -503,10 +503,10 @@ namespace Ark::internal
         "NEQ",
         "EQ",
         "LEN",
-        "EMPTY",
+        "IS_EMPTY",
         "TAIL",
         "HEAD",
-        "ISNIL",
+        "IS_NIL",
         "ASSERT",
         "TO_NUM",
         "TO_STR",
@@ -514,7 +514,7 @@ namespace Ark::internal
         "AT_AT",
         "MOD",
         "TYPE",
-        "HASFIELD",
+        "HAS_FIELD",
         "NOT",
         // super instructions
         "LOAD_CONST_LOAD_CONST",
