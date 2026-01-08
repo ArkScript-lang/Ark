@@ -1,0 +1,6 @@
+(let f (fun (a b)
+  (if (nil? b)
+    (f "wrong" a)
+    (print b))))
+
+(f "correct" nil)
