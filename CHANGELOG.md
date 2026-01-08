@@ -16,6 +16,7 @@
 - `empty?` now accepts `nil` and returns `true` for this value
 - the REPL adds `(repl:history)` and `(repl:save filename)` as builtins
 - the REPL attempts to load a file from `ARKSCRIPT_REPL_STARTUP` environment variable, to preload code
+- rename LOAD_SYMBOL and LOAD_SYMBOL_BY_INDEX to LOAD_FAST and LOAD_FAST_BY_INDEX to emphasize they load refs
 
 ### Removed
 
@@ -83,11 +84,11 @@
 - new operator `@@` to get elements in list of lists / list of strings
 - new builtin `random`, returning a random number between INT_MIN and INT_MAX, or in a custom range
 - `$as-is` to paste a node inside a maro without evaluating it further ; useful to stop recursive evaluation of nodes inside function macros
-- `LOAD_SYMBOL_BY_INDEX` instruction, loading a local from the current scope by an index (0 being the last element added to the scope)
+- `LOAD_FAST_BY_INDEX` instruction, loading a local from the current scope by an index (0 being the last element added to the scope)
 - `STORE_FROM_INDEX` and `SET_VAL_FROM_INDEX` instructions for parity with the super instructions not using load by index
 - `INCREMENT_BY_INDEX` and `DECREMENT_BY_INDEX` instructions for parity with the super instructions not using load by index
 - `STORE_TAIL_BY_INDEX`, `STORE_HEAD_BY_INDEX`, `SET_VAL_TAIL_BY_INDEX`, `SET_VAL_HEAD_BY_INDEX` super instructions added for parity with the super instructions not using load by index
-- `RESET_SCOPE_JUMP` instruction emitted at the end of a while loop to reset a scope so that we can create multiple variables and use `LOAD_SYMBOL_BY_INDEX`
+- `RESET_SCOPE_JUMP` instruction emitted at the end of a while loop to reset a scope so that we can create multiple variables and use `LOAD_FAST_BY_INDEX`
 - instruction source location ; two new bytecode tables were added: one for filenames, another for (page pointer, instruction pointer, file id, line), allowing the VM to display better error messages when the source is available
 - show source location when a runtime error is thrown in the VM
 - `LT_CONST_JUMP_IF_FALSE` and `LT_SYM_JUMP_IF_FALSE` to compare a symbol to a const and a symbol to a symbol (respectively), then jump to an address if false (useful for while loops that check a simple `(< x n)` condition)
@@ -185,7 +186,7 @@
 - magic numbers for value types in bytecode files have been changed from 0x01, 0x02, 0x03 to 0xF1, 0xF2, 0xF3 (number, string, function)
 - numbers in the values table in bytecode files are no longer turned to string, but their IEEE754 representation is now encoded on 12 bytes (4 for the exponent, 8 for the mantissa)
 - changed how scopes are stored inside the VM to enhance performances. All scope data are now contiguous!
-- when possible, accessing variables from the current scope is compiled to a new instruction `LOAD_SYMBOL_BY_INDEX`, to avoid the sometimes expansive lookup by id
+- when possible, accessing variables from the current scope is compiled to a new instruction `LOAD_FAST_BY_INDEX`, to avoid the sometimes expansive lookup by id
   - this works inside normal scopes (introduced by while loops) and functions scopes, but not for closures
 - VM stack size is now 4096 instead of 8192
 - `Ark::CodeError` now takes a `CodeErrorContext` to store the source (filename, line, column, expression) of an error
