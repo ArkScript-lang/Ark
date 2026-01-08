@@ -237,4 +237,15 @@
         # SET_VAL_HEAD_BY_INDEX
         (set data (head data))
         (test:eq data3 data)
-        (test:eq data 3) })})
+        (test:eq data 3) })
+
+    (test:case "tail calls" {
+        (mut output [])
+        (let f (fun (a b) {
+          (append! output [a b])
+          (if (nil? b)
+            (f "wrong" a)
+            (append! output b)) }))
+
+        (f "correct" nil)
+        (test:eq output [["correct" nil] ["wrong" "correct"] "correct"]) }) })
