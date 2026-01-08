@@ -180,7 +180,7 @@ namespace Ark::internal
          */
         void compileExpression(Node& x, Page p, bool is_result_unused, bool is_terminal);
 
-        void compileSymbol(const Node& x, Page p, bool is_result_unused);
+        void compileSymbol(const Node& x, Page p, bool is_result_unused, bool can_use_ref);
         void compileListInstruction(Node& x, Page p, bool is_result_unused);
         void compileIf(Node& x, Page p, bool is_result_unused, bool is_terminal);
         void compileFunction(Node& x, Page p, bool is_result_unused);

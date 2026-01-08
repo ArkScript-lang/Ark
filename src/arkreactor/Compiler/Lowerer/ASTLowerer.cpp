@@ -139,11 +139,11 @@ namespace Ark::internal
     {
         // register symbols
         if (x.nodeType() == NodeType::Symbol)
-            compileSymbol(x, p, is_result_unused);
+            compileSymbol(x, p, is_result_unused, /* can_use_ref= */ true);
         else if (x.nodeType() == NodeType::Field)
         {
             // the parser guarantees us that there is at least 2 elements (eg: a.b)
-            compileSymbol(x.list()[0], p, is_result_unused);
+            compileSymbol(x.list()[0], p, is_result_unused, /* can_use_ref= */ true);
             for (auto it = x.constList().begin() + 1, end = x.constList().end(); it != end; ++it)
             {
                 uint16_t i = addSymbol(*it);
@@ -205,9 +205,9 @@ namespace Ark::internal
                         compileExpression(
                             x.list()[i],
                             p,
-                            // All the nodes in a begin (except for the last one) are producing a result that we want to drop.
+                            // All the nodes in a 'begin' (except for the last one) are producing a result that we want to drop.
                             (i != size - 1) || is_result_unused,
-                            // If the begin is a terminal node, only its last node is terminal.
+                            // If the 'begin' is a terminal node, only its last node is terminal.
                             is_terminal && (i == size - 1));
                     break;
                 }
@@ -240,7 +240,7 @@ namespace Ark::internal
                 x);
     }
 
-    void ASTLowerer::compileSymbol(const Node& x, const Page p, const bool is_result_unused)
+    void ASTLowerer::compileSymbol(const Node& x, const Page p, const bool is_result_unused, const bool can_use_ref)
     {
         const std::string& name = x.string();
 
@@ -250,11 +250,16 @@ namespace Ark::internal
             buildAndThrowError(fmt::format("Found a free standing operator: `{}`", name), x);
         else
         {
-            const std::optional<std::size_t> maybe_local_idx = m_locals_locator.lookupLastScopeByName(name);
-            if (maybe_local_idx.has_value())
-                page(p).emplace_back(LOAD_FAST_BY_INDEX, static_cast<uint16_t>(maybe_local_idx.value()));
+            if (can_use_ref)
+            {
+                const std::optional<std::size_t> maybe_local_idx = m_locals_locator.lookupLastScopeByName(name);
+                if (maybe_local_idx.has_value())
+                    page(p).emplace_back(LOAD_FAST_BY_INDEX, static_cast<uint16_t>(maybe_local_idx.value()));
+                else
+                    page(p).emplace_back(LOAD_FAST, addSymbol(x));
+            }
             else
-                page(p).emplace_back(LOAD_FAST, addSymbol(x));
+                page(p).emplace_back(LOAD_SYMBOL, addSymbol(x));
         }
 
         page(p).back().setSourceLocation(x.filename(), x.position().start.line);
@@ -552,7 +557,13 @@ namespace Ark::internal
         for (Node& value : std::ranges::drop_view(call.list(), 1) | std::views::reverse)
         {
             if (nodeProducesOutput(value))
-                compileExpression(value, p, false, false);  // todo: force pushing something that isn't a ref
+            {
+                // we have to disallow usage of references in tail calls, because if we shuffle arguments around while using refs, they will end up with the same value
+                if (value.nodeType() == NodeType::Symbol && is_tail_call)
+                    compileSymbol(value, p, false, /* can_use_ref= */ false);
+                else
+                    compileExpression(value, p, false, false);
+            }
             else
             {
                 std::string message;
