@@ -99,10 +99,10 @@ namespace Ark::internal
         {
             case NOT: [[fallthrough]];
             case LEN: [[fallthrough]];
-            case EMPTY: [[fallthrough]];
+            case IS_EMPTY: [[fallthrough]];
             case TAIL: [[fallthrough]];
             case HEAD: [[fallthrough]];
-            case ISNIL: [[fallthrough]];
+            case IS_NIL: [[fallthrough]];
             case TO_NUM: [[fallthrough]];
             case TO_STR: [[fallthrough]];
             case TYPE:

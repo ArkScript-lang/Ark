@@ -617,10 +617,10 @@ namespace Ark
                 &&TARGET_NEQ,
                 &&TARGET_EQ,
                 &&TARGET_LEN,
-                &&TARGET_EMPTY,
+                &&TARGET_IS_EMPTY,
                 &&TARGET_TAIL,
                 &&TARGET_HEAD,
-                &&TARGET_ISNIL,
+                &&TARGET_IS_NIL,
                 &&TARGET_ASSERT,
                 &&TARGET_TO_NUM,
                 &&TARGET_TO_STR,
@@ -628,7 +628,7 @@ namespace Ark
                 &&TARGET_AT_AT,
                 &&TARGET_MOD,
                 &&TARGET_TYPE,
-                &&TARGET_HASFIELD,
+                &&TARGET_HAS_FIELD,
                 &&TARGET_NOT,
                 &&TARGET_LOAD_CONST_LOAD_CONST,
                 &&TARGET_LOAD_CONST_STORE,
@@ -1303,7 +1303,7 @@ namespace Ark
                         DISPATCH();
                     }
 
-                    TARGET(EMPTY)
+                    TARGET(IS_EMPTY)
                     {
                         const Value* a = popAndResolveAsPtr(context);
 
@@ -1337,7 +1337,7 @@ namespace Ark
                         DISPATCH();
                     }
 
-                    TARGET(ISNIL)
+                    TARGET(IS_NIL)
                     {
                         const Value* a = popAndResolveAsPtr(context);
                         push((*a == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym, context);
@@ -1457,7 +1457,7 @@ namespace Ark
                         DISPATCH();
                     }
 
-                    TARGET(HASFIELD)
+                    TARGET(HAS_FIELD)
                     {
                         {
                             Value* const field = popAndResolveAsPtr(context);
