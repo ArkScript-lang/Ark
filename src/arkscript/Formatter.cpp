@@ -359,7 +359,7 @@ std::string Formatter::formatCondition(const Node& node, const std::size_t inden
     const Node then_node = node.constList()[2];
 
     bool cond_on_newline = false;
-    std::string formatted_cond = format(cond_node, indent + 1, false);
+    const std::string formatted_cond = format(cond_node, indent + 1, false);
     if (formatted_cond.find('\n') != std::string::npos)
         cond_on_newline = true;
 
@@ -367,7 +367,7 @@ std::string Formatter::formatCondition(const Node& node, const std::size_t inden
         "({}if{}{}",
         is_macro ? "$" : "",
         cond_on_newline ? "\n" : " ",
-        formatted_cond);
+        cond_on_newline ? format(cond_node, indent + 1, true) : formatted_cond);
 
     const bool split_then_newline = shouldSplitOnNewline(then_node) || isBeginBlock(then_node);
 

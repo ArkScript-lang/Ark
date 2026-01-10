@@ -1,0 +1,26 @@
+(let permutations (fun ((ref _L) _r _f) {
+  (let _len (len _L))
+  (if (and (<= _r _len) (> _r 0))
+    {
+      (mut _indices (iota 0 _r))
+      (if (!= stopIteration (_f (select _L _indices)))
+        {
+          (mut _continue true)
+          (let _reversed_indices (reverse _indices))
+          (while _continue {
+            (mut _i nil)
+            (if
+              (forEach
+                _reversed_indices
+                (fun (_val) {
+                  (set _i _val)
+                  (if (!= (@ _indices _i) (+ _i _len (* -1 _r))) stopIteration) }))
+              {
+                (@= _indices _i (+ 1 (@ _indices _i)))
+                (mut _j (+ 1 _i))
+                (while (< _j _r) {
+                  (@= _indices _j (+ 1 (@ _indices (- _j 1))))
+                  (set _j (+ 1 _j)) })
+                (if (= stopIteration (_f (select _L _indices)))
+                  (set _continue false)) }
+              (set _continue false)) }) }) }) }))
