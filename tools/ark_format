@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+for f in *.ark; do
+  arkscript -f "$f"
+  if [[ $? == 1 ]]; then
+    echo "Formatted $f"
+  fi
+done
+
+echo "All files in $(pwd) are correctly formatted!"
