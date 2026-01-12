@@ -25,6 +25,11 @@
 
 namespace Ark
 {
+    namespace internal
+    {
+        class Debugger;
+    }
+
     /**
      * @brief Ark state to handle the dirty job of loading and compiling ArkScript code
      *
@@ -115,8 +120,9 @@ namespace Ark
         void reset() noexcept;
 
         friend class VM;
-        friend class internal::Closure;
         friend class Repl;
+        friend class internal::Closure;
+        friend class internal::Debugger;
 
     private:
         /**
@@ -153,11 +159,31 @@ namespace Ark
         std::vector<Value> m_constants;
         std::vector<std::string> m_filenames;
         std::vector<internal::InstLoc> m_inst_locations;
+        std::vector<bytecode_t> m_pages;
         std::size_t m_max_page_size;
         bytecode_t m_code;
 
         // related to the execution
         std::unordered_map<std::string, Value> m_bound;  ///< Values bound to the State, to be used by the VM
+
+        void addPagesToContiguousBytecode(const std::vector<bytecode_t>& pages, std::size_t start);
+
+        /**
+         * @brief Compute the maximum length of the given code pages
+         *
+         * @param pages
+         * @return std::size_t
+         */
+        static std::size_t maxPageSize(const std::vector<bytecode_t>& pages);
+
+        /**
+         * @brief Used by the debugger to add code to the VM at runtime
+         *
+         * @param pages
+         * @param symbols
+         * @param constants
+         */
+        void extendBytecode(const std::vector<bytecode_t>& pages, const std::vector<std::string>& symbols, const std::vector<Value>& constants);
 
         /**
          * @brief Get an instruction in a given page, with a given instruction pointer

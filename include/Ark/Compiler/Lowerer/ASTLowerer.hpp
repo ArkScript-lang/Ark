@@ -25,11 +25,14 @@
 #include <Ark/Compiler/ValTableElem.hpp>
 #include <Ark/Compiler/Lowerer/LocalsLocator.hpp>
 
-namespace Ark::internal
+namespace Ark
 {
     class State;
     class Welder;
+}
 
+namespace Ark::internal
+{
     /**
      * @brief The ArkScript AST to IR compiler
      *
@@ -43,6 +46,21 @@ namespace Ark::internal
          * @param debug the debug level
          */
         explicit ASTLowerer(unsigned debug);
+
+        /**
+         * @brief Pre-fill tables (used by the debugger)
+         *
+         * @param symbols
+         * @param constants
+         */
+        void addToTables(const std::vector<std::string>& symbols, const std::vector<ValTableElem>& constants);
+
+        /**
+         * @brief Start bytecode pages at a given offset (by default, 0)
+         *
+         * @param offset
+         */
+        void offsetPagesBy(std::size_t offset);
 
         /**
          * @brief Start the compilation
@@ -84,12 +102,25 @@ namespace Ark::internal
         // tables: symbols, values, plugins and codes
         std::vector<std::string> m_symbols;
         std::vector<ValTableElem> m_values;
+        std::size_t m_start_page_at_offset = 0;  ///< Used to offset the page numbers when compiling code in the debugger
         std::vector<IR::Block> m_code_pages;
         std::vector<IR::Block> m_temp_pages;  ///< we need temporary code pages for some compilations passes
         IR::label_t m_current_label = 0;
         std::stack<std::string> m_opened_vars;  ///< stack of vars we are currently declaring
 
         Logger m_logger;
+
+        Page createNewCodePage(const bool temp = false) noexcept
+        {
+            if (!temp)
+            {
+                m_code_pages.emplace_back();
+                return Page { .index = m_start_page_at_offset + m_code_pages.size() - 1u, .is_temp = false };
+            }
+
+            m_temp_pages.emplace_back();
+            return Page { .index = m_temp_pages.size() - 1u, .is_temp = true };
+        }
 
         /**
          * @brief helper functions to get a temp or finalized code page
@@ -100,7 +131,7 @@ namespace Ark::internal
         IR::Block& page(const Page page) noexcept
         {
             if (!page.is_temp)
-                return m_code_pages[page.index];
+                return m_code_pages[page.index - m_start_page_at_offset];
             return m_temp_pages[page.index];
         }
 

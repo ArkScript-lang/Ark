@@ -918,7 +918,7 @@ namespace Ark
                                     args.push_back(*popAndResolveAsPtr(context));
                                 throw types::TypeCheckingError(
                                     "append",
-                                    { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any, /* variadic= */ true) } } } },
+                                    { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any, /* is_variadic= */ true) } } } },
                                     args);
                             }
 
@@ -1187,9 +1187,16 @@ namespace Ark
                     TARGET(BREAKPOINT)
                     {
                         {
-                            const Value cond = *popAndResolveAsPtr(context);
-                            if (cond == Builtins::trueSym)  // todo: trigger debugger
-                            {}
+                            bool breakpoint_active = true;
+                            if (arg == 1)
+                                breakpoint_active = *popAndResolveAsPtr(context) == Builtins::trueSym;
+
+                            if (m_state.m_features & FeatureVMDebugger && breakpoint_active)
+                            {
+                                initDebugger(context);
+                                m_debugger->run(*this, context);
+                                m_debugger->resetContextToErrorState(context);
+                             }
                         }
                         DISPATCH();
                     }
@@ -2254,12 +2261,25 @@ namespace Ark
                 fmt::join(arg_names, " ")));
     }
 
-    void VM::showBacktraceWithException(const std::exception& e, internal::ExecutionContext& context)
+    void VM::initDebugger(ExecutionContext& context)
+    {
+        if (!m_debugger)
+            m_debugger = std::make_unique<Debugger>(context, m_state.m_libenv, m_state.m_symbols, m_state.m_constants);
+        else
+            m_debugger->saveState(context);
+    }
+
+    void VM::showBacktraceWithException(const std::exception& e, ExecutionContext& context)
     {
         std::string text = e.what();
         if (!text.empty() && text.back() != '\n')
             text += '\n';
         fmt::println("{}", text);
+
+        // If code being run from the debugger crashed, ignore it and don't trigger a debugger inside the VM inside the debugger inside the VM
+        const bool error_from_debugger = m_debugger && m_debugger->isRunning();
+        if (m_state.m_features & FeatureVMDebugger && !error_from_debugger)
+            initDebugger(context);
 
         const std::size_t saved_ip = context.ip;
         const std::size_t saved_pp = context.pp;
@@ -2274,9 +2294,10 @@ namespace Ark
             fmt::styled(saved_pp, fmt::fg(fmt::color::green)),
             fmt::styled(saved_sp, fmt::fg(fmt::color::yellow)));
 
-        if (m_state.m_features & FeatureVMDebugger)
+        if (m_debugger && !error_from_debugger)
         {
-            // TODO: launch debugger
+            m_debugger->resetContextToErrorState(context);
+            m_debugger->run(*this, context);
         }
 
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION

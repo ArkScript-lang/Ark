@@ -34,6 +34,7 @@
 #include <Ark/Utils/Literals.hpp>
 #include <Ark/VM/SharedLibrary.hpp>
 #include <Ark/VM/Value/Future.hpp>
+#include <Ark/VM/Debugger.hpp>
 
 namespace Ark
 {
@@ -164,8 +165,9 @@ namespace Ark
         }
 
         friend class Value;
-        friend class internal::Closure;
         friend class Repl;
+        friend class internal::Closure;
+        friend class internal::Debugger;
 
     private:
         State& m_state;
@@ -175,6 +177,7 @@ namespace Ark
         std::mutex m_mutex, m_mutex_futures;
         std::vector<std::shared_ptr<internal::SharedLibrary>> m_shared_lib_objects;
         std::vector<std::unique_ptr<internal::Future>> m_futures;  ///< Storing the promises while we are resolving them
+        std::unique_ptr<internal::Debugger> m_debugger { nullptr };
 
         // a little trick for operator[] and for pop
         Value m_no_value = internal::Builtins::nil;
@@ -352,6 +355,8 @@ namespace Ark
 
         [[noreturn]] void throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, internal::ExecutionContext& context);
 
+        void initDebugger(internal::ExecutionContext& context);
+
         void showBacktraceWithException(const std::exception& e, internal::ExecutionContext& context);
 
         /**
@@ -361,9 +366,9 @@ namespace Ark
          * @param pp
          * @return std::optional<InstLoc>
          */
-        std::optional<internal::InstLoc> findSourceLocation(std::size_t ip, std::size_t pp) const;
+        [[nodiscard]] std::optional<internal::InstLoc> findSourceLocation(std::size_t ip, std::size_t pp) const;
 
-        std::string debugShowSource() const;
+        [[nodiscard]] std::string debugShowSource() const;
 
         /**
          * @brief Display a backtrace when the VM encounter an exception

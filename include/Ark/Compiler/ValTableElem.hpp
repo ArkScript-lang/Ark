@@ -40,6 +40,10 @@ namespace Ark::internal
 
         // automatic handling (Number/String/Function)
         explicit ValTableElem(const Node& node) noexcept;
+        // Numbers
+        explicit ValTableElem(double n) noexcept;
+        // Strings
+        explicit ValTableElem(const std::string& str) noexcept;
         // Functions
         explicit ValTableElem(std::size_t page) noexcept;
 

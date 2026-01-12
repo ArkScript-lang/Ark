@@ -19,15 +19,28 @@ namespace Ark::internal
         m_logger("ASTLowerer", debug)
     {}
 
+    void ASTLowerer::addToTables(const std::vector<std::string>& symbols, const std::vector<ValTableElem>& constants)
+    {
+        for (const std::string& sym : symbols)
+            m_symbols.emplace_back(sym);
+        for (const ValTableElem& elem : constants)
+            m_values.emplace_back(elem);
+    }
+
+    void ASTLowerer::offsetPagesBy(std::size_t offset)
+    {
+        m_start_page_at_offset = offset;
+    }
+
     void ASTLowerer::process(Node& ast)
     {
         m_logger.traceStart("process");
-        m_code_pages.emplace_back();  // create empty page
+        const Page global = createNewCodePage();
 
         // gather symbols, values, and start to create code segments
         compileExpression(
             ast,
-            /* current_page */ Page { .index = 0, .is_temp = false },
+            /* current_page */ global,
             /* is_result_unused */ false,
             /* is_terminal */ false);
         m_logger.traceEnd();
@@ -418,8 +431,7 @@ namespace Ark::internal
                 : LocalsLocator::ScopeType::Function);
 
         // create new page for function body
-        m_code_pages.emplace_back();
-        const auto function_body_page = Page { .index = m_code_pages.size() - 1, .is_temp = false };
+        const auto function_body_page = createNewCodePage();
         // save page_id into the constants table as PageAddr and load the const
         page(p).emplace_back(is_closure ? MAKE_CLOSURE : LOAD_CONST, addValue(function_body_page.index, x));
 
@@ -643,8 +655,7 @@ namespace Ark::internal
                 if (!nodeProducesOutput(node))
                     buildAndThrowError(fmt::format("Can not call `{}', as it doesn't return a value", node.repr()), node);
 
-                m_temp_pages.emplace_back();
-                const auto proc_page = Page { .index = m_temp_pages.size() - 1u, .is_temp = true };
+                const auto proc_page = createNewCodePage(/* temp= */ true);
 
                 // compile the function resolution to a separate page
                 if (node.nodeType() == NodeType::Symbol && !m_opened_vars.empty() && m_opened_vars.top() == node.string())
