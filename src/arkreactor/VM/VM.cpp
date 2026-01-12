@@ -2195,7 +2195,7 @@ namespace Ark
         return MaxValue16Bits;
     }
 
-    void VM::throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, internal::ExecutionContext& context)
+    void VM::throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, ExecutionContext& context)
     {
         std::vector<std::string> arg_names;
         arg_names.reserve(expected_arg_count + 1);
@@ -2215,7 +2215,7 @@ namespace Ark
         {
             assert(m_state.inst(context.pp, 0) == CALL_BUILTIN_WITHOUT_RETURN_ADDRESS && "expected a CALL_BUILTIN_WITHOUT_RETURN_ADDRESS instruction or STORE instructions");
             for (std::size_t i = 0; i < expected_arg_count; ++i)
-                arg_names.push_back(std::string(1, static_cast<char>('a' + i)));
+                arg_names.emplace_back(1, static_cast<char>('a' + i));
         }
 
         std::vector<std::string> arg_vals;
@@ -2233,6 +2233,7 @@ namespace Ark
         {
             context.ip = context.stack[context.sp - 1 - passed_arg_count].pageAddr();
             context.pp = context.stack[context.sp - 2 - passed_arg_count].pageAddr();
+            context.sp -= 2;
             returnFromFuncCall(context);
         }
 

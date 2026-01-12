@@ -1,0 +1,7 @@
+ArityError: When calling `(foo 1)', received 1 argument, but expected 0: `(foo)'
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/arity_error_fun_no_arg.ark:2
+    1 | (let foo (fun () ()))
+    2 | (print (foo 1))
+      | ^~~~~~~~~~~~~~
+    3 |
