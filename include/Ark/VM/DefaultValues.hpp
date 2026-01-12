@@ -11,7 +11,7 @@
 #ifndef ARK_VM_DEFAULTVALUES_HPP
 #define ARK_VM_DEFAULTVALUES_HPP
 
-#include <Ark/VM/Value.hpp>
+#include <Ark/VM/Value/Value.hpp>
 
 namespace Ark
 {

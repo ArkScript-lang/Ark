@@ -17,7 +17,7 @@
 #include <filesystem>
 #include <Ark/Constants.hpp>
 
-#include <Ark/VM/Value.hpp>
+#include <Ark/VM/Value/Value.hpp>
 #include <Ark/VM/Value/Procedure.hpp>
 #include <Ark/Compiler/Common.hpp>
 #include <Ark/Error/Exceptions.hpp>

@@ -24,8 +24,8 @@
 #include <fmt/ranges.h>
 
 #include <Ark/Compiler/Instructions.hpp>
-#include <Ark/VM/Value.hpp>
-#include <Ark/VM/State.hpp>
+#include <Ark/VM/Value/Value.hpp>
+#include <Ark/State.hpp>
 #include <Ark/VM/ScopeView.hpp>
 #include <Ark/VM/ErrorKind.hpp>
 #include <Ark/VM/ExecutionContext.hpp>
@@ -33,7 +33,7 @@
 #include <Ark/Utils/Platform.hpp>
 #include <Ark/Utils/Literals.hpp>
 #include <Ark/VM/SharedLibrary.hpp>
-#include <Ark/VM/Future.hpp>
+#include <Ark/VM/Value/Future.hpp>
 
 namespace Ark
 {

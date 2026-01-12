@@ -16,7 +16,7 @@
 #include <cinttypes>
 
 #include <Ark/Utils/Platform.hpp>
-#include <Ark/VM/Value.hpp>
+#include <Ark/VM/Value/Value.hpp>
 
 namespace Ark::internal
 {
