@@ -17,7 +17,7 @@
 #include <atomic>
 
 #include <Ark/Constants.hpp>
-#include <Ark/VM/Value.hpp>
+#include <Ark/VM/Value/Value.hpp>
 #include <Ark/VM/ScopeView.hpp>
 #include <Ark/VM/Value/ClosureScope.hpp>
 

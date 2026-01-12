@@ -14,9 +14,10 @@
 #include <Ark/Error/Exceptions.hpp>
 #include <Ark/Constants.hpp>
 #include <Ark/Utils/Utils.hpp>
+#include <Ark/Compiler/Welder.hpp>
+#include <Ark/State.hpp>
 #include <Ark/VM/VM.hpp>
 #include <Ark/VM/DefaultValues.hpp>
-#include <Ark/Compiler/Welder.hpp>
 #include <Ark/TypeChecker.hpp>
 
 #endif  // ARK_ARK_HPP

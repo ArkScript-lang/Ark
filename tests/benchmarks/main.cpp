@@ -5,7 +5,7 @@
 
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Compiler/Welder.hpp>
-#include <Ark/VM/State.hpp>
+#include <Ark/State.hpp>
 #include <Ark/VM/VM.hpp>
 
 #define ARK_CREATE_RUNTIME_BENCH(name)                                       \

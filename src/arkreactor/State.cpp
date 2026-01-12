@@ -1,4 +1,4 @@
-#include <Ark/VM/State.hpp>
+#include <Ark/State.hpp>
 
 #include <Ark/Constants.hpp>
 #include <Ark/Utils/Files.hpp>

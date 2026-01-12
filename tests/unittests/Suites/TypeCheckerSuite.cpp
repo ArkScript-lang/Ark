@@ -5,9 +5,9 @@
 #include <sstream>
 #include <fmt/core.h>
 
-#include <Ark/VM/State.hpp>
+#include <Ark/State.hpp>
 #include <Ark/VM/VM.hpp>
-#include <Ark/VM/Value.hpp>
+#include <Ark/VM/Value/Value.hpp>
 #include <Ark/TypeChecker.hpp>
 #include <Ark/Utils/Utils.hpp>
 #include <TestsHelper.hpp>

@@ -1,4 +1,4 @@
-#include <Ark/VM/Value.hpp>
+#include <Ark/VM/Value/Value.hpp>
 #include <Ark/VM/Value/Procedure.hpp>
 #include <Ark/VM/Value/Dict.hpp>
 

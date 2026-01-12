@@ -15,7 +15,7 @@
 #include <optional>
 
 #include <Ark/VM/VM.hpp>
-#include <Ark/VM/State.hpp>
+#include <Ark/State.hpp>
 
 #include <replxx.hxx>
 

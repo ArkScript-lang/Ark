@@ -11,7 +11,7 @@
 #ifndef ARK_VM_VALUE_DICT_HPP
 #define ARK_VM_VALUE_DICT_HPP
 
-#include <Ark/VM/Value.hpp>
+#include <Ark/VM/Value/Value.hpp>
 #include <Ark/Utils/Platform.hpp>
 
 #include <ankerl/unordered_dense.h>

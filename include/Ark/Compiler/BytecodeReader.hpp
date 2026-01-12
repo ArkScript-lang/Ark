@@ -18,7 +18,7 @@
 
 #include <Ark/Utils/Platform.hpp>
 #include <Ark/Compiler/Common.hpp>
-#include <Ark/VM/Value.hpp>
+#include <Ark/VM/Value/Value.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/InstLoc.hpp>
 
 namespace Ark
