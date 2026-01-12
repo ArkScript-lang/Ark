@@ -16,6 +16,16 @@ namespace Ark::internal
         }
     }
 
+    ValTableElem::ValTableElem(const double n) noexcept :
+        value(n),
+        type(ValTableElemType::Number)
+    {}
+
+    ValTableElem::ValTableElem(const std::string& str) noexcept :
+        value(str),
+        type(ValTableElemType::String)
+    {}
+
     ValTableElem::ValTableElem(std::size_t page) noexcept :
         value(page),
         type(ValTableElemType::PageAddr)

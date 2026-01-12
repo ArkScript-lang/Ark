@@ -187,24 +187,15 @@ namespace Ark
         m_constants = vals.values;
         m_filenames = files.filenames;
         m_inst_locations = inst_locs.locations;
-
-        m_max_page_size = 0;
-        for (const bytecode_t& page : pages)
-        {
-            if (page.size() > m_max_page_size)
-                m_max_page_size = page.size();
-        }
+        m_pages = pages;
+        m_max_page_size = maxPageSize(m_pages);
 
         // Make m_code as a big contiguous chunk of instructions,
         // aligned on the biggest page size.
         // This might have a downside when we have a single big page and
         // a bunch of smaller ones, though I couldn't measure it while testing.
         m_code.resize(m_max_page_size * pages.size(), Instruction::NOP);
-        for (std::size_t i = 0, end = pages.size(); i < end; ++i)
-        {
-            for (std::size_t j = 0, end_j = pages[i].size(); j < end_j; ++j)
-                m_code[i * m_max_page_size + j] = pages[i][j];
-        }
+        addPagesToContiguousBytecode(pages, /* start= */ 0);
     }
 
     void State::reset() noexcept
@@ -222,6 +213,33 @@ namespace Ark
         m_bound[std::string(internal::Language::SysArgs)] = val;
 
         m_bound[std::string(internal::Language::SysProgramName)] = Value("");
+    }
+
+    void State::addPagesToContiguousBytecode(const std::vector<bytecode_t>& pages, const std::size_t start)
+    {
+        for (std::size_t i = 0, end = pages.size(); i < end; ++i)
+        {
+            for (std::size_t j = 0, end_j = pages[i].size(); j < end_j; ++j)
+                m_code[(start + i) * m_max_page_size + j] = pages[i][j];
+        }
+    }
+
+    std::size_t State::maxPageSize(const std::vector<bytecode_t>& pages)
+    {
+        return std::ranges::max(pages, {}, &bytecode_t::size).size();
+    }
+
+    void State::extendBytecode(const std::vector<bytecode_t>& pages, const std::vector<std::string>& symbols, const std::vector<Value>& constants)
+    {
+        m_symbols = symbols;
+        m_constants = constants;
+
+        // do not modify m_pages so that we can start over
+        m_max_page_size = std::max(m_max_page_size, maxPageSize(pages));
+
+        m_code.resize(m_max_page_size * (m_pages.size() + pages.size()), internal::Instruction::NOP);
+        addPagesToContiguousBytecode(m_pages, /* start= */ 0);
+        addPagesToContiguousBytecode(pages, /* start= */ m_pages.size());
     }
 }
 

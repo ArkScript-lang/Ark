@@ -8,7 +8,9 @@
 #include <Ark/Utils/Files.hpp>
 #include <Ark/Error/Exceptions.hpp>
 #include <Ark/Error/Diagnostics.hpp>
+#include <Ark/VM/Value/Value.hpp>
 
+#include <cassert>
 #include <sstream>
 #include <fmt/ostream.h>
 
@@ -48,6 +50,15 @@ namespace Ark
         return computeAST(ARK_NO_NAME_FILE, code);
     }
 
+    bool Welder::computeASTFromStringWithKnownSymbols(const std::string& code, const std::vector<std::string>& symbols)
+    {
+        m_root_file = std::filesystem::current_path();  // No filename given, take the current working directory
+
+        for (const std::string& sym : symbols)
+            m_name_resolver.addDefinedSymbol(sym, /* is_mutable= */ false);
+        return computeAST(ARK_NO_NAME_FILE, code);
+    }
+
     bool Welder::generateBytecode()
     {
         try
@@ -77,6 +88,36 @@ namespace Ark
             Diagnostics::generate(e);
             return false;
         }
+    }
+
+    bool Welder::generateBytecodeUsingTables(const std::vector<std::string>& symbols, const std::vector<Value>& constants, const std::size_t start_page_at_offset)
+    {
+        std::vector<internal::ValTableElem> values;
+        for (const Value& constant : constants)
+        {
+            switch (constant.valueType())
+            {
+                case ValueType::Number:
+                    values.emplace_back(constant.number());
+                    break;
+
+                case ValueType::String:
+                    values.emplace_back(constant.string());
+                    break;
+
+                case ValueType::PageAddr:
+                    values.emplace_back(static_cast<std::size_t>(constant.pageAddr()));
+                    break;
+
+                default:
+                    assert(false && "This should not be possible to have a constant that isn't a Number, a String or a PageAddr");
+                    break;
+            }
+        }
+
+        m_lowerer.addToTables(symbols, values);
+        m_lowerer.offsetPagesBy(start_page_at_offset);
+        return generateBytecode();
     }
 
     bool Welder::saveBytecodeToFile(const std::string& filename)
