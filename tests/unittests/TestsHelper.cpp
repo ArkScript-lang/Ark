@@ -95,8 +95,6 @@ std::string sanitizeRuntimeError(const std::exception& e)
     while (diag.find(ARK_TESTS_ROOT) != std::string::npos)
         diag.erase(diag.find(ARK_TESTS_ROOT), std::size(ARK_TESTS_ROOT) - 1);
     Ark::Utils::ltrim(Ark::Utils::rtrim(diag));
-    // remove last line, At IP:.., PP:.., SP:..
-    diag.erase(diag.find_last_of('\n'), diag.size() - 1);
     // we most likely have a blank line at the end now
     Ark::Utils::rtrim(diag);
 
