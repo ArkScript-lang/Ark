@@ -2259,12 +2259,25 @@ namespace Ark
         if (!text.empty() && text.back() != '\n')
             text += '\n';
         fmt::println("{}", text);
+
+        const std::size_t saved_ip = context.ip;
+        const std::size_t saved_pp = context.pp;
+        const uint16_t saved_sp = context.sp;
+
         backtrace(context);
+
+        fmt::println(
+            "At IP: {}, PP: {}, SP: {}",
+            // dividing by 4 because the instructions are actually on 4 bytes
+            fmt::styled(saved_ip / 4, fmt::fg(fmt::color::cyan)),
+            fmt::styled(saved_pp, fmt::fg(fmt::color::green)),
+            fmt::styled(saved_sp, fmt::fg(fmt::color::yellow)));
 
         if (m_state.m_features & FeatureVMDebugger)
         {
             // TODO: launch debugger
         }
+
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
         // don't report a "failed" exit code so that the fuzzers can more accurately triage crashes
         m_exit_code = 0;
@@ -2310,9 +2323,6 @@ namespace Ark
 
     void VM::backtrace(ExecutionContext& context, std::ostream& os, const bool colorize)
     {
-        const std::size_t saved_ip = context.ip;
-        const std::size_t saved_pp = context.pp;
-        const uint16_t saved_sp = context.sp;
         constexpr std::size_t max_consecutive_traces = 7;
 
         const auto maybe_location = findSourceLocation(context.ip, context.pp);
@@ -2404,13 +2414,5 @@ namespace Ark
                     old_scope.atPos(i).second.toString(*this));
             }
         }
-
-        fmt::println(
-            os,
-            "At IP: {}, PP: {}, SP: {}",
-            // dividing by 4 because the instructions are actually on 4 bytes
-            fmt::styled(saved_ip / 4, colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()),
-            fmt::styled(saved_pp, colorize ? fmt::fg(fmt::color::green) : fmt::text_style()),
-            fmt::styled(saved_sp, colorize ? fmt::fg(fmt::color::yellow) : fmt::text_style()));
     }
 }
