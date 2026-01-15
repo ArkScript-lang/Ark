@@ -119,6 +119,20 @@ namespace Ark
          */
         void reset() noexcept;
 
+        /**
+         * @brief Used by the debugger to add code to the VM at runtime
+         *
+         * @param pages
+         * @param symbols
+         * @param constants
+         */
+        void extendBytecode(const std::vector<bytecode_t>& pages, const std::vector<std::string>& symbols, const std::vector<Value>& constants);
+
+        [[nodiscard]] inline const bytecode_t& bytecode() const noexcept
+        {
+            return m_bytecode;
+        }
+
         friend class VM;
         friend class Repl;
         friend class internal::Closure;
@@ -175,15 +189,6 @@ namespace Ark
          * @return std::size_t
          */
         static std::size_t maxPageSize(const std::vector<bytecode_t>& pages);
-
-        /**
-         * @brief Used by the debugger to add code to the VM at runtime
-         *
-         * @param pages
-         * @param symbols
-         * @param constants
-         */
-        void extendBytecode(const std::vector<bytecode_t>& pages, const std::vector<std::string>& symbols, const std::vector<Value>& constants);
 
         /**
          * @brief Get an instruction in a given page, with a given instruction pointer

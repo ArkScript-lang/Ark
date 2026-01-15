@@ -16,29 +16,29 @@ using namespace Ark::literals;
 ut::suite<"BytecodeReader"> bcr_suite = [] {
     using namespace ut;
 
-    Ark::Welder welder(0, { lib_path });
-    const std::string script_path = getResourcePath("BytecodeReaderSuite/ackermann.ark");
+    "ackermann.ark"_test = [] {
+        Ark::Welder welder(0, { lib_path });
+        const std::string script_path = getResourcePath("BytecodeReaderSuite/ackermann.ark");
 
-    const auto time_start =
-        static_cast<unsigned long long>(std::chrono::duration_cast<std::chrono::seconds>(
-                                            std::chrono::system_clock::now().time_since_epoch())
-                                            .count());
+        const auto time_start =
+            static_cast<unsigned long long>(std::chrono::duration_cast<std::chrono::seconds>(
+                                                std::chrono::system_clock::now().time_since_epoch())
+                                                .count());
 
-    should("compile without error") = [&] {
-        expect(mut(welder).computeASTFromFile(script_path));
-        expect(mut(welder).generateBytecode());
-    };
+        should("compile without error") = [&] {
+            expect(mut(welder).computeASTFromFile(script_path));
+            expect(mut(welder).generateBytecode());
+        };
 
-    const auto time_end =
-        static_cast<unsigned long long>(std::chrono::duration_cast<std::chrono::seconds>(
-                                            std::chrono::system_clock::now().time_since_epoch())
-                                            .count());
+        const auto time_end =
+            static_cast<unsigned long long>(std::chrono::duration_cast<std::chrono::seconds>(
+                                                std::chrono::system_clock::now().time_since_epoch())
+                                                .count());
 
-    Ark::BytecodeReader bcr;
-    const auto bytecode = welder.bytecode();
-    bcr.feed(bytecode);
+        Ark::BytecodeReader bcr;
+        const auto bytecode = welder.bytecode();
+        bcr.feed(bytecode);
 
-    "bytecode"_test = [&] {
         should("find the version") = [bcr] {
             auto [major, minor, patch] = bcr.version();
             expect(that % major == ARK_VERSION_MAJOR);

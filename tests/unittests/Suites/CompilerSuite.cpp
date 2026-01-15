@@ -12,7 +12,7 @@ using namespace boost;
 ut::suite<"Compiler"> compiler_suite = [] {
     using namespace ut;
 
-    const std::vector<double> nums = { 0.11, 0.000000000011, 2, -2, 12, 6, 4, 0, 14657892.35, 3.141592653589, 4092.7984 };
+    const std::vector<double> nums = { 0.11, 0.000000000011, 2, -2, 12, 6, 4, 0, 14657892.35, 3.141592653589, 4092.7984, -4092.7984 };
 
     "IEEE754 serialization"_test = [&] {
         using namespace Ark::internal::ieee754;

@@ -1196,7 +1196,7 @@ namespace Ark
                                 initDebugger(context);
                                 m_debugger->run(*this, context);
                                 m_debugger->resetContextToErrorState(context);
-                             }
+                            }
                         }
                         DISPATCH();
                     }

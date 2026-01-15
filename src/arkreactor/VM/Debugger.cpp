@@ -57,11 +57,9 @@ namespace Ark::internal
         {
             context.ip = 0;
             context.pp = vm.m_state.m_pages.size();
-
-            // create dedicated scope
+            // create dedicated scope, so that we won't be overwriting existing variables
             context.locals.emplace_back(context.scopes_storage.data(), context.locals.back().storageEnd());
 
-            // todo: test state.extendBytecode
             vm.m_state.extendBytecode(pages.value(), m_symbols, m_constants);
 
             if (vm.safeRun(context) == 0)
@@ -89,8 +87,6 @@ namespace Ark::internal
         Welder welder(0, m_libenv, DefaultFeatures);
         if (!welder.computeASTFromStringWithKnownSymbols(code, m_symbols))
             return std::nullopt;
-        // todo: test that we can generate bytecode using small precomputes tables and that the tables,
-        //       even if unused, are present in the resulting bytecode
         if (!welder.generateBytecodeUsingTables(m_symbols, m_constants, start_page_at_offset))
             return std::nullopt;
 
