@@ -38,17 +38,15 @@ namespace Ark::internal
                 if (j >= args_needed)
                     break;
 
-                // todo: this fails because we don't have a string because we are defining a (macro ! (call ...args) ...) inside another (macro ! (call ...args) ...)
-                //       most likely the first macro got applied to another macro. We shouldn't apply macro on macros
-                // assert(args.list()[j].nodeType() == NodeType::String || args.list()[j].nodeType() == NodeType::Spread);  // todo: temp
-                const std::string& arg_name = args.list()[j].string();
                 if (args.list()[j].nodeType() == NodeType::Symbol)
                 {
+                    const std::string& arg_name = args.list()[j].string();
                     args_applied[arg_name] = node.constList()[i];
                     ++j;
                 }
                 else if (args.list()[j].nodeType() == NodeType::Spread)
                 {
+                    const std::string& arg_name = args.list()[j].string();
                     if (!args_applied.contains(arg_name))
                     {
                         args_applied[arg_name] = Node(NodeType::List);
