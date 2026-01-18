@@ -39,6 +39,35 @@ ut::suite<"Tools"> tools_suite = [] {
         expect(that % Ark::Utils::levenshteinDistance("arkscript", "OrC") == 8_z);
     };
 
+    "countOpenEnclosures"_test = [] {
+        expect(that % Ark::Utils::countOpenEnclosures("", '(', ')') == 0);
+        expect(that % Ark::Utils::countOpenEnclosures("(", '(', ')') == 1);
+        expect(that % Ark::Utils::countOpenEnclosures(")", '(', ')') == -1);
+        expect(that % Ark::Utils::countOpenEnclosures("{}", '(', ')') == 0);
+        expect(that % Ark::Utils::countOpenEnclosures("{)(()}", '(', ')') == 0);
+        expect(that % Ark::Utils::countOpenEnclosures("{)(()}", '{', '}') == 0);
+    };
+
+    "trimWhitespace"_test = [] {
+        const std::string expected = "hello world";
+        std::string line = expected;
+
+        Ark::Utils::trimWhitespace(line);
+        expect(that % line == expected);
+
+        line = "  \thello world";
+        Ark::Utils::trimWhitespace(line);
+        expect(that % line == expected);
+
+        line = "hello world  \t";
+        Ark::Utils::trimWhitespace(line);
+        expect(that % line == expected);
+
+        line = "  \thello world  \t";
+        Ark::Utils::trimWhitespace(line);
+        expect(that % line == expected);
+    };
+
     "Utils::fileExists"_test = [] {
         expect(Ark::Utils::fileExists(".gitignore"));
         expect(!Ark::Utils::fileExists(""));

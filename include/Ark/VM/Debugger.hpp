@@ -72,9 +72,14 @@ namespace Ark::internal
          */
         void run(VM& vm, ExecutionContext& context);
 
-        inline bool isRunning() const noexcept
+        [[nodiscard]] inline bool isRunning() const noexcept
         {
             return m_running;
+        }
+
+        [[nodiscard]] inline bool shouldQuitVM() const noexcept
+        {
+            return m_quit_vm;
         }
 
     private:
@@ -83,8 +88,12 @@ namespace Ark::internal
         std::vector<std::string> m_symbols;
         std::vector<Value> m_constants;
         bool m_running;
+        bool m_quit_vm;
 
         std::string m_code;  ///< Code added while inside the debugger
+        std::size_t m_line_count = 0;
+
+        std::optional<std::string> prompt();
 
         /**
          * @brief Take care of compiling new code using the existing data tables

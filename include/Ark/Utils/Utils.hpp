@@ -99,6 +99,21 @@ namespace Ark::Utils
      * @return std::size_t
      */
     ARK_API std::size_t levenshteinDistance(const std::string& str1, const std::string& str2);
+
+    /**
+     * @brief Count the open enclosure and its counterpart: (), {}, []
+     * @param line data to operate on
+     * @param open the open char: (, { or [
+     * @param close the closing char: ), } or ]
+     * @return positive if there are more open enclosures than closed. 0 when both are equal, negative otherwise
+     */
+    ARK_API long countOpenEnclosures(const std::string& line, char open, char close);
+
+    /**
+     * @brief Remove whitespaces at the start and end of a string
+     * @param line string modified in place
+     */
+    ARK_API void trimWhitespace(std::string& line);
 }
 
 #endif

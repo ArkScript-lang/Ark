@@ -1197,6 +1197,9 @@ namespace Ark
                                 initDebugger(context);
                                 m_debugger->run(*this, context);
                                 m_debugger->resetContextToSavedState(context);
+
+                                if (m_debugger->shouldQuitVM())
+                                    GOTO_HALT();
                             }
                         }
                         DISPATCH();
