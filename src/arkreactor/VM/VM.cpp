@@ -194,11 +194,12 @@ namespace Ark
                         std::to_string(closure->valueType()),
                         m_state.m_symbols[id]));
             else
-                throwVMError(ErrorKind::Type,
-                             fmt::format(
-                                 "{} is not a Closure, can not get the field `{}' from it",
-                                 std::to_string(closure->valueType()),
-                                 m_state.m_symbols[id]));
+                throwVMError(
+                    ErrorKind::Type,
+                    fmt::format(
+                        "{} is not a Closure, can not get the field `{}' from it",
+                        std::to_string(closure->valueType()),
+                        m_state.m_symbols[id]));
         }
 
         if (Value* field = closure->refClosure().refScope()[id]; field != nullptr)
@@ -1195,7 +1196,7 @@ namespace Ark
                             {
                                 initDebugger(context);
                                 m_debugger->run(*this, context);
-                                m_debugger->resetContextToErrorState(context);
+                                m_debugger->resetContextToSavedState(context);
                             }
                         }
                         DISPATCH();
@@ -2296,7 +2297,7 @@ namespace Ark
 
         if (m_debugger && !error_from_debugger)
         {
-            m_debugger->resetContextToErrorState(context);
+            m_debugger->resetContextToSavedState(context);
             m_debugger->run(*this, context);
         }
 

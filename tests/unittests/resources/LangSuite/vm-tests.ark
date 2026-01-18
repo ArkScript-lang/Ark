@@ -202,6 +202,11 @@
         (while (> i 5) (set i (- i 1)))
         (test:eq i 5) })
 
+    (test:case "optimized mul set val" {
+        (mut val 5)
+        ((fun () (set val (* val 6))))
+        (test:eq val 30) })
+
     (test:case "set/store head and tail" {
         (mut data [1 2 3 4])
         # STORE_LEN
