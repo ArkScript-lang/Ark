@@ -117,7 +117,6 @@ namespace Ark::internal
     {
         switch (inst)
         {
-            case BREAKPOINT: [[fallthrough]];
             case NOT: [[fallthrough]];
             case LEN: [[fallthrough]];
             case IS_EMPTY: [[fallthrough]];
@@ -729,7 +728,13 @@ namespace Ark::internal
                     page(p).emplace_back(op);
             }
 
-            if (isUnaryInst(op))
+            if (isBreakpoint(x))
+            {
+                if (exp_count > 1)
+                    buildAndThrowError(fmt::format("`{}' expected at most one argument, but was called with {}", op_name, exp_count), x.constList()[0]);
+                page(p).emplace_back(op, exp_count);
+            }
+            else if (isUnaryInst(op))
             {
                 if (exp_count != 1)
                     buildAndThrowError(fmt::format("`{}' expected one argument, but was called with {}", op_name, exp_count), x.constList()[0]);

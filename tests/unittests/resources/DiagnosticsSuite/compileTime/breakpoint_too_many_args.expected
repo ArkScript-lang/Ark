@@ -1,0 +1,5 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/breakpoint_too_many_args.ark:1
+    1 | (breakpoint 1 2)
+      |  ^~~~~~~~~~
+    2 |
+        `breakpoint' expected at most one argument, but was called with 2

@@ -62,7 +62,7 @@ namespace Ark::internal
          *
          * @param context context to reset
          */
-        void resetContextToErrorState(ExecutionContext& context);
+        void resetContextToSavedState(ExecutionContext& context);
 
         /**
          * @brief Start the debugger shell

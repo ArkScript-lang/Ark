@@ -28,7 +28,7 @@ namespace Ark::internal
                 context.stacked_closure_scopes));
     }
 
-    void Debugger::resetContextToErrorState(ExecutionContext& context)
+    void Debugger::resetContextToSavedState(ExecutionContext& context)
     {
         const auto& [ip, pp, sp, fc, locals, closure_scopes] = *m_states.back();
         context.locals = locals;
@@ -50,8 +50,6 @@ namespace Ark::internal
         fmt::print("> ");
         std::string line;
         std::getline(std::cin, line);
-
-        // todo: start writing the article, god damn it!
 
         if (const auto pages = compile(m_code + line, vm.m_state.m_pages.size()); pages.has_value())
         {
