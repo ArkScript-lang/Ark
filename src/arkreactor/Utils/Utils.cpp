@@ -1,5 +1,7 @@
 #include <Ark/Utils/Utils.hpp>
 
+#include <ranges>
+
 namespace Ark::Utils
 {
     std::size_t levenshteinDistance(const std::string& str1, const std::string& str2)
@@ -28,5 +30,20 @@ namespace Ark::Utils
         }
 
         return edit_distances[str1_len][str2_len];
+    }
+
+    long countOpenEnclosures(const std::string& line, const char open, const char close)
+    {
+        return std::ranges::count(line, open) - std::ranges::count(line, close);
+    }
+
+    void trimWhitespace(std::string& line)
+    {
+        const std::size_t string_begin = line.find_first_not_of(" \t");
+        if (std::string::npos != string_begin)
+        {
+            const std::size_t string_end = line.find_last_not_of(" \t");
+            line = line.substr(string_begin, string_end - string_begin + 1);
+        }
     }
 }

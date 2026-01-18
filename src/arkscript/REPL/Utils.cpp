@@ -10,21 +10,6 @@
 
 namespace Ark::internal
 {
-    long countOpenEnclosures(const std::string& line, const char open, const char close)
-    {
-        return std::ranges::count(line, open) - std::ranges::count(line, close);
-    }
-
-    void trimWhitespace(std::string& line)
-    {
-        const std::size_t string_begin = line.find_first_not_of(" \t");
-        if (std::string::npos != string_begin)
-        {
-            const std::size_t string_end = line.find_last_not_of(" \t");
-            line = line.substr(string_begin, string_end - string_begin + 1);
-        }
-    }
-
     std::vector<std::string> getAllKeywords()
     {
         std::vector<std::string> output;

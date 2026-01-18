@@ -19,21 +19,6 @@
 namespace Ark::internal
 {
     /**
-     * @brief Count the open enclosure and its counterpart: (), {}, []
-     * @param line data to operate on
-     * @param open the open char: (, { or [
-     * @param close the closing char: ), } or ]
-     * @return positive if there are more open enclosures than closed. 0 when both are equal, negative otherwise
-     */
-    long countOpenEnclosures(const std::string& line, char open, char close);
-
-    /**
-     * @brief Remove whitespaces at the start and end of a string
-     * @param line string modified in place
-     */
-    void trimWhitespace(std::string& line);
-
-    /**
      * @brief Compute a list of all the language keywords and builtins
      *
      * @return std::vector<std::string>

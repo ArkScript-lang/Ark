@@ -8,6 +8,7 @@
 #include <Ark/VM/DefaultValues.hpp>
 #include <Ark/TypeChecker.hpp>
 #include <Ark/Utils/Files.hpp>
+#include <Ark/Utils/Utils.hpp>
 
 #include <CLI/REPL/Repl.hpp>
 #include <CLI/REPL/Utils.hpp>
@@ -166,7 +167,7 @@ namespace Ark
 
         // line history
         m_repl.history_add(line);
-        trimWhitespace(line);
+        Utils::trimWhitespace(line);
 
         // specific commands handling
         if (line == "quit" || buf == nullptr)
@@ -233,8 +234,8 @@ namespace Ark
             if (maybe_line.has_value() && !maybe_line.value().empty())
             {
                 code_block += maybe_line.value() + "\n";
-                open_parentheses += countOpenEnclosures(maybe_line.value(), '(', ')');
-                open_braces += countOpenEnclosures(maybe_line.value(), '{', '}');
+                open_parentheses += Utils::countOpenEnclosures(maybe_line.value(), '(', ')');
+                open_braces += Utils::countOpenEnclosures(maybe_line.value(), '{', '}');
 
                 // lines number incrementation
                 ++m_line_count;
