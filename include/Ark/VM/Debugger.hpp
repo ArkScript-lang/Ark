@@ -87,8 +87,9 @@ namespace Ark::internal
          *
          * @param vm
          * @param context
+         * @param from_breakpoint true if the debugger is being invoked from a breakpoint
          */
-        void run(VM& vm, ExecutionContext& context);
+        void run(VM& vm, ExecutionContext& context, bool from_breakpoint);
 
         [[nodiscard]] inline bool isRunning() const noexcept
         {

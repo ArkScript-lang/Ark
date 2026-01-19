@@ -13,7 +13,8 @@ In file tests/unittests/resources/DebuggerSuite/modify_program_state.ark:3
     4 |   (prn (format "ark: i={}" i))
     5 |   (set i (+ 1 i)) })
 
-dbg[pp:0,ip:32]:000> (print i)
+dbg[pp:0,ip:32]:000> (prn i)
+6
 nil
 dbg[pp:0,ip:32]:001> c
 dbg: continue

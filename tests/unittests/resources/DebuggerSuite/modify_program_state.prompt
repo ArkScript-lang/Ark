@@ -1,4 +1,4 @@
-(print i)
+(prn i)
 c
 (set i 20)
 c

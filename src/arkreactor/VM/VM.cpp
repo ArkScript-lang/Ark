@@ -1200,7 +1200,7 @@ namespace Ark
                             if (m_state.m_features & FeatureVMDebugger && breakpoint_active)
                             {
                                 initDebugger(context);
-                                m_debugger->run(*this, context);
+                                m_debugger->run(*this, context, /* from_breakpoint= */ true);
                                 m_debugger->resetContextToSavedState(context);
 
                                 if (m_debugger->shouldQuitVM())
@@ -2306,7 +2306,7 @@ namespace Ark
         if (m_debugger && !error_from_debugger)
         {
             m_debugger->resetContextToSavedState(context);
-            m_debugger->run(*this, context);
+            m_debugger->run(*this, context, /* from_breakpoint= */ false);
         }
 
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
