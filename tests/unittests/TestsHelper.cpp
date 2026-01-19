@@ -82,10 +82,9 @@ std::string sanitizeCodeError(const Ark::CodeError& e)
     return diag;
 }
 
-std::string sanitizeRuntimeError(const std::exception& e)
+std::string sanitizeOutput(const std::string& output)
 {
-    // std::replace(s.begin(), s.end(), '\\', '/');
-    std::string diag = e.what();
+    std::string diag = output;
 
     // because of windows
     diag.erase(std::ranges::remove(diag, '\r').begin(), diag.end());
@@ -99,6 +98,12 @@ std::string sanitizeRuntimeError(const std::exception& e)
     Ark::Utils::rtrim(diag);
 
     return diag;
+}
+
+std::string sanitizeRuntimeError(const std::exception& e)
+{
+    const std::string diag = e.what();
+    return sanitizeOutput(diag);
 }
 
 void expectOrDiff(const std::string& expected, const std::string& received)

@@ -1,0 +1,14 @@
+In file tests/unittests/resources/DebuggerSuite/debugger_quit.ark:3
+    1 | (let a 5)
+    2 | (let b 6)
+    3 | (breakpoint)
+      | ^~~~~~~~~~~
+    4 | (prn (format "ark: after first breakpoint, a={}, b={}" a b))
+    5 |
+
+dbg[pp:0,ip:12]:000> (let c (+ a b))
+dbg[pp:0,ip:12]:001> (prn c)
+11
+nil
+dbg[pp:0,ip:12]:002> q
+dbg: stop

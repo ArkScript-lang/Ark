@@ -152,6 +152,14 @@ namespace Ark
         [[nodiscard]] bool forceReloadPlugins() const;
 
         /**
+         * @brief Configure the debugger to use a prompt file instead of asking the user for an input
+         *
+         * @param path path to prompt file (one prompt per line)
+         * @param os output stream
+         */
+        void usePromptFileForDebugger(const std::string& path, std::ostream& os = std::cout);
+
+        /**
          * @brief Throw a VM error message
          *
          * @param kind type of VM error

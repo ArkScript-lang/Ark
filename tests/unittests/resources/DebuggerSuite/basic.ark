@@ -1,0 +1,12 @@
+(let a 5)
+(let b 6)
+(breakpoint)
+(prn (format "ark: after first breakpoint, a={}, b={}" a b))
+
+(let foo (fun (x y z) {
+  (breakpoint true)
+  (prn "ark: in (foo x y z), after second breakpoint")
+  (+ x y z) }))
+
+(prn (foo a b 7))
+(prn "ark: end of script")

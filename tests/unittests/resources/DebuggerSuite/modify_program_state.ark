@@ -1,0 +1,6 @@
+(mut i 0)
+(while (< i 10) {
+  (breakpoint (> i 5))
+  (prn (format "ark: i={}" i))
+  (set i (+ 1 i)) })
+(prn "ark: end")
