@@ -21,13 +21,11 @@ namespace Ark::internal
 
     void ASTLowerer::addToTables(const std::vector<std::string>& symbols, const std::vector<ValTableElem>& constants)
     {
-        for (const std::string& sym : symbols)
-            m_symbols.emplace_back(sym);
-        for (const ValTableElem& elem : constants)
-            m_values.emplace_back(elem);
+        std::ranges::copy(symbols, std::back_inserter(m_symbols));
+        std::ranges::copy(constants, std::back_inserter(m_values));
     }
 
-    void ASTLowerer::offsetPagesBy(std::size_t offset)
+    void ASTLowerer::offsetPagesBy(const std::size_t offset)
     {
         m_start_page_at_offset = offset;
     }

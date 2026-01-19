@@ -14,16 +14,23 @@
 namespace Ark::internal
 {
     Debugger::Debugger(const ExecutionContext& context, const std::vector<std::filesystem::path>& libenv, const std::vector<std::string>& symbols, const std::vector<Value>& constants) :
-        m_libenv(libenv), m_symbols(symbols), m_constants(constants), m_os(std::cout), m_colorize(true)
+        m_libenv(libenv),
+        m_symbols(symbols),
+        m_constants(constants),
+        m_os(std::cout),
+        m_colorize(true)
     {
         saveState(context);
     }
 
     Debugger::Debugger(const std::vector<std::filesystem::path>& libenv, const std::string& path_to_prompt_file, std::ostream& os, const std::vector<std::string>& symbols, const std::vector<Value>& constants) :
-        m_libenv(libenv), m_symbols(symbols), m_constants(constants), m_os(os), m_colorize(false)
-    {
-        m_prompt_stream = std::make_unique<std::ifstream>(path_to_prompt_file);
-    }
+        m_libenv(libenv),
+        m_symbols(symbols),
+        m_constants(constants),
+        m_os(os),
+        m_colorize(false),
+        m_prompt_stream(std::make_unique<std::ifstream>(path_to_prompt_file))
+    {}
 
     void Debugger::saveState(const ExecutionContext& context)
     {
