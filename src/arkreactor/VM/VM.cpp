@@ -510,6 +510,11 @@ namespace Ark
         }
     }
 
+    void VM::usePromptFileForDebugger(const std::string& path, std::ostream& os)
+    {
+        m_debugger = std::make_unique<Debugger>(m_state.m_libenv, path, os, m_state.m_symbols, m_state.m_constants);
+    }
+
     void VM::throwVMError(ErrorKind kind, const std::string& message)
     {
         throw std::runtime_error(std::string(errorKinds[static_cast<std::size_t>(kind)]) + ": " + message + "\n");

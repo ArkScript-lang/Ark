@@ -1,0 +1,38 @@
+In file tests/unittests/resources/DebuggerSuite/basic.ark:3
+    1 | (let a 5)
+    2 | (let b 6)
+    3 | (breakpoint)
+      | ^~~~~~~~~~~
+    4 | (prn (format "ark: after first breakpoint, a={}, b={}" a b))
+    5 |
+
+dbg[pp:0,ip:12]:000> (let c (+ a b))
+dbg[pp:0,ip:12]:001> (prn c)
+11
+nil
+dbg[pp:0,ip:12]:002> c
+dbg: continue
+ark: after first breakpoint, a=5, b=6
+
+In file tests/unittests/resources/DebuggerSuite/basic.ark:7
+    4 | (prn (format "ark: after first breakpoint, a={}, b={}" a b))
+    5 |
+    6 | (let foo (fun (x y z) {
+    7 |   (breakpoint true)
+      |   ^~~~~~~~~~~~~~~~
+    8 |   (prn "ark: in (foo x y z), after second breakpoint")
+    9 |   (+ x y z) }))
+
+dbg[pp:1,ip:20]:000> (prn x y z)
+567
+nil
+dbg[pp:1,ip:20]:001> help
+Available commands:
+  help -- display this message
+  c, continue -- resume execution
+  q, quit -- quit the debugger, stopping the script execution
+dbg[pp:1,ip:20]:001> continue
+dbg: continue
+ark: in (foo x y z), after second breakpoint
+18
+ark: end of script

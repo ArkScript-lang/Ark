@@ -63,6 +63,8 @@ std::string getResourcePath(const std::string& folder);
 
 std::string sanitizeCodeError(const Ark::CodeError& e);
 
+std::string sanitizeOutput(const std::string& output);
+
 std::string sanitizeRuntimeError(const std::exception& e);
 
 void expectOrDiff(const std::string& expected, const std::string& received);

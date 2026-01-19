@@ -37,6 +37,13 @@ namespace Ark::internal
         std::vector<std::shared_ptr<ClosureScope>> closure_scopes;
     };
 
+    struct CompiledPrompt
+    {
+        std::vector<bytecode_t> pages;
+        std::vector<std::string> symbols;
+        std::vector<Value> constants;
+    };
+
     class Debugger
     {
     public:
@@ -48,7 +55,18 @@ namespace Ark::internal
          * @param symbols symbols table of the VM
          * @param constants constants table of the VM
          */
-        explicit Debugger(const ExecutionContext& context, const std::vector<std::filesystem::path>& libenv, const std::vector<std::string>& symbols, const std::vector<Value>& constants);
+        Debugger(const ExecutionContext& context, const std::vector<std::filesystem::path>& libenv, const std::vector<std::string>& symbols, const std::vector<Value>& constants);
+
+        /**
+         * @brief Create a new Debugger object that will use lines from a file as prompts, instead of waiting for user inputs
+         *
+         * @param libenv
+         * @param path_to_prompt_file
+         * @param os output stream
+         * @param symbols symbols table of the VM
+         * @param constants constants table of the VM
+         */
+        Debugger(const std::vector<std::filesystem::path>& libenv, const std::string& path_to_prompt_file, std::ostream& os, const std::vector<std::string>& symbols, const std::vector<Value>& constants);
 
         /**
          * @brief Save the current VM state, to get back to it once the debugger is done running
@@ -87,22 +105,27 @@ namespace Ark::internal
         std::vector<std::filesystem::path> m_libenv;
         std::vector<std::string> m_symbols;
         std::vector<Value> m_constants;
-        bool m_running;
-        bool m_quit_vm;
+        bool m_running { false };
+        bool m_quit_vm { false };
 
+        std::ostream& m_os;
+        bool m_colorize;
+        std::unique_ptr<std::istream> m_prompt_stream;
         std::string m_code;  ///< Code added while inside the debugger
-        std::size_t m_line_count = 0;
+        std::size_t m_line_count { 0 };
 
-        std::optional<std::string> prompt();
+        void showContext(const VM& vm, const ExecutionContext& context) const;
+
+        std::optional<std::string> prompt(std::size_t ip, std::size_t pp);
 
         /**
          * @brief Take care of compiling new code using the existing data tables
          *
          * @param code
          * @param start_page_at_offset offset to start the new pages at
-         * @return std::optional<std::vector<bytecode_t>> optional set of bytecode pages if compilation succeeded
+         * @return std::optional<CompiledPrompt> optional set of bytecode pages, symbols and constants if compilation succeeded
          */
-        std::optional<std::vector<bytecode_t>> compile(const std::string& code, std::size_t start_page_at_offset);
+        [[nodiscard]] std::optional<CompiledPrompt> compile(const std::string& code, std::size_t start_page_at_offset) const;
     };
 }
 

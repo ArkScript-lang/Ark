@@ -55,7 +55,7 @@ namespace Ark
         m_root_file = std::filesystem::current_path();  // No filename given, take the current working directory
 
         for (const std::string& sym : symbols)
-            m_name_resolver.addDefinedSymbol(sym, /* is_mutable= */ false);
+            m_name_resolver.addDefinedSymbol(sym, /* is_mutable= */ true);
         return computeAST(ARK_NO_NAME_FILE, code);
     }
 

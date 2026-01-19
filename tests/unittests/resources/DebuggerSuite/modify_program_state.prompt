@@ -1,0 +1,4 @@
+(print i)
+c
+(set i 20)
+c

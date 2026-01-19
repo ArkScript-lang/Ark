@@ -1,0 +1,34 @@
+ark: i=0
+ark: i=1
+ark: i=2
+ark: i=3
+ark: i=4
+ark: i=5
+
+In file tests/unittests/resources/DebuggerSuite/modify_program_state.ark:3
+    1 | (mut i 0)
+    2 | (while (< i 10) {
+    3 |   (breakpoint (> i 5))
+      |   ^~~~~~~~~~~~~~~~~~~
+    4 |   (prn (format "ark: i={}" i))
+    5 |   (set i (+ 1 i)) })
+
+dbg[pp:0,ip:32]:000> (print i)
+nil
+dbg[pp:0,ip:32]:001> c
+dbg: continue
+ark: i=6
+
+In file tests/unittests/resources/DebuggerSuite/modify_program_state.ark:3
+    1 | (mut i 0)
+    2 | (while (< i 10) {
+    3 |   (breakpoint (> i 5))
+      |   ^~~~~~~~~~~~~~~~~~~
+    4 |   (prn (format "ark: i={}" i))
+    5 |   (set i (+ 1 i)) })
+
+dbg[pp:0,ip:32]:000> (set i 20)
+dbg[pp:0,ip:32]:001> c
+dbg: continue
+ark: i=20
+ark: end
