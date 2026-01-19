@@ -18,8 +18,7 @@ ut::suite<"Debugger"> debugger_suite = [] {
             std::stringstream os;
             Ark::State state({ lib_path });
 
-            // cppcheck-suppress constParameterReference
-            state.loadFunction("prn", [&os](std::vector<Ark::Value>& args, Ark::VM* vm) -> Ark::Value {
+            state.loadFunction("prn", [&os](const std::vector<Ark::Value>& args, Ark::VM* vm) -> Ark::Value {
                 for (const auto& value : args)
                     fmt::print(os, "{}", value.toString(*vm));
                 fmt::println(os, "");
