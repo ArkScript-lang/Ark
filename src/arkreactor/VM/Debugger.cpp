@@ -57,9 +57,10 @@ namespace Ark::internal
         m_states.pop_back();
     }
 
-    void Debugger::run(VM& vm, ExecutionContext& context)
+    void Debugger::run(VM& vm, ExecutionContext& context, const bool from_breakpoint)
     {
-        showContext(vm, context);
+        if (from_breakpoint)
+            showContext(vm, context);
 
         m_running = true;
         const bool is_vm_running = vm.m_running;

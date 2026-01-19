@@ -37,7 +37,7 @@ ut::suite<"Debugger"> debugger_suite = [] {
                 {
                     Ark::VM vm(state);
                     vm.usePromptFileForDebugger(prompt_path.generic_string(), os);
-                    vm.run(/* fail_with_exception= */ true);
+                    vm.run(/* fail_with_exception= */ false);
 
                     const std::string output = sanitizeOutput(os.str());
                     expectOrDiff(data.expected, output);
