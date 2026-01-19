@@ -121,11 +121,11 @@ namespace Ark
 
     void Repl::registerBuiltins()
     {
-        m_state.loadFunction("repl:history", [this]([[maybe_unused]] std::vector<Value>&, [[maybe_unused]] VM*) {
+        m_state.loadFunction("repl:history", [this]([[maybe_unused]] const std::vector<Value>&, [[maybe_unused]] VM*) {
             return Value(m_code);
         });
 
-        m_state.loadFunction("repl:save", [this](std::vector<Value>& n, [[maybe_unused]] VM*) {
+        m_state.loadFunction("repl:save", [this](const std::vector<Value>& n, [[maybe_unused]] VM*) {
             if (!types::check(n, ValueType::String))
                 throw types::TypeCheckingError(
                     "repl:save",
@@ -137,7 +137,7 @@ namespace Ark
             return Nil;
         });
 
-        m_state.loadFunction("repl:load", [this](std::vector<Value>& n, [[maybe_unused]] VM*) {
+        m_state.loadFunction("repl:load", [this](const std::vector<Value>& n, [[maybe_unused]] VM*) {
             if (!types::check(n, ValueType::String))
                 throw types::TypeCheckingError(
                     "repl:load",
