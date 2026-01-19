@@ -128,11 +128,6 @@ namespace Ark
          */
         void extendBytecode(const std::vector<bytecode_t>& pages, const std::vector<std::string>& symbols, const std::vector<Value>& constants);
 
-        [[nodiscard]] inline const bytecode_t& bytecode() const noexcept
-        {
-            return m_bytecode;
-        }
-
         friend class VM;
         friend class Repl;
         friend class internal::Closure;
