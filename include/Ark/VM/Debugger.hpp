@@ -17,6 +17,7 @@
 #include <optional>
 #include <filesystem>
 
+#include <Ark/Compiler/Common.hpp>
 #include <Ark/VM/Value/Value.hpp>
 #include <Ark/VM/ExecutionContext.hpp>
 
