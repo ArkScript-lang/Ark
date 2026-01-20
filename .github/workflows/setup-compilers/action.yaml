@@ -20,6 +20,8 @@ inputs:
   with_deps:
     description: 'Download and configure dependencies or not (false|true)'
     default: 'false'
+  unity:
+    default: 'On'
 
 runs:
   using: "composite"
@@ -103,7 +105,7 @@ runs:
          -DARK_BUILD_EXE=On \
          -DARK_BUILD_MODULES=$ToggleModules -DARK_MOD_ALL=$ToggleModules -DARK_MOD_DRAFT=$ToggleModules \
          -DARK_TESTS=On \
-         -DARK_UNITY_BUILD=On
+         -DARK_UNITY_BUILD=${{ inputs.unity }}
         cmake --build build --config $BUILD_TYPE -j $(nproc)
 
     - name: Configure CMake Ark

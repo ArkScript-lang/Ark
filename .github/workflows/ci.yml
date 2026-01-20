@@ -99,6 +99,26 @@ jobs:
             -DARK_UNITY_BUILD=On
           cmake --build build --config ${{ env.BUILD_TYPE }} -j $(nproc)
 
+  no-unity-building:
+    runs-on: ubuntu-24.04
+    name: "Build without Unity build"
+    needs: [ check ]
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Setup compilers, dependencies, project and build
+        uses: ./.github/workflows/setup-compilers
+        with:
+          os_name: ubuntu-24.04
+          compiler: clang
+          compiler_version: 16
+          sanitizers: "On"
+          with_deps: true
+          unity: "Off"
+
   build:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.name }}
