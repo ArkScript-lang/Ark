@@ -52,7 +52,7 @@ jobs:
 
   check_ark:
     name: ArkScript formatting check
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
 
     strategy:
       fail-fast: false
