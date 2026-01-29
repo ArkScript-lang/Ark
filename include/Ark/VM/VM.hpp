@@ -167,7 +167,7 @@ namespace Ark
          */
         [[noreturn]] static void throwVMError(internal::ErrorKind kind, const std::string& message);
 
-        inline const bytecode_t& bytecode() const
+        [[nodiscard]] inline const bytecode_t& bytecode() const
         {
             return m_state.m_bytecode;
         }

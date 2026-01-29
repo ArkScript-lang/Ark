@@ -50,7 +50,7 @@ namespace Ark::Diagnostics
     {
         assert(!(maybe_context && loc.wholeLineIsError()) && "Can not create error context when a context is given AND the whole line has to be underlined");
 
-        Printer source_printer(loc.filename, loc.start.line, loc.maybeEndLine(), colorize);
+        Printer source_printer(loc.filename, loc.start.line, loc.maybeEndLine(), colorize, loc.maybe_content);
         if (!source_printer.hasContent())
         {
             showFileLocation(os, loc);
@@ -193,7 +193,8 @@ namespace Ark::Diagnostics
 
     void helper(std::ostream& os, const std::string& message, const bool colorize,
                 const std::string& filename, const internal::FileSpan& at,
-                const std::optional<CodeErrorContext>& maybe_context = std::nullopt)
+                const std::optional<CodeErrorContext>& maybe_context = std::nullopt,
+                const std::optional<std::string>& maybe_file_content = std::nullopt)
     {
         std::string uniformised_filename;
         std::ranges::replace_copy(filename, std::back_inserter(uniformised_filename), '\\', '/');
@@ -201,7 +202,8 @@ namespace Ark::Diagnostics
             ErrorLocation {
                 .filename = uniformised_filename,
                 .start = at.start,
-                .end = at.end },
+                .end = at.end,
+                .maybe_content = maybe_file_content },
             os, maybe_context, colorize);
 
         for (const auto& text : Utils::splitString(message, '\n'))
@@ -220,6 +222,23 @@ namespace Ark::Diagnostics
             node.position());
 
         return ss.str();
+    }
+
+    void generateWithCode(const CodeError& e, const std::string& code, std::ostream& os, bool colorize)
+    {
+#ifdef ARK_BUILD_EXE
+        if (const char* nocolor = std::getenv("NOCOLOR"); nocolor != nullptr)
+            colorize = false;
+#endif
+
+        helper(
+            os,
+            e.what(),
+            colorize,
+            e.context.filename,
+            e.context.at,
+            e.additional_context,
+            code);
     }
 
     void generate(const CodeError& e, std::ostream& os, bool colorize)

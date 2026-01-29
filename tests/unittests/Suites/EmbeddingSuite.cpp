@@ -4,11 +4,13 @@
 #include <Ark/Utils/Literals.hpp>
 #include <Ark/Utils/Utils.hpp>
 #include <vector>
+#include <TestsHelper.hpp>
 #include <iostream>
 
 using namespace boost;
 using namespace Ark::literals;
 
+// cppcheck-suppress [constParameterCallback, constParameterReference]
 Ark::Value my_function(std::vector<Ark::Value>& args, Ark::VM* vm [[maybe_unused]])
 {
     // checking argument number
@@ -187,6 +189,7 @@ ut::suite<"Embedding"> embedding_suite = [] {
         Ark::State state;
 
         int capture = 42;
+        // cppcheck-suppress constParameterReference
         state.loadFunction("my_function", [=](std::vector<Ark::Value>& args, [[maybe_unused]] Ark::VM* /*vm*/) {
             int solution = 0;
             for (const Ark::Value& value : args)
@@ -215,7 +218,8 @@ ut::suite<"Embedding"> embedding_suite = [] {
     "[load cpp function with captured reference]"_test = [] {
         Ark::State state;
 
-        std::string name = "";
+        std::string name;
+        // cppcheck-suppress constParameterReference
         state.loadFunction("my_function", [&name](std::vector<Ark::Value>& args, [[maybe_unused]] Ark::VM* /*vm*/) {
             for (const Ark::Value& value : args)
             {
@@ -243,6 +247,7 @@ ut::suite<"Embedding"> embedding_suite = [] {
     "[load cpp function and call it from arkscript]"_test = [] {
         Ark::State state;
         state.loadFunction("my_function", my_function);
+        // cppcheck-suppress constParameterReference
         state.loadFunction("foo", [](std::vector<Ark::Value>& args, Ark::VM* /*vm*/) {
             return Ark::Value(static_cast<int>(args.size()));
         });
@@ -305,6 +310,33 @@ ut::suite<"Embedding"> embedding_suite = [] {
         };
     };
 
+    "[fail to compile embedded code]"_test = [] {
+        constexpr uint16_t features = Ark::DefaultFeatures | Ark::FeatureTestFailOnException;
+        Ark::State state({ ARK_TESTS_ROOT "lib" });
+        const std::string code = "(import std.Sys) (let foo sys:args) (let b bar)";
+        const std::string expected = R"(    1 | (import std.Sys) (let foo sys:args) (let b bar)
+      |                                            ^~~
+        Unbound variable error "bar" (variable is used but not defined))";
+
+        should("compile the string with an error") = [&] {
+            try
+            {
+                const bool ok = mut(state).doString(code, features);
+                expect(!ok) << fatal;  // we shouldn't be here, the compilation has to fail
+            }
+            catch (const Ark::CodeError& e)
+            {
+                std::stringstream stream;
+                Ark::Diagnostics::generateWithCode(e, code, stream, /* colorize= */ false);
+                std::string diag = stream.str();
+                diag.erase(std::ranges::remove(diag, '\r').begin(), diag.end());
+                Ark::Utils::rtrim(diag);
+
+                expectOrDiff(expected, diag);
+            }
+        };
+    };
+
     "[retrieve sys:args in embedded code]"_test = [] {
         Ark::State state({ ARK_TESTS_ROOT "lib" });
 
@@ -313,10 +345,8 @@ ut::suite<"Embedding"> embedding_suite = [] {
         };
 
         Ark::VM vm(state);
-        double timestamp = 0.0;
         should("return exit code 0") = [&] {
             expect(mut(vm).run() == 0_i);
-            timestamp = vm["t"].number();
         };
 
         should("have symbol foo registered") = [&] {
@@ -335,10 +365,8 @@ ut::suite<"Embedding"> embedding_suite = [] {
         };
 
         Ark::VM vm(state);
-        double timestamp = 0.0;
         should("return exit code 0") = [&] {
             expect(mut(vm).run() == 0_i);
-            timestamp = vm["t"].number();
         };
 
         should("have symbol foo registered") = [&] {
@@ -353,6 +381,7 @@ ut::suite<"Embedding"> embedding_suite = [] {
 
     "[load usertype and cpp lambdas and call them from arkscript]"_test = [] {
         Ark::State state;
+        // cppcheck-suppress constParameterReference
         state.loadFunction("getBreakfast", [](std::vector<Ark::Value>& n [[maybe_unused]], Ark::VM* vm [[maybe_unused]]) -> Ark::Value {
             // we need to send the address of the object, which will be cast
             // to void* internally
@@ -366,7 +395,7 @@ ut::suite<"Embedding"> embedding_suite = [] {
         state.loadFunction("useBreakfast", [](std::vector<Ark::Value>& n, Ark::VM* vm [[maybe_unused]]) -> Ark::Value {
             if (n[0].valueType() == Ark::ValueType::User && n[0].usertype().is<Breakfast>())
             {
-                auto& bf = n[0].usertypeRef().as<Breakfast>();
+                const auto& bf = n[0].usertypeRef().as<Breakfast>();
                 if (bf == Breakfast::Pizza)
                     return Ark::Value(1);
                 return Ark::Value(2);

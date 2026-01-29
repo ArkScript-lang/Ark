@@ -133,7 +133,8 @@ namespace Ark::internal
                     Diagnostics::ErrorLocation {
                         .filename = filename,
                         .start = FilePos { .line = maybe_source_loc->line, .column = 0 },
-                        .end = std::nullopt },
+                        .end = std::nullopt,
+                        .maybe_content = std::nullopt },
                     m_os,
                     /* maybe_context= */ std::nullopt,
                     /* colorize= */ m_colorize);
