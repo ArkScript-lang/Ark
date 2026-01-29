@@ -266,7 +266,7 @@ Huge thanks to those people for their donations to support the project:
 
 ## Credits
 
-This project was inspired by [game programing patterns](http://gameprogrammingpatterns.com/bytecode.html) and [ofan lisp.cpp](https://gist.github.com/ofan/721464)
+This project was inspired by [game programing patterns](http://gameprogrammingpatterns.com/bytecode.html) and [anthay/Lisp90](https://github.com/anthay/Lisp90)
 
 ## Copyright and Licence information
 
