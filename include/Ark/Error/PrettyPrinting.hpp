@@ -68,8 +68,9 @@ namespace Ark::Diagnostics
          * @param target_line line of the error (0-indexed)
          * @param end_target_line optional end line for the error (0-indexed)
          * @param colorize if we should colorize the output or not
+         * @param maybe_content optional file content, if it was originally a string (via State.doString)
          */
-        Printer(const std::string& filename, std::size_t target_line, std::optional<std::size_t> end_target_line, bool colorize);
+        Printer(const std::string& filename, std::size_t target_line, std::optional<std::size_t> end_target_line, bool colorize, const std::optional<std::string>& maybe_content = std::nullopt);
 
         /**
          * @brief Slice the source code to get code between two cursors

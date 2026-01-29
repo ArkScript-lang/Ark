@@ -2366,7 +2366,8 @@ namespace Ark
                     Diagnostics::ErrorLocation {
                         .filename = filename,
                         .start = FilePos { .line = maybe_location->line, .column = 0 },
-                        .end = std::nullopt },
+                        .end = std::nullopt,
+                        .maybe_content = std::nullopt },
                     os,
                     /* maybe_context= */ std::nullopt,
                     /* colorize= */ colorize);

@@ -26,6 +26,7 @@ namespace Ark::Diagnostics
         std::string filename;  ///< Complete path to the file where the error is
         internal::FilePos start;
         std::optional<internal::FilePos> end;
+        std::optional<std::string> maybe_content;
 
         [[nodiscard]] bool wholeLineIsError() const
         {
@@ -62,6 +63,8 @@ namespace Ark::Diagnostics
      * @return std::string
      */
     std::string makeContextWithNode(const std::string& message, const internal::Node& node);
+
+    ARK_API void generateWithCode(const CodeError& e, const std::string& code, std::ostream& os = std::cout, bool colorize = true);
 
     /**
      * @brief Generate a diagnostic from an error and print it to the standard output

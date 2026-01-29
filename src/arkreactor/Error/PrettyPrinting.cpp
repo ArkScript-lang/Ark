@@ -77,10 +77,11 @@ namespace Ark::Diagnostics
 
     Printer::Printer(
         const std::string& filename, const std::size_t target_line,
-        const std::optional<std::size_t> end_target_line, const bool colorize) :
+        const std::optional<std::size_t> end_target_line, const bool colorize,
+        const std::optional<std::string>& maybe_content) :
         m_should_colorize(colorize)
     {
-        const std::string code = filename == ARK_NO_NAME_FILE ? "" : Utils::readFile(filename);
+        const std::string code = filename == ARK_NO_NAME_FILE ? maybe_content.value_or("") : Utils::readFile(filename);
         m_source = Utils::splitString(code, '\n');
 
         m_window = Window(target_line, end_target_line.value_or(target_line), m_source.size());

@@ -204,7 +204,10 @@ namespace Ark
             if ((m_features & FeatureTestFailOnException) > 0)
                 throw;
 
-            Diagnostics::generate(e);
+            if (filename != ARK_NO_NAME_FILE)
+                Diagnostics::generate(e);
+            else
+                Diagnostics::generateWithCode(e, code);
             return false;
         }
     }
