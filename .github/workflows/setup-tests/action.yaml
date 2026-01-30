@@ -48,6 +48,10 @@ runs:
         chmod u+x unittests
 
     - shell: bash
+      if: ${{ !startsWith(inputs.os_name, 'windows') }}
+      run: cp build/libArkReactor.* .
+
+    - shell: bash
       if: startsWith(matrix.config.name, 'Windows')
       run: |
         cp build/*.dll .

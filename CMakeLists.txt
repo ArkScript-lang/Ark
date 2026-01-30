@@ -35,9 +35,7 @@ option(ARK_COVERAGE "Enable coverage while building (clang, gcc) (requires ARK_T
 option(ARK_UNITY_BUILD "Enable unity build" Off)
 option(ARK_JS_ONLY "Compiles to native JS (No WASM). Can be used only when compiling with emsdk" OFF)
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-    set(ARK_EMSCRIPTEN TRUE)
-endif ()
+include(cmake/vars.cmake)
 
 if (NOT ARK_EMSCRIPTEN)
     include(cmake/link_time_optimization.cmake)
@@ -67,18 +65,18 @@ configure_file(
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    set(CMAKE_COMPILER_IS_CLANG ON)
-endif ()
-
 file(GLOB_RECURSE SOURCE_FILES
         ${ark_SOURCE_DIR}/src/arkreactor/*.cpp
         ${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc)
 
-add_library(ArkReactor SHARED ${SOURCE_FILES})
-
 if (NOT ARK_EMSCRIPTEN)
+    add_library(ArkReactor SHARED ${SOURCE_FILES})
     enable_lto(ArkReactor)
+    set_target_properties(ArkReactor PROPERTIES
+            INSTALL_NAME_DIR "@rpath"
+            LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_BINDIR})
+else ()
+    add_library(ArkReactor STATIC ${SOURCE_FILES})
 endif ()
 
 target_include_directories(ArkReactor
@@ -90,6 +88,7 @@ target_include_directories(ArkReactor
         "${ark_SOURCE_DIR}/thirdparties/fmt/include")
 
 target_compile_features(ArkReactor PRIVATE cxx_std_20)
+target_compile_definitions(ArkReactor PRIVATE ARK_EXPORT)
 
 if (ARK_ENABLE_SYSTEM)
     target_compile_definitions(ArkReactor PRIVATE ARK_ENABLE_SYSTEM)
@@ -145,7 +144,6 @@ if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_COMPILER_IS_CLANG OR APPLE)
     elseif (CMAKE_COMPILER_IS_GNUCXX)
         target_compile_options(ArkReactor PRIVATE -Wno-unused-local-typedefs)
     endif ()
-
 elseif (MSVC)
     target_compile_definitions(ArkReactor PRIVATE ARK_USE_COMPUTED_GOTOS=0)
     target_compile_options(ArkReactor
@@ -189,15 +187,20 @@ if (NOT ARK_EMSCRIPTEN)
 
     # Install the standard library
     if (NOT ARK_NO_STDLIB)
+        if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+            set(ARK_STD_INSTALL_PATH ${CMAKE_INSTALL_LIBDIR}/Ark/std)
+        else ()
+            # custom installation prefix, no need for lib/Ark/std, use lib/std instead
+            set(ARK_STD_INSTALL_PATH ${CMAKE_INSTALL_LIBDIR}/std)
+        endif ()
+
         install(DIRECTORY ${ark_SOURCE_DIR}/lib/std/
-                DESTINATION ${CMAKE_INSTALL_LIBDIR}/Ark/std
+                DESTINATION ${ARK_STD_INSTALL_PATH}
                 FILES_MATCHING PATTERN "*.ark"
                 PATTERN "std/tests" EXCLUDE
                 PATTERN "std/.github" EXCLUDE)
     endif ()
 endif ()
-
-target_compile_definitions(ArkReactor PRIVATE ARK_EXPORT)
 
 #####################################################
 # Create the different (optional) targets
@@ -250,14 +253,13 @@ if (ARK_TESTS)
             ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp)
     add_executable(unittests ${SOURCES})
     target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/tests/unittests)
-
+    target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/include)
     target_include_directories(unittests SYSTEM PUBLIC ${ark_SOURCE_DIR}/thirdparties/dtl/dtl)
 
+    set(BOOST_UT_DISABLE_MODULE On)
     add_subdirectory(${ark_SOURCE_DIR}/thirdparties/ut)
-    target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/include)
     target_link_libraries(unittests PUBLIC ArkReactor ut replxx)
 
-    set(BOOST_UT_DISABLE_MODULE On)
     target_compile_features(unittests PRIVATE cxx_std_20)
     target_compile_definitions(unittests PRIVATE ARK_TESTS_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
 
@@ -266,7 +268,10 @@ if (ARK_TESTS)
     endif ()
     set_target_properties(unittests PROPERTIES
             VS_DEBUGGER_WORKING_DIRECTORY "${ark_SOURCE_DIR}"
-            VS_DEBUGGER_COMMAND "$<TARGET_FILE:unittests>")
+            VS_DEBUGGER_COMMAND "$<TARGET_FILE:unittests>"
+            BUILD_WITH_INSTALL_RPATH ON
+            INSTALL_RPATH_USE_LINK_PATH ON)
+    set_target_rpath(unittests)
 
     if (ARK_COVERAGE AND CMAKE_COMPILER_IS_CLANG)
         target_compile_options(unittests PRIVATE -coverage -fcoverage-mapping -fprofile-instr-generate)
@@ -335,11 +340,17 @@ if (ARK_BUILD_EXE)
     target_compile_features(arkscript PRIVATE cxx_std_20)
 
     if (ARK_UNITY_BUILD)
-        set_target_properties(arkscript PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
+        set_target_properties(arkscript PROPERTIES
+                UNITY_BUILD ON
+                UNITY_BUILD_MODE BATCH
+                UNITY_BUILD_BATCH_SIZE 16)
     endif ()
     set_target_properties(arkscript PROPERTIES
             VS_DEBUGGER_WORKING_DIRECTORY "${ark_SOURCE_DIR}"
-            VS_DEBUGGER_COMMAND "$<TARGET_FILE:arkscript>")
+            VS_DEBUGGER_COMMAND "$<TARGET_FILE:arkscript>"
+            BUILD_WITH_INSTALL_RPATH ON
+            INSTALL_RPATH_USE_LINK_PATH ON)
+    set_target_rpath(arkscript)
 
     enable_lto(arkscript)
 
