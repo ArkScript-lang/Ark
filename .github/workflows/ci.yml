@@ -119,6 +119,47 @@ jobs:
           with_deps: true
           unity: "Off"
 
+  install-arkscript:
+    runs-on: ${{ matrix.os }}
+    name: Install ArkScript on ${{ matrix.os }}
+    needs: [ check ]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - macos-14
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Setup compilers, dependencies, project and build
+        uses: ./.github/workflows/setup-compilers
+        with:
+          os_name: ${{ matrix.os }}
+          compiler: clang
+          compiler_version: 16
+          sanitizers: "On"
+          with_deps: false
+
+      - name: Install via cmake
+        run: |
+          mkdir -p /tmp/ArkScript
+          cmake --install build --prefix /tmp/ArkScript
+          # to ensure that the executable won't try to load libArkReactor.so/dylib from build/
+          rm -rf build
+
+      - name: Test installation
+        run: |
+          export ARKSCRIPT_PATH=/tmp/ArkScript/lib/Ark
+          echo /tmp/ArkScript; ls /tmp/ArkScript
+          echo /tmp/ArkScript/bin; ls /tmp/ArkScript/bin
+          echo /tmp/ArkScript/lib; ls /tmp/ArkScript/lib
+          DYLD_PRINT_LIBRARIES=1 /tmp/ArkScript/bin/arkscript -e '(import std.List) (print list:map " is a function")' || exit 1
+
   build:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.name }}
@@ -174,13 +215,13 @@ jobs:
           mkdir -p artifact/lib/std
           # Linux/MacOS
           if [[ '${{ startsWith(matrix.config.os, 'ubuntu') }}' == 'true' ]] || [[ '${{ startsWith(matrix.config.os, 'macos') }}' == 'true' ]]; then
-            cp build/arkscript artifact || true
-            cp build/libArkReactor.* artifact || true
+            cp build/arkscript artifact
+            cp build/bin/libArkReactor.* artifact
           fi
           # Windows
           if [[ '${{ startsWith(matrix.config.os, 'windows') }}' == 'true' ]]; then
-            cp build/$BUILD_TYPE/arkscript.exe artifact || true
-            cp build/$BUILD_TYPE/ArkReactor.dll artifact  || true
+            cp build/$BUILD_TYPE/arkscript.exe artifact
+            cp build/$BUILD_TYPE/ArkReactor.dll artifact
           fi
           # Generic
           cp lib/*.arkm artifact/lib
@@ -191,8 +232,11 @@ jobs:
         shell: bash
         run: |
           mkdir -p temp/tests/unittests/
-          cp build/unittests temp/ || true
-          cp build/$BUILD_TYPE/unittests.exe temp/ || true
+          if [[ '${{ startsWith(matrix.config.os, 'windows') }}' == 'true' ]]; then
+            cp build/$BUILD_TYPE/unittests.exe temp/
+          else
+            cp build/unittests temp/
+          fi
           cp tests/unittests/*.arkm temp/tests/unittests
           cp -r tests/unittests temp/tests/unittests
 
@@ -336,6 +380,9 @@ jobs:
 
       - name: Fuzz
         run: |
+          # ensure the executable works first
+          ARKSCRIPT_PATH=$(pwd)/lib ${BUILD_FOLDER}/arkscript -e '(import std.List) (print list:map " is a function")' || exit 1
+          # then we can fuzz. If the executable doesn't work, the fuzzer crashes with a cryptic error message
           afl-fuzz -i tests/fuzzing/corpus-cmin-tmin \
             -o output \
             -s $FUZZER_SEED \
