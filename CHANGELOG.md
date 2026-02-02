@@ -6,6 +6,13 @@
 
 ### Added
 - added `BREAKPOINT` instruction
+- breakpoints can be placed using `(breakpoint)` and `(breakpoint condition)`
+- added a debugger that can be triggered on error or on breakpoint by passing `-fdebugger` to the CLI (see [the docs for the debugger](https://arkscript-lang.dev/docs/tutorials/debugging/))
+- diagnostics can now be generated when using `State.doString`, using `Diagnostics::generateWithCode` (as the original code must be passed to the diagnostics generator)
+
+### Changed
+- changed the runpath of `arkscript` to look for `libArkReactor` under its (arkscript's) directory, {arkscript}/bin, {arkscript}/lib, and {arkscript}/../lib
+- `and` and `or` require valid expressions, so `(or 1 (mut x 3))` is no longer valid code, as `(mut x 3)` doesn't return a value
 
 ## [4.1.2] - 2026-01-09
 ### Added
