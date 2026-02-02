@@ -620,7 +620,14 @@ namespace Ark::internal
                         node.string(),
                         x.constList().size() - 1),
                     x);
+            const auto name = node.string();  // and / or
 
+            if (!nodeProducesOutput(x.list()[1]))
+                buildAndThrowError(
+                    fmt::format(
+                        "Can not use `{}' inside a `{}' expression, as it doesn't return a value",
+                        x.list()[1].repr(), name),
+                    x.list()[1]);
             compileExpression(x.list()[1], p, false, false);
 
             const auto label_shortcircuit = IR::Entity::Label(m_current_label++);
@@ -629,6 +636,12 @@ namespace Ark::internal
 
             for (std::size_t i = 2, end = x.constList().size(); i < end; ++i)
             {
+                if (!nodeProducesOutput(x.list()[i]))
+                    buildAndThrowError(
+                        fmt::format(
+                            "Can not use `{}' inside a `{}' expression, as it doesn't return a value",
+                            x.list()[i].repr(), name),
+                        x.list()[i]);
                 compileExpression(x.list()[i], p, false, false);
                 if (i + 1 != end)
                     page(p).emplace_back(shortcircuit_entity);
