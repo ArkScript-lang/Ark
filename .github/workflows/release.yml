@@ -59,7 +59,7 @@ jobs:
         run: |
           mkdir -p artifact/lib/std
           cp build/arkscript artifact
-          cp build/libArkReactor.* artifact
+          cp build/bin/libArkReactor.* artifact
           cp lib/*.arkm artifact/lib
           cp lib/std/*.ark artifact/lib/std
           rm -rf artifact/lib/std/{.git,.github,tests/__arkscript__}

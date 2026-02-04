@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased changes] - 20XX-XX-XX
+## [4.2.0] - 2026-02-04
 ### Breaking changes
 - `assert` is no longer an instruction but a builtin
 - when comparing values of different types using `<`, `>`, `<=`, `>=` and `=`, the result will always be `false` (it used to rely on the type index)
