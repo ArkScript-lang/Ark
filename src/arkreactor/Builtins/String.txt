@@ -1,0 +1,79 @@
+--#
+* @name +
+* @brief Add two or more strings together
+* @param a string
+* @param b... more strings
+* =begin
+* (print (+ "a" "b"))  # ab
+* (print (+ "Hello" ", " "World" "!"))  # Hello, World!
+* =end
+#--
+
+--#
+* @name len
+* @brief Return the length of a string (in bytes)
+* @param a string
+* =begin
+* (print (len "abc"))  # 3
+* (print (len "🏳️‍⚧️"))  # 16
+* =end
+#--
+
+--#
+* @name empty?
+* @brief Check if a string is empty
+* @param a string
+* =begin
+* (print (empty? "abc"))  # false
+* (print (empty? ""))  # true
+* =end
+#--
+
+--#
+* @name head
+* @brief Return the first character of a string, or emtpy string if empty
+* @param a string
+* =begin
+* (print (head "abc"))  # a
+* (print (head ""))  # ""
+* =end
+#--
+
+--#
+* @name tail
+* @brief Return the tail of a string, or emtpy string if it has one or less character
+* @param a string
+* =begin
+* (print (tail "abc"))  # bc
+* (print (tail "a"))  # ""
+* (print (tail ""))  # ""
+* =end
+#--
+
+--#
+* @name toNumber
+* @brief Convert a string to a number
+* @details Return nil if the conversion failed
+* @param a string
+* =begin
+* (print (toNumber "abc"))  # nil
+* (print (toNumber "1"))  # 1
+* (print (toNumber "1e3"))  # 1000
+* (print (toNumber "3.14159"))  # 3.14159
+* =end
+#--
+
+--#
+* @name @
+* @brief Get a character in a string
+* @details Raise an error if the index is out of range
+* @param str string
+* @param i index (can be negative to start from the end)
+* =begin
+* (print (@ "abc" 0))  # "a"
+* (print (@ "abc" 1))  # "b"
+* (print (@ "abc" 2))  # "c"
+* (print (@ "abc" -1))  # "c"
+* (print (@ "abc" -2))  # "b"
+* =end
+#--
