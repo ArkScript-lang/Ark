@@ -52,7 +52,12 @@
         (test:expect (>= 0 -4))
         (test:expect (>= "hello" "hello"))
         (test:expect (>= "hello" "abc"))
-        (test:expect (< 1 "a"))  # comparisons between types are ordered on type id...
+        (test:expect (not (< 1 "a")))  # comparisons between types are always false
+        (test:expect (not (> 1 "a")))
+        (test:expect (not (<= 1 "a")))
+        (test:expect (not (>= 1 "a")))
+        (test:expect (not (= 1 "a")))
+        (test:expect (!= 1 "a"))
         (test:neq "hello" "abc")
         (test:neq nil true)
         (test:neq nil false)
@@ -62,6 +67,7 @@
         (test:neq "" nil)
         (test:neq "" true)
         (test:neq "" false)
+        (test:expect (not (dict)))
         (test:expect (< parent bob)) })
 
     (test:case "lengths and list operations" {

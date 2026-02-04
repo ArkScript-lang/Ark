@@ -12,6 +12,7 @@
 #include <Ark/TypeChecker.hpp>
 #include <Ark/VM/ModuleMapping.hpp>
 #include <Ark/Compiler/Instructions.hpp>
+#include <Ark/VM/Value/Dict.hpp>
 
 namespace Ark
 {
@@ -1287,14 +1288,14 @@ namespace Ark
                     TARGET(LE)
                     {
                         const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-                        push((((*a < *b) || (*a == *b)) ? Builtins::trueSym : Builtins::falseSym), context);
+                        push((*a < *b || *a == *b) ? Builtins::trueSym : Builtins::falseSym, context);
                         DISPATCH();
                     }
 
                     TARGET(GE)
                     {
                         const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-                        push(!(*a < *b) ? Builtins::trueSym : Builtins::falseSym, context);
+                        push((*b < *a || *a == *b) ? Builtins::trueSym : Builtins::falseSym, context);
                         DISPATCH();
                     }
 
@@ -1320,11 +1321,14 @@ namespace Ark
                             push(Value(static_cast<int>(a->constList().size())), context);
                         else if (a->valueType() == ValueType::String)
                             push(Value(static_cast<int>(a->string().size())), context);
+                        else if (a->valueType() == ValueType::Dict)
+                            push(Value(static_cast<int>(a->dict().size())), context);
                         else
                             throw types::TypeCheckingError(
                                 "len",
                                 { { types::Contract { { types::Typedef("value", ValueType::List) } },
-                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                    types::Contract { { types::Typedef("value", ValueType::String) } },
+                                    types::Contract { { types::Typedef("value", ValueType::Dict) } } } },
                                 { *a });
                         DISPATCH();
                     }
@@ -1337,6 +1341,8 @@ namespace Ark
                             push(a->constList().empty() ? Builtins::trueSym : Builtins::falseSym, context);
                         else if (a->valueType() == ValueType::String)
                             push(a->string().empty() ? Builtins::trueSym : Builtins::falseSym, context);
+                        else if (a->valueType() == ValueType::Dict)
+                            push(std::cmp_equal(a->dict().size(), 0) ? Builtins::trueSym : Builtins::falseSym, context);
                         else if (a->valueType() == ValueType::Nil)
                             push(Builtins::trueSym, context);
                         else
@@ -1344,7 +1350,8 @@ namespace Ark
                                 "empty?",
                                 { { types::Contract { { types::Typedef("value", ValueType::List) } },
                                     types::Contract { { types::Typedef("value", ValueType::Nil) } },
-                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                    types::Contract { { types::Typedef("value", ValueType::String) } },
+                                    types::Contract { { types::Typedef("value", ValueType::Dict) } } } },
                                 { *a });
                         DISPATCH();
                     }

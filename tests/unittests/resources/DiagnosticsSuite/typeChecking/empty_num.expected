@@ -18,6 +18,12 @@ Signature
 Arguments
   → `value' (expected String), got 1 (Number)
 
+Alternative 4:
+Signature
+  ↳ (empty? value)
+Arguments
+  → `value' (expected Dict), got 1 (Number)
+
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/empty_num.ark:1
     1 | (empty? 1)
       | ^~~~~~~~~

@@ -196,7 +196,7 @@ namespace Ark
 
         friend ARK_API bool operator==(const Value& A, const Value& B) noexcept;
         friend ARK_API_INLINE bool operator<(const Value& A, const Value& B) noexcept;
-        friend ARK_API_INLINE bool operator!(const Value& A) noexcept;
+        friend ARK_API bool operator!(const Value& A) noexcept;
 
         friend class Ark::VM;
         friend class Ark::BytecodeReader;
@@ -216,40 +216,13 @@ namespace Ark
     inline bool operator<(const Value& A, const Value& B) noexcept
     {
         if (A.m_type != B.m_type)
-            return (A.typeNum() - B.typeNum()) < 0;
+            return false;
         return A.m_value < B.m_value;
     }
 
     inline bool operator!=(const Value& A, const Value& B) noexcept
     {
         return !(A == B);
-    }
-
-    inline bool operator!(const Value& A) noexcept
-    {
-        switch (A.valueType())
-        {
-            case ValueType::List:
-                return A.constList().empty();
-
-            case ValueType::Number:
-                return A.number() == 0.0;
-
-            case ValueType::String:
-                return A.string().empty();
-
-            case ValueType::User:
-                [[fallthrough]];
-            case ValueType::Nil:
-                [[fallthrough]];
-            case ValueType::False:
-                return true;
-
-            case ValueType::True:
-                [[fallthrough]];
-            default:
-                return false;
-        }
     }
 }
 
