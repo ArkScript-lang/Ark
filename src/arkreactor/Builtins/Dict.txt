@@ -1,0 +1,19 @@
+--#
+* @name empty?
+* @brief Check if a dict is empty
+* @param a dict
+* =begin
+* (print (empty? (dict "a" 2)))  # false
+* (print (empty? (dict)))  # true
+* =end
+#--
+
+--#
+* @name len
+* @brief Return the length of a dictionary
+* @param a dict
+* =begin
+* (print (len (dict))  # 0
+* (print (len (dict "a" 1 "b" 2 "c" 3)))  # 3
+* =end
+#--

@@ -1,0 +1,56 @@
+--#
+* @name +
+* @brief Add two or more numbers together
+* @param a number
+* @param b... more numbers
+* =begin
+* (print (+ 1 2.5))  # 3.5
+* (print (+ 5 -7.6 12))  # 9.4
+* =end
+#--
+
+--#
+* @name -
+* @brief Subtract two or more numbers together
+* @param a first number to subtract other numbers to
+* @param b... more numbers
+* =begin
+* (print (- 1 2.5))  # -1.5
+* (print (- 5 11 1))  # -7
+* =end
+#--
+
+--#
+* @name *
+* @brief Multiply two or more numbers together
+* @param a number
+* @param b... more numbers
+* =begin
+* (print (* 2 2.5))  # 5
+* (print (* 5 4 3))  # 60
+* =end
+#--
+
+--#
+* @name /
+* @brief Divide two or more numbers together
+* @details The result is always a floating point number. For an integer division, see **math:floordiv**
+* @param a first number to divide by other numbers
+* @param b... more numbers
+* =begin
+* (print (/ 10 3))  # 3.33333...
+* (print (/ 99 5 4))  # (99 / 5) / 4 = 4.95
+* =end
+#--
+
+--#
+* @name mod
+* @brief Compute the modulus of two numbers
+* @details The result is always a floating point number
+* @param a number
+* @param b number
+* =begin
+* (print (mod 10 3))  # 1
+* (print (mod 12.9 4))  # 0.9000000000000004
+* =end
+#--
