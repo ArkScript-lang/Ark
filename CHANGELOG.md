@@ -3,16 +3,20 @@
 ## [Unreleased changes] - 20XX-XX-XX
 ### Breaking changes
 - `assert` is no longer an instruction but a builtin
+- when comparing values of different types using `<`, `>`, `<=`, `>=` and `=`, the result will always be `false` (it used to rely on the type index)
 
 ### Added
 - added `BREAKPOINT` instruction
 - breakpoints can be placed using `(breakpoint)` and `(breakpoint condition)`
 - added a debugger that can be triggered on error or on breakpoint by passing `-fdebugger` to the CLI (see [the docs for the debugger](https://arkscript-lang.dev/docs/tutorials/debugging/))
 - diagnostics can now be generated when using `State.doString`, using `Diagnostics::generateWithCode` (as the original code must be passed to the diagnostics generator)
+- `empty?` can now take a dict, and returns `true` if it has no key/value pairs
+- `len` can now work on dictionaries, counting the number of keys
 
 ### Changed
 - changed the runpath of `arkscript` to look for `libArkReactor` under its (arkscript's) directory, {arkscript}/bin, {arkscript}/lib, and {arkscript}/../lib
 - `and` and `or` require valid expressions, so `(or 1 (mut x 3))` is no longer valid code, as `(mut x 3)` doesn't return a value
+- `(not (dict "a" 2))` now returns `false`, as `not` checks if the dict is empty
 
 ## [4.1.2] - 2026-01-09
 ### Added
@@ -876,7 +880,7 @@
 - moved the VM FFI into include/Ark/VM
 
 ## [1.0.0-dev] - 2019
-## Added
+### Added
 - beginning of the documentation
 - compiler (ark code to ark bytecode)
 - bytecode reader (human readable format)

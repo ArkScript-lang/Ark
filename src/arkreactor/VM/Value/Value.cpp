@@ -155,4 +155,34 @@ namespace Ark
 
         return A.m_value == B.m_value;
     }
+
+    bool operator!(const Value& A) noexcept
+    {
+        switch (A.valueType())
+        {
+            case ValueType::List:
+                return A.constList().empty();
+
+            case ValueType::Number:
+                return A.number() == 0.0;
+
+            case ValueType::String:
+                return A.string().empty();
+
+            case ValueType::Dict:
+                return std::cmp_equal(A.dict().size(), 0);
+
+            case ValueType::User:
+                [[fallthrough]];
+            case ValueType::Nil:
+                [[fallthrough]];
+            case ValueType::False:
+                return true;
+
+            case ValueType::True:
+                [[fallthrough]];
+            default:
+                return false;
+        }
+    }
 }

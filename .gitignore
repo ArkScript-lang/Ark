@@ -43,6 +43,7 @@ build_emscripten/
 ninja/
 cmake-build-*/
 out/
+__pycache__/
 
 # Prerequisites
 *.d
