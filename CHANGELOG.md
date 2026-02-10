@@ -1,5 +1,9 @@
 # Change Log
 
+## [Unreleased changes] - 2026-XX-YY
+### Added
+- `apply` function: `(apply func [args...])`, to call a function with a set of arguments stored in a list. Works with functions, closures and builtins
+
 ## [4.2.0] - 2026-02-04
 ### Breaking changes
 - `assert` is no longer an instruction but a builtin

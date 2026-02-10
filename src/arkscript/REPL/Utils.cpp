@@ -28,8 +28,9 @@ namespace Ark::internal
             return string;
         });
 
-        output.emplace_back("and");
-        output.emplace_back("or");
+        output.emplace_back(Language::And);
+        output.emplace_back(Language::Or);
+        output.emplace_back(Language::Apply);
 
         return output;
     }
@@ -59,8 +60,9 @@ namespace Ark::internal
             return std::make_pair(string, Replxx::Color::GREEN);
         });
 
-        output.emplace_back("and", Replxx::Color::BRIGHTBLUE);
-        output.emplace_back("or", Replxx::Color::BRIGHTBLUE);
+        output.emplace_back(Language::And, Replxx::Color::BRIGHTBLUE);
+        output.emplace_back(Language::Or, Replxx::Color::BRIGHTBLUE);
+        output.emplace_back(Language::Apply, Replxx::Color::BRIGHTBLUE);
         output.emplace_back("[\\-|+]?[0-9]+(\\.[0-9]+)?", Replxx::Color::YELLOW);
         output.emplace_back("\".*\"", Replxx::Color::MAGENTA);
 

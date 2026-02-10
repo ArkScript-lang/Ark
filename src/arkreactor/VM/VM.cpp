@@ -613,6 +613,7 @@ namespace Ark
                 &&TARGET_RESET_SCOPE_JUMP,
                 &&TARGET_POP_SCOPE,
                 &&TARGET_GET_CURRENT_PAGE_ADDR,
+                &&TARGET_APPLY,
                 &&TARGET_BREAKPOINT,
                 &&TARGET_ADD,
                 &&TARGET_SUB,
@@ -1184,6 +1185,38 @@ namespace Ark
                     {
                         context.last_symbol = arg;
                         push(Value(static_cast<PageAddr_t>(context.pp)), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(APPLY)
+                    {
+                        {
+                            const Value args_list = *popAndResolveAsPtr(context),
+                                        func = *popAndResolveAsPtr(context);
+                            if (args_list.valueType() != ValueType::List || !func.isFunction())
+                            {
+                                throw types::TypeCheckingError(
+                                    "apply",
+                                    { {
+                                        types::Contract {
+                                            { types::Typedef("func", ValueType::PageAddr),
+                                              types::Typedef("args", ValueType::List) } },
+                                        types::Contract {
+                                            { types::Typedef("func", ValueType::Closure),
+                                              types::Typedef("args", ValueType::List) } },
+                                        types::Contract {
+                                            { types::Typedef("func", ValueType::CProc),
+                                              types::Typedef("args", ValueType::List) } },
+                                    } },
+                                    { func, args_list });
+                            }
+
+                            for (const Value& a : args_list.constList() | std::ranges::views::reverse)
+                                push(a, context);
+                            push(func, context);
+
+                            call(context, static_cast<uint16_t>(args_list.constList().size()));
+                        }
                         DISPATCH();
                     }
 

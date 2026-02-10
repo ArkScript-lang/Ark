@@ -1,0 +1,9 @@
+ArityError: When calling `(foo 1 2)', received 2 arguments, but expected 3: `(foo a b c)'
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/apply_arity_error.ark:4
+    1 | (let foo (fun (a b c) {
+    2 |   (print (format "a={} b={} c={}" a b c))
+    3 |   (+ a b c) }))
+    4 | (print (apply foo [1 2]))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~
+    5 |

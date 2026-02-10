@@ -134,6 +134,8 @@ namespace Ark::internal
         constexpr std::string_view And = "and";
         constexpr std::string_view Or = "or";
 
+        constexpr std::string_view Apply = "apply";
+
         constexpr std::string_view Undef = "$undef";
         constexpr std::string_view Symcat = "$symcat";
         constexpr std::string_view Argcount = "$argcount";

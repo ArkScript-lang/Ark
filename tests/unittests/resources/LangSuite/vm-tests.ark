@@ -2,6 +2,7 @@
 
 (let tests 0)
 (let foo 12)
+(let bar (fun (a b c) [a b c]))
 (let closure (fun (&tests &foo) ()))
 (let make (fun (a b c)
     (fun (&a &b &c) ())))
@@ -107,6 +108,10 @@
         (test:eq (toString [1 2]) "[1 2]")
         (test:eq (toString ["12"]) "[\"12\"]")
         (test:eq (toString (dict "key" "value")) "{key: value}") })
+
+    (test:case "apply" {
+        (test:eq (apply bar [1 2 3]) [1 2 3])
+        (test:eq (apply (fun () 1) []) 1) })
 
     (test:case "indexing" {
         (test:eq (@ "hello" 1) "e")
