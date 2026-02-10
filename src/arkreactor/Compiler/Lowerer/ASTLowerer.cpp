@@ -680,7 +680,7 @@ namespace Ark::internal
         }
         else if (!maybe_operator.has_value())
         {
-            if (is_terminal && node.nodeType() == NodeType::Symbol && !m_opened_vars.empty() && m_opened_vars.top() == node.string())  // todo: see L671
+            if (is_terminal && node.nodeType() == NodeType::Symbol && isFunctionCallingItself(node.string()))
             {
                 pushFunctionCallArguments(x, p, /* is_tail_call= */ true);
 
@@ -697,7 +697,7 @@ namespace Ark::internal
                 const auto proc_page = createNewCodePage(/* temp= */ true);
 
                 // compile the function resolution to a separate page
-                if (node.nodeType() == NodeType::Symbol && !m_opened_vars.empty() && m_opened_vars.top() == node.string())  // todo: make a method to identify if the current function compiled is itself
+                if (node.nodeType() == NodeType::Symbol && isFunctionCallingItself(node.string()))
                 {
                     // The function is trying to call itself, but this isn't a tail call.
                     // We can skip the LOAD_FAST function_name and directly push the current
