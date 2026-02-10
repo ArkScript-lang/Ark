@@ -220,7 +220,7 @@ inline Value* VM::findNearestVariable(const uint16_t id, internal::ExecutionCont
 {
     for (auto it = context.locals.rbegin(), it_end = context.locals.rend(); it != it_end; ++it)
     {
-        if (const auto val = (*it)[id]; val != nullptr)
+        if (Value* val = (*it)[id]; val != nullptr)
             return val;
     }
     return nullptr;

@@ -221,6 +221,7 @@ namespace Ark::internal
 
         void compileSymbol(const Node& x, Page p, bool is_result_unused, bool can_use_ref);
         void compileListInstruction(Node& x, Page p, bool is_result_unused);
+        void compileApplyInstruction(Node& x, Page p, bool is_result_unused);
         void compileIf(Node& x, Page p, bool is_result_unused, bool is_terminal);
         void compileFunction(Node& x, Page p, bool is_result_unused);
         void compileLetMutSet(Keyword n, Node& x, Page p);

@@ -196,6 +196,9 @@ namespace Ark::internal
         // list instructions
         else if (const auto head = x.constList()[0]; head.nodeType() == NodeType::Symbol && getListInstruction(head.string()).has_value())
             compileListInstruction(x, p, is_result_unused);
+        // todo: make a function "compile special form" for list and apply (and probably others in the future)
+        else if (const auto head2 = x.constList()[0]; head2.nodeType() == NodeType::Symbol && head2.string() == Language::Apply)
+            compileApplyInstruction(x, p, is_result_unused);
         // registering structures
         else if (x.constList()[0].nodeType() == NodeType::Keyword)
         {
@@ -349,6 +352,32 @@ namespace Ark::internal
             warning("Ignoring return value of function", x);
             page(p).emplace_back(POP);
         }
+    }
+
+    void ASTLowerer::compileApplyInstruction(Node& x, const Page p, const bool is_result_unused)
+    {
+        const Node head = x.constList()[0];
+        const auto argc = x.constList().size() - 1u;
+
+        if (argc != 2)
+            buildAndThrowError(fmt::format("Expected 2 arguments (function, arguments) for apply, got {}", argc), head);
+
+        const auto label_return = IR::Entity::Label(m_current_label++);
+        page(p).emplace_back(IR::Entity::Goto(label_return, PUSH_RETURN_ADDRESS));
+
+        for (Node& node : x.list() | std::ranges::views::drop(1))
+        {
+            if (nodeProducesOutput(node))
+                compileExpression(node, p, false, false);
+            else
+                buildAndThrowError("Invalid node inside call to apply", node);
+        }
+        page(p).emplace_back(APPLY);
+        // patch the PUSH_RETURN_ADDRESS instruction with the return location (IP=CALL instruction IP)
+        page(p).emplace_back(label_return);
+
+        if (is_result_unused)
+            page(p).emplace_back(POP);
     }
 
     void ASTLowerer::compileIf(Node& x, const Page p, const bool is_result_unused, const bool is_terminal)
@@ -651,7 +680,7 @@ namespace Ark::internal
         }
         else if (!maybe_operator.has_value())
         {
-            if (is_terminal && node.nodeType() == NodeType::Symbol && !m_opened_vars.empty() && m_opened_vars.top() == node.string())
+            if (is_terminal && node.nodeType() == NodeType::Symbol && !m_opened_vars.empty() && m_opened_vars.top() == node.string())  // todo: see L671
             {
                 pushFunctionCallArguments(x, p, /* is_tail_call= */ true);
 
@@ -668,7 +697,7 @@ namespace Ark::internal
                 const auto proc_page = createNewCodePage(/* temp= */ true);
 
                 // compile the function resolution to a separate page
-                if (node.nodeType() == NodeType::Symbol && !m_opened_vars.empty() && m_opened_vars.top() == node.string())
+                if (node.nodeType() == NodeType::Symbol && !m_opened_vars.empty() && m_opened_vars.top() == node.string())  // todo: make a method to identify if the current function compiled is itself
                 {
                     // The function is trying to call itself, but this isn't a tail call.
                     // We can skip the LOAD_FAST function_name and directly push the current
@@ -739,6 +768,7 @@ namespace Ark::internal
                     page(p).emplace_back(op);
             }
 
+            // todo: allow using operators with 0 or 1 argument, but push their builtin counterpart (todo as well)
             if (isBreakpoint(x))
             {
                 if (exp_count > 1)

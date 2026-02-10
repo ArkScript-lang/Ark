@@ -20,6 +20,7 @@ namespace Ark::internal
         m_language_symbols.emplace(Language::Or);
         m_language_symbols.emplace(Language::SysArgs);
         m_language_symbols.emplace(Language::SysProgramName);
+        m_language_symbols.emplace(Language::Apply);
     }
 
     void NameResolutionPass::process(const Node& ast)

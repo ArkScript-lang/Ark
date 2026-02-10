@@ -1,0 +1,30 @@
+Function apply expected 2 arguments
+Call
+  ↳ (apply Function@1 5)
+Signature
+  ↳ (apply func args)
+Arguments
+  → `func' (expected Function) ✓
+  → `args' (expected List), got 5 (Number)
+
+Alternative 2:
+Signature
+  ↳ (apply func args)
+Arguments
+  → `func' (expected Closure), got Function@1 (Function)
+  → `args' (expected List), got 5 (Number)
+
+Alternative 3:
+Signature
+  ↳ (apply func args)
+Arguments
+  → `func' (expected CProc), got Function@1 (Function)
+  → `args' (expected List), got 5 (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/apply_fun_num.ark:4
+    1 | (let foo (fun (a b c) {
+    2 |   (print (format "a={} b={} c={}" a b c))
+    3 |   (+ a b c) }))
+    4 | (print (apply foo 5))
+      | ^~~~~~~~~~~~~~~~~~~~
+    5 |

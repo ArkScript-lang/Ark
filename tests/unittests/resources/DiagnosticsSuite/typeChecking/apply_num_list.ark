@@ -1,0 +1,4 @@
+(let foo (fun (a b c) {
+  (print (format "a={} b={} c={}" a b c))
+  (+ a b c) }))
+(print (apply 5 [1 2 3]))
