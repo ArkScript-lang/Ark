@@ -136,6 +136,17 @@ namespace Ark::internal
         }
 
         /**
+         * @brief Check if we are in a recursive self call
+         *
+         * @param name symbol name being compiled
+         * @return true if the name passed is the name of the last function we entered
+         */
+        [[nodiscard]] bool isFunctionCallingItself(const std::string& name) noexcept
+        {
+            return !m_opened_vars.empty() && m_opened_vars.top() == name;
+        }
+
+        /**
          * @brief Checking if a symbol is an operator
          *
          * @param name symbol name
