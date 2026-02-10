@@ -108,6 +108,30 @@ namespace Ark::internal::Builtins
         { "builtin__dict:size", Value(Dict::size) },
 
         // Bytecode
-        { "disassemble", Value(Bytecode::disassemble) }
+        { "disassemble", Value(Bytecode::disassemble) },
+
+        // Operators that can also be used as builtins
+        { "+", Value(Operators::add) },
+        { "-", Value(Operators::sub) },
+        { "*", Value(Operators::mul) },
+        { "/", Value(Operators::div) },
+        { "mod", Value(Operators::mod) },
+        { "toNumber", Value(Operators::toNumber) },
+        { "toString", Value(Operators::toString) },
+        { "<", Value(Operators::lessThan) },
+        { "<=", Value(Operators::lessOrEq) },
+        { ">", Value(Operators::greaterThan) },
+        { ">=", Value(Operators::greaterOrEq) },
+        { "=", Value(Operators::eq) },
+        { "!=", Value(Operators::notEq) },
+        { "not", Value(Operators::not_) },
+        { "len", Value(Operators::len) },
+        { "empty?", Value(Operators::isEmpty) },
+        { "nil?", Value(Operators::isNil) },
+        { "tail", Value(Operators::tail) },
+        { "head", Value(Operators::head) },
+        { "@", Value(Operators::at) },
+        { "@@", Value(Operators::atAt) },
+        { "type", Value(Operators::type) }
     };
 }

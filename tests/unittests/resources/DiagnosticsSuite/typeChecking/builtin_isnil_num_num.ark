@@ -1,0 +1,1 @@
+(print (apply nil? [1 2]))

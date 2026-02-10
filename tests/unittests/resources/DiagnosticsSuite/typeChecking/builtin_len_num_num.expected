@@ -1,0 +1,27 @@
+Function len expected 1 argument but got 2
+Call
+  ↳ (len 1 2)
+Signature
+  ↳ (len value)
+Arguments
+  → `value' (expected List), got 1 (Number)
+  → unexpected additional args: 2 (Number)
+
+Alternative 2:
+Signature
+  ↳ (len value)
+Arguments
+  → `value' (expected String), got 1 (Number)
+  → unexpected additional args: 2 (Number)
+
+Alternative 3:
+Signature
+  ↳ (len value)
+Arguments
+  → `value' (expected Dict), got 1 (Number)
+  → unexpected additional args: 2 (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_len_num_num.ark:1
+    1 | (print (apply len [1 2]))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

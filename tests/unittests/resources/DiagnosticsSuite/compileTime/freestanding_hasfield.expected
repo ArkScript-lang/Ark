@@ -1,0 +1,5 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/freestanding_hasfield.ark:1
+    1 | (print hasField)
+      |        ^~~~~~~~
+    2 |
+        Found a freestanding operator: `hasField`. It can not be used as value like `+', where (let add +) (add 1 2) would be valid

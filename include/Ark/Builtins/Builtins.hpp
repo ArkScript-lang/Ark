@@ -136,6 +136,32 @@ namespace Ark::internal::Builtins
     {
         ARK_BUILTIN(disassemble);
     }
+
+    namespace Operators
+    {
+        ARK_BUILTIN(add);
+        ARK_BUILTIN(sub);
+        ARK_BUILTIN(mul);
+        ARK_BUILTIN(div);
+        ARK_BUILTIN(mod);
+        ARK_BUILTIN(toNumber);
+        ARK_BUILTIN(toString);
+        ARK_BUILTIN(lessThan);
+        ARK_BUILTIN(lessOrEq);
+        ARK_BUILTIN(greaterThan);
+        ARK_BUILTIN(greaterOrEq);
+        ARK_BUILTIN(eq);
+        ARK_BUILTIN(notEq);
+        ARK_BUILTIN(not_);
+        ARK_BUILTIN(len);
+        ARK_BUILTIN(isEmpty);
+        ARK_BUILTIN(isNil);
+        ARK_BUILTIN(tail);
+        ARK_BUILTIN(head);
+        ARK_BUILTIN(at);
+        ARK_BUILTIN(atAt);
+        ARK_BUILTIN(type);
+    }
 }
 
 #undef ARK_BUILTIN

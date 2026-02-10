@@ -1,0 +1,20 @@
+Function + expected at least 1 argument and got 1
+Call
+  ↳ (+ nil)
+Signature
+  ↳ (+ a)
+Arguments
+  → variadic `a' (expected Number): 1 argument do not match:
+    nil (Nil) ×
+
+Alternative 2:
+Signature
+  ↳ (+ a)
+Arguments
+  → variadic `a' (expected String): 1 argument do not match:
+    nil (Nil) ×
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_add_nil.ark:1
+    1 | (print (apply + [nil]))
+      | ^~~~~~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,1 @@
+(print (apply type [1 0]))

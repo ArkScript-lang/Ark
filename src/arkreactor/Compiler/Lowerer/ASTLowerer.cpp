@@ -17,7 +17,7 @@ namespace Ark::internal
 
     ASTLowerer::ASTLowerer(const unsigned debug) :
         m_logger("ASTLowerer", debug)
-    {}
+    { }
 
     void ASTLowerer::addToTables(const std::vector<std::string>& symbols, const std::vector<ValTableElem>& constants)
     {
@@ -136,6 +136,21 @@ namespace Ark::internal
         switch (inst)
         {
             case AT_AT:
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    bool ASTLowerer::isRepeatableOperation(const Instruction inst) noexcept
+    {
+        switch (inst)
+        {
+            case ADD: [[fallthrough]];
+            case SUB: [[fallthrough]];
+            case MUL: [[fallthrough]];
+            case DIV:
                 return true;
 
             default:
@@ -268,7 +283,7 @@ namespace Ark::internal
         if (const auto it_builtin = getBuiltin(name))
             page(p).emplace_back(Instruction::BUILTIN, it_builtin.value());
         else if (getOperator(name).has_value())
-            buildAndThrowError(fmt::format("Found a free standing operator: `{}`", name), x);
+            buildAndThrowError(fmt::format("Found a freestanding operator: `{}`. It can not be used as value like `+', where (let add +) (add 1 2) would be valid", name), x);
         else
         {
             if (can_use_ref)
@@ -759,7 +774,7 @@ namespace Ark::internal
                 else
                     buildAndThrowError(fmt::format("Invalid node inside call to operator `{}'", node.repr()), x.constList()[index]);
 
-                if (!is_breakpoint && ((index + 1 < size && x.constList()[index + 1].nodeType() != NodeType::Capture) || index + 1 == size))
+                if (!is_breakpoint)
                     exp_count++;
 
                 // in order to be able to handle things like (op A B C D...)
@@ -768,7 +783,6 @@ namespace Ark::internal
                     page(p).emplace_back(op);
             }
 
-            // todo: allow using operators with 0 or 1 argument, but push their builtin counterpart (todo as well)
             if (isBreakpoint(x))
             {
                 if (exp_count > 1)
@@ -790,26 +804,11 @@ namespace Ark::internal
             else if (exp_count <= 1)
                 buildAndThrowError(fmt::format("`{}' expected two arguments, but was called with {}", op_name, exp_count), x.constList()[0]);
 
-            page(p).back().setSourceLocation(x.filename(), x.position().start.line);
-
             // need to check we didn't push the (op A B C D...) things for operators not supporting it
-            if (exp_count > 2)
-            {
-                switch (op)
-                {
-                    // authorized instructions
-                    case ADD: [[fallthrough]];
-                    case SUB: [[fallthrough]];
-                    case MUL: [[fallthrough]];
-                    case DIV: [[fallthrough]];
-                    case MOD: [[fallthrough]];
-                    case AT_AT:
-                        break;
+            if (exp_count > 2 && !isRepeatableOperation(op) && !isTernaryInst(op))
+                buildAndThrowError(fmt::format("`{}' requires 2 arguments, but got {}.", op_name, exp_count), x);
 
-                    default:
-                        buildAndThrowError(fmt::format("`{}' requires 2 arguments, but got {}.", op_name, exp_count), x);
-                }
-            }
+            page(p).back().setSourceLocation(x.filename(), x.position().start.line);
         }
 
         if (is_result_unused)

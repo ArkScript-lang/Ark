@@ -1,0 +1,13 @@
+Function mod expected 2 arguments
+Call
+  ↳ (mod 1 nil)
+Signature
+  ↳ (mod a b)
+Arguments
+  → `a' (expected Number) ✓
+  → `b' (expected Number), got nil (Nil)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_mod_num_nil.ark:1
+    1 | (print (apply mod [1 nil]))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

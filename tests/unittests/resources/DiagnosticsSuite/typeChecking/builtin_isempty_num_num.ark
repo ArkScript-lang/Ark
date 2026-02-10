@@ -1,0 +1,1 @@
+(print (apply empty? [1 2]))

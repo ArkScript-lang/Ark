@@ -1,0 +1,13 @@
+Function type expected 1 argument but got 2
+Call
+  ↳ (type 1 0)
+Signature
+  ↳ (type value)
+Arguments
+  → `value' (expected any) ✓
+  → unexpected additional args: 0 (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_type_num_zero.ark:1
+    1 | (print (apply type [1 0]))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |
