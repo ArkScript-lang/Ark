@@ -1,0 +1,5 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/freestanding_breakpoint.ark:1
+    1 | (print breakpoint)
+      |        ^~~~~~~~~~
+    2 |
+        Found a freestanding operator: `breakpoint`. It can not be used as value like `+', where (let add +) (add 1 2) would be valid

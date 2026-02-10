@@ -1,5 +1,6 @@
 (import vm-tests)
 (import builtins-tests)
+(import operators-tests)
 (import module-tests)
 (import utf8-tests)
 (import macro-tests)
@@ -12,6 +13,7 @@
 (let outputs (list:unzip [
     vm-tests:vm-output
     builtins-tests:builtin-output
+    operators-tests:operators-output
     module-tests:module-output
     utf8-tests:utf8-output
     macro-tests:macro-output

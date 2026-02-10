@@ -1,0 +1,191 @@
+(import std.Testing)
+
+(let foo (fun () ()))
+
+(test:suite operators {
+  (test:case "+" {
+    (test:eq (apply + [1]) 1)
+    (test:eq (apply + [1 2]) (+ 1 2))
+    (test:eq (apply + [1 2]) 3)
+    (test:eq (apply + [1 2 3]) (+ 1 2 3))
+    (test:eq (apply + [1 2 3]) 6)
+    (test:eq (apply + ["a"]) "a")
+    (test:eq (apply + ["a" "b"]) (+ "a" "b"))
+    (test:eq (apply + ["a" "b"]) "ab")
+    (test:eq (apply + ["a" "b" "c"]) (+ "a" "b" "c"))
+    (test:eq (apply + ["a" "b" "c"]) "abc") })
+
+  (test:case "-" {
+    (test:eq (apply - [1 2]) (- 1 2))
+    (test:eq (apply - [1 2]) -1)
+    (test:eq (apply - [1 2 3]) (- 1 2 3))
+    (test:eq (apply - [1 2 3]) -4) })
+
+  (test:case "*" {
+    (test:eq (apply * [1 2]) (* 1 2))
+    (test:eq (apply * [1 2]) 2)
+    (test:eq (apply * [1 2 3]) (* 1 2 3))
+    (test:eq (apply * [1 2 3]) 6) })
+
+  (test:case "/" {
+    (test:eq (apply / [1 2]) (/ 1 2))
+    (test:eq (apply / [1 2]) 0.5)
+    (test:eq (apply / [12 2 3]) (/ 12 2 3))
+    (test:eq (apply / [12 2 3]) 2) })
+
+  (test:case "mod" {
+    (test:eq (apply mod [5 3]) (mod 5 3))
+    (test:eq (apply mod [5 3]) 2)
+    (test:eq (apply mod [5.7 3.2]) (mod 5.7 3.2))
+    (test:eq (apply mod [5.7 3.2]) 2.5) })
+
+  (test:case "toNumber" {
+    (test:eq (apply toNumber ["a"]) (toNumber "a"))
+    (test:eq (apply toNumber ["a"]) nil)
+    (test:eq (apply toNumber ["123"]) (toNumber "123"))
+    (test:eq (apply toNumber ["123"]) 123) })
+
+  (test:case "toString" {
+    (test:eq (apply toString [1]) (toString 1))
+    (test:eq (apply toString [1]) "1")
+    (test:eq (apply toString ["1"]) (toString "1"))
+    (test:eq (apply toString ["1"]) "1")
+    (test:eq (apply toString [nil]) (toString nil))
+    (test:eq (apply toString [nil]) "nil")
+    (test:eq (apply toString [true]) (toString true))
+    (test:eq (apply toString [true]) "true")
+    (test:eq (apply toString [foo]) (toString foo)) })
+
+  (test:case "<" {
+    (test:eq (apply < [1 2]) (< 1 2))
+    (test:eq (apply < [1 2]) true)
+    (test:eq (apply < [2 2]) (< 2 2))
+    (test:eq (apply < [2 2]) false)
+    (test:eq (apply < [2 1]) (< 2 1))
+    (test:eq (apply < [2 1]) false) })
+
+  (test:case "<=" {
+    (test:eq (apply <= [1 2]) (<= 1 2))
+    (test:eq (apply <= [1 2]) true)
+    (test:eq (apply <= [2 2]) (<= 2 2))
+    (test:eq (apply <= [2 2]) true)
+    (test:eq (apply <= [2 1]) (<= 2 1))
+    (test:eq (apply <= [2 1]) false) })
+
+  (test:case ">" {
+    (test:eq (apply > [1 2]) (> 1 2))
+    (test:eq (apply > [1 2]) false)
+    (test:eq (apply > [2 2]) (> 2 2))
+    (test:eq (apply > [2 2]) false)
+    (test:eq (apply > [2 1]) (> 2 1))
+    (test:eq (apply > [2 1]) true) })
+
+  (test:case ">=" {
+    (test:eq (apply >= [1 2]) (>= 1 2))
+    (test:eq (apply >= [1 2]) false)
+    (test:eq (apply >= [2 2]) (>= 2 2))
+    (test:eq (apply >= [2 2]) true)
+    (test:eq (apply >= [2 1]) (>= 2 1))
+    (test:eq (apply >= [2 1]) true) })
+
+  (test:case "=" {
+    (test:eq (apply = [1 2]) (= 1 2))
+    (test:eq (apply = [1 2]) false)
+    (test:eq (apply = [2 2]) (= 2 2))
+    (test:eq (apply = [2 2]) true)
+    (test:eq (apply = [2 1]) (= 2 1))
+    (test:eq (apply = [2 1]) false) })
+
+  (test:case "!=" {
+    (test:eq (apply != [1 2]) (!= 1 2))
+    (test:eq (apply != [1 2]) true)
+    (test:eq (apply != [2 2]) (!= 2 2))
+    (test:eq (apply != [2 2]) false)
+    (test:eq (apply != [2 1]) (!= 2 1))
+    (test:eq (apply != [2 1]) true) })
+
+  (test:case "not" {
+    (test:eq (apply not [true]) (not true))
+    (test:eq (apply not [true]) false)
+    (test:eq (apply not [false]) (not false))
+    (test:eq (apply not [false]) true) })
+
+  (test:case "len" {
+    (test:eq (apply len [[1 2 3]]) (len [1 2 3]))
+    (test:eq (apply len [[1 2 3]]) 3)
+    (test:eq (apply len [[]]) (len []))
+    (test:eq (apply len [[]]) 0)
+    (test:eq (apply len ["abc"]) (len "abc"))
+    (test:eq (apply len ["abc"]) 3)
+    (test:eq (apply len [""]) (len ""))
+    (test:eq (apply len [""]) 0)
+    (test:eq (apply len [(dict)]) ($as-is (len (dict))))
+    (test:eq (apply len [(dict)]) 0)
+    (test:eq (apply len [(dict "a" 1)]) ($as-is (len (dict "a" 1))))
+    (test:eq (apply len [(dict "a" 1)]) 1) })
+
+  (test:case "empty?" {
+    (test:eq (apply empty? [[1 2 3]]) (empty? [1 2 3]))
+    (test:eq (apply empty? [[1 2 3]]) false)
+    (test:eq (apply empty? [[]]) (empty? []))
+    (test:eq (apply empty? [[]]) true)
+    (test:eq (apply empty? ["abc"]) (empty? "abc"))
+    (test:eq (apply empty? ["abc"]) false)
+    (test:eq (apply empty? [""]) (empty? ""))
+    (test:eq (apply empty? [""]) true)
+    (test:eq (apply empty? [(dict)]) ($as-is (empty? (dict))))
+    (test:eq (apply empty? [(dict)]) true)
+    (test:eq (apply empty? [(dict "a" 1)]) ($as-is (empty? (dict "a" 1))))
+    (test:eq (apply empty? [(dict "a" 1)]) false) })
+
+  (test:case "nil?" {
+    (test:eq (apply nil? [1]) (nil? 1))
+    (test:eq (apply nil? [1]) false)
+    (test:eq (apply nil? [nil]) (nil? nil))
+    (test:eq (apply nil? [nil]) true) })
+
+  (test:case "tail" {
+    (test:eq (apply tail [[]]) (tail []))
+    (test:eq (apply tail [[]]) [])
+    (test:eq (apply tail [[1 2 3]]) (tail [1 2 3]))
+    (test:eq (apply tail [[1 2 3]]) [2 3])
+    (test:eq (apply tail [""]) (tail ""))
+    (test:eq (apply tail [""]) "")
+    (test:eq (apply tail ["123"]) (tail "123"))
+    (test:eq (apply tail ["123"]) "23") })
+
+  (test:case "head" {
+    (test:eq (apply head [[]]) (head []))
+    (test:eq (apply head [[]]) nil)
+    (test:eq (apply head [[1 2 3]]) (head [1 2 3]))
+    (test:eq (apply head [[1 2 3]]) 1)
+    (test:eq (apply head [""]) (head ""))
+    (test:eq (apply head [""]) "")
+    (test:eq (apply head ["123"]) (head "123"))
+    (test:eq (apply head ["123"]) "1") })
+
+  (test:case "@" {
+    (test:eq (apply @ [[1 2 3] 0]) (@ [1 2 3] 0))
+    (test:eq (apply @ [[1 2 3] 0]) 1)
+    (test:eq (apply @ [[1 2 3] -1]) (@ [1 2 3] -1))
+    (test:eq (apply @ [[1 2 3] -1]) 3)
+    (test:eq (apply @ ["123" 0]) (@ "123" 0))
+    (test:eq (apply @ ["123" 0]) "1")
+    (test:eq (apply @ ["123" -1]) (@ "123" -1))
+    (test:eq (apply @ ["123" -1]) "3") })
+
+  (test:case "@@" {
+    (test:eq (apply @@ [[[1 2 3] [4 5 6]] 0 0]) (@@ [[1 2 3] [4 5 6]] 0 0))
+    (test:eq (apply @@ [[[1 2 3] [4 5 6]] 0 0]) 1)
+    (test:eq (apply @@ [[[1 2 3] [4 5 6]] -1 -1]) (@@ [[1 2 3] [4 5 6]] -1 -1))
+    (test:eq (apply @@ [[[1 2 3] [4 5 6]] -1 -1]) 6)
+    (test:eq (apply @@ [["123" "456"] 0 0]) (@@ ["123" "456"] 0 0))
+    (test:eq (apply @@ [["123" "456"] 0 0]) "1")
+    (test:eq (apply @@ [["123" "456"] -1 -1]) (@@ ["123" "456"] -1 -1))
+    (test:eq (apply @@ [["123" "456"] -1 -1]) "6") })
+
+  (test:case "type" {
+    (test:eq (apply type [1]) (type 1))
+    (test:eq (apply type [1]) "Number")
+    (test:eq (apply type [nil]) (type nil))
+    (test:eq (apply type [nil]) "Nil") })})

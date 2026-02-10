@@ -1,0 +1,12 @@
+Function toNumber expected 1 argument
+Call
+  ↳ (toNumber nil)
+Signature
+  ↳ (toNumber val)
+Arguments
+  → `val' (expected String), got nil (Nil)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_tonum_nil.ark:1
+    1 | (print (apply toNumber [nil]))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

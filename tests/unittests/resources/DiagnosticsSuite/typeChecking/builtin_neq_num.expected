@@ -1,0 +1,13 @@
+Function != expected 2 arguments but got 1
+Call
+  ↳ (!= 1)
+Signature
+  ↳ (!= lhs rhs)
+Arguments
+  → `lhs' (expected any) ✓
+  → `rhs' (expected any) was not provided
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_neq_num.ark:1
+    1 | (print (apply != [1]))
+      | ^~~~~~~~~~~~~~~~~~~~~
+    2 |

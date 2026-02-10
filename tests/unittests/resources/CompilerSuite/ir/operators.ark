@@ -1,0 +1,26 @@
+# in this test, we want to ensure that operators are still being compiled to their corresponding instruction,
+# and not using their corresponding builtin
+
+(print
+  (+ 1 2)
+  (- 1 2)
+  (* 1 2)
+  (/ 1 2)
+  (mod 1 2)
+  (toNumber "12")
+  (toString 12)
+  (< 1 2)
+  (<= 1 2)
+  (> 1 2)
+  (>= 1 2)
+  (= 1 2)
+  (!= 1 2)
+  (not 12)
+  (len [])
+  (empty? [])
+  (nil? [])
+  (tail [])
+  (head [])
+  (@ [1 2] 1)
+  (@@ [[1] [2] [3]] 0 0)
+  (type 12))

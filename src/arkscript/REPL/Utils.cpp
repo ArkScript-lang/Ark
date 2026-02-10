@@ -24,9 +24,13 @@ namespace Ark::internal
         std::ranges::transform(Language::operators, std::back_inserter(output), [](const auto& string_view) {
             return std::string(string_view);
         });
-        std::ranges::transform(std::ranges::views::keys(Builtins::builtins), std::back_inserter(output), [](const auto& string) {
-            return string;
-        });
+        std::ranges::transform(
+            std::ranges::views::keys(Builtins::builtins) | std::ranges::views::filter([&output](const auto& val) -> bool {
+                return std::ranges::find(output, val) == output.end();
+            }),
+            std::back_inserter(output), [](const auto& string) {
+                return string;
+            });
 
         output.emplace_back(Language::And);
         output.emplace_back(Language::Or);
@@ -56,9 +60,18 @@ namespace Ark::internal
                 safe_op.insert(it, "\\");
             return std::make_pair(safe_op, Replxx::Color::BRIGHTBLUE);
         });
-        std::ranges::transform(std::ranges::views::keys(Builtins::builtins), std::back_inserter(output), [](const auto& string) {
-            return std::make_pair(string, Replxx::Color::GREEN);
-        });
+        std::ranges::transform(
+            std::ranges::views::keys(Builtins::builtins) | std::ranges::views::filter([&output](const auto& val) -> bool {
+                return std::ranges::find_if(output, [&val](const std::pair<K, V>& pair) -> bool {
+                           return pair.first == val;
+                       }) == output.end();
+            }),
+            std::back_inserter(output), [](const auto& string) {
+                auto safe_op = string;
+                if (const auto it = safe_op.find_first_of(R"(-+=/*<>[]()?")"); it != std::string::npos)
+                    safe_op.insert(it, "\\");
+                return std::make_pair(safe_op, Replxx::Color::GREEN);
+            });
 
         output.emplace_back(Language::And, Replxx::Color::BRIGHTBLUE);
         output.emplace_back(Language::Or, Replxx::Color::BRIGHTBLUE);

@@ -1,0 +1,1 @@
+(print (apply toNumber [1 2]))

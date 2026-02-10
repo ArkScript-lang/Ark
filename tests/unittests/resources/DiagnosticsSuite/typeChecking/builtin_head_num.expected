@@ -1,0 +1,18 @@
+Function head expected 1 argument
+Call
+  ↳ (head 1)
+Signature
+  ↳ (head value)
+Arguments
+  → `value' (expected List), got 1 (Number)
+
+Alternative 2:
+Signature
+  ↳ (head value)
+Arguments
+  → `value' (expected String), got 1 (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_head_num.ark:1
+    1 | (print (apply head [1]))
+      | ^~~~~~~~~~~~~~~~~~~~~~~
+    2 |

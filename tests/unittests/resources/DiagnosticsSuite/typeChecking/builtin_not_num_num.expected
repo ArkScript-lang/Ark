@@ -1,0 +1,13 @@
+Function not expected 1 argument but got 2
+Call
+  ↳ (not 1 2)
+Signature
+  ↳ (not val)
+Arguments
+  → `val' (expected any) ✓
+  → unexpected additional args: 2 (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_not_num_num.ark:1
+    1 | (print (apply not [1 2]))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,13 @@
+Function nil? expected 1 argument but got 2
+Call
+  ↳ (nil? 1 2)
+Signature
+  ↳ (nil? value)
+Arguments
+  → `value' (expected any) ✓
+  → unexpected additional args: 2 (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_isnil_num_num.ark:1
+    1 | (print (apply nil? [1 2]))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,13 @@
+Function toString expected 1 argument but got 2
+Call
+  ↳ (toString 1 2)
+Signature
+  ↳ (toString val)
+Arguments
+  → `val' (expected any) ✓
+  → unexpected additional args: 2 (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_tostr_num_num.ark:1
+    1 | (print (apply toString [1 2]))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,13 @@
+Function / expected at least 1 argument and got 1
+Call
+  ↳ (/ nil)
+Signature
+  ↳ (/ a)
+Arguments
+  → variadic `a' (expected Number): 1 argument do not match:
+    nil (Nil) ×
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_div_nil.ark:1
+    1 | (print (apply / [nil]))
+      | ^~~~~~~~~~~~~~~~~~~~~~
+    2 |

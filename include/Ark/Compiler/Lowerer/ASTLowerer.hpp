@@ -190,8 +190,7 @@ namespace Ark::internal
          * @brief Check if a given instruction is unary (takes only one argument)
          *
          * @param inst
-         * @return true the instruction is unary
-         * @return false
+         * @return true the instruction is unary, false otherwise
          */
         static bool isUnaryInst(Instruction inst) noexcept;
 
@@ -199,10 +198,17 @@ namespace Ark::internal
          * @brief Check if a given instruction is ternary (takes three arguments)
          *
          * @param inst
-         * @return true the instruction is ternary
-         * @return false
+         * @return true the instruction is ternary, false otherwise
          */
         static bool isTernaryInst(Instruction inst) noexcept;
+
+        /**
+         * @brief Check if an operator can be repeated
+         *
+         * @param inst
+         * @return true the instruction can be repeated, eg (+ 1 2 3) compiles to (+ (+ 1 2) 3), false otherwise
+         */
+        static bool isRepeatableOperation(Instruction inst) noexcept;
 
         /**
          * @brief Display a warning message

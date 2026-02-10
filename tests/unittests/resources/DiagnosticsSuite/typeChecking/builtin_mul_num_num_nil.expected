@@ -1,0 +1,16 @@
+Function * expected at least 1 argument and got 3
+Call
+  ↳ (* 1 2 nil)
+Signature
+  ↳ (* a)
+Arguments
+  → variadic `a' (expected Number): 1 argument do not match:
+    1 (Number) ✓
+    2 (Number) ✓
+    nil (Nil) ×
+  → unexpected additional args: 2 (Number), nil (Nil)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_mul_num_num_nil.ark:1
+    1 | (print (apply * [1 2 nil]))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

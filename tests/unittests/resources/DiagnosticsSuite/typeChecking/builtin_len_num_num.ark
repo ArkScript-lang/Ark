@@ -1,0 +1,1 @@
+(print (apply len [1 2]))

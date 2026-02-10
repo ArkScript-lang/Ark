@@ -1,0 +1,6 @@
+DivisionByZero: Can not compute expression (/ 1 0)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_div_num_zero.ark:1
+    1 | (print (apply / [1 0]))
+      | ^~~~~~~~~~~~~~~~~~~~~~
+    2 |

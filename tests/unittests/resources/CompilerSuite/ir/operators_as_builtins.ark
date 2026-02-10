@@ -1,0 +1,1 @@
+(print + - * / mod toNumber toString < <= > >= = != not len empty? nil? tail head @ @@ type)
