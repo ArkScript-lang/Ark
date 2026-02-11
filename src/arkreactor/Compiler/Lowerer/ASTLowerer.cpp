@@ -17,7 +17,7 @@ namespace Ark::internal
 
     ASTLowerer::ASTLowerer(const unsigned debug) :
         m_logger("ASTLowerer", debug)
-    { }
+    {}
 
     void ASTLowerer::addToTables(const std::vector<std::string>& symbols, const std::vector<ValTableElem>& constants)
     {
@@ -195,80 +195,78 @@ namespace Ark::internal
         // namespace nodes
         else if (x.nodeType() == NodeType::Namespace)
             compileExpression(*x.constArkNamespace().ast, p, is_result_unused, is_terminal);
-        else if (x.nodeType() == NodeType::Unused)
-        {
-            // do nothing, explicitly
-        }
-        // empty code block should be nil
-        else if (x.constList().empty())
-        {
-            if (!is_result_unused)
-            {
-                static const std::optional<uint16_t> nil = getBuiltin("nil");
-                page(p).emplace_back(BUILTIN, nil.value());
-            }
-        }
-        // list instructions
-        else if (const auto head = x.constList()[0]; head.nodeType() == NodeType::Symbol && getListInstruction(head.string()).has_value())
-            compileListInstruction(x, p, is_result_unused);
-        // todo: make a function "compile special form" for list and apply (and probably others in the future)
-        else if (const auto head2 = x.constList()[0]; head2.nodeType() == NodeType::Symbol && head2.string() == Language::Apply)
-            compileApplyInstruction(x, p, is_result_unused);
-        // registering structures
-        else if (x.constList()[0].nodeType() == NodeType::Keyword)
-        {
-            switch (const Keyword keyword = x.constList()[0].keyword())
-            {
-                case Keyword::If:
-                    compileIf(x, p, is_result_unused, is_terminal);
-                    break;
-
-                case Keyword::Set:
-                    [[fallthrough]];
-                case Keyword::Let:
-                    [[fallthrough]];
-                case Keyword::Mut:
-                    compileLetMutSet(keyword, x, p);
-                    break;
-
-                case Keyword::Fun:
-                    compileFunction(x, p, is_result_unused);
-                    break;
-
-                case Keyword::Begin:
-                {
-                    for (std::size_t i = 1, size = x.list().size(); i < size; ++i)
-                        compileExpression(
-                            x.list()[i],
-                            p,
-                            // All the nodes in a 'begin' (except for the last one) are producing a result that we want to drop.
-                            (i != size - 1) || is_result_unused,
-                            // If the 'begin' is a terminal node, only its last node is terminal.
-                            is_terminal && (i == size - 1));
-                    break;
-                }
-
-                case Keyword::While:
-                    compileWhile(x, p);
-                    break;
-
-                case Keyword::Import:
-                    compilePluginImport(x, p);
-                    break;
-
-                case Keyword::Del:
-                    page(p).emplace_back(DEL, addSymbol(x.constList()[1]));
-                    page(p).back().setSourceLocation(x.filename(), x.position().start.line);
-                    break;
-            }
-        }
         else if (x.nodeType() == NodeType::List)
         {
-            // If we are here, we should have a function name via the m_opened_vars.
-            // Push arguments first, then function name, then call it.
-            handleCalls(x, p, is_result_unused, is_terminal);
+            // empty code block should be nil
+            if (x.constList().empty())
+            {
+                if (!is_result_unused)
+                {
+                    static const std::optional<uint16_t> nil = getBuiltin("nil");
+                    page(p).emplace_back(BUILTIN, nil.value());
+                }
+            }
+            // list instructions
+            else if (const auto head = x.constList()[0]; head.nodeType() == NodeType::Symbol && getListInstruction(head.string()).has_value())
+                compileListInstruction(x, p, is_result_unused);
+            else if (head.nodeType() == NodeType::Symbol && head.string() == Language::Apply)
+                compileApplyInstruction(x, p, is_result_unused);
+            // registering structures
+            else if (head.nodeType() == NodeType::Keyword)
+            {
+                switch (const Keyword keyword = head.keyword())
+                {
+                    case Keyword::If:
+                        compileIf(x, p, is_result_unused, is_terminal);
+                        break;
+
+                    case Keyword::Set:
+                        [[fallthrough]];
+                    case Keyword::Let:
+                        [[fallthrough]];
+                    case Keyword::Mut:
+                        compileLetMutSet(keyword, x, p);
+                        break;
+
+                    case Keyword::Fun:
+                        compileFunction(x, p, is_result_unused);
+                        break;
+
+                    case Keyword::Begin:
+                    {
+                        for (std::size_t i = 1, size = x.list().size(); i < size; ++i)
+                            compileExpression(
+                                x.list()[i],
+                                p,
+                                // All the nodes in a 'begin' (except for the last one) are producing a result that we want to drop.
+                                (i != size - 1) || is_result_unused,
+                                // If the 'begin' is a terminal node, only its last node is terminal.
+                                is_terminal && (i == size - 1));
+                        break;
+                    }
+
+                    case Keyword::While:
+                        compileWhile(x, p);
+                        break;
+
+                    case Keyword::Import:
+                        compilePluginImport(x, p);
+                        break;
+
+                    case Keyword::Del:
+                        page(p).emplace_back(DEL, addSymbol(x.constList()[1]));
+                        page(p).back().setSourceLocation(x.filename(), x.position().start.line);
+                        break;
+                }
+            }
+            else
+            {
+                // If we are here, we should have a function name via the m_opened_vars.
+                // Push arguments first, then function name, then call it.
+                handleCalls(x, p, is_result_unused, is_terminal);
+            }
         }
-        else
+        else if (x.nodeType() != NodeType::Unused)
             buildAndThrowError(
                 fmt::format(
                     "NodeType `{}' not handled in ASTLowerer::compileExpression. Please fill an issue on GitHub: https://github.com/ArkScript-lang/Ark",
