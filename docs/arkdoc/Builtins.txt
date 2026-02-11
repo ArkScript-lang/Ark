@@ -35,6 +35,17 @@
 #--
 
 --#
+* @name assert
+* @brief Interrupt the execution if a given condition is false
+* @param cond condition
+* @param message string to display
+* =begin
+* (let a 5)
+* (assert (>= a 4) "'a' must be at least 4")
+* =end
+#--
+
+--#
 * @name nil?
 * @brief Check if a value is nil
 * @param value anything
