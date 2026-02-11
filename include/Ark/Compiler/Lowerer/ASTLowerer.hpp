@@ -246,6 +246,9 @@ namespace Ark::internal
         void compilePluginImport(const Node& x, Page p);
         void pushFunctionCallArguments(Node& call, Page p, bool is_tail_call);
         void handleCalls(Node& x, Page p, bool is_result_unused, bool is_terminal);
+        void handleShortcircuit(Node& x, Page p);
+        void handleOperator(Node& x, Page p, Instruction op);
+        bool handleFunctionCall(Node& x, Page p, bool is_terminal);
 
         /**
          * @brief Register a given node in the symbol table
