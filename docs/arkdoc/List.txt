@@ -23,6 +23,86 @@
 #--
 
 --#
+* @name append
+* @brief Add an element to a list, returning a new list
+* @param lst a list
+* @param element
+* =begin
+* (print (append [] 1))  # [1]
+* (print (append [1 2] [3]))  # [1 2 [3]]
+* =end
+#--
+
+--#
+* @name append!
+* @brief Add an element to a list, modifying it in place. It doesn't return anything
+* @param lst a list. Must be mutable
+* @param element
+* =begin
+* (mut lst [1 2])
+* (append! lst 1)
+* (print lst) # [1 2 1]
+* (append! lst [3])
+* (print lst) # [1 2 1 [3]]
+* =end
+#--
+
+--#
+* @name concat
+* @brief Concatenate two lists, returning a new list
+* @param lhs a list
+* @param rhs a second list
+* =begin
+* (print (append [] 1))  # [1]
+* (print (append [1 2] [3]))  # [1 2 [3]]
+* =end
+#--
+
+--#
+* @name concat!
+* @brief Concatenate two lists in place, modifying the first one it in place. It doesn't return anything
+* @param lst a list. Must be mutable
+* @param more another list
+* =begin
+* (mut lst [1 2])
+* (concat! lst [1])
+* (print lst) # [1 2 1]
+* (concat! lst [3])
+* (print lst) # [1 2 1 3]
+* =end
+#--
+
+--#
+* @name pop
+* @brief Return a new list without the element at index
+* @details Supports negative indices, -1 being the end.
+* @param lst a list
+* @param index number
+* =begin
+* (print (pop [1] 0))  # []
+* (print (pop [1 2 3] -2))  # [1 3]
+* (print (pop [1 2 3] 2))  # [1 2]
+* =end
+#--
+
+--#
+* @name pop!
+* @brief Remove an element from a list in place, given its index. It doesn't return anything
+* @details Supports negative indices, -1 being the end.
+* @param lst a list. Must be mutable
+* @param index number
+* =begin
+* (mut lst [1 2 3 4 5])
+* (pop! lst 0)
+* (print lst)  # [2 3 4 5]
+* (pop! lst -2)
+* (print lst)  # [2 3 5]
+* (pop! lst 2)
+* (print lst)  # [2 3]
+* =end
+#--
+
+--#
 * @name head
 * @brief Return the first element of a list, or nil if empty
 * @param a list
