@@ -239,9 +239,9 @@ namespace Ark::internal
                                 x.list()[i],
                                 p,
                                 // All the nodes in a 'begin' (except for the last one) are producing a result that we want to drop.
-                                (i != size - 1) || is_result_unused,
+                                /* is_result_unused= */ (i != size - 1) || is_result_unused,
                                 // If the 'begin' is a terminal node, only its last node is terminal.
-                                is_terminal && (i == size - 1));
+                                /* is_terminal= */ is_terminal && (i == size - 1));
                         break;
                     }
 
@@ -638,179 +638,197 @@ namespace Ark::internal
 
     void ASTLowerer::handleCalls(Node& x, const Page p, bool is_result_unused, const bool is_terminal)
     {
-        constexpr std::size_t start_index = 1;
+        const Node& node = x.constList()[0];
+        bool matched = false;
 
-        Node& node = x.list()[0];
-        const std::optional<Instruction> maybe_operator = node.nodeType() == NodeType::Symbol ? getOperator(node.string()) : std::nullopt;
-
-        const std::optional<Instruction> maybe_shortcircuit =
-            node.nodeType() == NodeType::Symbol
-            ? (node.string() == Language::And
-                   ? std::make_optional(Instruction::SHORTCIRCUIT_AND)
-                   : (node.string() == Language::Or
-                          ? std::make_optional(Instruction::SHORTCIRCUIT_OR)
-                          : std::nullopt))
-            : std::nullopt;
-
-        if (maybe_shortcircuit.has_value())
+        if (node.nodeType() == NodeType::Symbol)
         {
-            // short circuit implementation
-            if (x.constList().size() < 3)
-                buildAndThrowError(
-                    fmt::format(
-                        "Expected at least 2 arguments while compiling '{}', got {}",
-                        node.string(),
-                        x.constList().size() - 1),
-                    x);
-            const auto name = node.string();  // and / or
-
-            if (!nodeProducesOutput(x.list()[1]))
-                buildAndThrowError(
-                    fmt::format(
-                        "Can not use `{}' inside a `{}' expression, as it doesn't return a value",
-                        x.list()[1].repr(), name),
-                    x.list()[1]);
-            compileExpression(x.list()[1], p, false, false);
-
-            const auto label_shortcircuit = IR::Entity::Label(m_current_label++);
-            auto shortcircuit_entity = IR::Entity::Goto(label_shortcircuit, maybe_shortcircuit.value());
-            page(p).emplace_back(shortcircuit_entity);
-
-            for (std::size_t i = 2, end = x.constList().size(); i < end; ++i)
+            if (node.string() == Language::And || node.string() == Language::Or)
             {
-                if (!nodeProducesOutput(x.list()[i]))
-                    buildAndThrowError(
-                        fmt::format(
-                            "Can not use `{}' inside a `{}' expression, as it doesn't return a value",
-                            x.list()[i].repr(), name),
-                        x.list()[i]);
-                compileExpression(x.list()[i], p, false, false);
-                if (i + 1 != end)
-                    page(p).emplace_back(shortcircuit_entity);
+                matched = true;
+                handleShortcircuit(x, p);
             }
-
-            page(p).emplace_back(label_shortcircuit);
-        }
-        else if (!maybe_operator.has_value())
-        {
-            if (is_terminal && node.nodeType() == NodeType::Symbol && isFunctionCallingItself(node.string()))
+            if (const auto maybe_operator = getOperator(node.string()); maybe_operator.has_value())
             {
-                pushFunctionCallArguments(x, p, /* is_tail_call= */ true);
-
-                // jump to the top of the function
-                page(p).emplace_back(JUMP, 0_u16);
-                page(p).back().setSourceLocation(node.filename(), node.position().start.line);
-                return;  // skip the potential Instruction::POP at the end
-            }
-            else
-            {
-                if (!nodeProducesOutput(node))
-                    buildAndThrowError(fmt::format("Can not call `{}', as it doesn't return a value", node.repr()), node);
-
-                const auto proc_page = createNewCodePage(/* temp= */ true);
-
-                // compile the function resolution to a separate page
-                if (node.nodeType() == NodeType::Symbol && isFunctionCallingItself(node.string()))
-                {
-                    // The function is trying to call itself, but this isn't a tail call.
-                    // We can skip the LOAD_FAST function_name and directly push the current
-                    // function page, which will be quicker than a local variable resolution.
-                    // We set its argument to the symbol id of the function we are calling,
-                    // so that the VM knows the name of the last called function.
-                    page(proc_page).emplace_back(GET_CURRENT_PAGE_ADDR, addSymbol(node));
-                }
-                else
-                {
-                    // closure chains have been handled (eg: closure.field.field.function)
-                    compileExpression(node, proc_page, false, false);  // storing proc
-                }
-
-                if (m_temp_pages.back().empty())
-                    buildAndThrowError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
-
-                const auto label_return = IR::Entity::Label(m_current_label++);
-                page(p).emplace_back(IR::Entity::Goto(label_return, PUSH_RETURN_ADDRESS));
-                page(p).back().setSourceLocation(x.filename(), x.position().start.line);
-
-                pushFunctionCallArguments(x, p, /* is_tail_call= */ false);
-                // push proc from temp page
-                for (const auto& inst : m_temp_pages.back())
-                    page(p).push_back(inst);
-                m_temp_pages.pop_back();
-
-                // number of arguments
-                std::size_t args_count = 0;
-                for (auto it = x.constList().begin() + start_index, it_end = x.constList().end(); it != it_end; ++it)
-                {
-                    if (it->nodeType() != NodeType::Capture && !isBreakpoint(*it))
-                        args_count++;
-                }
-                // call the procedure
-                page(p).emplace_back(CALL, args_count);
-                page(p).back().setSourceLocation(node.filename(), node.position().start.line);
-
-                // patch the PUSH_RETURN_ADDRESS instruction with the return location (IP=CALL instruction IP)
-                page(p).emplace_back(label_return);
+                matched = true;
+                if (maybe_operator.value() == BREAKPOINT)
+                    is_result_unused = false;
+                handleOperator(x, p, maybe_operator.value());
             }
         }
-        else  // operator
+
+        if (!matched)
         {
-            // retrieve operator
-            const auto op = maybe_operator.value();
-            const auto op_name = Language::operators[static_cast<std::size_t>(op - FIRST_OPERATOR)];
-
-            if (op == BREAKPOINT)
-                is_result_unused = false;
-
-            // push arguments on current page
-            std::size_t exp_count = 0;
-            for (std::size_t index = start_index, size = x.constList().size(); index < size; ++index)
-            {
-                const bool is_breakpoint = isBreakpoint(x.constList()[index]);
-                if (nodeProducesOutput(x.constList()[index]) || is_breakpoint)
-                    compileExpression(x.list()[index], p, false, false);
-                else
-                    buildAndThrowError(fmt::format("Invalid node inside call to operator `{}'", node.repr()), x.constList()[index]);
-
-                if (!is_breakpoint)
-                    exp_count++;
-
-                // in order to be able to handle things like (op A B C D...)
-                // which should be transformed into A B op C op D op...
-                if (exp_count >= 2 && !isTernaryInst(op) && !is_breakpoint)
-                    page(p).emplace_back(op);
-            }
-
-            if (isBreakpoint(x))
-            {
-                if (exp_count > 1)
-                    buildAndThrowError(fmt::format("`{}' expected at most one argument, but was called with {}", op_name, exp_count), x.constList()[0]);
-                page(p).emplace_back(op, exp_count);
-            }
-            else if (isUnaryInst(op))
-            {
-                if (exp_count != 1)
-                    buildAndThrowError(fmt::format("`{}' expected one argument, but was called with {}", op_name, exp_count), x.constList()[0]);
-                page(p).emplace_back(op);
-            }
-            else if (isTernaryInst(op))
-            {
-                if (exp_count != 3)
-                    buildAndThrowError(fmt::format("`{}' expected three arguments, but was called with {}", op_name, exp_count), x.constList()[0]);
-                page(p).emplace_back(op);
-            }
-            else if (exp_count <= 1)
-                buildAndThrowError(fmt::format("`{}' expected two arguments, but was called with {}", op_name, exp_count), x.constList()[0]);
-
-            // need to check we didn't push the (op A B C D...) things for operators not supporting it
-            if (exp_count > 2 && !isRepeatableOperation(op) && !isTernaryInst(op))
-                buildAndThrowError(fmt::format("`{}' requires 2 arguments, but got {}.", op_name, exp_count), x);
-
-            page(p).back().setSourceLocation(x.filename(), x.position().start.line);
+            // if nothing else matched, then compile a function call
+            if (handleFunctionCall(x, p, is_terminal))
+                // if it returned true, we compiled a tail call, skip the POP at the end
+                return;
         }
 
         if (is_result_unused)
             page(p).emplace_back(POP);
+    }
+
+    void ASTLowerer::handleShortcircuit(Node& x, const Page p)
+    {
+        const Node& node = x.constList()[0];
+        const auto name = node.string();  // and / or
+        const Instruction inst = name == Language::And ? SHORTCIRCUIT_AND : SHORTCIRCUIT_OR;
+
+        // short circuit implementation
+        if (x.constList().size() < 3)
+            buildAndThrowError(
+                fmt::format(
+                    "Expected at least 2 arguments while compiling '{}', got {}",
+                    name,
+                    x.constList().size() - 1),
+                x);
+
+        if (!nodeProducesOutput(x.list()[1]))
+            buildAndThrowError(
+                fmt::format(
+                    "Can not use `{}' inside a `{}' expression, as it doesn't return a value",
+                    x.list()[1].repr(), name),
+                x.list()[1]);
+        compileExpression(x.list()[1], p, false, false);
+
+        const auto label_shortcircuit = IR::Entity::Label(m_current_label++);
+        auto shortcircuit_entity = IR::Entity::Goto(label_shortcircuit, inst);
+        page(p).emplace_back(shortcircuit_entity);
+
+        for (std::size_t i = 2, end = x.constList().size(); i < end; ++i)
+        {
+            if (!nodeProducesOutput(x.list()[i]))
+                buildAndThrowError(
+                    fmt::format(
+                        "Can not use `{}' inside a `{}' expression, as it doesn't return a value",
+                        x.list()[i].repr(), name),
+                    x.list()[i]);
+            compileExpression(x.list()[i], p, false, false);
+            if (i + 1 != end)
+                page(p).emplace_back(shortcircuit_entity);
+        }
+
+        page(p).emplace_back(label_shortcircuit);
+    }
+
+    void ASTLowerer::handleOperator(Node& x, const Page p, const Instruction op)
+    {
+        constexpr std::size_t start_index = 1;
+        const Node& node = x.constList()[0];
+        const auto op_name = Language::operators[static_cast<std::size_t>(op - FIRST_OPERATOR)];
+
+
+        // push arguments on current page
+        std::size_t exp_count = 0;
+        for (std::size_t index = start_index, size = x.constList().size(); index < size; ++index)
+        {
+            const bool is_breakpoint = isBreakpoint(x.constList()[index]);
+            if (nodeProducesOutput(x.constList()[index]) || is_breakpoint)
+                compileExpression(x.list()[index], p, false, false);
+            else
+                buildAndThrowError(fmt::format("Invalid node inside call to operator `{}'", node.repr()), x.constList()[index]);
+
+            if (!is_breakpoint)
+                exp_count++;
+
+            // in order to be able to handle things like (op A B C D...)
+            // which should be transformed into A B op C op D op...
+            if (exp_count >= 2 && !isTernaryInst(op) && !is_breakpoint)
+                page(p).emplace_back(op);
+        }
+
+        if (isBreakpoint(x))
+        {
+            if (exp_count > 1)
+                buildAndThrowError(fmt::format("`{}' expected at most one argument, but was called with {}", op_name, exp_count), x.constList()[0]);
+            page(p).emplace_back(op, exp_count);
+        }
+        else if (isUnaryInst(op))
+        {
+            if (exp_count != 1)
+                buildAndThrowError(fmt::format("`{}' expected one argument, but was called with {}", op_name, exp_count), x.constList()[0]);
+            page(p).emplace_back(op);
+        }
+        else if (isTernaryInst(op))
+        {
+            if (exp_count != 3)
+                buildAndThrowError(fmt::format("`{}' expected three arguments, but was called with {}", op_name, exp_count), x.constList()[0]);
+            page(p).emplace_back(op);
+        }
+        else if (exp_count <= 1)
+            buildAndThrowError(fmt::format("`{}' expected two arguments, but was called with {}", op_name, exp_count), x.constList()[0]);
+
+        // need to check we didn't push the (op A B C D...) things for operators not supporting it
+        if (exp_count > 2 && !isRepeatableOperation(op) && !isTernaryInst(op))
+            buildAndThrowError(fmt::format("`{}' requires 2 arguments, but got {}.", op_name, exp_count), x);
+
+        page(p).back().setSourceLocation(x.filename(), x.position().start.line);
+    }
+
+    bool ASTLowerer::handleFunctionCall(Node& x, const Page p, const bool is_terminal)
+    {
+        constexpr std::size_t start_index = 1;
+        Node& node = x.list()[0];
+
+        if (is_terminal && node.nodeType() == NodeType::Symbol && isFunctionCallingItself(node.string()))
+        {
+            pushFunctionCallArguments(x, p, /* is_tail_call= */ true);
+
+            // jump to the top of the function
+            page(p).emplace_back(JUMP, 0_u16);
+            page(p).back().setSourceLocation(node.filename(), node.position().start.line);
+            return true;  // skip the potential Instruction::POP at the end
+        }
+
+        if (!nodeProducesOutput(node))
+            buildAndThrowError(fmt::format("Can not call `{}', as it doesn't return a value", node.repr()), node);
+
+        const auto proc_page = createNewCodePage(/* temp= */ true);
+
+        // compile the function resolution to a separate page
+        if (node.nodeType() == NodeType::Symbol && isFunctionCallingItself(node.string()))
+        {
+            // The function is trying to call itself, but this isn't a tail call.
+            // We can skip the LOAD_FAST function_name and directly push the current
+            // function page, which will be quicker than a local variable resolution.
+            // We set its argument to the symbol id of the function we are calling,
+            // so that the VM knows the name of the last called function.
+            page(proc_page).emplace_back(GET_CURRENT_PAGE_ADDR, addSymbol(node));
+        }
+        else
+        {
+            // closure chains have been handled (eg: closure.field.field.function)
+            compileExpression(node, proc_page, false, false);  // storing proc
+        }
+
+        if (m_temp_pages.back().empty())
+            buildAndThrowError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
+
+        const auto label_return = IR::Entity::Label(m_current_label++);
+        page(p).emplace_back(IR::Entity::Goto(label_return, PUSH_RETURN_ADDRESS));
+        page(p).back().setSourceLocation(x.filename(), x.position().start.line);
+
+        pushFunctionCallArguments(x, p, /* is_tail_call= */ false);
+        // push proc from temp page
+        for (const auto& inst : m_temp_pages.back())
+            page(p).push_back(inst);
+        m_temp_pages.pop_back();
+
+        // number of arguments
+        std::size_t args_count = 0;
+        for (auto it = x.constList().begin() + start_index, it_end = x.constList().end(); it != it_end; ++it)
+        {
+            if (it->nodeType() != NodeType::Capture && !isBreakpoint(*it))
+                args_count++;
+        }
+        // call the procedure
+        page(p).emplace_back(CALL, args_count);
+        page(p).back().setSourceLocation(node.filename(), node.position().start.line);
+
+        // patch the PUSH_RETURN_ADDRESS instruction with the return location (IP=CALL instruction IP)
+        page(p).emplace_back(label_return);
+        return false;  // we didn't compile a tail call
     }
 
     uint16_t ASTLowerer::addSymbol(const Node& sym)
