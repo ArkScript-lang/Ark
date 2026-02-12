@@ -1,0 +1,2 @@
+(mut b [])
+(apply print (append! b 5))

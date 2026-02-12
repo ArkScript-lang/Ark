@@ -110,6 +110,14 @@ namespace Ark::internal
 
         Logger m_logger;
 
+        enum class ErrorKind
+        {
+            InvalidNodeMacro,
+            InvalidNodeNoReturnValue,
+            InvalidNodeInOperatorNoReturnValue,
+            InvalidNodeInTailCallNoReturnValue
+        };
+
         Page createNewCodePage(const bool temp = false) noexcept
         {
             if (!temp)
@@ -225,6 +233,8 @@ namespace Ark::internal
          * @param node
          */
         [[noreturn]] static void buildAndThrowError(const std::string& message, const Node& node);
+
+        [[noreturn]] static void makeError(ErrorKind kind, const Node& node, const std::string& additional_ctx);
 
         /**
          * @brief Compile an expression (a node) recursively

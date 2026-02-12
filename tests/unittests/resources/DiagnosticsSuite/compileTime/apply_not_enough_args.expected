@@ -1,0 +1,5 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/apply_not_enough_args.ark:1
+    1 | (apply)
+      |  ^~~~~
+    2 |
+        Expected 2 arguments (function, arguments) for apply, got 0

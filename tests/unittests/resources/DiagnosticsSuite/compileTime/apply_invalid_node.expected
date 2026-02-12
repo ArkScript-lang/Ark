@@ -1,0 +1,6 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/apply_invalid_node.ark:2
+    1 | (mut b [])
+    2 | (apply print (append! b 5))
+      |              ^~~~~~~~~~~~~
+    3 |
+        Invalid node inside call to `apply'. The given node doesn't return a value, and thus can't be used as an expression.
