@@ -133,6 +133,8 @@
     (test:eq (apply empty? ["abc"]) false)
     (test:eq (apply empty? [""]) (empty? ""))
     (test:eq (apply empty? [""]) true)
+    (test:eq (apply empty? [nil]) (empty? nil))
+    (test:eq (apply empty? [nil]) true)
     (test:eq (apply empty? [(dict)]) ($as-is (empty? (dict))))
     (test:eq (apply empty? [(dict)]) true)
     (test:eq (apply empty? [(dict "a" 1)]) ($as-is (empty? (dict "a" 1))))

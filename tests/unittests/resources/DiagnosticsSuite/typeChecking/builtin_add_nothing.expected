@@ -1,0 +1,18 @@
+Function + expected at least 1 argument but got 0
+Call
+  ↳ (+)
+Signature
+  ↳ (+ a)
+Arguments
+  → variadic `a' (expected Number) was not provided
+
+Alternative 2:
+Signature
+  ↳ (+ a)
+Arguments
+  → variadic `a' (expected String) was not provided
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_add_nothing.ark:1
+    1 | (print (apply + []))
+      | ^~~~~~~~~~~~~~~~~~~
+    2 |
