@@ -137,6 +137,8 @@ namespace Ark::internal::Builtins
         ARK_BUILTIN(disassemble);
     }
 
+    ARK_BUILTIN(slice);
+
     namespace Operators
     {
         ARK_BUILTIN(add);

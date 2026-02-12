@@ -18,14 +18,25 @@
           (append! rands (random 0 10))
           (set i (+ 1 i)) })
         (test:expect
-          (not (list:any rands (fun (e) (or (< e 0) (> e 10)))))
+          (list:none rands (fun (e) (or (< e 0) (> e 10))))
           "should not find any number outside the given range")
 
         (let r (random))
         (test:expect (and (<= r 2147483647) (>= r -2147483648))) })
 
     (test:case "disassemble" {
-      (disassemble foo)
-      (let filename "tests/unittests/resources/DiagnosticsSuite/runtime/__arkscript__/assert.arkc")
-      (if (fileExists? filename)
-        (disassemble filename)) }) })
+        (disassemble foo)
+        (let filename "tests/unittests/resources/DiagnosticsSuite/runtime/__arkscript__/assert.arkc")
+        (if (fileExists? filename)
+            (disassemble filename)) })
+
+    (test:case "slice" {
+        (test:eq (slice "abc" nil nil) "abc")
+        (test:eq (slice "abc" nil 1) "a")
+        (test:eq (slice "abc" nil 2) "ab")
+        (test:eq (slice "abc" nil 3) "abc")
+        (test:eq (slice "abc" nil 10) "abc")
+        (test:eq (slice "abcdef" 1 -1) "bcde")
+        (test:eq (slice "abcdef" 1 -1 30) "b")
+        (test:eq (slice "abcdef" 1 -1 -1) "edcb")
+        (test:eq (slice "abcdef" 1 -1 -30) "e") }) })

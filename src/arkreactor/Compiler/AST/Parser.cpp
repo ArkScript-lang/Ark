@@ -192,10 +192,11 @@ namespace Ark::internal
         {
             // we haven't parsed anything while in "macro state"
             std::string symbol_name;
+            const auto value_pos = getCursor();
             if (!name(&symbol_name))
                 errorWithNextToken(token + " needs a symbol");
 
-            leaf->push_back(Node(NodeType::Symbol, symbol_name));
+            leaf->push_back(positioned(Node(NodeType::Symbol, symbol_name), value_pos));
         }
 
         comment = newlineOrComment();

@@ -36,7 +36,7 @@
         (and
           (<= min_len wlen)
           (<= wlen (len cmd))
-          (= lower (string:slice cmd 0 wlen))) }))
+          (= lower (slice cmd 0 wlen))) }))
     (fun (cmd_with_len) (head cmd_with_len))) }))
 
 (let user_inputs (extract_cmds user_words))

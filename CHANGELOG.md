@@ -4,6 +4,7 @@
 ### Added
 - `apply` function: `(apply func [args...])`, to call a function with a set of arguments stored in a list. Works with functions, closures and builtins
 - `+`, `-`, `*`, `/` and many other operators can now be passed around, like builtins. This now works: `(list:reduce [1 2 3] +)`, where before we would get a compile time error about a "freestanding operator '+'"
+- `slice` builtin, for strings and lists: `(slice data start end [step=1])`
 
 ## [4.2.0] - 2026-02-04
 ### Breaking changes
