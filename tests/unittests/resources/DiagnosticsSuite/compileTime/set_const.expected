@@ -1,6 +1,6 @@
-In file tests/unittests/resources/DiagnosticsSuite/compileTime/set_const.ark:1
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/set_const.ark:2
     1 | (let a 5)
-      | ^~~~~~~~
     2 | (set a 6)
+      |      ^
     3 |
         MutabilityError: Can not set the constant `a' to 6

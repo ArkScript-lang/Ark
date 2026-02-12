@@ -1,5 +1,5 @@
 In file tests/unittests/resources/DiagnosticsSuite/compileTime/package/list.ark:1
     1 | (let random (fun (l) l))
-      | ^~~~~~~~~~~~~~~~~~~~~~~
+      |      ^~~~~~
     2 |
         Can not use a reserved identifier ('random') as a constant name.

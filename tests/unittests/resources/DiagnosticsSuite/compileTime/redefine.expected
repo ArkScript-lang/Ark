@@ -1,6 +1,6 @@
-In file tests/unittests/resources/DiagnosticsSuite/compileTime/redefine.ark:1
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/redefine.ark:2
     1 | (mut a 5)
-      | ^~~~~~~~
     2 | (let a 6)
+      |      ^
     3 |
         MutabilityError: Can not use 'let' to redefine variable `a'
