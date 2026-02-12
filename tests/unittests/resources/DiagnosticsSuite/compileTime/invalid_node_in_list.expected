@@ -2,4 +2,4 @@ In file tests/unittests/resources/DiagnosticsSuite/compileTime/invalid_node_in_l
     1 | [(mut c 1)]
       |  ^~~~~~~~
     2 |
-        Invalid node inside call to list
+        Invalid node inside call to `list'. The given node doesn't return a value, and thus can't be used as an expression.

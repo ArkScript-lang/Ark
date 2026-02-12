@@ -168,6 +168,30 @@ namespace Ark::internal
         throw CodeError(message, CodeErrorContext(node.filename(), node.position()));
     }
 
+    void ASTLowerer::makeError(const ErrorKind kind, const Node& node, const std::string& additional_ctx)
+    {
+        const std::string invalid_node_msg = "The given node doesn't return a value, and thus can't be used as an expression.";
+
+        switch (kind)
+        {
+            case ErrorKind::InvalidNodeMacro:
+                buildAndThrowError(fmt::format("Invalid node ; if it was computed by a macro, check that a node is returned"), node);
+                break;
+
+            case ErrorKind::InvalidNodeNoReturnValue:
+                buildAndThrowError(fmt::format("Invalid node inside call to `{}'. {}", additional_ctx, invalid_node_msg), node);
+                break;
+
+            case ErrorKind::InvalidNodeInTailCallNoReturnValue:
+                buildAndThrowError(fmt::format("Invalid node inside tail call to `{}'. {}", additional_ctx, invalid_node_msg), node);
+                break;
+
+            case ErrorKind::InvalidNodeInOperatorNoReturnValue:
+                buildAndThrowError(fmt::format("Invalid node inside call to operator `{}'. {}", additional_ctx, invalid_node_msg), node);
+                break;
+        }
+    }
+
     void ASTLowerer::compileExpression(Node& x, const Page p, const bool is_result_unused, const bool is_terminal)
     {
         // register symbols
@@ -331,7 +355,7 @@ namespace Ark::internal
             if (nodeProducesOutput(node))
                 compileExpression(node, p, false, false);
             else
-                buildAndThrowError(fmt::format("Invalid node inside call to {}", name), node);
+                makeError(ErrorKind::InvalidNodeNoReturnValue, node, name);
         }
 
         // put inst and number of arguments
@@ -383,7 +407,7 @@ namespace Ark::internal
             if (nodeProducesOutput(node))
                 compileExpression(node, p, false, false);
             else
-                buildAndThrowError("Invalid node inside call to apply", node);
+                makeError(ErrorKind::InvalidNodeNoReturnValue, node, "apply");
         }
         page(p).emplace_back(APPLY);
         // patch the PUSH_RETURN_ADDRESS instruction with the return location (IP=CALL instruction IP)
@@ -437,7 +461,7 @@ namespace Ark::internal
         if (const auto args = x.constList()[1]; args.nodeType() != NodeType::List)
             buildAndThrowError(fmt::format("Expected a well formed argument(s) list, got a {}", typeToString(args)), args);
         if (x.constList().size() != 3)
-            buildAndThrowError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
+            makeError(ErrorKind::InvalidNodeMacro, x, "");
 
         // capture, if needed
         std::size_t capture_inst_count = 0;
@@ -517,13 +541,13 @@ namespace Ark::internal
         if (const auto sym = x.constList()[1]; sym.nodeType() != NodeType::Symbol)
             buildAndThrowError(fmt::format("Expected a symbol, got a {}", typeToString(sym)), sym);
         if (x.constList().size() != 3)
-            buildAndThrowError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
+            makeError(ErrorKind::InvalidNodeMacro, x, "");
 
         const std::string name = x.constList()[1].string();
         uint16_t i = addSymbol(x.constList()[1]);
 
         if (!m_opened_vars.empty() && m_opened_vars.top() == name)
-            buildAndThrowError("Can not define a variable using the same name as the function it is defined inside", x);
+            buildAndThrowError("Can not define a variable using the same name as the function it is defined inside. You need to rename the function or the variable", x);
 
         const bool is_function = x.constList()[2].isFunction();
         if (is_function)
@@ -553,7 +577,7 @@ namespace Ark::internal
     void ASTLowerer::compileWhile(Node& x, const Page p)
     {
         if (x.constList().size() != 3)
-            buildAndThrowError("Invalid node ; if it was computed by a macro, check that a node is returned", x);
+            makeError(ErrorKind::InvalidNodeMacro, x, "");
 
         m_locals_locator.createScope();
         page(p).emplace_back(CREATE_SCOPE);
@@ -625,14 +649,7 @@ namespace Ark::internal
                     compileExpression(value, p, false, false);
             }
             else
-            {
-                std::string message;
-                if (is_tail_call)
-                    message = fmt::format("Invalid node inside tail call to `{}'", node.repr());
-                else
-                    message = fmt::format("Invalid node inside call to `{}'", node.repr());
-                buildAndThrowError(message, value);
-            }
+                makeError(is_tail_call ? ErrorKind::InvalidNodeInTailCallNoReturnValue : ErrorKind::InvalidNodeNoReturnValue, value, node.repr());
         }
     }
 
@@ -727,7 +744,7 @@ namespace Ark::internal
             if (nodeProducesOutput(x.constList()[index]) || is_breakpoint)
                 compileExpression(x.list()[index], p, false, false);
             else
-                buildAndThrowError(fmt::format("Invalid node inside call to operator `{}'", node.repr()), x.constList()[index]);
+                makeError(ErrorKind::InvalidNodeInOperatorNoReturnValue, x.constList()[index], node.repr());
 
             if (!is_breakpoint)
                 exp_count++;

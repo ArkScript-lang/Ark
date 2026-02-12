@@ -6,4 +6,4 @@ In file tests/unittests/resources/DiagnosticsSuite/compileTime/function_shadowin
       |   ^~~~~~~~~~
     7 |
     8 |   (foo)
-        Can not define a variable using the same name as the function it is defined inside
+        Can not define a variable using the same name as the function it is defined inside. You need to rename the function or the variable

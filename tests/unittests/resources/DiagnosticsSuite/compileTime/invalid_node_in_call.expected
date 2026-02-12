@@ -3,4 +3,4 @@ In file tests/unittests/resources/DiagnosticsSuite/compileTime/invalid_node_in_c
     2 | (foo {})
       |      ^~
     3 |
-        Invalid node inside call to `foo'
+        Invalid node inside call to `foo'. The given node doesn't return a value, and thus can't be used as an expression.
