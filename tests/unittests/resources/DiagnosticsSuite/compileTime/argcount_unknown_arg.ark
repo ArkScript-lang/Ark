@@ -4,7 +4,7 @@
     ($symcat sym x)})
 
 (macro partial (func ...defargs) {
-    (macro bloc (suffix-dup a (- ($argcount func) (len defargs))))
+    (macro bloc (suffix-dup a (- ($argcount func) ($len defargs))))
     (fun (bloc) (func ...defargs bloc))
     ($undef bloc)})
 

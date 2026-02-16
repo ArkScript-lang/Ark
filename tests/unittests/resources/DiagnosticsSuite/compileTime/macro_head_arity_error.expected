@@ -1,6 +1,6 @@
 In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_head_arity_error.ark:1
-    1 | (macro a (head 1 2))
-      |          ^~~~~~~~~~
+    1 | (macro a ($head 1 2))
+      |          ^~~~~~~~~~~
     2 | (print a)
     3 |
-        When expanding `head' inside a macro, got 2 arguments, expected 1
+        When expanding `$head' inside a macro, got 2 arguments, expected 1

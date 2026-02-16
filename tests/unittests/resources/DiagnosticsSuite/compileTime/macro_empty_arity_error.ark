@@ -1,2 +1,2 @@
-(macro a (empty? 1 2))
+(macro a ($empty? 1 2))
 (print a)

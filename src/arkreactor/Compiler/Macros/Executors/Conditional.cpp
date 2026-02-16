@@ -23,7 +23,7 @@ namespace Ark::internal
 
         if (node.nodeType() == NodeType::Macro)
         {
-            handleMacroNode(node);
+            handleMacroNode(node, depth + 1);
             applyMacroProxy(node, depth + 1);
         }
 

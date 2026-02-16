@@ -51,15 +51,15 @@
     (test:case "execution contexts get reused" {
         # this forces the VM to create more than 5 execution context,
         # and delete the 6th
-        (async sleep 128)
-        (async sleep 128)
-        (async sleep 128)
-        (async sleep 128)
-        (async sleep 128)
-        (sleep 250)  # wait for the async call to complete
+        (async sleep 12)
+        (async sleep 12)
+        (async sleep 12)
+        (async sleep 12)
+        (async sleep 12)
+        (sleep 25)  # wait for the async call to complete
 
         # we have 5 contexts here, and 4 that are free to be (re)used
-        (async sleep 128) (sleep 200)
-        (async sleep 128) (sleep 200)
-        (async sleep 128) (sleep 200)
-        (async sleep 128) (sleep 200) }) })
+        (async sleep 12) (sleep 20)
+        (async sleep 12) (sleep 20)
+        (async sleep 12) (sleep 20)
+        (async sleep 12) (sleep 20) }) })

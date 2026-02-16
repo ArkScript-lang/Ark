@@ -116,8 +116,9 @@ namespace Ark::internal
          * @details Validate macros and register them by their name
          *
          * @param node A node of type Macro
+         * @param depth
          */
-        void handleMacroNode(Node& node);
+        void handleMacroNode(Node& node, unsigned depth);
 
         /**
          * @brief Registers a function definition node
@@ -154,7 +155,7 @@ namespace Ark::internal
          * @param is_expansion if the error message should switch from "Interpreting ..." to "When expanding ..."
          * @param kind the macro kind, empty by default (eg "operator", "condition")
          */
-        void checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, bool is_expansion = false, const std::string& kind = "");
+        void checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, bool is_expansion = false, const std::string& kind = "") const;
 
         /**
          * @brief Check if the given node has at least the provided argument count, otherwise throws an error
@@ -164,7 +165,7 @@ namespace Ark::internal
          * @param name the name of the macro being applied
          * @param kind the macro kind, empty by default (eg "operator", "condition")
          */
-        void checkMacroArgCountGe(const Node& node, std::size_t expected, const std::string& name, const std::string& kind = "");
+        void checkMacroArgCountGe(const Node& node, std::size_t expected, const std::string& name, const std::string& kind = "") const;
 
         /**
          * @brief Evaluate only the macros
@@ -183,7 +184,7 @@ namespace Ark::internal
          * @return true
          * @return false
          */
-        bool isTruthy(const Node& node);
+        bool isTruthy(const Node& node) const;
 
         /**
          * @brief Throw a macro processing error

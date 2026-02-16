@@ -1,6 +1,6 @@
 (macro if2 (conds bothConditionsAreTrue firstConditionIsTrue secondConditionIsTrue noConditionIsTrue) {
-  (mut result1 (head conds))
-  (mut result2 (@ conds 1))
+  (mut result1 ($head conds))
+  (mut result2 ($at conds 1))
   (if (and result1 result2)
     bothConditionsAreTrue
     (if result1

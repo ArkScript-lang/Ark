@@ -3,7 +3,7 @@
   ($symcat sym x) })
 
 (macro partial (func ...defargs) {
-  (macro bloc (suffix-dup a (- ($argcount func) (len defargs))))
+  (macro bloc (suffix-dup a (- ($argcount func) ($len defargs))))
   (fun (bloc) (func ...defargs bloc))
   ($undef bloc) })
 
@@ -65,7 +65,7 @@
 (print "Demonstrating a threading macro")
 
 (macro -> (arg fn1 ...fn) {
-  ($if (> (len fn) 0)
+  ($if (> ($len fn) 0)
     (-> (fn1 arg) ...fn)
     (fn1 arg)) })
 

@@ -19,9 +19,9 @@ namespace Ark::internal
         m_processor->applyMacro(node, depth);
     }
 
-    void MacroExecutor::handleMacroNode(Node& node) const
+    void MacroExecutor::handleMacroNode(Node& node, const unsigned depth) const
     {
-        m_processor->handleMacroNode(node);
+        m_processor->handleMacroNode(node, depth);
     }
 
     bool MacroExecutor::isTruthy(const Node& node) const
