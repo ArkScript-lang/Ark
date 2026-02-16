@@ -1,5 +1,5 @@
 In file tests/unittests/resources/DiagnosticsSuite/compileTime/at_out_of_range.ark:1
-    1 | (macro last (...args) (print args " => " (@ args -9)))
+    1 | (macro last (...args) (print args " => " ($at args -9)))
       | │                                        └─ error
       | │
       | └─ macro expansion started here

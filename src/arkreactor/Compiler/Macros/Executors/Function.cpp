@@ -17,16 +17,16 @@ namespace Ark::internal
     {
         const Node& first = node.list()[0];
 
-        // (macro name (args) body)
+        // macro corresponds to the following form: (macro name (args) body)
         if (const Node* macro = findNearestMacro(first.string()); macro != nullptr && macro->constList().size() == 3)
         {
             Node temp_body = macro->constList()[2];
-            Node args = macro->constList()[1];
-            const std::size_t args_needed = args.list().size();
+            const Node args = macro->constList()[1];
+            const std::size_t args_needed = args.constList().size();
             const std::size_t args_given = node.constList().size() - 1;  // remove the first (the name of the macro)
             const std::string macro_name = macro->constList()[0].string();
             // thanks to the parser, we are guaranteed that the spread will be in last position, if any
-            const bool has_spread = args_needed > 0 && args.list().back().nodeType() == NodeType::Spread;
+            const bool has_spread = args_needed > 0 && args.constList().back().nodeType() == NodeType::Spread;
 
             // save the args given to the macro by giving them a name (from the macro args block),
             // and a value (in node.constList())
@@ -38,15 +38,15 @@ namespace Ark::internal
                 if (j >= args_needed)
                     break;
 
-                if (args.list()[j].nodeType() == NodeType::Symbol)
+                if (args.constList()[j].nodeType() == NodeType::Symbol)
                 {
-                    const std::string& arg_name = args.list()[j].string();
+                    const std::string& arg_name = args.constList()[j].string();
                     args_applied[arg_name] = node.constList()[i];
                     ++j;
                 }
-                else if (args.list()[j].nodeType() == NodeType::Spread)
+                else if (args.constList()[j].nodeType() == NodeType::Spread)
                 {
-                    const std::string& arg_name = args.list()[j].string();
+                    const std::string& arg_name = args.constList()[j].string();
                     if (!args_applied.contains(arg_name))
                     {
                         args_applied[arg_name] = Node(NodeType::List);
@@ -61,8 +61,8 @@ namespace Ark::internal
             if (args_applied.size() + 1 == args_needed && has_spread)
             {
                 // just a spread we didn't assign
-                args_applied[args.list().back().string()] = Node(NodeType::List);
-                args_applied[args.list().back().string()].push_back(getListNode());
+                args_applied[args.constList().back().string()] = Node(NodeType::List);
+                args_applied[args.constList().back().string()].push_back(getListNode());
             }
 
             if (args_given != args_needed && !has_spread)

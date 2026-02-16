@@ -1,2 +1,2 @@
-(macro a (head 1 2))
+(macro a ($head 1 2))
 (print a)

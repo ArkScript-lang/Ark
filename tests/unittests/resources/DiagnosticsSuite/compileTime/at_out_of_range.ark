@@ -1,2 +1,2 @@
-(macro last (...args) (print args " => " (@ args -9)))
+(macro last (...args) (print args " => " ($at args -9)))
 (last 1 5 6 7 8)

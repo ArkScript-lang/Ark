@@ -47,7 +47,7 @@ namespace Ark::internal
         return m_ast;
     }
 
-    void MacroProcessor::handleMacroNode(Node& node)
+    void MacroProcessor::handleMacroNode(Node& node, const unsigned depth)
     {
         // a macro needs at least 2 nodes, name + value is the minimal form
         // this is guaranteed by the parser
@@ -59,11 +59,16 @@ namespace Ark::internal
         if (node.constList().size() == 2)
         {
             assert(first_node.nodeType() == NodeType::Symbol && "Can not define a macro without a symbol");
-            applyMacro(node.list()[1], 0);
-            node.list()[1] = evaluate(node.list()[1], 0, true);
+            // processNode is needed here to correctly expand macros when we have something like
+            //   (macro arg_bloc (__suffix-dup arg length))                                    /
+            //   (macro all_args (__replace_placeholders [arg_bloc] ...args))  <--------------*
+            // otherwise, 'arg_bloc' isn't expanded here, and we get in trouble
+            processNode(node.list()[1], depth + 1);
+            applyMacro(node.list()[1], depth + 1);
+            node.list()[1] = evaluate(node.list()[1], depth + 1, true);
             m_macros.back().add(first_node.string(), node);
         }
-        // ($ name (args) body)
+        // (macro name (args) body)
         else if (node.constList().size() == 3 && first_node.nodeType() == NodeType::Symbol)
         {
             assert(node.constList()[1].nodeType() == NodeType::List && "Invalid macro argument's list");
@@ -71,7 +76,7 @@ namespace Ark::internal
         }
         // in case we had a conditional, we need to evaluate and expand it
         else if (m_conditional_executor->canHandle(node))
-            m_conditional_executor->applyMacro(node, 0);
+            m_conditional_executor->applyMacro(node, depth + 1);
     }
 
     // todo find a better way to do this
@@ -111,7 +116,6 @@ namespace Ark::internal
         if (node.nodeType() == NodeType::List)
         {
             bool has_created = false;
-            // recursive call
             std::size_t i = 0;
             while (i < node.list().size())
             {
@@ -131,7 +135,9 @@ namespace Ark::internal
                         m_macros.emplace_back(depth);
                     }
 
-                    handleMacroNode(child);
+                    handleMacroNode(child, depth);
+                    if (child.nodeType() != NodeType::Macro)
+                        evaluate(child, depth);
                     added_begin = isBeginNode(child) && !had_begin;
                 }
                 else  // running on non-macros
@@ -208,7 +214,7 @@ namespace Ark::internal
         return false;
     }
 
-    void MacroProcessor::checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, const bool is_expansion, const std::string& kind)
+    void MacroProcessor::checkMacroArgCountEq(const Node& node, std::size_t expected, const std::string& name, const bool is_expansion, const std::string& kind) const
     {
         const std::size_t argcount = node.constList().size();
         if (argcount != expected + 1)
@@ -235,7 +241,7 @@ namespace Ark::internal
         }
     }
 
-    void MacroProcessor::checkMacroArgCountGe(const Node& node, std::size_t expected, const std::string& name, const std::string& kind)
+    void MacroProcessor::checkMacroArgCountGe(const Node& node, std::size_t expected, const std::string& name, const std::string& kind) const
     {
         const std::size_t argcount = node.constList().size();
         if (argcount < expected + 1)
@@ -401,9 +407,9 @@ namespace Ark::internal
                 }
                 return getFalseNode();
             }
-            else if (name == "len")
+            else if (name == "$len")
             {
-                checkMacroArgCountEq(node, 1, "len", true);
+                checkMacroArgCountEq(node, 1, "$len", true);
 
                 if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List)  // only apply len at compile time if we can
                 {
@@ -416,9 +422,9 @@ namespace Ark::internal
                     }
                 }
             }
-            else if (name == "empty?")
+            else if (name == "$empty?")
             {
-                checkMacroArgCountEq(node, 1, "empty?", true);
+                checkMacroArgCountEq(node, 1, "$empty?", true);
 
                 if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List && isConstEval(lst))
                 {
@@ -431,9 +437,9 @@ namespace Ark::internal
                 else if (lst == getNilNode())
                     node.updateValueAndType(getTrueNode());
             }
-            else if (name == "@")
+            else if (name == "$at")
             {
-                checkMacroArgCountEq(node, 2, "@");
+                checkMacroArgCountEq(node, 2, "$at");
 
                 Node sublist = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node idx = evaluate(node.list()[2], depth + 1, is_not_body);
@@ -464,9 +470,9 @@ namespace Ark::internal
                     return output;
                 }
             }
-            else if (name == "head")
+            else if (name == "$head")
             {
-                checkMacroArgCountEq(node, 1, "head", true);
+                checkMacroArgCountEq(node, 1, "$head", true);
 
                 if (node.list()[1].nodeType() == NodeType::List)
                 {
@@ -487,9 +493,9 @@ namespace Ark::internal
                         node.updateValueAndType(getNilNode());
                 }
             }
-            else if (name == "tail")
+            else if (name == "$tail")
             {
-                checkMacroArgCountEq(node, 1, "tail", true);
+                checkMacroArgCountEq(node, 1, "$tail", true);
 
                 if (node.list()[1].nodeType() == NodeType::List)
                 {
@@ -636,7 +642,7 @@ namespace Ark::internal
         return node;
     }
 
-    bool MacroProcessor::isTruthy(const Node& node)
+    bool MacroProcessor::isTruthy(const Node& node) const
     {
         if (node.nodeType() == NodeType::Symbol)
         {
@@ -700,7 +706,7 @@ namespace Ark::internal
         if (node.isListLike() && node.list()[i].nodeType() == NodeType::List && !node.list()[i].list().empty())
         {
             Node lst = node.constList()[i];
-            Node first = lst.constList()[0];
+            const Node first = lst.constList()[0];
 
             if (first.nodeType() == NodeType::Keyword && first.keyword() == Keyword::Begin)
             {

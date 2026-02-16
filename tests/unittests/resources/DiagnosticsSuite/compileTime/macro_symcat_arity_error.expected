@@ -1,6 +1,8 @@
 In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_symcat_arity_error.ark:1
     1 | (macro a { ($symcat b) })
-      |            ^~~~~~~~~~~
+      | │          └─ error
+      | │
+      | └─ macro expansion started here
     2 | (print a)
     3 |
         When expanding `$symcat', expected at least 2 arguments, got 1 arguments

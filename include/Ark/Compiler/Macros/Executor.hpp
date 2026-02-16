@@ -95,8 +95,9 @@ namespace Ark::internal
          *  Proxy function for MacroProcessor::handleMacroNode
          *
          * @param node A node of type Macro
+         * @param depth
          */
-        void handleMacroNode(Node& node) const;
+        void handleMacroNode(Node& node, unsigned depth) const;
 
         /**
          * @brief Check if a node can be evaluated to true
