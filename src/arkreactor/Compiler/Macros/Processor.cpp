@@ -413,20 +413,17 @@ namespace Ark::internal
 
                 if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List)  // only apply len at compile time if we can
                 {
-                    if (isConstEval(lst))
-                    {
-                        if (!lst.list().empty() && lst.list()[0] == getListNode())
-                            node.updateValueAndType(Node(static_cast<long>(lst.list().size()) - 1));
-                        else
-                            node.updateValueAndType(Node(static_cast<long>(lst.list().size())));
-                    }
+                    if (!lst.list().empty() && lst.list()[0] == getListNode())
+                        node.updateValueAndType(Node(static_cast<long>(lst.list().size()) - 1));
+                    else
+                        node.updateValueAndType(Node(static_cast<long>(lst.list().size())));
                 }
             }
             else if (name == "$empty?")
             {
                 checkMacroArgCountEq(node, 1, "$empty?", true);
 
-                if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List && isConstEval(lst))
+                if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List)
                 {
                     // only apply len at compile time if we can
                     if (!lst.list().empty() && lst.list()[0] == getListNode())
@@ -720,49 +717,6 @@ namespace Ark::internal
                 node.list().erase(node.constList().begin() + static_cast<std::vector<Node>::difference_type>(previous));
             }
         }
-    }
-
-    bool MacroProcessor::isConstEval(const Node& node) const
-    {
-        switch (node.nodeType())
-        {
-            case NodeType::Symbol:
-            {
-                const auto it = std::ranges::find(Language::operators, node.string());
-                const auto it2 = std::ranges::find_if(Builtins::builtins,
-                                                      [&node](const std::pair<std::string, Value>& element) -> bool {
-                                                          return node.string() == element.first;
-                                                      });
-
-                return it != Language::operators.end() ||
-                    it2 != Builtins::builtins.end() ||
-                    findNearestMacro(node.string()) != nullptr ||
-                    node.string() == "list" ||
-                    node.string() == "nil";
-            }
-
-            case NodeType::List:
-                return std::ranges::all_of(node.constList(), [this](const Node& child) {
-                    return isConstEval(child);
-                });
-
-            case NodeType::MutArg:
-            case NodeType::RefArg:
-            case NodeType::Capture:
-            case NodeType::Field:
-                return false;
-
-            case NodeType::Keyword:
-            case NodeType::String:
-            case NodeType::Number:
-            case NodeType::Macro:
-            case NodeType::Spread:
-            case NodeType::Namespace:
-            case NodeType::Unused:
-                return true;
-        }
-
-        return false;
     }
 
     void MacroProcessor::throwMacroProcessingError(const std::string& message, const Node& node) const
