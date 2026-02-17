@@ -119,9 +119,9 @@
     (test:eq (apply len ["abc"]) 3)
     (test:eq (apply len [""]) (len ""))
     (test:eq (apply len [""]) 0)
-    (test:eq (apply len [(dict)]) ($as-is (len (dict))))
+    (test:eq (apply len [(dict)]) (len (dict)))
     (test:eq (apply len [(dict)]) 0)
-    (test:eq (apply len [(dict "a" 1)]) ($as-is (len (dict "a" 1))))
+    (test:eq (apply len [(dict "a" 1)]) (len (dict "a" 1)))
     (test:eq (apply len [(dict "a" 1)]) 1) })
 
   (test:case "empty?" {
@@ -135,9 +135,9 @@
     (test:eq (apply empty? [""]) true)
     (test:eq (apply empty? [nil]) (empty? nil))
     (test:eq (apply empty? [nil]) true)
-    (test:eq (apply empty? [(dict)]) ($as-is (empty? (dict))))
+    (test:eq (apply empty? [(dict)]) (empty? (dict)))
     (test:eq (apply empty? [(dict)]) true)
-    (test:eq (apply empty? [(dict "a" 1)]) ($as-is (empty? (dict "a" 1))))
+    (test:eq (apply empty? [(dict "a" 1)]) (empty? (dict "a" 1)))
     (test:eq (apply empty? [(dict "a" 1)]) false) })
 
   (test:case "nil?" {

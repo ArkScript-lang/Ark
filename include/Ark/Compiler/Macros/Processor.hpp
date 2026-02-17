@@ -103,15 +103,6 @@ namespace Ark::internal
         static void removeBegin(Node& node, std::size_t i);
 
         /**
-         * @brief Check if a node can be evaluated at compile time
-         *
-         * @param node
-         * @return true
-         * @return false
-         */
-        [[nodiscard]] bool isConstEval(const Node& node) const;
-
-        /**
          * @brief Registers macros based on their type, expand conditional macros
          * @details Validate macros and register them by their name
          *
@@ -184,7 +175,7 @@ namespace Ark::internal
          * @return true
          * @return false
          */
-        bool isTruthy(const Node& node) const;
+        [[nodiscard]] bool isTruthy(const Node& node) const;
 
         /**
          * @brief Throw a macro processing error

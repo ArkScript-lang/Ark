@@ -47,7 +47,7 @@
         (macro length () ($len (fun () 5)))
         (macro not_empty_node () ($empty? (fun () ())))
         (macro empty_node () ($empty? ()))
-        (macro empty_node_bis ($empty? ()))
+        (macro empty_node_bis ($empty? []))
 
         (test:eq (length) 3)
         (test:eq (not_empty_node) false)
