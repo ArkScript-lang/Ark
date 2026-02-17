@@ -1,0 +1,8 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_at_number_number.ark:1
+    1 | (macro a () ($at 4 5))
+      | │                └─ error
+      | │
+      | └─ macro expansion started here
+    2 | (print (a))
+    3 |
+        When expanding `$at', expected 'list' to be a List, got a Number: 4

@@ -21,7 +21,7 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                 try
                 {
                     const bool ok = mut(state).doFile(data.path, features);
-                    expect(!ok) << fatal;  // we shouldn't be here, the compilation has to fail
+                    expect(!ok);  // we shouldn't be here, the compilation has to fail
                 }
                 catch (const Ark::CodeError& e)
                 {

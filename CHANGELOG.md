@@ -1,10 +1,14 @@
 # Change Log
 
 ## [Unreleased changes] - 2026-XX-YY
+### Breaking change
+- in macros, `len`, `empty?`, `head`, `tail`, `@` have been renamed to `$len`, `$empty?`, `$head`, `$tail` and `$at`. Those versions only work inside macros too, inside of having a weird dichotomy where they sometimes got applied and sometimes not
+
 ### Added
 - `apply` function: `(apply func [args...])`, to call a function with a set of arguments stored in a list. Works with functions, closures and builtins
 - `+`, `-`, `*`, `/` and many other operators can now be passed around, like builtins. This now works: `(list:reduce [1 2 3] +)`, where before we would get a compile time error about a "freestanding operator '+'"
 - `slice` builtin, for strings and lists: `(slice data start end [step=1])`
+- arguments of builtin macros are properly type-checked and will now raise runtime errors if the type is incorrect
 
 ## [4.2.0] - 2026-02-04
 ### Breaking changes

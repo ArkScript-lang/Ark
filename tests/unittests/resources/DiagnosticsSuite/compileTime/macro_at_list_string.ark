@@ -1,0 +1,2 @@
+(macro a () ($at (fun () ()) "hello"))
+(print (a))

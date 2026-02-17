@@ -410,14 +410,13 @@ namespace Ark::internal
             else if (name == "$len")
             {
                 checkMacroArgCountEq(node, 1, "$len", true);
+                Node& lst = node.list()[1];
+                checkMacroTypeError("$len", "node", NodeType::List, lst);
 
-                if (Node& lst = node.list()[1]; lst.nodeType() == NodeType::List)  // only apply len at compile time if we can
-                {
-                    if (!lst.list().empty() && lst.list()[0] == getListNode())
-                        node.updateValueAndType(Node(static_cast<long>(lst.list().size()) - 1));
-                    else
-                        node.updateValueAndType(Node(static_cast<long>(lst.list().size())));
-                }
+                if (!lst.list().empty() && lst.list()[0] == getListNode())
+                    node.updateValueAndType(Node(static_cast<long>(lst.list().size()) - 1));
+                else
+                    node.updateValueAndType(Node(static_cast<long>(lst.list().size())));
             }
             else if (name == "$empty?")
             {
@@ -441,79 +440,64 @@ namespace Ark::internal
                 Node sublist = evaluate(node.list()[1], depth + 1, is_not_body);
                 const Node idx = evaluate(node.list()[2], depth + 1, is_not_body);
 
-                if (sublist.nodeType() == NodeType::List && idx.nodeType() == NodeType::Number)
+                checkMacroTypeError("$at", "list", NodeType::List, sublist);
+                checkMacroTypeError("$at", "index", NodeType::Number, idx);
+
+                const std::size_t size = sublist.list().size();
+                std::size_t real_size = size;
+                long num_idx = static_cast<long>(idx.number());
+
+                // if the first node is the function call to "list", don't count it
+                if (size > 0 && sublist.list()[0] == getListNode())
                 {
-                    const std::size_t size = sublist.list().size();
-                    std::size_t real_size = size;
-                    long num_idx = static_cast<long>(idx.number());
-
-                    // if the first node is the function call to "list", don't count it
-                    if (size > 0 && sublist.list()[0] == getListNode())
-                    {
-                        real_size--;
-                        if (num_idx >= 0)
-                            ++num_idx;
-                    }
-
-                    Node output;
-                    if (num_idx >= 0 && std::cmp_less(num_idx, size))
-                        output = sublist.list()[static_cast<std::size_t>(num_idx)];
-                    else if (const auto c = static_cast<long>(size) + num_idx; num_idx < 0 && std::cmp_less(c, size) && c >= 0)
-                        output = sublist.list()[static_cast<std::size_t>(c)];
-                    else
-                        throwMacroProcessingError(fmt::format("Index ({}) out of range (list size: {})", num_idx, real_size), node);
-
-                    output.setPositionFrom(node);
-                    return output;
+                    real_size--;
+                    if (num_idx >= 0)
+                        ++num_idx;
                 }
+
+                Node output;
+                if (num_idx >= 0 && std::cmp_less(num_idx, size))
+                    output = sublist.list()[static_cast<std::size_t>(num_idx)];
+                else if (const auto c = static_cast<long>(size) + num_idx; num_idx < 0 && std::cmp_less(c, size) && c >= 0)
+                    output = sublist.list()[static_cast<std::size_t>(c)];
+                else
+                    throwMacroProcessingError(fmt::format("Index ({}) out of range (list size: {})", num_idx, real_size), node);
+
+                output.setPositionFrom(node);
+                return output;
             }
             else if (name == "$head")
             {
                 checkMacroArgCountEq(node, 1, "$head", true);
+                Node sublist = node.list()[1];
+                checkMacroTypeError("$head", "node", NodeType::List, sublist);
 
-                if (node.list()[1].nodeType() == NodeType::List)
+                if (!sublist.constList().empty() && sublist.constList()[0] == getListNode())
                 {
-                    Node& sublist = node.list()[1];
-                    if (!sublist.constList().empty() && sublist.constList()[0] == getListNode())
+                    if (sublist.constList().size() > 1)
                     {
-                        if (sublist.constList().size() > 1)
-                        {
-                            const Node sublistCopy = sublist.constList()[1];
-                            node.updateValueAndType(sublistCopy);
-                        }
-                        else
-                            node.updateValueAndType(getNilNode());
+                        const Node sublistCopy = sublist.constList()[1];
+                        node.updateValueAndType(sublistCopy);
                     }
-                    else if (!sublist.list().empty())
-                        node.updateValueAndType(sublist.constList()[0]);
                     else
                         node.updateValueAndType(getNilNode());
                 }
+                else if (!sublist.list().empty())
+                    node.updateValueAndType(sublist.constList()[0]);
+                else
+                    node.updateValueAndType(getNilNode());
             }
             else if (name == "$tail")
             {
                 checkMacroArgCountEq(node, 1, "$tail", true);
+                Node sublist = node.list()[1];
+                checkMacroTypeError("$tail", "node", NodeType::List, sublist);
 
-                if (node.list()[1].nodeType() == NodeType::List)
+                if (!sublist.list().empty() && sublist.list()[0] == getListNode())
                 {
-                    Node sublist = node.list()[1];
-                    if (!sublist.list().empty() && sublist.list()[0] == getListNode())
+                    if (sublist.list().size() > 1)
                     {
-                        if (sublist.list().size() > 1)
-                        {
-                            sublist.list().erase(sublist.constList().begin() + 1);
-                            node.updateValueAndType(sublist);
-                        }
-                        else
-                        {
-                            node.updateValueAndType(Node(NodeType::List));
-                            node.push_back(getListNode());
-                        }
-                    }
-                    else if (!sublist.list().empty())
-                    {
-                        sublist.list().erase(sublist.constList().begin());
-                        sublist.list().insert(sublist.list().begin(), getListNode());
+                        sublist.list().erase(sublist.constList().begin() + 1);
                         node.updateValueAndType(sublist);
                     }
                     else
@@ -522,19 +506,23 @@ namespace Ark::internal
                         node.push_back(getListNode());
                     }
                 }
+                else if (!sublist.list().empty())
+                {
+                    sublist.list().erase(sublist.constList().begin());
+                    sublist.list().insert(sublist.list().begin(), getListNode());
+                    node.updateValueAndType(sublist);
+                }
+                else
+                {
+                    node.updateValueAndType(Node(NodeType::List));
+                    node.push_back(getListNode());
+                }
             }
             else if (name == Language::Symcat)
             {
                 if (node.list().size() <= 2)
                     throwMacroProcessingError(fmt::format("When expanding `{}', expected at least 2 arguments, got {} arguments", Language::Symcat, argcount), node);
-                if (node.list()[1].nodeType() != NodeType::Symbol)
-                    throwMacroProcessingError(
-                        fmt::format(
-                            "When expanding `{}', expected the first argument to be a Symbol, got a {}: {}",
-                            Language::Symcat,
-                            typeToString(node.list()[1]),
-                            node.list()[1].repr()),
-                        node.list()[1]);
+                checkMacroTypeError(Language::Symcat.data(), "symbol", NodeType::Symbol, node.list()[1]);
 
                 std::string sym = node.list()[1].string();
 
@@ -734,5 +722,19 @@ namespace Ark::internal
         }();
 
         throw CodeError(message, CodeErrorContext(node.filename(), node.position()), maybe_context);
+    }
+
+    void MacroProcessor::checkMacroTypeError(const std::string& macro, const std::string& arg, const NodeType expected, const Node& actual) const
+    {
+        if (actual.nodeType() != expected)
+            throwMacroProcessingError(
+                fmt::format(
+                    "When expanding `{}', expected '{}' to be a {}, got a {}: {}",
+                    macro,
+                    arg,
+                    std::string(nodeTypes[static_cast<std::size_t>(expected)]),
+                    typeToString(actual),
+                    actual.repr()),
+                actual);
     }
 }

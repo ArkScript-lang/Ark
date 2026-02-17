@@ -1,0 +1,2 @@
+(macro a () ($len 5))
+(print (a))

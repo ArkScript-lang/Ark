@@ -1,0 +1,8 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_len_number.ark:1
+    1 | (macro a () ($len 5))
+      | │                 └─ error
+      | │
+      | └─ macro expansion started here
+    2 | (print (a))
+    3 |
+        When expanding `$len', expected 'node' to be a List, got a Number: 5
