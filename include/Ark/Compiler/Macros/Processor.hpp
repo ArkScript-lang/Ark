@@ -184,6 +184,8 @@ namespace Ark::internal
          * @param node the node in which there is an error
          */
         [[noreturn]] void throwMacroProcessingError(const std::string& message, const Node& node) const;
+
+        void checkMacroTypeError(const std::string& macro, const std::string& arg, NodeType expected, const Node& actual) const;
     };
 }
 

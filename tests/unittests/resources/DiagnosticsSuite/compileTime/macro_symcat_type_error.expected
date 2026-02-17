@@ -5,4 +5,4 @@ In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_symcat_type
       | └─ macro expansion started here
     2 | (print a)
     3 |
-        When expanding `$symcat', expected the first argument to be a Symbol, got a Number: 5
+        When expanding `$symcat', expected 'symbol' to be a Symbol, got a Number: 5

@@ -1,0 +1,2 @@
+(macro a () ($head 5))
+(print (a))

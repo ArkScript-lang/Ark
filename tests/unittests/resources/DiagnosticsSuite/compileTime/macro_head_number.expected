@@ -1,0 +1,8 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_head_number.ark:1
+    1 | (macro a () ($head 5))
+      | │                  └─ error
+      | │
+      | └─ macro expansion started here
+    2 | (print (a))
+    3 |
+        When expanding `$head', expected 'node' to be a List, got a Number: 5
