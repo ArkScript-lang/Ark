@@ -234,7 +234,14 @@ namespace Ark::internal
          */
         [[noreturn]] static void buildAndThrowError(const std::string& message, const Node& node);
 
-        [[noreturn]] static void makeError(ErrorKind kind, const Node& node, const std::string& additional_ctx);
+        /**
+         * @brief Throw a nice error message, using a message builder
+         *
+         * @param kind error kind
+         * @param node erroneous node
+         * @param additional_ctx optional context for the error, e.g. the macro name
+         */
+        static void makeError(ErrorKind kind, const Node& node, const std::string& additional_ctx);
 
         /**
          * @brief Compile an expression (a node) recursively
