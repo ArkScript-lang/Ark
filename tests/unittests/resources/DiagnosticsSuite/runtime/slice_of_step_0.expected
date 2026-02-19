@@ -1,0 +1,6 @@
+slice: a step of 0 is illegal
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/slice_of_step_0.ark:1
+    1 | (slice "abc" 0 2 0)
+      | ^~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,6 @@
+IndexError: 4 out of range "abc" (length 3)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/slice_out_of_range.ark:1
+    1 | (slice "abc" 4 5)
+      | ^~~~~~~~~~~~~~~~
+    2 |
