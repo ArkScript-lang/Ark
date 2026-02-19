@@ -404,7 +404,7 @@ namespace Ark::internal
     bool operator<(const Node& A, const Node& B)
     {
         if (A.nodeType() != B.nodeType())
-            return (static_cast<int>(A.nodeType()) - static_cast<int>(B.nodeType())) < 0;
+            return false;
 
         switch (A.nodeType())
         {

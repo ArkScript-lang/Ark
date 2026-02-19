@@ -1,0 +1,23 @@
+Function slice expected between 3 arguments and 4 arguments
+Call
+  ↳ (slice "abc" "def" 5)
+Signature
+  ↳ (slice container start end)
+Arguments
+  → `container' (expected List, or String) ✓
+  → `start' (expected Number), got "def" (String)
+  → `end' (expected Number) ✓
+
+Alternative 2:
+Signature
+  ↳ (slice container start end step)
+Arguments
+  → `container' (expected List, or String) ✓
+  → `start' (expected Number), got "def" (String)
+  → `end' (expected Number) ✓
+  → `step' (expected Number) was not provided
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/slice_str_str_num.ark:1
+    1 | (slice "abc" "def" 5)
+      | ^~~~~~~~~~~~~~~~~~~~
+    2 |
