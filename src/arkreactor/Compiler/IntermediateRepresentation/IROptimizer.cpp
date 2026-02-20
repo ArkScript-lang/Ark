@@ -32,21 +32,21 @@ namespace Ark::internal
             Rule { { LOAD_FAST_BY_INDEX, SET_VAL }, SET_VAL_FROM_INDEX },
             Rule { { STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
                    [](const Entities entities, const std::size_t start_idx) {
-                       return Builtins::builtins[entities[3].primaryArg()].second.isFunction() && start_idx == 0;
+                       return Builtins::builtins[entities[3].primaryArg()].second.isFunction() && start_idx == 0 && entities[6].inst() == RET;
                    },
                    [](const Entities e) {
                        return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[3].primaryArg(), 1);
                    } },
             Rule { { STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
                    [](const Entities entities, const std::size_t start_idx) {
-                       return Builtins::builtins[entities[5].primaryArg()].second.isFunction() && start_idx == 0;
+                       return Builtins::builtins[entities[5].primaryArg()].second.isFunction() && start_idx == 0 && entities[8].inst() == RET;
                    },
                    [](const Entities e) {
                        return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[5].primaryArg(), 2);
                    } },
             Rule { { STORE, STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
                    [](const Entities entities, const std::size_t start_idx) {
-                       return Builtins::builtins[entities[7].primaryArg()].second.isFunction() && start_idx == 0;
+                       return Builtins::builtins[entities[7].primaryArg()].second.isFunction() && start_idx == 0 && entities[10].inst() == RET;
                    },
                    [](const Entities e) {
                        return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[7].primaryArg(), 3);
@@ -313,10 +313,13 @@ namespace Ark::internal
         if (expected_insts.size() > entities.size())
             return false;
 
-        for (std::size_t i = 0; i < expected_insts.size(); ++i)
+        std::size_t i = 0;
+        while (i < expected_insts.size())
         {
             if (expected_insts[i] != entities[i].inst())
                 return false;
+            if (entities[i].kind() != IR::Kind::Label)
+                ++i;
         }
 
         return true;

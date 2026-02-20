@@ -1,0 +1,12 @@
+# we don't want the call to print to be optimized by a CALL_BUILTIN_WITHOUT_RETURN_ADDRESS here
+# since it would break the rest of the function
+(let foo (fun (a) {
+  (print a)
+  (let k (toString a))
+  k }))
+(foo 5)
+
+# but this should still be allowed here
+(let bar (fun (b)
+  (print b)))
+(bar 6)
