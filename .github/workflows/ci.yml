@@ -160,6 +160,92 @@ jobs:
           echo /tmp/ArkScript/lib; ls /tmp/ArkScript/lib
           DYLD_PRINT_LIBRARIES=1 /tmp/ArkScript/bin/arkscript -e '(import std.List) (print list:map " is a function")' || exit 1
 
+  cli:
+    runs-on: ${{ matrix.os }}
+    name: Test ArkScript CLI on ${{ matrix.os }}
+    needs: [ check ]
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - macos-14
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Setup compilers, dependencies, project and build
+        uses: ./.github/workflows/setup-compilers
+        with:
+          os_name: ${{ matrix.os }}
+          compiler: clang
+          compiler_version: 16
+          sanitizers: "On"
+          with_deps: false
+
+      - name: Execute script normally
+        run: |
+          export ARKSCRIPT_PATH=$(pwd)/lib
+          CODE='(import std.Sys) (if (!= ["1" "2" "3"] sys:args) { (print sys:args) (sys:exit 1) })'
+          echo $CODE > a.ark
+          rm -rf __arkscript__
+
+          ./build/arkscript a.ark 1 2 3
+          # the cache should be created
+          if ! [ -d __arkscript__ ]; then
+            echo "Cache folder doesn't exist"
+            exit 1
+          fi
+
+      - name: -fno-cache should not create cache folder
+        run: |
+          export ARKSCRIPT_PATH=$(pwd)/lib
+          CODE='(import std.Sys) (if (!= ["1" "2" "3"] sys:args) { (print sys:args) (sys:exit 1) })'
+          echo $CODE > a.ark
+          rm -rf __arkscript__
+          
+          ./build/arkscript -fno-cache a.ark 1 2 3
+          # -fno-cache should prevent the cache creation
+          if [ -d __arkscript__ ]; then
+            echo "Cache folder exists"
+            exit 1
+          fi
+
+      - name: Take input from stdin
+        run: |
+          export ARKSCRIPT_PATH=$(pwd)/lib
+          CODE='(import std.Sys) (if (!= ["1" "2" "3"] sys:args) { (print sys:args) (sys:exit 1) })'
+          echo $CODE > a.ark
+          rm -rf __arkscript__
+          
+          ./build/arkscript - 1 2 3 <a.ark
+          # we read from stdin, there should be no cache created
+          if [ -d __arkscript__ ]; then
+            echo "Cache folder exists"
+            exit 1
+          fi
+
+      - name: Take input from CLI with heredoc
+        run: |
+          export ARKSCRIPT_PATH=$(pwd)/lib
+          rm -rf __arkscript__
+
+          ./build/arkscript - 1 2 3 << EOF
+          (import std.Sys)
+          (if (!= ["1" "2" "3"] sys:args)
+            {
+              (print sys:args)
+              (sys:exit 1) })
+          EOF
+          # there should not be any cache generated when evaluating code from the CLI
+          if [ -d __arkscript__ ]; then
+            echo "Cache folder exists"
+            exit 1
+          fi
+
   build:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.name }}

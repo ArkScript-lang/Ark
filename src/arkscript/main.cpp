@@ -101,14 +101,14 @@ int main(int argc, char** argv)
         | option("-v", "--version").set(selected, mode::version).doc("Display ArkScript version and exit")
         | option("--dev-info").set(selected, mode::dev_info).doc("Display development information and exit")
         | (
-            required("-e", "--eval").set(selected, mode::eval).doc("Evaluate ArkScript expression\n")
+            required("-e", "--eval").set(selected, mode::eval).doc("Evaluate ArkScript expression")
             & value("expression", eval_expression)
         )
         | (
             run_flags
             , (
                 required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
-                & value("file", file)
+                & value("file", file).doc("If file is -, it reads code from stdin")
             )
             | value("file", file).set(selected, mode::run)
         )
@@ -166,7 +166,7 @@ int main(int argc, char** argv)
                               .append_section("BUILD DATE", fmt::format("        {}", ARK_BUILD_DATE))
                               .append_section("LICENSE", "        Mozilla Public License 2.0");
 
-    if (parse(argc, argv, cli))
+    if (auto result = parse(argc, argv, cli))
     {
         using namespace Ark;
 
@@ -186,9 +186,9 @@ int main(int argc, char** argv)
                     return std::filesystem::path(path);
                 });
             }
-            else if (Utils::fileExists("./lib"))
+            else if (Utils::fileExists("./lib") && Utils::fileExists("./lib/std/Prelude.ark"))
                 lib_paths.emplace_back("lib");
-            else
+            else if (debug > 0)
                 fmt::println("{}:  Couldn't read ARKSCRIPT_PATH environment variable", fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)));
         }
 
@@ -251,7 +251,15 @@ int main(int argc, char** argv)
                 state.setDebug(debug);
                 state.setArgs(script_args);
 
-                if (!state.doFile(file, passes))
+                if (file == "-")
+                {
+                    std::string content, line;
+                    while (std::getline(std::cin, line))
+                        content += line;
+                    if (!state.doString(content, passes))
+                        return ArkErrorExitCode;
+                }
+                else if (!state.doFile(file, passes))
                     return ArkErrorExitCode;
 
                 Ark::VM vm(state);
@@ -324,6 +332,50 @@ int main(int argc, char** argv)
                     fmt::println("{}", formatter.output());
                 if (formatter.codeModified())
                     return 1;
+            }
+        }
+    }
+    else
+    {
+        std::cerr << "Could not parse CLI arguments" << std::endl;
+
+        auto doc_label = [](const parameter& p) {
+            if (!p.flags().empty())
+                return p.flags().front();
+            if (!p.label().empty())
+                return p.label();
+            return doc_string { "<?>" };
+        };
+
+        std::cout << "args -> parameter mapping:\n";
+        for (const auto& m : result)
+        {
+            std::cout << "#" << m.index() << " " << m.arg() << " -> ";
+            if (const parameter* p = m.param(); p)
+            {
+                std::cout << doc_label(*p) << " \t";
+                if (m.repeat() > 0)
+                {
+                    std::cout << (m.bad_repeat() ? "[bad repeat " : "[repeat ")
+                              << m.repeat() << "]";
+                }
+                if (m.blocked())
+                    std::cout << " [blocked]";
+                if (m.conflict())
+                    std::cout << " [conflict]";
+                std::cout << '\n';
+            }
+            else
+                std::cout << " [unmapped]\n";
+        }
+
+        std::cout << "missing parameters:\n";
+        for (const auto& m : result.missing())
+        {
+            if (const parameter* p = m.param(); p)
+            {
+                std::cout << doc_label(*p) << " \t";
+                std::cout << " [missing after " << m.after_index() << "]\n";
             }
         }
     }
