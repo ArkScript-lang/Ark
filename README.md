@@ -173,21 +173,22 @@ DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        arkscript -h
-        arkscript -v
-        arkscript --dev-info
-        arkscript -e <expression>
+        arkscript -h 
+        arkscript -v 
+        arkscript --dev-info 
+        arkscript -e <expression> 
         arkscript [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
                   [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
-                  [-f(iroptimizer|no-iroptimizer)] [-fdump-ir] ((-c <file>) | (<file> ))
+                  [-f(iroptimizer|no-iroptimizer)] [-fdebugger] [-fdump-ir] [-fno-cache] ((-c
+                  <file>) | <file>) 
 
-        arkscript -f <file> [--(dry-run|check)]
-        arkscript [-d] [-L <lib_dir>] --ast <file>
-        arkscript -bcr <file> -on
-        arkscript -bcr <file> -a [-s <start> <end>]
-        arkscript -bcr <file> -st [-s <start> <end>]
-        arkscript -bcr <file> -vt [-s <start> <end>]
-        arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>]
+        arkscript -f <file> [--(dry-run|check)] 
+        arkscript [-d] [-L <lib_dir>] --ast <file> 
+        arkscript -bcr <file> -on 
+        arkscript -bcr <file> -a [-s <start> <end>] 
+        arkscript -bcr <file> -st [-s <start> <end>] 
+        arkscript -bcr <file> -vt [-s <start> <end>] 
+        arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>] 
 
 OPTIONS
         -h, --help                  Display this message
@@ -210,7 +211,9 @@ OPTIONS
         -f(iroptimizer|no-iroptimizer)
                                     Toggle on and off the IR optimizer pass
 
+        -fdebugger                  Turn on the debugger
         -fdump-ir                   Dump IR to file.ark.ir
+        -fno-cache                  Disable the bytecode cache creation
         -c, --compile               Compile the given program to bytecode, but do not run
         -f, --format                Format the given source file in place
         --dry-run                   Do not modify the file, only print out the changes
@@ -236,7 +239,10 @@ OPTIONS
         -s, --slice                 Select a slice of instructions in the bytecode
 
 VERSION
-        4.0.0-32c501fb
+        4.2.0-94e546d6
+
+BUILD DATE
+        2026-02-21T20:42:38Z
 
 LICENSE
         Mozilla Public License 2.0

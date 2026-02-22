@@ -9,6 +9,7 @@
 - `+`, `-`, `*`, `/` and many other operators can now be passed around, like builtins. This now works: `(list:reduce [1 2 3] +)`, where before we would get a compile time error about a "freestanding operator '+'"
 - `slice` builtin, for strings and lists: `(slice data start end [step=1])`
 - arguments of builtin macros are properly type-checked and will now raise runtime errors if the type is incorrect
+- `-fno-cache` cli option to disable the creation of the bytecode cache folder `__arkscript__`
 
 ## [4.2.0] - 2026-02-04
 ### Breaking changes

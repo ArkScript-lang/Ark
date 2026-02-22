@@ -62,7 +62,7 @@ namespace Ark
         }
     }
 
-    bool State::compile(const std::string& file, const std::string& output) const
+    bool State::compile(const std::string& file, const std::string& output)
     {
         Welder welder(m_debug_level, m_libenv, m_features);
         for (const auto& key : m_bound | std::views::keys)
@@ -74,7 +74,9 @@ namespace Ark
             return false;
 
         const std::string destination = output.empty() ? (file.substr(0, file.find_last_of('.')) + ".arkc") : output;
-        if (!welder.saveBytecodeToFile(destination))
+        if ((m_features & DisableCache) == 0 && !welder.saveBytecodeToFile(destination))
+            return false;
+        if (!feed(welder.bytecode()))
             return false;
 
         return true;
@@ -102,10 +104,19 @@ namespace Ark
             const std::filesystem::path cache_directory = std::filesystem::path(file_path).parent_path() / ARK_CACHE_DIRNAME;
             const std::string bytecode_path = (cache_directory / filename).string();
 
-            if (!exists(cache_directory))
-                create_directory(cache_directory);
+            if (!exists(cache_directory) && (m_features & DisableCache) == 0)
+            {
+                try
+                {
+                    create_directory(cache_directory);
+                }
+                catch (const std::filesystem::filesystem_error&)
+                {
+                    m_features |= DisableCache;
+                }
+            }
 
-            if (compile(file_path, bytecode_path) && feed(bytecode_path))
+            if (compile(file_path, bytecode_path))
                 return true;
         }
         else if (feed(bytecode))  // it's a bytecode file

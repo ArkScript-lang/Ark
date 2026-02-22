@@ -85,10 +85,15 @@ int main(int argc, char** argv)
     ).doc("Turn on the debugger");
     auto ir_dump = option("-fdump-ir").call([&] { passes |= Ark::FeatureDumpIR; })
         .doc("Dump IR to file.ark.ir");
+    auto no_cache = option("-fno-cache").call([&] { passes |= Ark::DisableCache; })
+        .doc("Disable the bytecode cache creation");
 
     const auto run_flags = (
         // cppcheck-suppress constStatement
-        debug_flag, lib_dir_flag, import_solver_pass_flag, macro_proc_pass_flag, optimizer_pass_flag, ir_optimizer_pass_flag, vm_debugger_flag, ir_dump
+        debug_flag, lib_dir_flag, import_solver_pass_flag, macro_proc_pass_flag,
+        // cppcheck-suppress constStatement
+        optimizer_pass_flag, ir_optimizer_pass_flag, vm_debugger_flag, ir_dump,
+        no_cache
     );
 
     auto cli = (

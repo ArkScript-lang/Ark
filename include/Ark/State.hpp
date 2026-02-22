@@ -149,7 +149,7 @@ namespace Ark
          * @return true on success
          * @return false on failure and raise an exception
          */
-        [[nodiscard]] bool compile(const std::string& file, const std::string& output) const;
+        [[nodiscard]] bool compile(const std::string& file, const std::string& output);
 
         static void throwStateError(const std::string& message)
         {
