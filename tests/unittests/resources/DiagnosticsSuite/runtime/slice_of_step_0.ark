@@ -1,1 +1,1 @@
-(slice "abc" 0 2 0)
+(builtin__slice "abc" 0 2 0)

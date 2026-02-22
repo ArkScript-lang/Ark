@@ -1,1 +1,1 @@
-(slice "abc" "def" 5)
+(builtin__slice "abc" "def" 5)

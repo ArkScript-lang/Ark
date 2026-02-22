@@ -110,7 +110,7 @@ namespace Ark::internal::Builtins
         // Bytecode
         { "disassemble", Value(Bytecode::disassemble) },
 
-        { "slice", Value(slice) },
+        { "builtin__slice", Value(slice) },
 
         // Operators that can also be used as builtins
         { "+", Value(Operators::add) },

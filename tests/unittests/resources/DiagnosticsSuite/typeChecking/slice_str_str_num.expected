@@ -18,6 +18,6 @@ Arguments
   → `step' (expected Number) was not provided
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/slice_str_str_num.ark:1
-    1 | (slice "abc" "def" 5)
-      | ^~~~~~~~~~~~~~~~~~~~
+    1 | (builtin__slice "abc" "def" 5)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     2 |

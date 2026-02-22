@@ -1,1 +1,1 @@
-(slice 1 5 5)
+(builtin__slice 1 5 5)
