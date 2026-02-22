@@ -7,7 +7,7 @@
 ### Added
 - `apply` function: `(apply func [args...])`, to call a function with a set of arguments stored in a list. Works with functions, closures and builtins
 - `+`, `-`, `*`, `/` and many other operators can now be passed around, like builtins. This now works: `(list:reduce [1 2 3] +)`, where before we would get a compile time error about a "freestanding operator '+'"
-- `slice` builtin, for strings and lists: `(slice data start end [step=1])`
+- `builtin__slice` builtin, for strings and lists: `(builtin__slice data start end [step=1])` ; **this is an experimentation and may be removed in future versions**
 - arguments of builtin macros are properly type-checked and will now raise runtime errors if the type is incorrect
 - `-fno-cache` cli option to disable the creation of the bytecode cache folder `__arkscript__`
 
