@@ -195,7 +195,6 @@ OPTIONS
         -v, --version               Display ArkScript version and exit
         --dev-info                  Display development information and exit
         -e, --eval                  Evaluate ArkScript expression
-
         -d, --debug...              Increase debug level (default: 0)
 
         -L, --lib                   Set the location of the ArkScript standard library. Paths can be
@@ -215,6 +214,7 @@ OPTIONS
         -fdump-ir                   Dump IR to file.ark.ir
         -fno-cache                  Disable the bytecode cache creation
         -c, --compile               Compile the given program to bytecode, but do not run
+        <file>                      If file is -, it reads code from stdin
         -f, --format                Format the given source file in place
         --dry-run                   Do not modify the file, only print out the changes
         --check                     Check if a file formating is correctly, without modifying it.
