@@ -253,9 +253,7 @@ int main(int argc, char** argv)
 
                 if (file == "-")
                 {
-                    std::string content, line;
-                    while (std::getline(std::cin, line))
-                        content += line;
+                    std::string content(std::istreambuf_iterator<char>(std::cin), {});
                     if (!state.doString(content, passes))
                         return ArkErrorExitCode;
                 }

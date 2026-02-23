@@ -206,7 +206,7 @@ jobs:
           CODE='(import std.Sys) (if (!= ["1" "2" "3"] sys:args) { (print sys:args) (sys:exit 1) })'
           echo $CODE > a.ark
           rm -rf __arkscript__
-          
+
           ./build/arkscript -fno-cache a.ark 1 2 3
           # -fno-cache should prevent the cache creation
           if [ -d __arkscript__ ]; then
@@ -220,7 +220,7 @@ jobs:
           CODE='(import std.Sys) (if (!= ["1" "2" "3"] sys:args) { (print sys:args) (sys:exit 1) })'
           echo $CODE > a.ark
           rm -rf __arkscript__
-          
+
           ./build/arkscript - 1 2 3 <a.ark
           # we read from stdin, there should be no cache created
           if [ -d __arkscript__ ]; then
@@ -234,6 +234,7 @@ jobs:
           rm -rf __arkscript__
 
           ./build/arkscript - 1 2 3 << EOF
+          # test comment, should be on its own line and not hide the following import
           (import std.Sys)
           (if (!= ["1" "2" "3"] sys:args)
             {
