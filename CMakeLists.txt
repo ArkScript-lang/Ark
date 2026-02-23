@@ -187,15 +187,8 @@ if (NOT ARK_EMSCRIPTEN)
 
     # Install the standard library
     if (NOT ARK_NO_STDLIB)
-        if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-            set(ARK_STD_INSTALL_PATH ${CMAKE_INSTALL_LIBDIR}/Ark/std)
-        else ()
-            # custom installation prefix, no need for lib/Ark/std, use lib/std instead
-            set(ARK_STD_INSTALL_PATH ${CMAKE_INSTALL_LIBDIR}/std)
-        endif ()
-
         install(DIRECTORY ${ark_SOURCE_DIR}/lib/std/
-                DESTINATION ${ARK_STD_INSTALL_PATH}
+                DESTINATION ${CMAKE_INSTALL_LIBDIR}/Ark/std
                 FILES_MATCHING PATTERN "*.ark"
                 PATTERN "std/tests" EXCLUDE
                 PATTERN "std/.github" EXCLUDE)
