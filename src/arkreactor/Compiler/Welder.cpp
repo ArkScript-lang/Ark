@@ -28,7 +28,7 @@ namespace Ark
         m_lowerer(debug),
         m_ir_optimizer(debug),
         m_ir_compiler(debug)
-    { }
+    {}
 
     void Welder::registerSymbol(const std::string& name)
     {
