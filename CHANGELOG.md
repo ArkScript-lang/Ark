@@ -12,6 +12,9 @@
 - `-fno-cache` cli option to disable the creation of the bytecode cache folder `__arkscript__`
 - in the CLI, `file` can be `-` to read code from stdin
 
+### Changed
+- when using the cli flag `-fdump-ir`, the IR is dumped in the cache folder
+
 ## [4.2.0] - 2026-02-04
 ### Breaking changes
 - `assert` is no longer an instruction but a builtin

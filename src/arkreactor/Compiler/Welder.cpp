@@ -28,7 +28,7 @@ namespace Ark
         m_lowerer(debug),
         m_ir_optimizer(debug),
         m_ir_compiler(debug)
-    {}
+    { }
 
     void Welder::registerSymbol(const std::string& name)
     {
@@ -156,9 +156,13 @@ namespace Ark
     {
         std::filesystem::path path = m_root_file;
         if (is_directory(m_root_file))
-            path /= "output.ark.ir";
+            path = path / ARK_CACHE_DIRNAME / "output.ark.ir";
         else
-            path.replace_extension(".ark.ir");
+        {
+            const auto filename = path.filename().replace_extension(".ark.ir");
+            path.remove_filename();
+            path = path / ARK_CACHE_DIRNAME / filename;
+        }
 
         std::ofstream output(path);
         m_ir_compiler.dumpToStream(output);
