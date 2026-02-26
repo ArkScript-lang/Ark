@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased changes] - 2026-XX-YY
+## [4.3.0] - 2026-02-26
 ### Breaking change
 - in macros, `len`, `empty?`, `head`, `tail`, `@` have been renamed to `$len`, `$empty?`, `$head`, `$tail` and `$at`. Those versions only work inside macros too, inside of having a weird dichotomy where they sometimes got applied and sometimes not
 
