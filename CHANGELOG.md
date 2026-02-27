@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased changes] - 2026-XX-YY
+## [4.3.0] - 2026-02-26
 ### Breaking change
 - in macros, `len`, `empty?`, `head`, `tail`, `@` have been renamed to `$len`, `$empty?`, `$head`, `$tail` and `$at`. Those versions only work inside macros too, inside of having a weird dichotomy where they sometimes got applied and sometimes not
 
@@ -11,6 +11,9 @@
 - arguments of builtin macros are properly type-checked and will now raise runtime errors if the type is incorrect
 - `-fno-cache` cli option to disable the creation of the bytecode cache folder `__arkscript__`
 - in the CLI, `file` can be `-` to read code from stdin
+
+### Changed
+- when using the cli flag `-fdump-ir`, the IR is dumped in the cache folder
 
 ## [4.2.0] - 2026-02-04
 ### Breaking changes
