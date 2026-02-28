@@ -24,6 +24,7 @@ void updateExpectedFile(const TestData& data, const std::string& actual)
     if (f.is_open())
     {
         f << actual;
+        f << "\n";
         f.close();
     }
 }
