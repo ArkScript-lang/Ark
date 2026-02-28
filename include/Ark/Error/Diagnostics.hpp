@@ -64,16 +64,16 @@ namespace Ark::Diagnostics
      */
     std::string makeContextWithNode(const std::string& message, const internal::Node& node);
 
-    ARK_API void generateWithCode(const CodeError& e, const std::string& code, std::ostream& os = std::cout, bool colorize = true);
+    ARK_API void generateWithCode(const CodeError& e, const std::string& code, std::ostream& os = std::cerr, bool colorize = true);
 
     /**
-     * @brief Generate a diagnostic from an error and print it to the standard output
+     * @brief Generate a diagnostic from an error and print it to the standard error output
      *
      * @param e code error
      * @param os output stream
      * @param colorize generate colors or not
      */
-    ARK_API void generate(const CodeError& e, std::ostream& os = std::cout, bool colorize = true);
+    ARK_API void generate(const CodeError& e, std::ostream& os = std::cerr, bool colorize = true);
 }
 
 #endif  // ARK_ERROR_DIAGNOSTICS_HPP
