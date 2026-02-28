@@ -1,5 +1,15 @@
 # Change Log
 
+## [Unreleased changes] - 2026-MM-DD
+### Breaking changes
+
+### Added
+- new `TAIL_CALL_SELF` instruction to take care of tail calls in functions: jumps to address 0 in the current page, and reset the scope
+
+### Changed
+
+### Removed
+
 ## [4.3.0] - 2026-02-26
 ### Breaking change
 - in macros, `len`, `empty?`, `head`, `tail`, `@` have been renamed to `$len`, `$empty?`, `$head`, `$tail` and `$at`. Those versions only work inside macros too, inside of having a weird dichotomy where they sometimes got applied and sometimes not

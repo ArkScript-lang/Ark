@@ -258,10 +258,11 @@
     (test:case "tail calls" {
         (mut output [])
         (let f (fun (a b) {
-          (append! output [a b])
+          (let x a)
+          (append! output [a b x])
           (if (nil? b)
             (f "wrong" a)
             (append! output b)) }))
 
         (f "correct" nil)
-        (test:eq output [["correct" nil] ["wrong" "correct"] "correct"]) }) })
+        (test:eq output [["correct" nil "correct"] ["wrong" "correct" "wrong"] "correct"]) }) })

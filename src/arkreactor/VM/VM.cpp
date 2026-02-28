@@ -467,6 +467,7 @@ namespace Ark
                 &&TARGET_HALT,
                 &&TARGET_PUSH_RETURN_ADDRESS,
                 &&TARGET_CALL,
+                &&TARGET_TAIL_CALL_SELF,
                 &&TARGET_CAPTURE,
                 &&TARGET_RENAME_NEXT_CAPTURE,
                 &&TARGET_BUILTIN,
@@ -716,6 +717,13 @@ namespace Ark
                         call(context, arg);
                         if (!m_running)
                             GOTO_HALT();
+                        DISPATCH();
+                    }
+
+                    TARGET(TAIL_CALL_SELF)
+                    {
+                        jump(0, context);
+                        context.locals.back().reset();
                         DISPATCH();
                     }
 
