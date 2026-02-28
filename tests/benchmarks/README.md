@@ -5,7 +5,7 @@
 1. Run for the repository root
 2. Make sure the target `arkscript` has been compiled in release mode, as well as `bench`
 ```bash
-result="tests/benchmarks/results/$(set -- tests/benchmarks/results/*.csv; echo $#)-$(git rev-parse --short HEAD).csv"
+result="tests/benchmarks/results/$(set -- tests/benchmarks/results/*.csv; printf "%03u" $#)-$(git rev-parse --short HEAD).csv"
 cmake-build-release/bench \
   --benchmark_min_warmup_time=1 \
   --benchmark_format=csv \
