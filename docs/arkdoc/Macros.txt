@@ -13,7 +13,7 @@
 * @name $argcount
 * @brief Retrieve at compile time the number of arguments taken by a given function.
 * @details The function must have been defined before using `$argcount`, or must be an anonymous function: `($argcount (fun (a b c) ()))`, `($argcount my-function)`.
-* @param node
+* @param node node
 * =begin
 * (let foo (fun (a b) (+ a b)))
 * (print ($argcount foo))  # 2
@@ -23,7 +23,7 @@
 --#
 * @name $symcat
 * @brief Create a new symbol by concatenating a symbol with numbers, strings and/or other symbols
-* @param symbol
+* @param symbol symbol
 * @param args... numbers, strings or symbols
 * =begin
 * (macro foo () (let ($symcat a 5) 6))
@@ -36,7 +36,7 @@
 * @name $repr
 * @brief Return the AST representation of a given node, as a string.
 * @details Indentation, newlines and comments are not preserved.
-* @param node
+* @param node node
 * =begin
 * ($repr foobar)  # will return "foobar"
 * ($repr (fun () (+ 1 2 3)))  # will return "(fun () (+ 1 2 3))"
@@ -46,13 +46,13 @@
 --#
 * @name $as-is
 * @brief Use a given node as it is, without evaluating it any further in the macro context. Useful to stop the evaluation of arguments passed to a function macro.
-* @param node
+* @param node node
 #--
 
 --#
 * @name $type
 * @brief Return the type of a given node, as a string.
-* @param node
+* @param node node
 * =begin
 * (print ($type foobar))  # Symbol
 * (print ($type (fun () (+ 1 2 3))))  # List
@@ -62,7 +62,7 @@
 --#
 * @name $len
 * @brief Return the length of a node
-* @param node
+* @param node node
 * =begin
 * (macro -> (arg fn1 ...fn) {
 *   # we use $len to check if we have more functions to apply
@@ -78,7 +78,7 @@
 --#
 * @name $empty?
 * @brief Check if a node is empty. An empty list, `[]` or `(list)`, is considered empty.
-* @param node
+* @param node node
 * =begin
 * (macro not_empty_node () ($empty? (fun () ())))
 * (print (not_empty_node))  # false
@@ -88,7 +88,7 @@
 --#
 * @name $head
 * @brief Return the head node in a list of nodes. The head of a `[1 2 3]` / `(list 1 2 3)` disregards the `list` and returns 1.
-* @param node
+* @param node node
 * =begin
 * (macro h (...args) ($head args))
 * (print (h))  # nil
@@ -100,7 +100,7 @@
 --#
 * @name $tail
 * @brief Return the tails nodes in a list of nodes, as a `(list ...)`
-* @param node
+* @param node node
 * =begin
 * (macro g (...args) ($tail args))
 * (print (g))  # []
@@ -113,7 +113,7 @@
 --#
 * @name $at
 * @brief Return the node at a given index in a list of nodes
-* @param node
+* @param node node
 * @param index must be a number
 * =begin
 * (macro one (...args) ($at args 1))
