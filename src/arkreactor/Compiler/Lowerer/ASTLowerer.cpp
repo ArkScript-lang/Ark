@@ -793,7 +793,7 @@ namespace Ark::internal
             pushFunctionCallArguments(x, p, /* is_tail_call= */ true);
 
             // jump to the top of the function
-            page(p).emplace_back(JUMP, 0_u16);
+            page(p).emplace_back(TAIL_CALL_SELF);
             page(p).back().setSourceLocation(node.filename(), node.position().start.line);
             return true;  // skip the potential Instruction::POP at the end
         }
