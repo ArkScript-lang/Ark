@@ -1,5 +1,9 @@
 # Change Log
 
+## [4.3.2] - 2026-02-28
+### Changed
+- VM error outputs are on stderr instead of stdout
+
 ## [4.3.1] - 2026-02-28
 ### Added
 - new `TAIL_CALL_SELF` instruction to take care of tail calls in functions: jumps to address 0 in the current page, and reset the scope

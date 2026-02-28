@@ -385,7 +385,7 @@ namespace Ark
          * @param os
          * @param colorize
          */
-        void backtrace(internal::ExecutionContext& context, std::ostream& os = std::cout, bool colorize = true);
+        void backtrace(internal::ExecutionContext& context, std::ostream& os = std::cerr, bool colorize = true);
 
         /**
          * @brief Function called when the CALL instruction is met in the bytecode
