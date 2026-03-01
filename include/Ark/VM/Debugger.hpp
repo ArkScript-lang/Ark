@@ -117,8 +117,14 @@ namespace Ark::internal
         std::size_t m_line_count { 0 };
 
         void showContext(const VM& vm, const ExecutionContext& context) const;
+        void showStack(VM& vm, const ExecutionContext& context, std::size_t count) const;
+        void showLocals(VM& vm, ExecutionContext& context, std::size_t count) const;
 
-        std::optional<std::string> prompt(std::size_t ip, std::size_t pp);
+        static std::optional<std::string> getCommandArg(const std::string& command, const std::string& line);
+        static std::optional<std::size_t> parseStringAsInt(const std::string& str);
+        [[nodiscard]] std::optional<std::size_t> getArgAndParseOrError(const std::string& command, const std::string& line, std::size_t default_value) const;
+
+        std::optional<std::string> prompt(std::size_t ip, std::size_t pp, VM& vm, ExecutionContext& context);
 
         /**
          * @brief Take care of compiling new code using the existing data tables

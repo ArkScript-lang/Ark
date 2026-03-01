@@ -31,6 +31,8 @@ Available commands:
   help -- display this message
   c, continue -- resume execution
   q, quit -- quit the debugger, stopping the script execution
+  stack <n=5> -- show the last n values on the stack
+  locals <n=5> -- show the last n values on the locals' stack
 dbg[pp:1,ip:20]:001> continue
 dbg: continue
 ark: in (foo x y z), after second breakpoint

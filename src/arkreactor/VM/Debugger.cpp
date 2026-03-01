@@ -3,6 +3,9 @@
 #include <fmt/core.h>
 #include <fmt/color.h>
 #include <fmt/ostream.h>
+#include <chrono>
+#include <thread>
+#include <charconv>
 
 #include <Ark/State.hpp>
 #include <Ark/VM/VM.hpp>
@@ -59,6 +62,8 @@ namespace Ark::internal
 
     void Debugger::run(VM& vm, ExecutionContext& context, const bool from_breakpoint)
     {
+        using namespace std::chrono_literals;
+
         if (from_breakpoint)
             showContext(vm, context);
 
@@ -72,7 +77,7 @@ namespace Ark::internal
 
         while (true)
         {
-            std::optional<std::string> maybe_input = prompt(ip_at_breakpoint, pp_at_breakpoint);
+            std::optional<std::string> maybe_input = prompt(ip_at_breakpoint, pp_at_breakpoint, vm, context);
 
             if (maybe_input)
             {
@@ -102,6 +107,8 @@ namespace Ark::internal
                                     m_colorize ? fmt::fg(fmt::color::chocolate) : fmt::text_style()));
                     }
                 }
+                else
+                    std::this_thread::sleep_for(50ms);  // hack to wait for the diagnostics to be output to stderr, since we write to stdout and it's faster than stderr
             }
             else
                 break;
@@ -143,7 +150,101 @@ namespace Ark::internal
         }
     }
 
-    std::optional<std::string> Debugger::prompt(const std::size_t ip, const std::size_t pp)
+    void Debugger::showStack(VM& vm, const ExecutionContext& context, const std::size_t count) const
+    {
+        std::size_t i = 1;
+        do
+        {
+            if (context.sp < i)
+                break;
+
+            const auto color = m_colorize ? fmt::fg(i % 2 == 0 ? fmt::color::forest_green : fmt::color::cornflower_blue) : fmt::text_style();
+            fmt::println(
+                m_os,
+                "{} -> {}",
+                fmt::styled(context.sp - i, color),
+                fmt::styled(context.stack[context.sp - i].toString(vm, /* show_as_code= */ true), color));
+            ++i;
+        } while (i < count);
+
+        if (context.sp == 0)
+            fmt::println(m_os, "Stack is empty");
+
+        fmt::println(m_os, "");
+    }
+
+    void Debugger::showLocals(VM& vm, ExecutionContext& context, const std::size_t count) const
+    {
+        const std::size_t limit = context.locals[context.locals.size() - 2].size();  // -2 because we created a scope for the debugger
+        if (limit > 0 && count > 0)
+        {
+            fmt::println(m_os, "scope size: {}", limit);
+            fmt::println(m_os, "index |  id |    type   | value");
+            std::size_t i = 0;
+
+            do
+            {
+                if (limit <= i)
+                    break;
+
+                auto& [id, value] = context.locals[context.locals.size() - 2].atPosReverse(i);
+                const auto color = m_colorize ? fmt::fg(i % 2 == 0 ? fmt::color::forest_green : fmt::color::cornflower_blue) : fmt::text_style();
+
+                fmt::println(
+                    m_os,
+                    "{:>5} | {:3} | {:>9} | {}",
+                    fmt::styled(limit - i - 1, color),
+                    fmt::styled(id, color),
+                    fmt::styled(std::to_string(value.valueType()), color),
+                    fmt::styled(value.toString(vm, /* show_as_code= */ true), color));
+                ++i;
+            } while (i < count);
+        }
+        else
+            fmt::println(m_os, "Current scope is empty");
+
+        fmt::println(m_os, "");
+    }
+
+    std::optional<std::string> Debugger::getCommandArg(const std::string& command, const std::string& line)
+    {
+        std::string arg = line.substr(command.size());
+        Utils::trimWhitespace(arg);
+
+        if (arg.empty())
+            return std::nullopt;
+        return arg;
+    }
+
+    std::optional<std::size_t> Debugger::parseStringAsInt(const std::string& str)
+    {
+        std::size_t result = 0;
+        auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), result);
+
+        if (ec == std::errc())
+            return result;
+        return std::nullopt;
+    }
+
+    std::optional<std::size_t> Debugger::getArgAndParseOrError(const std::string& command, const std::string& line, const std::size_t default_value) const
+    {
+        const auto maybe_arg = getCommandArg(command, line);
+        std::size_t count = default_value;
+        if (maybe_arg)
+        {
+            if (const auto maybe_int = parseStringAsInt(maybe_arg.value()))
+                count = maybe_int.value();
+            else
+            {
+                fmt::println(m_os, "Couldn't parse argument as an integer");
+                return std::nullopt;
+            }
+        }
+
+        return count;
+    }
+
+    std::optional<std::string> Debugger::prompt(const std::size_t ip, const std::size_t pp, VM& vm, ExecutionContext& context)
     {
         std::string code;
         long open_parens = 0;
@@ -182,12 +283,28 @@ namespace Ark::internal
                 m_quit_vm = true;
                 return std::nullopt;
             }
+            else if (line.starts_with("stack"))
+            {
+                if (auto arg = getArgAndParseOrError("stack", line, /* default_value= */ 5))
+                    showStack(vm, context, arg.value());
+                else
+                    return std::nullopt;
+            }
+            else if (line.starts_with("locals"))
+            {
+                if (auto arg = getArgAndParseOrError("locals", line, /* default_value= */ 5))
+                    showLocals(vm, context, arg.value());
+                else
+                    return std::nullopt;
+            }
             else if (line == "help")
             {
                 fmt::println(m_os, "Available commands:");
                 fmt::println(m_os, "  help -- display this message");
                 fmt::println(m_os, "  c, continue -- resume execution");
                 fmt::println(m_os, "  q, quit -- quit the debugger, stopping the script execution");
+                fmt::println(m_os, "  stack <n=5> -- show the last n values on the stack");
+                fmt::println(m_os, "  locals <n=5> -- show the last n values on the locals' stack");
             }
             else
             {
