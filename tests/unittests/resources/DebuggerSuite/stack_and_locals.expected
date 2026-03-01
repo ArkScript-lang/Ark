@@ -1,0 +1,87 @@
+In file tests/unittests/resources/DebuggerSuite/stack_and_locals.ark:8
+    5 |     (f "correct" "wrong")
+    6 |     x) }))
+    7 |
+    8 | (breakpoint)
+      | ^~~~~~~~~~~
+    9 | (prn (f 1 2))
+   10 |
+
+dbg[pp:0,ip:8]:000> stack
+Stack is empty
+
+dbg[pp:0,ip:8]:000> locals
+scope size: 2
+index |  id |    type   | value
+    1 |   0 |  Function | Function@1
+    0 |   4 |     CProc | CProcedure
+
+dbg[pp:0,ip:8]:000> c
+dbg: continue
+
+In file tests/unittests/resources/DebuggerSuite/stack_and_locals.ark:3
+    1 | (let f (fun (a b) {
+    2 |   (let x a)
+    3 |   (breakpoint)
+      |   ^~~~~~~~~~~
+    4 |   (if (= 1 a)
+    5 |     (f "correct" "wrong")
+
+dbg[pp:1,ip:16]:000> stack
+3 -> Instruction@28
+2 -> Function@0
+1 -> Instruction@32
+0 -> Function@0
+
+dbg[pp:1,ip:16]:000> locals 1
+scope size: 3
+index |  id |    type   | value
+    2 |   3 |    Number | 1
+
+dbg[pp:1,ip:16]:000> locals 2
+scope size: 3
+index |  id |    type   | value
+    2 |   3 |    Number | 1
+    1 |   2 |    Number | 2
+
+dbg[pp:1,ip:16]:000> locals 3
+scope size: 3
+index |  id |    type   | value
+    2 |   3 |    Number | 1
+    1 |   2 |    Number | 2
+    0 |   1 |    Number | 1
+
+dbg[pp:1,ip:16]:000> locals
+scope size: 3
+index |  id |    type   | value
+    2 |   3 |    Number | 1
+    1 |   2 |    Number | 2
+    0 |   1 |    Number | 1
+
+dbg[pp:1,ip:16]:000> c
+dbg: continue
+
+In file tests/unittests/resources/DebuggerSuite/stack_and_locals.ark:3
+    1 | (let f (fun (a b) {
+    2 |   (let x a)
+    3 |   (breakpoint)
+      |   ^~~~~~~~~~~
+    4 |   (if (= 1 a)
+    5 |     (f "correct" "wrong")
+
+dbg[pp:1,ip:16]:000> stack
+3 -> Instruction@28
+2 -> Function@0
+1 -> Instruction@32
+0 -> Function@0
+
+dbg[pp:1,ip:16]:000> locals
+scope size: 3
+index |  id |    type   | value
+    2 |   3 |    String | "correct"
+    1 |   2 |    String | "wrong"
+    0 |   1 |    String | "correct"
+
+dbg[pp:1,ip:16]:000> c
+dbg: continue
+correct

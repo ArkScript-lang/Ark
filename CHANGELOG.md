@@ -1,5 +1,15 @@
 # Change Log
 
+## [Unreleased changes] - 2026-MM-DD
+### Breaking changes
+
+### Added
+- new debugger commands: `stack <n>` and `locals <n>` to print the values on the stack and in the current locals scope
+
+### Changed
+
+### Removed
+
 ## [4.3.3] - 2026-03-01
 ### Changed
 - runtime type checking errors are on stderr instead of stdout

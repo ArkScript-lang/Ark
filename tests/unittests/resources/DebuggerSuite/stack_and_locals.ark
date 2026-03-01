@@ -1,0 +1,9 @@
+(let f (fun (a b) {
+  (let x a)
+  (breakpoint)
+  (if (= 1 a)
+    (f "correct" "wrong")
+    x) }))
+
+(breakpoint)
+(prn (f 1 2))
