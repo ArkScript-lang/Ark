@@ -98,7 +98,7 @@ namespace Ark::types
      * @param contracts types contracts the function can follow
      * @param args provided argument list
      * @param vm reference to the VM used for pretty printing closures
-     * @param os output stream, default to cout
+     * @param os output stream, default to cerr
      * @param colorize enable output colorizing
      */
     ARK_API void generateError(
@@ -106,7 +106,7 @@ namespace Ark::types
         const std::vector<Contract>& contracts,
         const std::vector<Value>& args,
         VM& vm,
-        std::ostream& os = std::cout,
+        std::ostream& os = std::cerr,
         bool colorize = true);
 
     class ARK_API TypeCheckingError final : public Error

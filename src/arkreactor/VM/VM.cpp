@@ -2175,7 +2175,7 @@ namespace Ark
         std::string text = e.what();
         if (!text.empty() && text.back() != '\n')
             text += '\n';
-        fmt::println("{}", text);
+        fmt::println(std::cerr, "{}", text);
 
         // If code being run from the debugger crashed, ignore it and don't trigger a debugger inside the VM inside the debugger inside the VM
         const bool error_from_debugger = m_debugger && m_debugger->isRunning();
@@ -2189,6 +2189,7 @@ namespace Ark
         backtrace(context);
 
         fmt::println(
+            std::cerr,
             "At IP: {}, PP: {}, SP: {}",
             // dividing by 4 because the instructions are actually on 4 bytes
             fmt::styled(saved_ip / 4, fmt::fg(fmt::color::cyan)),

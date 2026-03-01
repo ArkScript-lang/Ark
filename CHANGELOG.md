@@ -1,5 +1,10 @@
 # Change Log
 
+## [4.3.3] - 2026-03-01
+### Changed
+- runtime type checking errors are on stderr instead of stdout
+- runtime exceptions are on stderr instead of stdout
+
 ## [4.3.2] - 2026-02-28
 ### Changed
 - VM error outputs are on stderr instead of stdout
