@@ -1,0 +1,6 @@
+format: can not format "{:na}" (1 argument provided) because of invalid format specifier. Expected either :nc or :nl
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/format_list_invalid_na.ark:1
+    1 | (print (format "{:na}" []))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

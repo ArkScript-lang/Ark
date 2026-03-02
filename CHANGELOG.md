@@ -5,6 +5,12 @@
 
 ### Added
 - new debugger commands: `stack <n>` and `locals <n>` to print the values on the stack and in the current locals scope
+- custom format specifiers for lists:
+  - `:n` to remove surrounding brackets,
+  - `:c` / `:nc` to use `, ` as a separator instead of ` `,
+  - `:l` / `:nl` to use `\n` as a separator,
+  - `:?s` to format as an escaped quoted string,
+  - `:s` to format as a quoted string
 
 ### Changed
 

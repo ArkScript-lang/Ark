@@ -1,0 +1,6 @@
+format: can not format "{:?}" (1 argument provided) because of invalid format specifier. Expected :?s, not :?
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/format_list_invalid_debug.ark:1
+    1 | (print (format "{:?}" []))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

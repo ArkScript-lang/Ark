@@ -58,4 +58,13 @@
 
     (test:case "format strings" {
         (test:eq "nilfalsetrue" (format "{}{}{}" nil false true))
-        (test:eq "CProcedure" (format "{}" print)) })})
+        (test:eq "CProcedure" (format "{}" print))
+        (test:eq (format "{::}"    ["hel\tlo" 1 nil true]) "[hel	lo 1 nil true]")
+        (test:eq (format "{:n}"    ["hel\tlo" 1 nil true]) "hel	lo 1 nil true")
+        (test:eq (format "{:?s}"   ["hel\tlo" 1 nil true]) "\"hel\\tlo1niltrue\"")
+        (test:eq (format "{:s}"    ["hel\tlo" 1 nil true]) "\"hel	lo1niltrue\"")
+        (test:eq (format "{:c}"    ["hel\tlo" 1 nil true]) "[hel	lo, 1, nil, true]")
+        (test:eq (format "{:l}"    ["hel\tlo" 1 nil true]) "[hel	lo\n1\nnil\ntrue]")
+        (test:eq (format "{:nc}"   ["hel\tlo" 1 nil true]) "hel	lo, 1, nil, true")
+        (test:eq (format "{:nl}"   ["hel\tlo" 1 nil true]) "hel	lo\n1\nnil\ntrue")
+        (test:eq (format "{::<10}" ["hel\tlo" 1 nil true]) "[hel	lo     1          nil        true      ]") })})
