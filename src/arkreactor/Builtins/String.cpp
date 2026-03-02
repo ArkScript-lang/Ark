@@ -1,20 +1,172 @@
 #include <Ark/Builtins/Builtins.hpp>
 
 #include <utility>
+#include <string_view>
 #include <utf8.hpp>
 #include <fmt/args.h>
+#include <fmt/base.h>
+#include <fmt/ostream.h>
 #include <fmt/core.h>
+#include <fmt/ranges.h>
 #include <fmt/format.h>
 
 #include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
+
+struct value_wrapper
+{
+    const Ark::Value& value;
+    Ark::VM* vm_ptr;
+};
+
+template <>
+struct fmt::formatter<value_wrapper>
+{
+private:
+    fmt::basic_string_view<char> opening_bracket_ = fmt::detail::string_literal<char, '['> {};
+    fmt::basic_string_view<char> closing_bracket_ = fmt::detail::string_literal<char, ']'> {};
+    fmt::basic_string_view<char> separator_ = fmt::detail::string_literal<char, ' '> {};
+    bool is_debug = false;
+    fmt::formatter<std::string> underlying_;
+
+public:
+    void set_brackets(const fmt::basic_string_view<char> open, const fmt::basic_string_view<char> close)
+    {
+        opening_bracket_ = open;
+        closing_bracket_ = close;
+    }
+
+    void set_separator(const fmt::basic_string_view<char> sep)
+    {
+        separator_ = sep;
+    }
+
+    format_parse_context::iterator parse(fmt::format_parse_context& ctx)
+    {
+        auto it = ctx.begin();
+        const auto end = ctx.end();
+        if (it == end)
+            return underlying_.parse(ctx);
+
+        switch (detail::to_ascii(*it))
+        {
+            case 'n':
+                set_brackets({}, {});
+                ++it;
+                if (it == end)
+                    report_error("invalid format specifier");
+                if (*it == '}')
+                    return it;
+                if (*it != 'c' && *it != 'l')
+                    report_error("invalid format specifier. Expected either :nc or :nl");
+                [[fallthrough]];
+
+            case 'c':
+                if (*it == 'c')
+                {
+                    set_separator(fmt::detail::string_literal<char, ',', ' '> {});
+                    ++it;
+                    return it;
+                }
+                [[fallthrough]];
+
+            case 'l':
+                set_separator(fmt::detail::string_literal<char, '\n'> {});
+                ++it;
+                return it;
+
+            case '?':
+                is_debug = true;
+                set_brackets({}, {});
+                ++it;
+                if (it == end || *it != 's')
+                    report_error("invalid format specifier. Expected :?s, not :?");
+                [[fallthrough]];
+
+            case 's':
+                if (!is_debug)
+                {
+                    set_brackets(fmt::detail::string_literal<char, '"'> {},
+                                 fmt::detail::string_literal<char, '"'> {});
+                    set_separator({});
+                }
+                ++it;
+                return it;
+
+            default:
+                break;
+        }
+
+        if (it != end && *it != '}')
+        {
+            if (*it != ':')
+                report_error("invalid format specifier");
+            ++it;
+        }
+
+        ctx.advance_to(it);
+        return underlying_.parse(ctx);
+    }
+
+    template <typename Output, typename It, typename Sentinel>
+    auto write_debug_string(Output& out, It it, Sentinel end, Ark::VM* vm_ptr) const -> Output
+    {
+        auto buf = fmt::basic_memory_buffer<char>();
+        for (; it != end; ++it)
+        {
+            auto formatted = it->toString(*vm_ptr);
+            buf.append(formatted);
+        }
+        auto specs = fmt::format_specs();
+        specs.set_type(fmt::presentation_type::debug);
+        return fmt::detail::write<char>(
+            out,
+            fmt::basic_string_view<char>(buf.data(), buf.size()),
+            specs);
+    }
+
+    fmt::format_context::iterator format(const value_wrapper& value, fmt::format_context& ctx) const
+    {
+        auto out = ctx.out();
+        auto it = fmt::detail::range_begin(value.value.constList());
+        const auto end = fmt::detail::range_end(value.value.constList());
+        if (is_debug)
+            return write_debug_string(out, it, end, value.vm_ptr);
+
+        out = fmt::detail::copy<char>(opening_bracket_, out);
+        for (int i = 0; it != end; ++it)
+        {
+            if (i > 0)
+                out = fmt::detail::copy<char>(separator_, out);
+            ctx.advance_to(out);
+            auto&& item = *it;
+            auto formatted = item.toString(*value.vm_ptr);
+            out = underlying_.format(formatted, ctx);
+            ++i;
+        }
+        out = detail::copy<char>(closing_bracket_, out);
+        return out;
+    }
+};
 
 namespace Ark::internal::Builtins::String
 {
     /**
      * @name format
      * @brief Format a String given replacements
-     * @details https://fmt.dev/12.0/syntax/
+     * @details See [fmt.dev](https://fmt.dev/12.0/syntax/) for syntax.
+     * =details-begin
+     * In the case of lists, we have custom specifiers:
+     * - `n` removes surrounding brackets, uses ' ' as a separator
+     * - `?s` debug format. The list is formatted as an escaped string
+     * - `s` string format. The list is formatted as a string
+     * - `c` changes the separator to ', '
+     * - `l` changes the separator to '\n'
+     *
+     * `n` can be combined with either `c` and `l` (which are mutually exclusive): `nc`, `nl`.
+     *
+     * The underlying formatter is the one of strings, so you can write `::<10` to align all elements left in a 10 char wide block each.
+     * =details-end
      * @param format the String to format
      * @param values as any argument as you need, of any valid ArkScript type
      * =begin
@@ -49,6 +201,17 @@ namespace Ark::internal::Builtins::String
                 store.push_back("true");
             else if (it->valueType() == ValueType::False)
                 store.push_back("false");
+            else if (it->valueType() == ValueType::List)
+            {
+                // std::vector<value_wrapper> r;
+                // std::ranges::transform(
+                //     it->list(),
+                //     std::back_inserter(r),
+                //     [&vm](const Value& val) -> value_wrapper {
+                //         return value_wrapper { val, vm };
+                //     });
+                store.push_back(value_wrapper { *it, vm });
+            }
             else
                 store.push_back(it->toString(*vm));
         }
