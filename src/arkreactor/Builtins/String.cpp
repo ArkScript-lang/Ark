@@ -1,7 +1,7 @@
 #include <Ark/Builtins/Builtins.hpp>
 
 #include <utility>
-#include <string_view>
+#include <cmath>
 #include <utf8.hpp>
 #include <fmt/args.h>
 #include <fmt/base.h>
@@ -17,6 +17,7 @@ struct value_wrapper
 {
     const Ark::Value& value;
     Ark::VM* vm_ptr;
+    bool nested = false;
 };
 
 template <>
@@ -27,6 +28,7 @@ private:
     fmt::basic_string_view<char> closing_bracket_ = fmt::detail::string_literal<char, ']'> {};
     fmt::basic_string_view<char> separator_ = fmt::detail::string_literal<char, ' '> {};
     bool is_debug = false;
+    bool is_literal_str = false;
     fmt::formatter<std::string> underlying_;
 
 public:
@@ -89,6 +91,7 @@ public:
                     set_brackets(fmt::detail::string_literal<char, '"'> {},
                                  fmt::detail::string_literal<char, '"'> {});
                     set_separator({});
+                    is_literal_str = true;
                 }
                 ++it;
                 return it;
@@ -133,18 +136,33 @@ public:
         if (is_debug)
             return write_debug_string(out, it, end, value.vm_ptr);
 
-        out = fmt::detail::copy<char>(opening_bracket_, out);
+        if ((is_literal_str && !value.nested) || !is_literal_str)
+            out = fmt::detail::copy<char>(opening_bracket_, out);
+
         for (int i = 0; it != end; ++it)
         {
             if (i > 0)
                 out = fmt::detail::copy<char>(separator_, out);
             ctx.advance_to(out);
+
             auto&& item = *it;
-            auto formatted = item.toString(*value.vm_ptr);
-            out = underlying_.format(formatted, ctx);
+            if (item.valueType() == Ark::ValueType::List)
+            {
+                // if :s, do not put surrounding "" here
+                format({ item, value.vm_ptr, /* nested= */ true }, ctx);
+            }
+            else
+            {
+                std::string formatted = item.toString(*value.vm_ptr);
+                out = underlying_.format(formatted, ctx);
+            }
+
             ++i;
         }
-        out = detail::copy<char>(closing_bracket_, out);
+
+        if ((is_literal_str && !value.nested) || !is_literal_str)
+            out = detail::copy<char>(closing_bracket_, out);
+
         return out;
     }
 };
@@ -194,7 +212,13 @@ namespace Ark::internal::Builtins::String
             if (it->valueType() == ValueType::String)
                 store.push_back(it->stringRef());
             else if (it->valueType() == ValueType::Number)
-                store.push_back(it->number());
+            {
+                double int_part;
+                if (std::modf(it->number(), &int_part) == 0.0)
+                    store.push_back(static_cast<long>(it->number()));
+                else
+                    store.push_back(it->number());
+            }
             else if (it->valueType() == ValueType::Nil)
                 store.push_back("nil");
             else if (it->valueType() == ValueType::True)

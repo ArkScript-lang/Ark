@@ -1,0 +1,6 @@
+format: can not format "{:d}" (1 argument provided) because of invalid format specifier
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/format_double_d.ark:1
+    1 | (print (format "{:d}" 65.1))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

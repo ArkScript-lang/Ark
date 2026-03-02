@@ -1,0 +1,6 @@
+format: can not format "{:X}" (1 argument provided) because of invalid format specifier
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/format_double_upper_x.ark:1
+    1 | (print (format "{:X}" 65.1))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |
