@@ -1,0 +1,1 @@
+(print (format "{:c}" 65.1))

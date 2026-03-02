@@ -1,0 +1,6 @@
+format: can not format "{:c}" (1 argument provided) because of invalid format specifier
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/format_double_c.ark:1
+    1 | (print (format "{:c}" 65.1))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

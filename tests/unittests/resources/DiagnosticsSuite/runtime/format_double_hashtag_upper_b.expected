@@ -1,0 +1,6 @@
+format: can not format "{:#B}" (1 argument provided) because of invalid format specifier
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/format_double_hashtag_upper_b.ark:1
+    1 | (print (format "{:#B}" 65.1))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

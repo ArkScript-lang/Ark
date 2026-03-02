@@ -11,6 +11,7 @@
   - `:l` / `:nl` to use `\n` as a separator,
   - `:?s` to format as an escaped quoted string,
   - `:s` to format as a quoted string
+- `format` can use format specifiers for integers: `b`, `#b`, `B`, `#B`, `c`, `d`, `o`, `x`, `#x`, `X`, and `#X` if the argument is an integer
 
 ### Changed
 
