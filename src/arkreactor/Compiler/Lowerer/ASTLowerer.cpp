@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <fmt/core.h>
 #include <fmt/color.h>
+#include <fmt/ostream.h>
 
 #include <Ark/Error/Exceptions.hpp>
 #include <Ark/Error/Diagnostics.hpp>
@@ -160,7 +161,7 @@ namespace Ark::internal
 
     void ASTLowerer::warning(const std::string& message, const Node& node)
     {
-        fmt::println("{} {}", fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)), Diagnostics::makeContextWithNode(message, node));
+        fmt::println(std::cerr, "{} {}", fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)), Diagnostics::makeContextWithNode(message, node));
     }
 
     void ASTLowerer::buildAndThrowError(const std::string& message, const Node& node)
