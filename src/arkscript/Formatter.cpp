@@ -3,6 +3,7 @@
 
 #include <fmt/core.h>
 #include <fmt/color.h>
+#include <fmt/ostream.h>
 
 #include <Ark/Utils/Files.hpp>
 #include <Ark/Error/Exceptions.hpp>
@@ -96,11 +97,12 @@ void Formatter::warnIfCommentsWereRemoved(const std::string& original_code, cons
     if (before_count != after_count)
     {
         fmt::println(
+            std::cerr,
             "{}: one or more comments from the original source code seem to have been {} by mistake while formatting {}",
             fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)),
             before_count > after_count ? "removed" : "duplicated",
             filename != ARK_NO_NAME_FILE ? filename : "file");
-        fmt::println("Please fill an issue on GitHub: https://github.com/ArkScript-lang/Ark");
+        fmt::println(std::cerr, "Please fill an issue on GitHub: https://github.com/ArkScript-lang/Ark");
     }
 }
 
