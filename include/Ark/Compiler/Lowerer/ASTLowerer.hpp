@@ -224,7 +224,7 @@ namespace Ark::internal
          * @param message
          * @param node
          */
-        static void warning(const std::string& message, const Node& node);
+        void warning(const std::string& message, const Node& node);
 
         /**
          * @brief Throw a nice error message

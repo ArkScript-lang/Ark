@@ -4,24 +4,27 @@
  * @brief Internal logger
  * @date 2024-08-30
  *
- * @copyright Copyright (c) 2024-2026)
+ * @copyright Copyright (c) 2024-2026
  */
 #ifndef ARK_LOGGER_HPP
 #define ARK_LOGGER_HPP
 
 #include <iostream>
 #include <fmt/format.h>
+#include <fmt/color.h>
+#include <fmt/ostream.h>
 
 #include <string>
 #include <chrono>
 #include <source_location>
 #include <vector>
 #include <unordered_map>
-#include <fmt/color.h>
+
+#include <Ark/Utils/Platform.hpp>
 
 namespace Ark::internal
 {
-    class Logger
+    class ARK_API Logger
     {
     public:
         struct MessageAndLocation
@@ -65,6 +68,22 @@ namespace Ark::internal
                     fmt::styled("INFO ", fmt::fg(fmt::color::cornflower_blue)),
                     fmt::styled(m_name, fmt::fg(m_pass_color)),
                     fmt::vformat(fmt, fmt::make_format_args(args...)));
+        }
+
+        /**
+         * @brief Write a warn level log using fmtlib
+         * @tparam Args
+         * @param fmt format string
+         * @param args
+         */
+        template <typename... Args>
+        void warn(const char* fmt, Args&&... args)
+        {
+            fmt::println(
+                std::cerr,
+                "{}: {}",
+                fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)),
+                fmt::vformat(fmt, fmt::make_format_args(args...)));
         }
 
         /**
