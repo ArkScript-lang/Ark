@@ -12,6 +12,7 @@
   - `:?s` to format as an escaped quoted string,
   - `:s` to format as a quoted string
 - `format` can use format specifiers for integers: `b`, `#b`, `B`, `#B`, `c`, `d`, `o`, `x`, `#x`, `X`, and `#X` if the argument is an integer
+- display a warning to `stderr` when using a deprecated function/value (checks for `@deprecated` inside the attached comment of functions / values)
 
 ### Changed
 

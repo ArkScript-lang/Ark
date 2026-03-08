@@ -1,5 +1,7 @@
 #include <Ark/Compiler/AST/Optimizer.hpp>
 
+#include <Ark/Utils/Utils.hpp>
+
 namespace Ark::internal
 {
     Optimizer::Optimizer(const unsigned debug) noexcept :
@@ -109,6 +111,30 @@ namespace Ark::internal
                         m_logger.debug("Removing unused variable '{}'", name);
                         // erase the node by turning it to an Unused node
                         child = Node(NodeType::Unused);
+                    }
+                    else if (child.comment().find("@deprecated") != std::string::npos)
+                    {
+                        std::string advice;
+                        const std::vector<std::string> vec = Utils::splitString(child.comment(), '\n');
+                        if (auto result = std::ranges::find_if(vec, [](const std::string& line) {
+                                return line.find("@deprecated") != std::string::npos;
+                            });
+                            result != vec.end())
+                        {
+                            advice = result->substr(result->find("@deprecated") + 11);
+                            Utils::trimWhitespace(advice);
+                        }
+
+                        m_logger.warn(
+                            "Using a deprecated {} `{}'.{}",
+                            child.constList()[2].nodeType() == NodeType::List &&
+                                    !child.constList()[2].constList().empty() &&
+                                    child.constList()[2].constList()[0].nodeType() == NodeType::Keyword &&
+                                    child.constList()[2].constList()[0].keyword() == Keyword::Fun
+                                ? "function"
+                                : "value",
+                            name,
+                            advice.empty() ? "" : " " + advice);
                     }
                 }
             }
