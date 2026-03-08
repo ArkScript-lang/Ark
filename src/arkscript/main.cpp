@@ -190,7 +190,7 @@ int main(int argc, char** argv)
             else if (Utils::fileExists("./lib") && Utils::fileExists("./lib/std/Prelude.ark"))
                 lib_paths.emplace_back("lib");
             else if (debug > 0)
-                fmt::println(std::cerr, "{}:  Couldn't read ARKSCRIPT_PATH environment variable", fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)));
+                fmt::println(std::cerr, "{}: Couldn't read ARKSCRIPT_PATH environment variable", fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)));
         }
 
         switch (selected)

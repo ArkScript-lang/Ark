@@ -2,8 +2,6 @@
 #include <CLI/Formatter.hpp>
 
 #include <fmt/core.h>
-#include <fmt/color.h>
-#include <fmt/ostream.h>
 
 #include <Ark/Utils/Files.hpp>
 #include <Ark/Error/Exceptions.hpp>
@@ -16,11 +14,11 @@ using namespace Ark::internal;
 using namespace Ark::literals;
 
 Formatter::Formatter(const bool dry_run) :
-    m_dry_run(dry_run), m_parser(/* debug= */ 0, ParserMode::Raw), m_updated(false)
+    m_dry_run(dry_run), m_parser(/* debug= */ 0, ParserMode::Raw), m_updated(false), m_logger("formatter", 0)
 {}
 
 Formatter::Formatter(std::string filename, const bool dry_run) :
-    m_filename(std::move(filename)), m_dry_run(dry_run), m_parser(/* debug= */ 0, ParserMode::Raw), m_updated(false)
+    m_filename(std::move(filename)), m_dry_run(dry_run), m_parser(/* debug= */ 0, ParserMode::Raw), m_updated(false), m_logger("formatter", 0)
 {}
 
 void Formatter::run()
@@ -96,13 +94,11 @@ void Formatter::warnIfCommentsWereRemoved(const std::string& original_code, cons
 
     if (before_count != after_count)
     {
-        fmt::println(
-            std::cerr,
-            "{}: one or more comments from the original source code seem to have been {} by mistake while formatting {}",
-            fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)),
+        m_logger.warn(
+            "one or more comments from the original source code seem to have been {} by mistake while formatting {}",
             before_count > after_count ? "removed" : "duplicated",
             filename != ARK_NO_NAME_FILE ? filename : "file");
-        fmt::println(std::cerr, "Please fill an issue on GitHub: https://github.com/ArkScript-lang/Ark");
+        m_logger.warn("Please fill an issue on GitHub: https://github.com/ArkScript-lang/Ark");
     }
 }
 

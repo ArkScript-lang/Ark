@@ -42,6 +42,7 @@ private:
     Ark::internal::Parser m_parser;
     std::string m_output;
     bool m_updated;  ///< True if the original code now difer from the formatted one
+    Ark::internal::Logger m_logger;
 
     void processAst(const Ark::internal::Node& ast);
 
@@ -110,7 +111,7 @@ private:
      * @param indent indentation level
      * @return std::string
      */
-    static std::string prefix(const std::size_t indent)
+    [[nodiscard]] static std::string prefix(const std::size_t indent)
     {
         return std::string(indent * FormatterConfig::SpacePerIndent, ' ');
     }
@@ -122,21 +123,21 @@ private:
      * @param after_newline when false, do not add prefix
      * @return
      */
-    std::string format(const Ark::internal::Node& node, std::size_t indent, bool after_newline);
+    [[nodiscard]] std::string format(const Ark::internal::Node& node, std::size_t indent, bool after_newline);
 
-    std::string formatComment(const std::string& comment, std::size_t indent) const;
+    [[nodiscard]] std::string formatComment(const std::string& comment, std::size_t indent) const;
 
-    std::string formatBlock(const Ark::internal::Node& node, std::size_t indent, bool after_newline);
+    [[nodiscard]] std::string formatBlock(const Ark::internal::Node& node, std::size_t indent, bool after_newline);
 
-    std::string formatFunction(const Ark::internal::Node& node, std::size_t indent);
-    std::string formatVariable(const Ark::internal::Node& node, std::size_t indent);
-    std::string formatCondition(const Ark::internal::Node& node, std::size_t indent, bool is_macro = false);
-    std::string formatLoop(const Ark::internal::Node& node, std::size_t indent);
-    std::string formatBegin(const Ark::internal::Node& node, std::size_t indent, bool after_newline);
-    std::string formatImport(const Ark::internal::Node& node, std::size_t indent);
-    std::string formatDel(const Ark::internal::Node& node, std::size_t indent);
-    std::string formatCall(const Ark::internal::Node& node, std::size_t indent);
-    std::string formatMacro(const Ark::internal::Node& node, std::size_t indent);
+    [[nodiscard]] std::string formatFunction(const Ark::internal::Node& node, std::size_t indent);
+    [[nodiscard]] std::string formatVariable(const Ark::internal::Node& node, std::size_t indent);
+    [[nodiscard]] std::string formatCondition(const Ark::internal::Node& node, std::size_t indent, bool is_macro = false);
+    [[nodiscard]] std::string formatLoop(const Ark::internal::Node& node, std::size_t indent);
+    [[nodiscard]] std::string formatBegin(const Ark::internal::Node& node, std::size_t indent, bool after_newline);
+    [[nodiscard]] std::string formatImport(const Ark::internal::Node& node, std::size_t indent);
+    [[nodiscard]] std::string formatDel(const Ark::internal::Node& node, std::size_t indent);
+    [[nodiscard]] std::string formatCall(const Ark::internal::Node& node, std::size_t indent);
+    [[nodiscard]] std::string formatMacro(const Ark::internal::Node& node, std::size_t indent);
 };
 
 #endif  // ARK_FORMATTER_HPP
