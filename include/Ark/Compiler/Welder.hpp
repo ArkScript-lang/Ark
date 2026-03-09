@@ -100,6 +100,12 @@ namespace Ark
          */
         bool saveBytecodeToFile(const std::string& filename);
 
+        /**
+         * @brief Redirect the logs to a given stream
+         * @param os output stream
+         */
+        void redirectLogsTo(std::ostream& os);
+
         [[nodiscard]] const internal::Node& ast() const noexcept;
         [[nodiscard]] std::string textualIR() const noexcept;
         [[nodiscard]] const bytecode_t& bytecode() const noexcept;

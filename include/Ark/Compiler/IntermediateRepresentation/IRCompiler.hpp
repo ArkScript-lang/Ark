@@ -17,12 +17,13 @@
 #include <Ark/Utils/Platform.hpp>
 #include <Ark/Utils/Logger.hpp>
 #include <Ark/Compiler/Common.hpp>
+#include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/ValTableElem.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>
 
 namespace Ark::internal
 {
-    class ARK_API IRCompiler final
+    class ARK_API IRCompiler final : public Pass
     {
     public:
         /**
@@ -56,7 +57,6 @@ namespace Ark::internal
         [[nodiscard]] const bytecode_t& bytecode() const noexcept;
 
     private:
-        Logger m_logger;
         bytecode_t m_bytecode;
         std::vector<IR::Block> m_ir;
         std::vector<std::string> m_filenames;

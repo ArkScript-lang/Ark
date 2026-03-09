@@ -43,14 +43,14 @@ namespace Ark::internal
          *
          * @param ast
          */
-        void process(const Node& ast) override;
+        void process(const Node& ast);
 
         /**
          * @brief Return the modified AST
          *
          * @return Node&
          */
-        [[nodiscard]] const Node& ast() const noexcept override;
+        [[nodiscard]] const Node& ast() const noexcept;
 
         friend class MacroExecutor;
 

@@ -43,9 +43,9 @@ namespace Ark::internal
          */
         ImportSolver& setup(const std::filesystem::path& root, const std::vector<Import>& origin_imports);
 
-        void process(const Node& origin_ast) override;
+        void process(const Node& origin_ast);
 
-        [[nodiscard]] const Node& ast() const noexcept override;
+        [[nodiscard]] const Node& ast() const noexcept;
 
     private:
         struct ImportWithSource

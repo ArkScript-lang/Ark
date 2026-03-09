@@ -40,14 +40,14 @@ namespace Ark::internal
          *
          * @param ast
          */
-        void process(const Node& ast) override;
+        void process(const Node& ast);
 
         /**
          * @brief Returns the modified AST
          *
          * @return const Node&
          */
-        [[nodiscard]] const Node& ast() const noexcept override;
+        [[nodiscard]] const Node& ast() const noexcept;
 
     private:
         Node m_ast;

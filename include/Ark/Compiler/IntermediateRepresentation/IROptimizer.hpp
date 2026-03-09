@@ -13,6 +13,7 @@
 #include <Ark/Utils/Platform.hpp>
 #include <Ark/Utils/Logger.hpp>
 #include <Ark/Compiler/ValTableElem.hpp>
+#include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>
 
 #include <span>
@@ -27,7 +28,7 @@ namespace Ark::internal
         std::size_t offset;
     };
 
-    class ARK_API IROptimizer final
+    class ARK_API IROptimizer final : public Pass
     {
     public:
         /**
@@ -87,7 +88,6 @@ namespace Ark::internal
 
         std::vector<Rule> m_ruleset;
 
-        Logger m_logger;
         std::vector<IR::Block> m_ir;
         std::vector<std::string> m_symbols;
         std::vector<ValTableElem> m_values;

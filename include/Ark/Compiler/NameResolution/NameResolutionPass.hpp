@@ -17,6 +17,7 @@
 
 #include <Ark/Utils/Platform.hpp>
 #include <Ark/Compiler/Pass.hpp>
+#include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/NameResolution/ScopeResolver.hpp>
 
 namespace Ark::internal
@@ -34,13 +35,13 @@ namespace Ark::internal
          * @brief Start visiting the given AST, checking for mutability violation and unbound variables
          * @param ast AST to analyze
          */
-        void process(const Node& ast) override;
+        void process(const Node& ast);
 
         /**
          * @brief Unused overload that return the input AST (untouched as this pass only generates errors)
          * @return const Node& ast
          */
-        [[nodiscard]] const Node& ast() const noexcept override;
+        [[nodiscard]] const Node& ast() const noexcept;
 
         /**
          * @brief Register a symbol as defined, so that later we can throw errors on undefined symbols

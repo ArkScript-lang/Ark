@@ -1,0 +1,7 @@
+Warning: In file tests/unittests/resources/DiagnosticsSuite/warnings/statement_no_effect.ark:2
+    1 | (let a 5)
+    2 | (while (!= a 5) a)
+      |                 ^
+    3 | (print a)
+    4 |
+        Statement has no effect

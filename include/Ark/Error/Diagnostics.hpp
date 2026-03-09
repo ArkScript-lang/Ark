@@ -60,9 +60,10 @@ namespace Ark::Diagnostics
      *
      * @param message error message to be included in the context
      * @param node AST node with the error
+     * @param colorize toggle context colors (default: true)
      * @return std::string
      */
-    std::string makeContextWithNode(const std::string& message, const internal::Node& node);
+    std::string makeContextWithNode(const std::string& message, const internal::Node& node, bool colorize = true);
 
     ARK_API void generateWithCode(const CodeError& e, const std::string& code, std::ostream& os = std::cerr, bool colorize = true);
 

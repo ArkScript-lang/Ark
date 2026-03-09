@@ -135,6 +135,18 @@ namespace Ark
         return true;
     }
 
+    void Welder::redirectLogsTo(std::ostream& os)
+    {
+        m_import_solver.configureLogger(os);
+        m_macro_processor.configureLogger(os);
+        m_ast_optimizer.configureLogger(os);
+        m_name_resolver.configureLogger(os);
+        m_lowerer.configureLogger(os);
+        m_ir_optimizer.configureLogger(os);
+        m_ir_compiler.configureLogger(os);
+        m_logger.configureOutputStream(&os);
+    }
+
     const internal::Node& Welder::ast() const noexcept
     {
         return m_computed_ast;

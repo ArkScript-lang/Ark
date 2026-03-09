@@ -85,4 +85,29 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
                 }
             };
         });
+
+    iterTestFiles(
+        "DiagnosticsSuite/warnings",
+        [](TestData&& data) {
+            Ark::State state({ lib_path });
+            std::stringstream stream;
+
+            should("compile without error warnings/" + data.stem) = [&] {
+                expect(mut(state).doFile(data.path, features | Ark::FeatureASTOptimizer, &stream));
+            };
+
+            should("run " + data.stem) = [&] {
+                expect(nothrow([&] {
+                    Ark::VM vm(state);
+                    vm.run(/* fail_with_exception= */ true);
+                }));
+            };
+
+            should("have generated warnings in " + data.stem) = [&] {
+                std::string warns = sanitizeOutput(stream.str());
+                expectOrDiff(data.expected, warns);
+                if (shouldWriteNewDiffsTofile() && data.expected != warns)
+                    updateExpectedFile(data, warns);
+            };
+        });
 };

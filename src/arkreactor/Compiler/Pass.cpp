@@ -7,4 +7,8 @@ namespace Ark::internal
         m_logger(std::move(name), debug_level)
     {}
 
+    void Pass::configureLogger(std::ostream& os)
+    {
+        m_logger.configureOutputStream(&os);
+    }
 }

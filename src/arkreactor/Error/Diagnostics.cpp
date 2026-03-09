@@ -210,14 +210,14 @@ namespace Ark::Diagnostics
             fmt::print(os, "        {}\n", text);
     }
 
-    std::string makeContextWithNode(const std::string& message, const internal::Node& node)
+    std::string makeContextWithNode(const std::string& message, const internal::Node& node, const bool colorize)
     {
         std::stringstream ss;
 
         helper(
             ss,
             message,
-            true,
+            colorize,
             node.filename(),
             node.position());
 
