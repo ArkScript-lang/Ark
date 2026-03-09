@@ -69,20 +69,22 @@ namespace Ark
          *
          * @param file_path path to an ArkScript code file
          * @param features compiler features to enable/disable
+         * @param stream optional output stream for the logger
          * @return true on success
          * @return false on failure
          */
-        bool doFile(const std::string& file_path, uint16_t features = DefaultFeatures);
+        bool doFile(const std::string& file_path, uint16_t features = DefaultFeatures, std::ostream* stream = nullptr);
 
         /**
          * @brief Compile a string (representing ArkScript code) and store resulting bytecode in m_bytecode
          *
          * @param code the ArkScript code
          * @param features compiler features to enable/disable
+         * @param stream optional output stream for the logger
          * @return true on success
          * @return false on failure
          */
-        bool doString(const std::string& code, uint16_t features = DefaultFeatures);
+        bool doString(const std::string& code, uint16_t features = DefaultFeatures, std::ostream* stream = nullptr);
 
         /**
          * @brief Register a function in the virtual machine
@@ -146,10 +148,11 @@ namespace Ark
          *
          * @param file the path of file code to compile
          * @param output set path of .arkc file
+         * @param stream output stream for the logger
          * @return true on success
          * @return false on failure and raise an exception
          */
-        [[nodiscard]] bool compile(const std::string& file, const std::string& output);
+        [[nodiscard]] bool compile(const std::string& file, const std::string& output, std::ostream* stream = nullptr);
 
         static void throwStateError(const std::string& message)
         {

@@ -18,7 +18,7 @@ namespace Ark::internal
     using namespace literals;
 
     IRCompiler::IRCompiler(const unsigned debug) :
-        m_logger("IRCompiler", debug)
+        Pass("IRCompiler", debug)
     {}
 
     void IRCompiler::process(const std::vector<IR::Block>& pages, const std::vector<std::string>& symbols, const std::vector<ValTableElem>& values)

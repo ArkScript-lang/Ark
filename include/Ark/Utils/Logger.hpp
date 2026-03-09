@@ -80,9 +80,9 @@ namespace Ark::internal
         void warn(const char* fmt, Args&&... args)
         {
             fmt::println(
-                std::cerr,
+                m_stream == nullptr ? std::cerr : *m_stream,
                 "{}: {}",
-                fmt::styled("Warning", fmt::fg(fmt::color::dark_orange)),
+                fmt::styled("Warning", colorize() ? fmt::fg(fmt::color::dark_orange) : fmt::text_style()),
                 fmt::vformat(fmt, fmt::make_format_args(args...)));
         }
 
@@ -139,12 +139,33 @@ namespace Ark::internal
                     fmt::vformat(fmt, fmt::make_format_args(args...)));
         }
 
+        /**
+         * @brief Set a custom output stream to use for warnings. This will disable colors.
+         *
+         * @param os output stream
+         */
+        void configureOutputStream(std::ostream* os)
+        {
+            m_stream = os;
+        }
+
+        /**
+         * @brief Check if logs can be colorized
+         *
+         * @return true if logs can be colorized
+         */
+        inline bool colorize() const noexcept
+        {
+            return m_stream == nullptr;
+        }
+
     private:
         unsigned m_debug;
         std::string m_name;
         fmt::color m_pass_color;
         std::unordered_map<std::string, std::chrono::time_point<std::chrono::high_resolution_clock>> m_trace_starts;
         std::vector<std::string> m_active_traces;
+        std::ostream* m_stream;
     };
 }
 

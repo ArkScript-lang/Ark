@@ -19,6 +19,7 @@
 
 #include <Ark/Utils/Platform.hpp>
 #include <Ark/Utils/Logger.hpp>
+#include <Ark/Compiler/Pass.hpp>
 #include <Ark/Compiler/Instructions.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
@@ -37,7 +38,7 @@ namespace Ark::internal
      * @brief The ArkScript AST to IR compiler
      *
      */
-    class ARK_API ASTLowerer final
+    class ARK_API ASTLowerer final : public Pass
     {
     public:
         /**
@@ -107,8 +108,6 @@ namespace Ark::internal
         std::vector<IR::Block> m_temp_pages;  ///< we need temporary code pages for some compilations passes
         IR::label_t m_current_label = 0;
         std::stack<std::string> m_opened_vars;  ///< stack of vars we are currently declaring
-
-        Logger m_logger;
 
         enum class ErrorKind
         {

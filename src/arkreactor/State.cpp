@@ -62,9 +62,12 @@ namespace Ark
         }
     }
 
-    bool State::compile(const std::string& file, const std::string& output)
+    bool State::compile(const std::string& file, const std::string& output, std::ostream* stream)
     {
         Welder welder(m_debug_level, m_libenv, m_features);
+        if (stream != nullptr)
+            welder.redirectLogsTo(*stream);
+
         for (const auto& key : m_bound | std::views::keys)
             welder.registerSymbol(key);
 
@@ -82,7 +85,7 @@ namespace Ark
         return true;
     }
 
-    bool State::doFile(const std::string& file_path, const uint16_t features)
+    bool State::doFile(const std::string& file_path, const uint16_t features, std::ostream* stream)
     {
         m_features = features;
 
@@ -116,7 +119,7 @@ namespace Ark
                 }
             }
 
-            if (compile(file_path, bytecode_path))
+            if (compile(file_path, bytecode_path, stream))
                 return true;
         }
         else if (feed(bytecode))  // it's a bytecode file
@@ -124,11 +127,14 @@ namespace Ark
         return false;
     }
 
-    bool State::doString(const std::string& code, const uint16_t features)
+    bool State::doString(const std::string& code, const uint16_t features, std::ostream* stream)
     {
         m_features = features;
 
         Welder welder(m_debug_level, m_libenv, m_features);
+        if (stream != nullptr)
+            welder.redirectLogsTo(*stream);
+
         for (const auto& p : m_bound)
             welder.registerSymbol(p.first);
 

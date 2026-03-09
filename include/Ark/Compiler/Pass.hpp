@@ -1,7 +1,7 @@
 /**
  * @file Pass.hpp
  * @author Lexy Plateau (lexplt.dev@gmail.com)
- * @brief Interface for a compiler pass (take in an AST, output an AST)
+ * @brief Interface for a compiler pass
  * @date 2024-07-21
  *
  * @copyright Copyright (c) 2024-2026
@@ -11,8 +11,9 @@
 #define ARK_COMPILER_PASS_HPP
 
 #include <Ark/Utils/Platform.hpp>
-#include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Utils/Logger.hpp>
+
+#include <ostream>
 
 namespace Ark::internal
 {
@@ -33,17 +34,11 @@ namespace Ark::internal
         virtual ~Pass() = default;
 
         /**
-         * @brief Start processing the given AST
-         * @param ast
-         */
-        virtual void process(const Node& ast) = 0;
-
-        /**
-         * @brief Output of the compiler pass
+         * @brief Set a custom output stream for the logger
          *
-         * @return const Node& the modified AST
+         * @param os output stream
          */
-        [[nodiscard]] virtual const Node& ast() const noexcept = 0;
+        void configureLogger(std::ostream& os);
 
     protected:
         Logger m_logger;

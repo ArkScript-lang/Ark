@@ -27,7 +27,7 @@ namespace Ark::internal
     };
 
     Logger::Logger(std::string name, const unsigned debug_level) :
-        m_debug(debug_level), m_name(std::move(name))
+        m_debug(debug_level), m_name(std::move(name)), m_stream(nullptr)
     {
         m_pass_color = colors[std::hash<std::string> {}(m_name) % colors.size()];
     }

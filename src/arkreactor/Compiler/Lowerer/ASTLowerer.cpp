@@ -15,7 +15,7 @@ namespace Ark::internal
     using namespace literals;
 
     ASTLowerer::ASTLowerer(const unsigned debug) :
-        m_logger("ASTLowerer", debug)
+        Pass("ASTLowerer", debug)
     {}
 
     void ASTLowerer::addToTables(const std::vector<std::string>& symbols, const std::vector<ValTableElem>& constants)
@@ -159,7 +159,7 @@ namespace Ark::internal
 
     void ASTLowerer::warning(const std::string& message, const Node& node)
     {
-        m_logger.warn("{}", Diagnostics::makeContextWithNode(message, node));
+        m_logger.warn("{}", Diagnostics::makeContextWithNode(message, node, m_logger.colorize()));
     }
 
     void ASTLowerer::buildAndThrowError(const std::string& message, const Node& node)

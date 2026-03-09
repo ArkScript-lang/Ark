@@ -20,7 +20,7 @@ namespace Ark::internal
     }
 
     IROptimizer::IROptimizer(const unsigned debug) :
-        m_logger("IROptimizer", debug)
+        Pass("IROptimizer", debug)
     {
         m_ruleset = {
             Rule { { LOAD_CONST, LOAD_CONST }, LOAD_CONST_LOAD_CONST },
