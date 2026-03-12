@@ -127,24 +127,26 @@ def main(files: List[str]):
             runs_by_name[run.name].append(run)
 
     data = []
-    times = colorize_time_type("real_time", 0) + "\n" + colorize_time_type("cpu_time", 1)
 
-    for (name, runs) in runs_by_name.items():
+    for i, (name, runs) in enumerate(runs_by_name.items()):
         baseline: Run = runs[0]
         baseline_index = headers.index(baseline.benchmark) - 2
         diffs = [r.diff_from_baseline(baseline) for r in runs[1:]]
 
         padding = ["" for _ in range(baseline_index)] if baseline_index > 0 else []
         data.append(
-            [name, times] +
+            [
+                colorize_time_type(name, i % 2),
+                colorize_time_type("real_time", i % 2) + "\n" + colorize_time_type("cpu_time", i % 2)
+            ] +
             padding +
             [
-                colorize_time_type(f"{baseline.real_time:.3f}{baseline.time_unit}", 0) + "\n" +
-                colorize_time_type(f"{baseline.cpu_time:.3f}{baseline.time_unit}", 1)
+                colorize_time_type(f"{baseline.real_time:.3f}{baseline.time_unit}", i % 2) + "\n" +
+                colorize_time_type(f"{baseline.cpu_time:.3f}{baseline.time_unit}", i % 2)
             ] +
             [
-                f"{colorize_time_type(diff.dt_real_time, 0)} ({colorize_diff(diff.dt_rt_percent)}%)\n" +
-                f"{colorize_time_type(diff.dt_cpu_time, 1)} ({colorize_diff(diff.dt_ct_percent)}%)"
+                f"{colorize_time_type(diff.dt_real_time, i % 2)} ({colorize_diff(diff.dt_rt_percent)}%)\n" +
+                f"{colorize_time_type(diff.dt_cpu_time, i % 2)} ({colorize_diff(diff.dt_ct_percent)}%)"
                 for
                 diff in diffs
             ]
