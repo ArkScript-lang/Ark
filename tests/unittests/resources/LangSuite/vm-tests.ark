@@ -28,7 +28,20 @@
     (fun (&set-age &name &age) ()) }))
 (let bob (create-human "Bob" 38))
 
+(let egg (fun ((mut n))
+  (set n n)))
+
 (test:suite vm {
+    (test:case "assignments" {
+        (mut val (let x1 4))
+        (test:eq val 4)
+        (set val (mut x2 5))
+        (test:eq val 5)
+        (set val (set x2 6))
+        (test:eq val 6)
+        (set val (egg 7))
+        (test:eq val 7) })
+
     (test:case "arithmetic operations" {
         (test:eq (+ 1 2) 3)
         (test:eq (+ 1.5 2.5) 4.0)

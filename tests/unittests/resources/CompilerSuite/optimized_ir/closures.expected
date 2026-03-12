@@ -51,6 +51,7 @@ page_0
 .L7:
 	STORE 10
 	LOAD_CONST_STORE 18, 11
+	LOAD_FAST_BY_INDEX 0
 	HALT 0
 
 page_1
@@ -69,6 +70,7 @@ page_1
 page_2
 	STORE 5
 	SET_VAL_FROM_INDEX 0, 2
+	LOAD_FAST 2
 	RET 0
 	HALT 0
 

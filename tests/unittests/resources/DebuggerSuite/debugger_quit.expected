@@ -6,9 +6,9 @@ In file tests/unittests/resources/DebuggerSuite/debugger_quit.ark:3
     4 | (prn (format "ark: after first breakpoint, a={}, b={}" a b))
     5 |
 
-dbg[pp:0,ip:12]:000> (let c (+ a b))
-dbg[pp:0,ip:12]:001> (prn c)
+dbg[pp:0,ip:3]:000> (let c (+ a b))
 11
-nil
-dbg[pp:0,ip:12]:002> q
+dbg[pp:0,ip:3]:001> (prn c)
+11
+dbg[pp:0,ip:3]:002> q
 dbg: stop

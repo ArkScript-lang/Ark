@@ -99,6 +99,10 @@ namespace Ark::internal
             return (node.constList()[0].keyword() == Keyword::Begin && node.constList().size() > 1 && nodeProducesOutput(node.constList().back())) ||
                 // a function always produces a value ; even if it ends with a node not producing one, the VM returns nil
                 node.constList()[0].keyword() == Keyword::Fun ||
+                // a let/mut/set pushes the value that was assigned
+                node.constList()[0].keyword() == Keyword::Let ||
+                node.constList()[0].keyword() == Keyword::Mut ||
+                node.constList()[0].keyword() == Keyword::Set ||
                 // a condition produces a value if all its branches produce a value
                 (node.constList()[0].keyword() == Keyword::If &&
                  nodeProducesOutput(node.constList()[2]) &&
@@ -250,7 +254,7 @@ namespace Ark::internal
                     case Keyword::Let:
                         [[fallthrough]];
                     case Keyword::Mut:
-                        compileLetMutSet(keyword, x, p);
+                        compileLetMutSet(keyword, x, p, is_result_unused);
                         break;
 
                     case Keyword::Fun:
@@ -555,7 +559,7 @@ namespace Ark::internal
         }
     }
 
-    void ASTLowerer::compileLetMutSet(const Keyword n, Node& x, const Page p)
+    void ASTLowerer::compileLetMutSet(const Keyword n, Node& x, const Page p, const bool is_result_unused)
     {
         if (const auto sym = x.constList()[1]; sym.nodeType() != NodeType::Symbol)
             buildAndThrowError(fmt::format("Expected a symbol, got a {}", typeToString(sym)), sym);
@@ -577,16 +581,23 @@ namespace Ark::internal
 
         // put value before symbol id
         // starting at index = 2 because x is a (let|mut|set variable ...) node
-        for (std::size_t idx = 2, end = x.constList().size(); idx < end; ++idx)
-            compileExpression(x.list()[idx], p, false, false);
+        compileExpression(x.list()[2], p, false, false);
 
         if (n == Keyword::Let || n == Keyword::Mut)
         {
             page(p).emplace_back(STORE, i);
             m_locals_locator.addLocal(name);
+
+            if (!is_result_unused)
+                page(p).emplace_back(LOAD_FAST_BY_INDEX, 0);
         }
         else
+        {
             page(p).emplace_back(SET_VAL, i);
+
+            if (!is_result_unused)
+                page(p).emplace_back(LOAD_FAST, i);
+        }
 
         if (is_function)
             m_opened_vars.pop();

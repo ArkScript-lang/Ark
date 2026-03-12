@@ -257,7 +257,7 @@ namespace Ark::internal
         void compileApplyInstruction(Node& x, Page p, bool is_result_unused);
         void compileIf(Node& x, Page p, bool is_result_unused, bool is_terminal);
         void compileFunction(Node& x, Page p, bool is_result_unused);
-        void compileLetMutSet(Keyword n, Node& x, Page p);
+        void compileLetMutSet(Keyword n, Node& x, Page p, bool is_result_unused);
         void compileWhile(Node& x, Page p);
         void compilePluginImport(const Node& x, Page p);
         void pushFunctionCallArguments(Node& call, Page p, bool is_tail_call);

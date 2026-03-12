@@ -18,6 +18,7 @@
 - `pop!` can return the removed value
 - `@=` and `@@=` return the inserted value
 - `append!` and `concat!` return the modified list
+- `let`, `mut` and `set` can return the assigned value
 
 ### Removed
 

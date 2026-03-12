@@ -33,19 +33,18 @@ ut::suite<"Debugger"> debugger_suite = [] {
                 std::filesystem::path prompt_path(data.path);
                 prompt_path.replace_extension("prompt");
 
-                try
-                {
-                    Ark::VM vm(state);
-                    vm.usePromptFileForDebugger(prompt_path.generic_string(), os);
-                    vm.run(/* fail_with_exception= */ false);
+                expect(
+                    nothrow(
+                        [&] {
+                            Ark::VM vm(state);
+                            vm.usePromptFileForDebugger(prompt_path.generic_string(), os);
+                            vm.run(/* fail_with_exception= */ false);
 
-                    const std::string output = sanitizeOutput(os.str());
-                    expectOrDiff(data.expected, output);
-                }
-                catch (const std::exception&)
-                {
-                    expect(false);
-                }
+                            const std::string output = sanitizeOutput(os.str());
+                            expectOrDiff(data.expected, output);
+                            if (shouldWriteNewDiffsTofile() && data.expected != output)
+                                updateExpectedFile(data, output);
+                        }));
             };
         });
 };
