@@ -1,0 +1,5 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/or_1_breakpoint.ark:1
+    1 | (print (or 1 (breakpoint)))
+      |              ^~~~~~~~~~~~
+    2 |
+        Can not use `(breakpoint)' inside a `or' expression, as it doesn't return a value

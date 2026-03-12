@@ -1,0 +1,5 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/can_not_call_breakpoint.ark:1
+    1 | ((breakpoint) builtin__list:slice [] 1 1 2)
+      |  ^~~~~~~~~~~~
+    2 |
+        Can not call `(breakpoint)', as it doesn't return a value

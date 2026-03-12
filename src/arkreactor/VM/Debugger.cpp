@@ -179,7 +179,7 @@ namespace Ark::internal
         if (limit > 0 && count > 0)
         {
             fmt::println(m_os, "scope size: {}", limit);
-            fmt::println(m_os, "index |  id |    type   | value");
+            fmt::println(m_os, "index |  id |      name      |    type   | value");
             std::size_t i = 0;
 
             do
@@ -192,9 +192,10 @@ namespace Ark::internal
 
                 fmt::println(
                     m_os,
-                    "{:>5} | {:3} | {:>9} | {}",
+                    "{:>5} | {:3} | {:14} | {:>9} | {}",
                     fmt::styled(limit - i - 1, color),
                     fmt::styled(id, color),
+                    fmt::styled(vm.m_state.m_symbols[id], color),
                     fmt::styled(std::to_string(value.valueType()), color),
                     fmt::styled(value.toString(vm, /* show_as_code= */ true), color));
                 ++i;
@@ -257,7 +258,7 @@ namespace Ark::internal
                 m_os,
                 "dbg[{},{}]:{:0>3}{} ",
                 fmt::format("pp:{}", fmt::styled(pp, m_colorize ? fmt::fg(fmt::color::green) : fmt::text_style())),
-                fmt::format("ip:{}", fmt::styled(ip, m_colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style())),
+                fmt::format("ip:{}", fmt::styled(ip / 4, m_colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style())),
                 m_line_count,
                 unfinished_block ? ":" : ">");
 

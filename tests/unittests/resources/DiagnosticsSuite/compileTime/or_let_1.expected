@@ -1,5 +1,0 @@
-In file tests/unittests/resources/DiagnosticsSuite/compileTime/or_let_1.ark:1
-    1 | (print (or (let x 1) 1))
-      |            ^~~~~~~~
-    2 |
-        Can not use `(let x 1)' inside a `or' expression, as it doesn't return a value

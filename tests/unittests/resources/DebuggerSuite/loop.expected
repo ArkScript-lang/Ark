@@ -13,10 +13,10 @@ In file tests/unittests/resources/DebuggerSuite/loop.ark:3
     4 |   (prn (format "ark: i={}" i))
     5 |   (set i (+ 1 i)) })
 
-dbg[pp:0,ip:32]:000> (prn i)
+dbg[pp:0,ip:8]:000> (prn i)
 6
 nil
-dbg[pp:0,ip:32]:001> c
+dbg[pp:0,ip:8]:001> c
 dbg: continue
 ark: i=6
 
@@ -28,10 +28,10 @@ In file tests/unittests/resources/DebuggerSuite/loop.ark:3
     4 |   (prn (format "ark: i={}" i))
     5 |   (set i (+ 1 i)) })
 
-dbg[pp:0,ip:32]:000> (prn i)
+dbg[pp:0,ip:8]:000> (prn i)
 7
 nil
-dbg[pp:0,ip:32]:001> c
+dbg[pp:0,ip:8]:001> c
 dbg: continue
 ark: i=7
 
@@ -43,10 +43,10 @@ In file tests/unittests/resources/DebuggerSuite/loop.ark:3
     4 |   (prn (format "ark: i={}" i))
     5 |   (set i (+ 1 i)) })
 
-dbg[pp:0,ip:32]:000> (prn i)
+dbg[pp:0,ip:8]:000> (prn i)
 8
 nil
-dbg[pp:0,ip:32]:001> c
+dbg[pp:0,ip:8]:001> c
 dbg: continue
 ark: i=8
 
@@ -58,10 +58,10 @@ In file tests/unittests/resources/DebuggerSuite/loop.ark:3
     4 |   (prn (format "ark: i={}" i))
     5 |   (set i (+ 1 i)) })
 
-dbg[pp:0,ip:32]:000> (prn i)
+dbg[pp:0,ip:8]:000> (prn i)
 9
 nil
-dbg[pp:0,ip:32]:001> c
+dbg[pp:0,ip:8]:001> c
 dbg: continue
 ark: i=9
 ark: end
