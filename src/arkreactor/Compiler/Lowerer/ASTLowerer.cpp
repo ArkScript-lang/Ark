@@ -103,13 +103,11 @@ namespace Ark::internal
                 (node.constList()[0].keyword() == Keyword::If &&
                  nodeProducesOutput(node.constList()[2]) &&
                  (node.constList().size() == 3 || nodeProducesOutput(node.constList()[3])));
-        // append! and concat! instructions, as well as breakpoint, do not produce values
+        // breakpoint do not produce values
         if (node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Symbol)
         {
             const std::string& name = node.constList().front().string();
-            return name != Language::AppendInPlace &&
-                name != Language::ConcatInPlace &&
-                name != "breakpoint";
+            return name != "breakpoint";
         }
         return true;  // any other node, function call, symbol, number...
     }
@@ -397,10 +395,15 @@ namespace Ark::internal
         page(p).emplace_back(inst, static_cast<uint16_t>(inst_argc));
         page(p).back().setSourceLocation(head.filename(), head.position().start.line);
 
-        // append! and concat! do not push anything to the stack (for now)
-        // pop!, @= and @@= can push to the stack, but not using its returned value isn't an error
-        if (is_result_unused && inst != APPEND_IN_PLACE && inst != CONCAT_IN_PLACE &&
-            inst != POP_LIST_IN_PLACE && inst != SET_AT_INDEX && inst != SET_AT_2_INDEX)
+        if (!is_result_unused && (inst == APPEND_IN_PLACE || inst == CONCAT_IN_PLACE))
+        {
+            // Load the first argument which should be a symbol (or field),
+            // that append!/concat! write to, so that we have its new value available.
+            compileExpression(x.list()[1], p, false, false);
+        }
+
+        // append!, concat!, pop!, @= and @@= can push to the stack, but not using its returned value isn't an error
+        if (is_result_unused && (inst == LIST || inst == APPEND || inst == CONCAT || inst == POP_LIST))
         {
             warning("Ignoring return value of function", x);
             page(p).emplace_back(POP);

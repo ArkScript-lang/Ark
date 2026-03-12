@@ -1,2 +1,2 @@
 (mut b [])
-(apply print (append! b 5))
+(apply print (breakpoint))

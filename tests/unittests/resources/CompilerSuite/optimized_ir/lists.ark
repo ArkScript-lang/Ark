@@ -20,6 +20,15 @@
 
   # APPEND_IN_PLACE_SYM
   (append! source 6)
+  # APPEND_IN_PLACE_SYM
+  # + LOAD_FAST
+  (print (append! source 6))
+
+  # CONCAT_IN_PLACE
+  (concat! source [7])
+  # CONCAT_IN_PLACE
+  # + LOAD_FAST
+  (print (concat! source [7]))
 
   # AT_SYM_SYM
   (@ source n) }))

@@ -17,6 +17,7 @@
 ### Changed
 - `pop!` can return the removed value
 - `@=` and `@@=` return the inserted value
+- `append!` and `concat!` return the modified list
 
 ### Removed
 
