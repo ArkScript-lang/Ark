@@ -920,7 +920,14 @@ namespace Ark
                                     ErrorKind::Index,
                                     fmt::format("pop! index ({}) out of range (list size: {})", idx, list->list().size()));
 
+                            // Save the value we're removing to push it later.
+                            // We need to save the value and push later because we're using a pointer to 'list', and pushing before erasing
+                            // would overwrite values from the stack.
+                            if (arg)
+                                number = list->list()[static_cast<std::size_t>(idx)];
                             list->list().erase(list->list().begin() + idx);
+                            if (arg)
+                                push(number, context);
                         }
                         DISPATCH();
                     }
@@ -954,9 +961,17 @@ namespace Ark
                                     fmt::format("@= index ({}) out of range (indexable size: {})", idx, size));
 
                             if (list->valueType() == ValueType::List)
+                            {
                                 list->list()[static_cast<std::size_t>(idx)] = new_value;
+                                if (arg)
+                                    push(new_value, context);
+                            }
                             else
+                            {
                                 list->stringRef()[static_cast<std::size_t>(idx)] = new_value.string()[0];
+                                if (arg)
+                                    push(Value(new_value.string()[0]), context);
+                            }
                         }
                         DISPATCH();
                     }
@@ -1016,9 +1031,17 @@ namespace Ark
                                     fmt::format("@@= index (x: {}) out of range (inner indexable size: {})", idx_x, size));
 
                             if (is_list)
+                            {
                                 list->list()[static_cast<std::size_t>(idx_y)].list()[static_cast<std::size_t>(idx_x)] = new_value;
+                                if (arg)
+                                    push(new_value, context);
+                            }
                             else
+                            {
                                 list->list()[static_cast<std::size_t>(idx_y)].stringRef()[static_cast<std::size_t>(idx_x)] = new_value.string()[0];
+                                if (arg)
+                                    push(Value(new_value.string()[0]), context);
+                            }
                         }
                         DISPATCH();
                     }

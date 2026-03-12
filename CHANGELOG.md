@@ -15,6 +15,8 @@
 - display a warning to `stderr` when using a deprecated function/value (checks for `@deprecated` inside the attached comment of functions / values)
 
 ### Changed
+- `pop!` can return the removed value
+- `@=` and `@@=` return the inserted value
 
 ### Removed
 

@@ -87,7 +87,7 @@
 
 --#
 * @name pop!
-* @brief Remove an element from a list in place, given its index. It doesn't return anything
+* @brief Remove an element from a list in place, given its index. Return the removed element
 * @details Supports negative indices, -1 being the end.
 * @param lst a list. Must be mutable
 * @param index number
@@ -155,5 +155,27 @@
 * (print (@@ ["abc" "def" "ghi"] 0 1))  # b
 * (print (@@ ["abc" "def" "ghi"] -1 1))  # h
 * (print (@@ ["abc" "def" "ghi"] 0 -1))  # c
+* =end
+#--
+
+--#
+* @name @=
+* @brief Set an element in a list, in place
+* @details Return the newly added element
+* @param lst list
+* @param index number (can be negative to start from the end)
+* @param x value
+* =begin
+* (mut lst [1 2 3 4 5])
+* (print (@= lst 0 "x"))  # "x"
+* (print lst)  # ["x" 2 3 4 5]
+* (print (@= lst 1 "y"))  # "y"
+* (print lst)  # ["x" "y" 3 4 5]
+* (print (@= lst 2 "z"))  # "z"
+* (print lst)  # ["x" "y" "z" 4 5]
+* (@= lst -1 "f")
+* (print lst)  # ["x" "y" "z" 4 "f"]
+* (@= lst -2 "g")
+* (print lst)  # ["x" "y" "z" "g" "f"]
 * =end
 #--
