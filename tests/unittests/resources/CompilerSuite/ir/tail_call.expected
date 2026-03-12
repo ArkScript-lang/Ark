@@ -7,6 +7,7 @@ page_0
 	LOAD_FAST_BY_INDEX 0
 	CALL 2
 .L3:
+	POP 0
 	HALT 0
 
 page_1

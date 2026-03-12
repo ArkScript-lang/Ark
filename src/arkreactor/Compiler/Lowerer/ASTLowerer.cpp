@@ -38,8 +38,8 @@ namespace Ark::internal
         compileExpression(
             ast,
             /* current_page */ global,
-            /* is_result_unused */ false,
-            /* is_terminal */ false);
+            /* is_result_unused= */ true,
+            /* is_terminal= */ false);
         m_logger.traceEnd();
     }
 

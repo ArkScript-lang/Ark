@@ -15,7 +15,6 @@ In file tests/unittests/resources/DebuggerSuite/loop.ark:3
 
 dbg[pp:0,ip:8]:000> (prn i)
 6
-nil
 dbg[pp:0,ip:8]:001> c
 dbg: continue
 ark: i=6
@@ -30,7 +29,6 @@ In file tests/unittests/resources/DebuggerSuite/loop.ark:3
 
 dbg[pp:0,ip:8]:000> (prn i)
 7
-nil
 dbg[pp:0,ip:8]:001> c
 dbg: continue
 ark: i=7
@@ -45,7 +43,6 @@ In file tests/unittests/resources/DebuggerSuite/loop.ark:3
 
 dbg[pp:0,ip:8]:000> (prn i)
 8
-nil
 dbg[pp:0,ip:8]:001> c
 dbg: continue
 ark: i=8
@@ -60,7 +57,6 @@ In file tests/unittests/resources/DebuggerSuite/loop.ark:3
 
 dbg[pp:0,ip:8]:000> (prn i)
 9
-nil
 dbg[pp:0,ip:8]:001> c
 dbg: continue
 ark: i=9

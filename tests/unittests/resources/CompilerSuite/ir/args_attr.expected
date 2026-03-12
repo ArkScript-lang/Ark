@@ -16,6 +16,7 @@ page_0
 	BUILTIN 9
 	CALL 1
 .L0:
+	POP 0
 	HALT 0
 
 page_1

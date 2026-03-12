@@ -12,4 +12,5 @@ page_0
 	BUILTIN 26
 	CALL 2
 .L0:
+	POP 0
 	HALT 0

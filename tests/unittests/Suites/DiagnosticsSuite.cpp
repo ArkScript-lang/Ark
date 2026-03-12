@@ -38,9 +38,11 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
         "DiagnosticsSuite/runtime",
         [](TestData&& data) {
             Ark::State state({ lib_path });
+            // custom output stream for warnings to hide them, we don't want to test them here
+            std::stringstream stream;
 
             should("compile without error runtime/" + data.stem) = [&] {
-                expect(mut(state).doFile(data.path, features));
+                expect(mut(state).doFile(data.path, features, &stream));
             };
 
             should("generate an error at runtime in " + data.stem) = [&] {
@@ -64,9 +66,11 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
         "DiagnosticsSuite/typeChecking",
         [](TestData&& data) {
             Ark::State state({ lib_path });
+            // custom output stream for warnings to hide them, we don't want to test them here
+            std::stringstream stream;
 
             should("compile without error typeChecking/" + data.stem) = [&] {
-                expect(mut(state).doFile(data.path, features));
+                expect(mut(state).doFile(data.path, features, &stream));
             };
 
             should("generate an error at runtime (typeChecking) in " + data.stem) = [&] {

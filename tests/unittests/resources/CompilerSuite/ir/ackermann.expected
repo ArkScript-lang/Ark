@@ -12,6 +12,7 @@ page_0
 	BUILTIN 9
 	CALL 2
 .L5:
+	POP 0
 	HALT 0
 
 page_1
