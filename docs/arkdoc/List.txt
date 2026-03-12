@@ -35,7 +35,7 @@
 
 --#
 * @name append!
-* @brief Add an element to a list, modifying it in place. It doesn't return anything
+* @brief Add an element to a list, modifying it in place. Return the modified list
 * @param lst a list. Must be mutable
 * @param element
 * =begin
@@ -60,7 +60,7 @@
 
 --#
 * @name concat!
-* @brief Concatenate two lists in place, modifying the first one it in place. It doesn't return anything
+* @brief Concatenate two lists in place, modifying the first one it in place. Return the modified list
 * @param lst a list. Must be mutable
 * @param more another list
 * =begin
