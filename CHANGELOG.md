@@ -3,6 +3,10 @@
 ## [Unreleased changes] - 2026-MM-DD
 ### Breaking changes
 
+### Deprecations
+- `list:permutations` is deprecated in favor of `list:combinations`
+- `list:permutationsWithReplacement` is deprecated in favor of `list:combinationsWithReplacement`
+
 ### Added
 - new debugger commands: `stack <n>` and `locals <n>` to print the values on the stack and in the current locals scope
 - custom format specifiers for lists:

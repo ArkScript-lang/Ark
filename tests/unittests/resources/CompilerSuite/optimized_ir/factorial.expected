@@ -9,6 +9,7 @@ page_0
 	LOAD_CONST 4
 	CALL_BUILTIN 9, 2
 .L2:
+	POP 0
 	HALT 0
 
 page_1

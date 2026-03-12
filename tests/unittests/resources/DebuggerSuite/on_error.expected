@@ -1,8 +1,6 @@
 dbg[pp:0,ip:3]:000> (prn a)
 5
-nil
 dbg[pp:0,ip:3]:001> (prn (type a))
 Number
-nil
 dbg[pp:0,ip:3]:002> c
 dbg: continue

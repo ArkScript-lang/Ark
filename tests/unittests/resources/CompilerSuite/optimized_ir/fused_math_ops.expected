@@ -391,4 +391,5 @@ page_0
 	LIST 80
 	CALL_BUILTIN 9, 1
 .L0:
+	POP 0
 	HALT 0

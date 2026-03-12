@@ -15,7 +15,6 @@ In file tests/unittests/resources/DebuggerSuite/modify_program_state.ark:3
 
 dbg[pp:0,ip:8]:000> (prn i)
 6
-nil
 dbg[pp:0,ip:8]:001> c
 dbg: continue
 ark: i=6
@@ -29,7 +28,6 @@ In file tests/unittests/resources/DebuggerSuite/modify_program_state.ark:3
     5 |   (set i (+ 1 i)) })
 
 dbg[pp:0,ip:8]:000> (set i 20)
-20
 dbg[pp:0,ip:8]:001> c
 dbg: continue
 ark: i=20

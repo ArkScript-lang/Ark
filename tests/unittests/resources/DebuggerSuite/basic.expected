@@ -7,7 +7,6 @@ In file tests/unittests/resources/DebuggerSuite/basic.ark:3
     5 |
 
 dbg[pp:0,ip:3]:000> (let c (+ a b))
-11
 dbg[pp:0,ip:3]:001> (prn c)
 11
 dbg[pp:0,ip:3]:002> c
@@ -25,7 +24,6 @@ In file tests/unittests/resources/DebuggerSuite/basic.ark:7
 
 dbg[pp:1,ip:5]:000> (prn x y z)
 567
-nil
 dbg[pp:1,ip:5]:001> help
 Available commands:
   help -- display this message
