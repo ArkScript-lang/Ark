@@ -77,3 +77,25 @@
 * (print (@ "abc" -2))  # "b"
 * =end
 #--
+
+--#
+* @name @=
+* @brief Set a character in a string, in place
+* @details Return the newly added character
+* @param str string
+* @param index number (can be negative to start from the end)
+* @param char character
+* =begin
+* (mut str "abcde")
+* (print (@= str 0 "x"))  # "x"
+* (print str)  # "xbcde"
+* (print (@= str 1 "y"))  # "y"
+* (print str)  # "xycde"
+* (print (@= str 2 "z"))  # "z"
+* (print str)  # "xyzde"
+* (@= str -1 "f")
+* (print str)  # "xyzdf"
+* (@= str -2 "g")
+* (print str)  # "xyzgf"
+* =end
+#--

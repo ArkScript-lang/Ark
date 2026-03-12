@@ -1,0 +1,5 @@
+(+ 1a)
+(- 2b)
+(* 0c)
+(print 1"hello"d)
+(concat[1][2])

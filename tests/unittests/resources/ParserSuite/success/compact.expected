@@ -1,0 +1,5 @@
+( Symbol:+ Number:1 Symbol:a )
+( Symbol:- Number:2 Symbol:b )
+( Symbol:* Number:0 Symbol:c )
+( Symbol:print Number:1 String:hello Symbol:d )
+( Symbol:concat ( Symbol:list Number:1 ) ( Symbol:list Number:2 ) )

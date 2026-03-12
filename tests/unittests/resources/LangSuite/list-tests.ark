@@ -105,15 +105,15 @@
 
     (test:case "in place mutation with @=" {
         (mut numbers [0 1 2 3 4])
-        (@= numbers 2 5)
-        (@= numbers -1 9)
+        (test:eq (@= numbers 2 5) 5)
+        (test:eq (@= numbers -1 9) 9)
         (@= numbers -2 8)
         (test:eq numbers [0 1 5 8 9] "@=") })
 
     (test:case "in place 2D mutation with @@=" {
         (mut numbers [[0 1 2 3] [4 5 6 7] [8 9 0 1]])
-        (@@= numbers 0 0 9)
-        (@@= numbers 1 1 "a")
+        (test:eq (@@= numbers 0 0 9) 9)
+        (test:eq (@@= numbers 1 1 "a") "a")
         (@@= numbers -1 -1 -1)
         (@@= numbers -2 -2 -2)
         (test:eq numbers [[9 1 2 3] [4 "a" -2 7] [8 9 0 -1]]) })
@@ -126,9 +126,11 @@
         (concat! c d)
         (test:eq c [1 2 3 4 4 5 6])
         (test:eq d [4 5 6])
-        (pop! c -1)
+        (test:eq (pop! c -1) 6)
         (test:eq c [1 2 3 4 4 5])
-        (pop! c 1)
+        (test:eq (pop! c 1) 2)
         (test:eq c [1 3 4 4 5])
+        (pop! c 0)
+        (test:eq c [3 4 4 5])
         (test:eq a [1 2 3])
         (test:eq b [4 5 6]) })})

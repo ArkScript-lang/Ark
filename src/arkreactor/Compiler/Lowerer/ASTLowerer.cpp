@@ -95,7 +95,7 @@ namespace Ark::internal
     bool ASTLowerer::nodeProducesOutput(const Node& node)
     {
         if (node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Keyword)
-            // a begin node produces a value if the last node in it produces a value
+            // a 'begin' node produces a value if the last node in it produces a value
             return (node.constList()[0].keyword() == Keyword::Begin && node.constList().size() > 1 && nodeProducesOutput(node.constList().back())) ||
                 // a function always produces a value ; even if it ends with a node not producing one, the VM returns nil
                 node.constList()[0].keyword() == Keyword::Fun ||
@@ -103,10 +103,14 @@ namespace Ark::internal
                 (node.constList()[0].keyword() == Keyword::If &&
                  nodeProducesOutput(node.constList()[2]) &&
                  (node.constList().size() == 3 || nodeProducesOutput(node.constList()[3])));
-        // in place list instruction, as well as breakpoint, do not produce values
+        // append! and concat! instructions, as well as breakpoint, do not produce values
         if (node.nodeType() == NodeType::List && !node.constList().empty() && node.constList()[0].nodeType() == NodeType::Symbol)
-            return std::ranges::find(Language::UpdateRef, node.constList().front().string()) == Language::UpdateRef.end() &&
-                node.constList().front().string() != "breakpoint";
+        {
+            const std::string& name = node.constList().front().string();
+            return name != Language::AppendInPlace &&
+                name != Language::ConcatInPlace &&
+                name != "breakpoint";
+        }
         return true;  // any other node, function call, symbol, number...
     }
 
@@ -332,15 +336,15 @@ namespace Ark::internal
     void ASTLowerer::compileListInstruction(Node& x, const Page p, const bool is_result_unused)
     {
         const Node head = x.constList()[0];
-        std::string name = x.constList()[0].string();
-        Instruction inst = getListInstruction(name).value();
+        const std::string& name = head.string();
+        const Instruction inst = getListInstruction(name).value();
 
         // length of at least 1 since we got a symbol name
         const auto argc = x.constList().size() - 1u;
         // error, can not use append/concat/pop (and their in place versions) with a <2 length argument list
-        if (argc < 2 && APPEND <= inst && inst <= POP)
+        if (argc < 2 && APPEND <= inst && inst <= SET_AT_2_INDEX)
             buildAndThrowError(fmt::format("Can not use {} with less than 2 arguments", name), head);
-        if (inst <= POP && std::cmp_greater(argc, MaxValue16Bits))
+        if (std::cmp_greater(argc, MaxValue16Bits))
             buildAndThrowError(fmt::format("Too many arguments ({}), exceeds {}", argc, MaxValue16Bits), x);
         if (argc != 3 && inst == SET_AT_INDEX)
             buildAndThrowError(fmt::format("Expected 3 arguments (list, index, value) for {}, got {}", name, argc), head);
@@ -366,15 +370,25 @@ namespace Ark::internal
                 break;
 
             case APPEND:
+                [[fallthrough]];
             case APPEND_IN_PLACE:
+                [[fallthrough]];
             case CONCAT:
+                [[fallthrough]];
             case CONCAT_IN_PLACE:
                 inst_argc = argc - 1;
                 break;
 
             case POP_LIST:
-            case POP_LIST_IN_PLACE:
                 inst_argc = 0;
+                break;
+
+            case SET_AT_INDEX:
+                [[fallthrough]];
+            case SET_AT_2_INDEX:
+                [[fallthrough]];
+            case POP_LIST_IN_PLACE:
+                inst_argc = is_result_unused ? 0 : 1;
                 break;
 
             default:
@@ -383,7 +397,10 @@ namespace Ark::internal
         page(p).emplace_back(inst, static_cast<uint16_t>(inst_argc));
         page(p).back().setSourceLocation(head.filename(), head.position().start.line);
 
-        if (is_result_unused && name.back() != '!' && inst <= POP_LIST_IN_PLACE)  // in-place functions never push a value
+        // append! and concat! do not push anything to the stack (for now)
+        // pop!, @= and @@= can push to the stack, but not using its returned value isn't an error
+        if (is_result_unused && inst != APPEND_IN_PLACE && inst != CONCAT_IN_PLACE &&
+            inst != POP_LIST_IN_PLACE && inst != SET_AT_INDEX && inst != SET_AT_2_INDEX)
         {
             warning("Ignoring return value of function", x);
             page(p).emplace_back(POP);
