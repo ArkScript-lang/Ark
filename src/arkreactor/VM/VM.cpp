@@ -970,7 +970,7 @@ namespace Ark
                             {
                                 list->stringRef()[static_cast<std::size_t>(idx)] = new_value.string()[0];
                                 if (arg)
-                                    push(Value(new_value.string()[0]), context);
+                                    push(Value(std::string(1, new_value.string()[0])), context);
                             }
                         }
                         DISPATCH();
@@ -1040,7 +1040,7 @@ namespace Ark
                             {
                                 list->list()[static_cast<std::size_t>(idx_y)].stringRef()[static_cast<std::size_t>(idx_x)] = new_value.string()[0];
                                 if (arg)
-                                    push(Value(new_value.string()[0]), context);
+                                    push(Value(std::string(1, new_value.string()[0])), context);
                             }
                         }
                         DISPATCH();

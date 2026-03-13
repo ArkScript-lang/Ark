@@ -179,3 +179,24 @@
 * (print lst)  # ["x" "y" "z" "g" "f"]
 * =end
 #--
+
+--#
+* @name @@=
+* @brief Set an element in a list of lists or list of strings, in place
+* @details Return the newly added element
+* @param lst list
+* @param y index (can be negative to start from the end)
+* @param x index (can be negative to start from the end)
+* @param value anything (for list of lists) or string (for list of strings)
+* =begin
+* (mut lst [[1 2 3] [4 5 6] [7 8 9]])
+* (print (@@= lst 0 1 "x"))  # x
+* (print (@@= lst -1 1 "y"))  # y
+* (print (@@= lst 0 -1 "z"))  # z
+* (mut lst2 ["abc" "def" "ghi"])
+* (print (@@= lst2 0 1 "0"))  # 0
+* (print (@@= lst2 -1 1 "1"))  # 1
+* (print (@@= lst2 0 -1 "2"))  # 2
+* (print lst2)  # [a02 def g1i]
+* =end
+#--

@@ -108,7 +108,12 @@
         (test:eq (@= numbers 2 5) 5)
         (test:eq (@= numbers -1 9) 9)
         (@= numbers -2 8)
-        (test:eq numbers [0 1 5 8 9] "@=") })
+        (test:eq numbers [0 1 5 8 9] "@=")
+
+        (mut strings "abcdef")
+        (test:eq (@= strings 2 "0") "0")
+        (test:eq (@= strings -1 "1") "1")
+        (test:eq strings "ab0de1") })
 
     (test:case "in place 2D mutation with @@=" {
         (mut numbers [[0 1 2 3] [4 5 6 7] [8 9 0 1]])
@@ -116,7 +121,13 @@
         (test:eq (@@= numbers 1 1 "a") "a")
         (@@= numbers -1 -1 -1)
         (@@= numbers -2 -2 -2)
-        (test:eq numbers [[9 1 2 3] [4 "a" -2 7] [8 9 0 -1]]) })
+        (test:eq numbers [[9 1 2 3] [4 "a" -2 7] [8 9 0 -1]])
+
+        (mut strings ["abc" "def" "ghi"])
+        (test:eq (@@= strings 0 1 "0") "0")
+        (test:eq (@@= strings -1 1 "1") "1")
+        (test:eq (@@= strings 0 -1 "2") "2")
+        (test:eq strings ["a02" "def" "g1i"]) })
 
     (test:case "in place list mutation" {
         (mut c a)
