@@ -23,6 +23,7 @@
 - `@=` and `@@=` return the inserted value
 - `append!` and `concat!` return the modified list
 - `let`, `mut` and `set` can return the assigned value
+- fix formatter: when the condition of a `while` loop is on multiple lines, add the right amount of indentation before it
 
 ### Removed
 

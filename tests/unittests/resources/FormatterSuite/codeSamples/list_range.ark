@@ -1,0 +1,10 @@
+(let range (fun (_start _end _step) {
+  (assert (!= _step 0) "list:range needs a non-zero step value")
+
+  (mut _output [])
+  (mut _last _start)
+  (while (if (> _step 0) (< _last _end) (> _last _end)) {
+    (append! _output _last)
+    (set _last (+ _last _step)) })
+
+  _output }))

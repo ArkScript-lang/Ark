@@ -399,7 +399,7 @@ std::string Formatter::formatLoop(const Node& node, const std::size_t indent)
         return fmt::format(
             "(while{}{}\n{})",
             cond_on_newline ? "\n" : " ",
-            formatted_cond,
+            cond_on_newline ? format(cond_node, indent + 1, true) : formatted_cond,
             format(body_node, indent + 1, true));
     return fmt::format(
         "(while {} {})",
