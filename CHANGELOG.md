@@ -1,8 +1,6 @@
 # Change Log
 
-## [Unreleased changes] - 2026-MM-DD
-### Breaking changes
-
+## [4.4.0] - 2026-03-13
 ### Deprecations
 - `list:permutations` is deprecated in favor of `list:combinations`
 - `list:permutationsWithReplacement` is deprecated in favor of `list:combinationsWithReplacement`
@@ -24,8 +22,6 @@
 - `append!` and `concat!` return the modified list
 - `let`, `mut` and `set` can return the assigned value
 - fix formatter: when the condition of a `while` loop is on multiple lines, add the right amount of indentation before it
-
-### Removed
 
 ## [4.3.3] - 2026-03-01
 ### Changed
