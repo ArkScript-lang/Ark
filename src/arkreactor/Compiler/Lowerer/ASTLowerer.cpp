@@ -831,6 +831,12 @@ namespace Ark::internal
         if (!nodeProducesOutput(node))
             buildAndThrowError(fmt::format("Can not call `{}', as it doesn't return a value", node.repr()), node);
 
+        const auto label_return = IR::Entity::Label(m_current_label++);
+        page(p).emplace_back(IR::Entity::Goto(label_return, PUSH_RETURN_ADDRESS));
+        page(p).back().setSourceLocation(x.filename(), x.position().start.line);
+
+        pushFunctionCallArguments(x, p, /* is_tail_call= */ false);
+
         const auto proc_page = createNewCodePage(/* temp= */ true);
 
         // compile the function resolution to a separate page
@@ -852,11 +858,6 @@ namespace Ark::internal
         if (m_temp_pages.back().empty())
             buildAndThrowError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
 
-        const auto label_return = IR::Entity::Label(m_current_label++);
-        page(p).emplace_back(IR::Entity::Goto(label_return, PUSH_RETURN_ADDRESS));
-        page(p).back().setSourceLocation(x.filename(), x.position().start.line);
-
-        pushFunctionCallArguments(x, p, /* is_tail_call= */ false);
         // push proc from temp page
         for (const auto& inst : m_temp_pages.back())
             page(p).push_back(inst);
