@@ -459,6 +459,7 @@ namespace Ark
             Constant,
             Builtin,
             Raw,  ///< eg: Stack index, jump address, number
+            RawHex,
             ConstConst,
             ConstSym,
             SymConst,
@@ -500,6 +501,7 @@ namespace Ark
             { SET_VAL, ArgKind::Symbol },
             { POP_JUMP_IF_FALSE, ArgKind::Raw },
             { JUMP, ArgKind::Raw },
+            { PUSH_RETURN_ADDRESS, ArgKind::RawHex },
             { CALL, ArgKind::Raw },
             { CAPTURE, ArgKind::Symbol },
             { RENAME_NEXT_CAPTURE, ArgKind::Symbol },
@@ -604,6 +606,9 @@ namespace Ark
                     case ArgKind::Raw:
                         fmt::print(raw_color, " ({})\n", idx);
                         break;
+                    case ArgKind::RawHex:
+                        fmt::print(raw_color, " ({:#x})\n", idx);
+                        break;
                     case ArgKind::ConstConst:
                         fmt::print(" {}, {}\n", fmt::styled(value_str(arg->primary()), const_color), fmt::styled(value_str(arg->secondary()), const_color));
                         break;
@@ -696,7 +701,7 @@ namespace Ark
                         else
                             fmt::print("    ");
                         // instruction number
-                        fmt::print(fmt::fg(fmt::color::cyan), "{:>4}", j / 4);
+                        fmt::print(fmt::fg(fmt::color::cyan), "{:>4x}", j / 4);
                         // padding inst arg arg
                         fmt::print(" {:02x} {:02x} {:02x} {:02x} ", inst, padding, page[j + 2], page[j + 3]);
 
