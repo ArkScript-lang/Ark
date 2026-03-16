@@ -835,8 +835,6 @@ namespace Ark::internal
         page(p).emplace_back(IR::Entity::Goto(label_return, PUSH_RETURN_ADDRESS));
         page(p).back().setSourceLocation(x.filename(), x.position().start.line);
 
-        pushFunctionCallArguments(x, p, /* is_tail_call= */ false);
-
         const auto proc_page = createNewCodePage(/* temp= */ true);
 
         // compile the function resolution to a separate page
@@ -855,13 +853,15 @@ namespace Ark::internal
             compileExpression(node, proc_page, false, false);  // storing proc
         }
 
-        if (m_temp_pages.back().empty())
+        if (page(proc_page).empty())
             buildAndThrowError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
 
         // push proc from temp page
         for (const auto& inst : m_temp_pages.back())
             page(p).push_back(inst);
         m_temp_pages.pop_back();
+
+        pushFunctionCallArguments(x, p, /* is_tail_call= */ false);
 
         // number of arguments
         std::size_t args_count = 0;

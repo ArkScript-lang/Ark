@@ -30,32 +30,32 @@ namespace Ark::internal
             Rule { { LOAD_FAST_BY_INDEX, STORE }, STORE_FROM_INDEX },
             Rule { { LOAD_FAST, SET_VAL }, SET_VAL_FROM },
             Rule { { LOAD_FAST_BY_INDEX, SET_VAL }, SET_VAL_FROM_INDEX },
-            Rule { { STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
-                   [](const Entities entities, const std::size_t start_idx) {
-                       return Builtins::builtins[entities[3].primaryArg()].second.isFunction() && start_idx == 0 && entities[6].inst() == RET;
-                   },
-                   [](const Entities e) {
-                       return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[3].primaryArg(), 1);
-                   } },
-            Rule { { STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
-                   [](const Entities entities, const std::size_t start_idx) {
-                       return Builtins::builtins[entities[5].primaryArg()].second.isFunction() && start_idx == 0 && entities[8].inst() == RET;
-                   },
-                   [](const Entities e) {
-                       return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[5].primaryArg(), 2);
-                   } },
-            Rule { { STORE, STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
-                   [](const Entities entities, const std::size_t start_idx) {
-                       return Builtins::builtins[entities[7].primaryArg()].second.isFunction() && start_idx == 0 && entities[10].inst() == RET;
-                   },
-                   [](const Entities e) {
-                       return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[7].primaryArg(), 3);
-                   } },
-            Rule { { BUILTIN, CALL }, CALL_BUILTIN, [](const Entities entities, const std::size_t) {
-                      return Builtins::builtins[entities[0].primaryArg()].second.isFunction();
-                  } },
-            Rule { { LOAD_FAST, CALL }, CALL_SYMBOL },
-            Rule { { GET_CURRENT_PAGE_ADDR, CALL }, CALL_CURRENT_PAGE },
+            // Rule { { STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
+            //        [](const Entities entities, const std::size_t start_idx) {
+            //            return Builtins::builtins[entities[3].primaryArg()].second.isFunction() && start_idx == 0 && entities[6].inst() == RET;
+            //        },
+            //        [](const Entities e) {
+            //            return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[3].primaryArg(), 1);
+            //        } },
+            // Rule { { STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
+            //        [](const Entities entities, const std::size_t start_idx) {
+            //            return Builtins::builtins[entities[5].primaryArg()].second.isFunction() && start_idx == 0 && entities[8].inst() == RET;
+            //        },
+            //        [](const Entities e) {
+            //            return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[5].primaryArg(), 2);
+            //        } },
+            // Rule { { STORE, STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
+            //        [](const Entities entities, const std::size_t start_idx) {
+            //            return Builtins::builtins[entities[7].primaryArg()].second.isFunction() && start_idx == 0 && entities[10].inst() == RET;
+            //        },
+            //        [](const Entities e) {
+            //            return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[7].primaryArg(), 3);
+            //        } },
+            // Rule { { BUILTIN, CALL }, CALL_BUILTIN, [](const Entities entities, const std::size_t) {
+            //           return Builtins::builtins[entities[0].primaryArg()].second.isFunction();
+            //       } },
+            // Rule { { LOAD_FAST, CALL }, CALL_SYMBOL },
+            // Rule { { GET_CURRENT_PAGE_ADDR, CALL }, CALL_CURRENT_PAGE },
             Rule { { LOAD_FAST, GET_FIELD }, GET_FIELD_FROM_SYMBOL },
             Rule { { LOAD_FAST_BY_INDEX, GET_FIELD }, GET_FIELD_FROM_SYMBOL_INDEX },
             Rule { { LIST, STORE }, STORE_LIST },

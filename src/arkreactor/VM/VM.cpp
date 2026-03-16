@@ -667,6 +667,7 @@ namespace Ark
                     {
                         {
                             Value ip_or_val = *popAndResolveAsPtr(context);
+                            pop(context);  // to remove the function from the stack
                             // no return value on the stack
                             if (ip_or_val.valueType() == ValueType::InstPtr) [[unlikely]]
                             {

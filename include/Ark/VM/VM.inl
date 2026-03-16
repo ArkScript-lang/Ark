@@ -175,11 +175,11 @@ inline Value* VM::pop(internal::ExecutionContext& context)
     return &m_undefined_value;
 }
 
-inline Value* VM::peekAndResolveAsPtr(internal::ExecutionContext& context)
+inline Value* VM::peekAndResolveAsPtr(internal::ExecutionContext& context, const std::size_t offset)
 {
-    if (context.sp > 0)
+    if (context.sp > offset)
     {
-        Value* tmp = &context.stack[context.sp - 1];
+        Value* tmp = &context.stack[context.sp - 1 - offset];
         if (tmp->valueType() == ValueType::Reference)
             return tmp->reference();
         return tmp;
@@ -235,13 +235,6 @@ inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
 
 inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, Value* function_ptr, internal::PageAddr_t or_address)
 {
-    /*
-        Argument: number of arguments when calling the function
-        Job: Call function from its symbol id located on top of the stack. Take the given number of
-                arguments from the top of stack and give them  to the function (the first argument taken
-                from the stack will be the last one of the function). The stack of the function is now composed
-                of its arguments, from the first to the last one
-    */
     using namespace internal;
 
     if (std::cmp_greater_equal(context.sp + 2, VMStackSize)) [[unlikely]]
@@ -254,7 +247,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
     ValueType call_type;
     Value* maybe_value_ptr = nullptr;
     if (function_ptr == nullptr && or_address == 0)
-        maybe_value_ptr = popAndResolveAsPtr(context);
+        maybe_value_ptr = peekAndResolveAsPtr(context, argc);
     else if (or_address != 0)
         call_type = ValueType::PageAddr;
     else
@@ -365,6 +358,8 @@ inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& bu
     }
     // +2 to skip PP/IP that were pushed by PUSH_RETURN_ADDRESS
     context.sp -= static_cast<uint16_t>(argc + (remove_return_address ? 2_u16 : 0_u16));
+    // todo: merge this with the context.sp modification above?
+    pop(context);  // remove the builtin from the stack
     // call proc
     push(builtin.proc()(args, this), context);
 }

@@ -279,9 +279,10 @@ namespace Ark
          * @brief Return a pointer to the top of the stack without consuming it, and resolve it if possible
          *
          * @param context
+         * @param offset
          * @return Value*
          */
-        inline Value* peekAndResolveAsPtr(internal::ExecutionContext& context);
+        inline Value* peekAndResolveAsPtr(internal::ExecutionContext& context, std::size_t offset = 0);
 
         /**
          * @brief Push a value on the stack
