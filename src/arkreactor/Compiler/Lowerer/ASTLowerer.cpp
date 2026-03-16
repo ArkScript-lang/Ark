@@ -854,31 +854,31 @@ namespace Ark::internal
         {
             // closure chains have been handled (eg: closure.field.field.function)
             compileExpression(node, proc_page, false, false);  // storing proc
-        }
 
-        if (page(proc_page).empty() && call_type == CallType::Classic)
-            buildAndThrowError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
-        else if (page(proc_page).back().inst() == GET_FIELD)
-            // the last GET_FIELD instruction should push the closure environment with it
-            page(proc_page).back().replaceInstruction(GET_FIELD_AS_CLOSURE);
-        else if (page(proc_page).size() == 1)
-        {
-            [[maybe_unused]] const Instruction inst = page(proc_page).back().inst();
+            if (page(proc_page).empty())
+                buildAndThrowError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
+            else if (page(proc_page).back().inst() == GET_FIELD)
+                // the last GET_FIELD instruction should push the closure environment with it
+                page(proc_page).back().replaceInstruction(GET_FIELD_AS_CLOSURE);
+            else if (page(proc_page).size() == 1)
+            {
+                [[maybe_unused]] const Instruction inst = page(proc_page).back().inst();
 
-            // todo: bug in the VM: we pop when we shouldn't, because the function wasn't pushed since it was optimised
-            //       maybe using a 'garbage' value type can help to flag values we can delete (if any)?
-            // if (inst == LOAD_FAST)
-            // {
-            //     call_type = CallType::Symbol;
-            //     // we don't want to push any instruction, as we'll use an optimised instruction instead of CALL
-            //     page(proc_page).clear();
-            // }
-            // else if (inst == BUILTIN)
-            // {
-            //     call_type = CallType::Builtin;
-            //     call_arg = page(proc_page).back().primaryArg();
-            //     page(proc_page).clear();
-            // }
+                // todo: bug in the VM: we pop when we shouldn't, because the function wasn't pushed since it was optimised
+                //       maybe using a 'garbage' value type can help to flag values we can delete (if any)?
+                // if (inst == LOAD_FAST)
+                // {
+                //     call_type = CallType::Symbol;
+                //     // we don't want to push any instruction, as we'll use an optimised instruction instead of CALL
+                //     page(proc_page).clear();
+                // }
+                // else if (inst == BUILTIN)
+                // {
+                //     call_type = CallType::Builtin;
+                //     call_arg = page(proc_page).back().primaryArg();
+                //     page(proc_page).clear();
+                // }
+            }
         }
 
         // push proc from temp page
