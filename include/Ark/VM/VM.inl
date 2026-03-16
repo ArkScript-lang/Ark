@@ -174,6 +174,16 @@ inline Value* VM::pop(internal::ExecutionContext& context)
     return &m_undefined_value;
 }
 
+inline Value* VM::peek(internal::ExecutionContext& context, const std::size_t offset)
+{
+    if (context.sp > offset)
+    {
+        Value* tmp = &context.stack[context.sp - 1 - offset];
+        return tmp;
+    }
+    return &m_undefined_value;
+}
+
 inline Value* VM::peekAndResolveAsPtr(internal::ExecutionContext& context, const std::size_t offset)
 {
     if (context.sp > offset)
@@ -232,7 +242,7 @@ inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
     context.locals.pop_back();
 }
 
-inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, Value* function_ptr, internal::PageAddr_t or_address)
+inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, Value* function_ptr, const internal::PageAddr_t or_address)
 {
     using namespace internal;
 
@@ -244,11 +254,16 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
                 m_state.m_symbols[context.last_symbol]));
 
     ValueType call_type;
+    PageAddr_t page_addr = 0;
     Value* maybe_value_ptr = nullptr;
+
     if (function_ptr == nullptr && or_address == 0)
         maybe_value_ptr = peekAndResolveAsPtr(context, argc);
     else if (or_address != 0)
+    {
         call_type = ValueType::PageAddr;
+        page_addr = or_address;
+    }
     else
         maybe_value_ptr = function_ptr;
 
@@ -256,7 +271,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
     {
         call_type = maybe_value_ptr->valueType();
         if (call_type == ValueType::PageAddr)
-            or_address = maybe_value_ptr->pageAddr();
+            page_addr = maybe_value_ptr->pageAddr();
     }
 
     context.stacked_closure_scopes.emplace_back(nullptr);
@@ -273,7 +288,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
         // is it a user defined function?
         case ValueType::PageAddr:
         {
-            const PageAddr_t new_page_pointer = or_address;
+            const PageAddr_t new_page_pointer = page_addr;
 
             // create dedicated scope
             context.locals.emplace_back(context.scopes_storage.data(), context.locals.back().storageEnd());
@@ -311,6 +326,10 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
                     maybe_value_ptr->toString(*this), std::to_string(call_type)));
         }
     }
+
+    if (function_ptr == nullptr && or_address == 0)
+        // so that RET knows it can collect it
+        peek(context, argc)->m_type = ValueType::Garbage;
 
     // checking function arity
     std::size_t index = 0,

@@ -1,5 +1,6 @@
 #include <Ark/Compiler/Lowerer/ASTLowerer.hpp>
 
+#include <cassert>
 #include <ranges>
 #include <utility>
 #include <algorithm>
@@ -13,6 +14,14 @@
 namespace Ark::internal
 {
     using namespace literals;
+
+    enum class CallType
+    {
+        Classic,
+        SelfNotRecursive,
+        Symbol,
+        Builtin
+    };
 
     ASTLowerer::ASTLowerer(const unsigned debug) :
         Pass("ASTLowerer", debug)
@@ -539,7 +548,7 @@ namespace Ark::internal
         // Register an opened variable as "#anonymous", which won't match any valid names inside ASTLowerer::handleCalls.
         // This way we can continue to safely apply optimisations on
         // (let name (fun (e) (map lst (fun (e) (name e)))))
-        // Otherwise, `name` would have been optimized to a GET_CURRENT_PAGE_ADDRESS, which would have returned the wrong page.
+        // Otherwise, `name` would have been optimized to a GET_CURRENT_PAGE_ADDR, which would have returned the wrong page.
         if (x.isAnonymousFunction())
             m_opened_vars.emplace("#anonymous");
         // push body of the function
@@ -823,11 +832,13 @@ namespace Ark::internal
         if (!nodeProducesOutput(node))
             buildAndThrowError(fmt::format("Can not call `{}', as it doesn't return a value", node.repr()), node);
 
-        const auto label_return = IR::Entity::Label(m_current_label++);
+        const IR::Entity label_return = IR::Entity::Label(m_current_label++);
         page(p).emplace_back(IR::Entity::Goto(label_return, PUSH_RETURN_ADDRESS));
         page(p).back().setSourceLocation(x.filename(), x.position().start.line);
 
-        const auto proc_page = createNewCodePage(/* temp= */ true);
+        const Page proc_page = createNewCodePage(/* temp= */ true);
+        CallType call_type = CallType::Classic;
+        std::optional<uint16_t> call_arg = std::nullopt;
 
         // compile the function resolution to a separate page
         if (node.nodeType() == NodeType::Symbol && isFunctionCallingItself(node.string()))
@@ -837,7 +848,7 @@ namespace Ark::internal
             // function page, which will be quicker than a local variable resolution.
             // We set its argument to the symbol id of the function we are calling,
             // so that the VM knows the name of the last called function.
-            page(proc_page).emplace_back(GET_CURRENT_PAGE_ADDR, addSymbol(node));
+            call_type = CallType::SelfNotRecursive;
         }
         else
         {
@@ -845,11 +856,30 @@ namespace Ark::internal
             compileExpression(node, proc_page, false, false);  // storing proc
         }
 
-        if (page(proc_page).empty())
+        if (page(proc_page).empty() && call_type == CallType::Classic)
             buildAndThrowError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
         else if (page(proc_page).back().inst() == GET_FIELD)
             // the last GET_FIELD instruction should push the closure environment with it
             page(proc_page).back().replaceInstruction(GET_FIELD_AS_CLOSURE);
+        else if (page(proc_page).size() == 1)
+        {
+            [[maybe_unused]] const Instruction inst = page(proc_page).back().inst();
+
+            // todo: bug in the VM: we pop when we shouldn't, because the function wasn't pushed since it was optimised
+            //       maybe using a 'garbage' value type can help to flag values we can delete (if any)?
+            // if (inst == LOAD_FAST)
+            // {
+            //     call_type = CallType::Symbol;
+            //     // we don't want to push any instruction, as we'll use an optimised instruction instead of CALL
+            //     page(proc_page).clear();
+            // }
+            // else if (inst == BUILTIN)
+            // {
+            //     call_type = CallType::Builtin;
+            //     call_arg = page(proc_page).back().primaryArg();
+            //     page(proc_page).clear();
+            // }
+        }
 
         // push proc from temp page
         for (const auto& inst : m_temp_pages.back())
@@ -865,8 +895,27 @@ namespace Ark::internal
             if (it->nodeType() != NodeType::Capture && !isBreakpoint(*it))
                 args_count++;
         }
+
         // call the procedure
-        page(p).emplace_back(CALL, args_count);
+        switch (call_type)
+        {
+            case CallType::Classic:
+                page(p).emplace_back(CALL, args_count);
+                break;
+
+            case CallType::SelfNotRecursive:
+                page(p).emplace_back(CALL_CURRENT_PAGE, addSymbol(node), args_count);
+                break;
+
+            case CallType::Symbol:
+                page(p).emplace_back(CALL_SYMBOL, addSymbol(node), args_count);
+                break;
+
+            case CallType::Builtin:
+                assert(call_arg.has_value() && "Expected a value for call_arg with CallType::Builtin");
+                page(p).emplace_back(CALL_BUILTIN, call_arg.value(), args_count);
+                break;
+        }
         page(p).back().setSourceLocation(node.filename(), node.position().start.line);
 
         // patch the PUSH_RETURN_ADDRESS instruction with the return location (IP=CALL instruction IP)

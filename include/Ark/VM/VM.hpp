@@ -275,6 +275,8 @@ namespace Ark
          */
         inline Value* pop(internal::ExecutionContext& context);
 
+        inline Value* peek(internal::ExecutionContext& context, std::size_t offset = 0);
+
         /**
          * @brief Return a pointer to the top of the stack without consuming it, and resolve it if possible
          *

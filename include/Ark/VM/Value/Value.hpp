@@ -46,7 +46,8 @@ namespace Ark
         Reference = 12,
         InstPtr = 13,
 
-        Any = 14  ///< Used only for typechecking
+        Garbage = 14,  ///< Used to signal a value was used and can/should be collected and removed from the stack
+        Any = 15       ///< Used only for typechecking
     };
 
     constexpr std::array types_to_str = {
@@ -64,6 +65,7 @@ namespace Ark
         "Undefined",
         "Reference",
         "InstPtr",
+        "Garbage",
         "Any"
     };
 }

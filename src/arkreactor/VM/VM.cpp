@@ -668,7 +668,7 @@ namespace Ark
                         {
                             Value ret_or_func = *popAndResolveAsPtr(context);
                             Value ip_or_func = *popAndResolveAsPtr(context);  // to remove the function from the stack
-                            // no return value on the stack
+
                             if (ip_or_func.valueType() == ValueType::InstPtr) [[unlikely]]
                             {
                                 context.ip = ip_or_func.pageAddr();
@@ -677,7 +677,10 @@ namespace Ark
                                 context.pp = pop(context)->pageAddr();
 
                                 returnFromFuncCall(context);
-                                push(Builtins::nil, context);
+                                if (ret_or_func.valueType() == ValueType::Garbage)
+                                    push(Builtins::nil, context);
+                                else
+                                    push(std::move(ret_or_func), context);
                             }
                             // value on the stack
                             else [[likely]]
@@ -2138,40 +2141,40 @@ namespace Ark
     {
         std::vector<std::string> arg_names;
         arg_names.reserve(expected_arg_count + 1);
-        if (expected_arg_count > 0)
-            arg_names.emplace_back("");  // for formatting, so that we have a space between the function and the args
 
         std::size_t index = 0;
         while (m_state.inst(context.pp, index) == STORE ||
                m_state.inst(context.pp, index) == STORE_REF)
         {
             const auto id = static_cast<uint16_t>((m_state.inst(context.pp, index + 2) << 8) + m_state.inst(context.pp, index + 3));
-            arg_names.push_back(m_state.m_symbols[id]);
+            arg_names.insert(arg_names.begin(), m_state.m_symbols[id]);
             index += 4;
         }
-        // we only the blank space for formatting and no arg names, probably because of a CALL_BUILTIN_WITHOUT_RETURN_ADDRESS
-        if (arg_names.size() == 1 && index == 0)
+        // we have no arg names, probably because of a CALL_BUILTIN_WITHOUT_RETURN_ADDRESS
+        if (arg_names.empty() && index == 0)
         {
-            assert(m_state.inst(context.pp, 0) == CALL_BUILTIN_WITHOUT_RETURN_ADDRESS && "expected a CALL_BUILTIN_WITHOUT_RETURN_ADDRESS instruction or STORE instructions");
             for (std::size_t i = 0; i < expected_arg_count; ++i)
                 arg_names.emplace_back(1, static_cast<char>('a' + i));
         }
+        if (expected_arg_count > 0)
+            arg_names.insert(arg_names.begin(), "");  // for formatting, so that we have a space between the function and the args
 
         std::vector<std::string> arg_vals;
         arg_vals.reserve(passed_arg_count + 1);
-        if (passed_arg_count > 0)
-            arg_vals.emplace_back("");  // for formatting, so that we have a space between the function and the args
 
         for (std::size_t i = 0; i < passed_arg_count && i + 1 <= context.sp; ++i)
             // -1 on the stack because we always point to the next available slot
-            arg_vals.push_back(context.stack[context.sp - i - 1].toString(*this));
+            arg_vals.push_back(context.stack[context.sp - passed_arg_count + i].toString(*this));
+        if (passed_arg_count > 0)
+            arg_vals.insert(arg_vals.begin(), "");  // for formatting, so that we have a space between the function and the args
 
         // set ip/pp to the callee location so that the error can pinpoint the line
         // where the bad call happened
         if (context.sp >= 2 + passed_arg_count)
         {
-            context.ip = context.stack[context.sp - 1 - passed_arg_count].pageAddr();
-            context.pp = context.stack[context.sp - 2 - passed_arg_count].pageAddr();
+            // -2/-3 instead of -1/-2 to skip over the function pushed on the stack
+            context.ip = context.stack[context.sp - 2 - passed_arg_count].pageAddr();
+            context.pp = context.stack[context.sp - 3 - passed_arg_count].pageAddr();
             context.sp -= 2;
             returnFromFuncCall(context);
         }
