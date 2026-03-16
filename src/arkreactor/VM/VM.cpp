@@ -59,7 +59,7 @@ namespace Ark
         }
     }
 
-    Value VM::getField(Value* closure, const uint16_t id, const ExecutionContext& context)
+    Value VM::getField(Value* closure, const uint16_t id, const ExecutionContext& context, const bool push_with_env)
     {
         if (closure->valueType() != ValueType::Closure)
         {
@@ -82,13 +82,10 @@ namespace Ark
 
         if (Value* field = closure->refClosure().refScope()[id]; field != nullptr)
         {
-            // todo: this was needed for (closure.field args...), when we emitted the args first, then closure.field, then a CALL
-            //       so that we could call closure.field.
-            // todo: introduce a CALL_CLOSURE or something to solve this problem
-            // if (m_state.inst(context.pp, context.ip) == CALL)
-            //     return Value(Closure(closure->refClosure().scopePtr(), field->pageAddr()));
-            // else
-            return *field;
+            if (push_with_env)
+                return Value(Closure(closure->refClosure().scopePtr(), field->pageAddr()));
+            else
+                return *field;
         }
         else
         {
@@ -476,6 +473,7 @@ namespace Ark
                 &&TARGET_DEL,
                 &&TARGET_MAKE_CLOSURE,
                 &&TARGET_GET_FIELD,
+                &&TARGET_GET_FIELD_AS_CLOSURE,
                 &&TARGET_PLUGIN,
                 &&TARGET_LIST,
                 &&TARGET_APPEND,
@@ -668,12 +666,12 @@ namespace Ark
                     TARGET(RET)
                     {
                         {
-                            Value ip_or_val = *popAndResolveAsPtr(context);
-                            pop(context);  // to remove the function from the stack
+                            Value ret_or_func = *popAndResolveAsPtr(context);
+                            Value ip_or_func = *popAndResolveAsPtr(context);  // to remove the function from the stack
                             // no return value on the stack
-                            if (ip_or_val.valueType() == ValueType::InstPtr) [[unlikely]]
+                            if (ip_or_func.valueType() == ValueType::InstPtr) [[unlikely]]
                             {
-                                context.ip = ip_or_val.pageAddr();
+                                context.ip = ip_or_func.pageAddr();
                                 // we always push PP then IP, thus the next value
                                 // MUST be the page pointer
                                 context.pp = pop(context)->pageAddr();
@@ -690,7 +688,7 @@ namespace Ark
                                 context.pp = pop(context)->pageAddr();
 
                                 returnFromFuncCall(context);
-                                push(std::move(ip_or_val), context);
+                                push(std::move(ret_or_func), context);
                             }
 
                             if (context.fc <= untilFrameCount)
@@ -785,6 +783,13 @@ namespace Ark
                     {
                         Value* var = popAndResolveAsPtr(context);
                         push(getField(var, arg, context), context);
+                        DISPATCH();
+                    }
+
+                    TARGET(GET_FIELD_AS_CLOSURE)
+                    {
+                        Value* var = popAndResolveAsPtr(context);
+                        push(getField(var, arg, context, /* push_with_env= */ true), context);
                         DISPATCH();
                     }
 

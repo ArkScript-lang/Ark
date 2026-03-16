@@ -257,7 +257,7 @@ namespace Ark
 
         inline void jump(uint16_t address, internal::ExecutionContext& context);
 
-        Value getField(Value* closure, uint16_t id, const internal::ExecutionContext& context);
+        Value getField(Value* closure, uint16_t id, const internal::ExecutionContext& context, bool push_with_env = false);
 
         Value createList(std::size_t count, internal::ExecutionContext& context);
 

@@ -22,6 +22,11 @@ namespace Ark::internal::IR
         m_inst(inst), m_primary_arg(inst2), m_secondary_arg(inst3), m_tertiary_arg(inst4)
     {}
 
+    void Entity::replaceInstruction(const Instruction replacement)
+    {
+        m_inst = replacement;
+    }
+
     Entity Entity::Label(const label_t value)
     {
         auto entity = Entity(Kind::Label);

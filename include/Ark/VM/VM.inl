@@ -20,14 +20,6 @@ Value VM::call(const std::string& name, Args&&... args)
     push(Value(static_cast<internal::PageAddr_t>(0)), context);
     push(Value(ValueType::InstPtr, static_cast<internal::PageAddr_t>(0)), context);
 
-    // convert and push arguments
-    if (sizeof...(args) > 0)
-    {
-        std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
-        for (auto&& arg : fnargs | std::views::reverse)
-            push(arg, context);
-    }
-
     // find function object and push it if it's a pageaddr/closure
     if (const auto dist = std::distance(m_state.m_symbols.begin(), it); std::cmp_less(dist, MaxValue16Bits))
     {
@@ -40,6 +32,13 @@ Value VM::call(const std::string& name, Args&&... args)
 
         push(Value(var), context);
         context.last_symbol = id;
+    }
+    // convert and push arguments
+    if (sizeof...(args) > 0)
+    {
+        std::vector<Value> fnargs { { Value(std::forward<Args>(args))... } };
+        for (auto&& arg : fnargs)
+            push(arg, context);
     }
 
     const std::size_t frames_count = context.fc;
@@ -69,10 +68,10 @@ inline Value VM::resolve(internal::ExecutionContext* context, const std::vector<
     push(Value(static_cast<internal::PageAddr_t>(pp)), *context);
     push(Value(ValueType::InstPtr, static_cast<internal::PageAddr_t>(ip)), *context);
 
-    // convert and push arguments
-    for (auto&& val : std::ranges::drop_view(n, 1) | std::views::reverse)
+    // push the function and all its args in the order they were given to us
+    // the function must go first!
+    for (auto&& val : n)
         push(val, *context);
-    push(n[0], *context);
 
     const std::size_t frames_count = context->fc;
     // call it
@@ -356,10 +355,9 @@ inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& bu
             val = val->reference();
         args.emplace_back(*val);
     }
+    // argc+1 to remove the arguments and the builtin
     // +2 to skip PP/IP that were pushed by PUSH_RETURN_ADDRESS
-    context.sp -= static_cast<uint16_t>(argc + (remove_return_address ? 2_u16 : 0_u16));
-    // todo: merge this with the context.sp modification above?
-    pop(context);  // remove the builtin from the stack
+    context.sp -= static_cast<uint16_t>(argc + 1_u16 + (remove_return_address ? 2_u16 : 0_u16));
     // call proc
     push(builtin.proc()(args, this), context);
 }

@@ -48,6 +48,8 @@ namespace Ark::internal::IR
 
         Entity(Instruction inst, uint8_t inst2, uint8_t inst3, uint8_t inst4);
 
+        void replaceInstruction(Instruction replacement);
+
         static Entity Label(label_t value);
 
         static Entity Goto(const Entity& label, Instruction inst = Instruction::JUMP);

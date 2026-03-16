@@ -847,6 +847,9 @@ namespace Ark::internal
 
         if (page(proc_page).empty())
             buildAndThrowError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
+        else if (page(proc_page).back().inst() == GET_FIELD)
+            // the last GET_FIELD instruction should push the closure environment with it
+            page(proc_page).back().replaceInstruction(GET_FIELD_AS_CLOSURE);
 
         // push proc from temp page
         for (const auto& inst : m_temp_pages.back())
