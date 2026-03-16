@@ -522,7 +522,7 @@ namespace Ark::internal
         page(p).emplace_back(is_closure ? MAKE_CLOSURE : LOAD_CONST, addValue(function_body_page.index, x));
 
         // pushing arguments from the stack into variables in the new scope
-        for (const auto& node : x.constList()[1].constList())
+        for (const auto& node : x.constList()[1].constList() | std::ranges::views::reverse)
         {
             if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::MutArg)
             {
@@ -660,23 +660,15 @@ namespace Ark::internal
     {
         const auto node = call.constList()[0];
 
-        // push the arguments in reverse order because the function loads its arguments in the order they are defined:
-        // (fun (a b c) ...) -> load 'a', then 'b', then 'c'
-        // We have to push arguments in this order and load them in reverse, because we are using references internally,
-        // which can cause problems for recursive functions that swap their arguments around.
-        // Eg (let foo (fun (a b c) (if (> a 0) (foo (- a 1) c (+ b c)) 1))) (foo 12 0 1)
-        // On the second self-call, b and c would have the same value, since we set c to (+ b c), and we pushed c as the
-        // value for argument b, but loaded it as a reference.
-        for (Node& value : std::ranges::drop_view(call.list(), 1) | std::views::reverse)
+        for (Node& value : std::ranges::drop_view(call.list(), 1))
         {
-            // FIXME: in (foo a b (breakpoint (< c 0)) c), we will push c before the breakpoint
             if (nodeProducesOutput(value) || isBreakpoint(value))
             {
                 // we have to disallow usage of references in tail calls, because if we shuffle arguments around while using refs, they will end up with the same value
                 if (value.nodeType() == NodeType::Symbol && is_tail_call)
-                    compileSymbol(value, p, false, /* can_use_ref= */ false);
+                    compileSymbol(value, p, /* is_result_unused= */ false, /* can_use_ref= */ false);
                 else
-                    compileExpression(value, p, false, false);
+                    compileExpression(value, p, /* is_result_unused= */ false, /* is_terminal= */ false);
             }
             else
                 makeError(is_tail_call ? ErrorKind::InvalidNodeInTailCallNoReturnValue : ErrorKind::InvalidNodeNoReturnValue, value, node.repr());

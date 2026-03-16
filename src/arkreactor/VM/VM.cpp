@@ -82,11 +82,13 @@ namespace Ark
 
         if (Value* field = closure->refClosure().refScope()[id]; field != nullptr)
         {
-            // check for CALL instruction (the instruction because context.ip is already on the next instruction word)
-            if (m_state.inst(context.pp, context.ip) == CALL)
-                return Value(Closure(closure->refClosure().scopePtr(), field->pageAddr()));
-            else
-                return *field;
+            // todo: this was needed for (closure.field args...), when we emitted the args first, then closure.field, then a CALL
+            //       so that we could call closure.field.
+            // todo: introduce a CALL_CLOSURE or something to solve this problem
+            // if (m_state.inst(context.pp, context.ip) == CALL)
+            //     return Value(Closure(closure->refClosure().scopePtr(), field->pageAddr()));
+            // else
+            return *field;
         }
         else
         {
@@ -1120,9 +1122,9 @@ namespace Ark
                                     { func, args_list });
                             }
 
-                            for (const Value& a : args_list.constList() | std::ranges::views::reverse)
-                                push(a, context);
                             push(func, context);
+                            for (const Value& a : args_list.constList())
+                                push(a, context);
 
                             call(context, static_cast<uint16_t>(args_list.constList().size()));
                         }

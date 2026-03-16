@@ -1,5 +1,20 @@
 # Change Log
 
+## [Unreleased changes] - 2026-MM-DD
+### Breaking changes
+- in function calls, the function to call is now always evaluated first
+- in function calls, the arguments are now evaluated from left to right
+
+### Deprecations
+
+### Added
+- the bytecode reader can print the argument of a `PUSH_RETURN_ADDRESS` instruction as a hex number
+
+### Changed
+- instruction counter in the bytecode reader are displayed in hex, and count each instruction instead of each byte
+
+### Removed
+
 ## [4.4.0] - 2026-03-13
 ### Deprecations
 - `list:permutations` is deprecated in favor of `list:combinations`
