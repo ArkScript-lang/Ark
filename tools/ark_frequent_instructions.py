@@ -52,8 +52,14 @@ super_insts = [
     "APPEND_IN_PLACE_SYM",
     "APPEND_IN_PLACE_SYM_INDEX",
     "STORE_LEN",
-    "LT_LEN_SYM_JUMP_IF_FALSE"
+    "LT_LEN_SYM_JUMP_IF_FALSE",
+    "MUL_BY",
+    "MUL_BY_INDEX",
+    "MUL_SET_VAL",
+    "FUSED_MATH"
 ]
+
+compute_super_insts_usage = sys.argv[1] == "super_insts_usage"
 
 executable = None
 for p in ["./arkscript", "cmake-build-debug/arkscript", "build/arkscript", "build/arkscript.exe"]:
@@ -67,14 +73,19 @@ if executable is None:
 ir = []
 
 rosetta = glob.glob("tests/unittests/resources/RosettaSuite/*.ark")
-for file in [
-                "tests/unittests/resources/LangSuite/unittests.ark",
-                "lib/std/tests/all.ark"
-            ] + rosetta:
-    os.system(f"{executable} -c {file} -fno-optimizer -fdump-ir --lib './lib/;./tests/unittests/'")
+examples = glob.glob("examples/*.ark")
+for file in rosetta + examples + [
+    "tests/unittests/resources/LangSuite/unittests.ark",
+    "lib/std/tests/all.ark"
+]:
+    os.system(f"{executable} -c {file} -fdump-ir --lib './lib/;./tests/unittests/'")
 
-    if os.path.exists(f"{file}.ir"):
-        with open(f"{file}.ir") as f:
+    d = os.path.dirname(file)
+    f = os.path.basename(file)
+    path = f"{d}/__arkscript__/{f}.ir"
+
+    if os.path.exists(path):
+        with open(path) as f:
             pages = f.read().split("\n\n")
             for page in pages:
                 # only keep the instruction names
@@ -84,7 +95,7 @@ for file in [
                 ]
                 # remove the page name (page_<num>)
                 ir.append(insts[1:])
-        os.remove(f"{file}.ir")
+        os.remove(path)
 
 
 def window(iterable, size):
@@ -136,11 +147,26 @@ for page in ir:
 def print_most_freqs(data, max_percent=10):
     most = sorted(data.items(), key=lambda e: e[1], reverse=True)
     interesting = most[:(len(most) * max_percent) // 100]
-    print("\n".join(f"{insts} -> {count}" for (insts, count) in interesting))
+    if compute_super_insts_usage:
+        print("| Super Instruction | Uses in compiled code |")
+        print("| ----------------- | --------------------- |")
+        print("\n".join(f"| {insts} | {count} |" for (insts, count) in interesting))
+    else:
+        print("\n".join(f"{insts} -> {count}" for (insts, count) in interesting))
+
+    if compute_super_insts_usage:
+        threshold = 10
+        for (inst, count) in most:
+            if count <= threshold:
+                sys.exit(1)
 
 
-print("Super instructions present:")
+if not compute_super_insts_usage:
+    print("Super instructions present:")
 print_most_freqs(super_insts_freqs, max_percent=100)
+
+if compute_super_insts_usage:
+    sys.exit(0)
 
 for i in (2, 3, 4):
     print(f"\nPairs of {i}:")
