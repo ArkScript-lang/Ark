@@ -854,7 +854,7 @@ namespace Ark::internal
         else
         {
             // closure chains have been handled (eg: closure.field.field.function)
-            compileExpression(node, proc_page, false, false);  // storing proc
+            compileExpression(node, proc_page, false, false);
 
             if (page(proc_page).empty())
                 buildAndThrowError(fmt::format("Can not call {}", x.constList()[0].repr()), x);
@@ -876,7 +876,6 @@ namespace Ark::internal
                 else if (inst == LOAD_FAST_BY_INDEX)
                 {
                     call_type = CallType::SymbolByIndex;
-                    call_arg = arg;
                     page(proc_page).clear();
                 }
                 else if (inst == BUILTIN && Builtins::builtins[arg].second.isFunction())
@@ -889,7 +888,7 @@ namespace Ark::internal
         }
 
         // push proc from temp page
-        for (const auto& inst : m_temp_pages.back())
+        for (const auto& inst : page(proc_page))
             page(p).push_back(inst);
         m_temp_pages.pop_back();
 
@@ -920,9 +919,14 @@ namespace Ark::internal
                 break;
 
             case CallType::SymbolByIndex:
-                assert(call_arg.has_value() && "Expected a value for call_arg with CallType::SymbolByIndex");
-                page(p).emplace_back(CALL_SYMBOL_BY_INDEX, call_arg.value(), args_count);
+            {
+                const Page temp_page = createNewCodePage(/* temp= */ true);
+                compileExpression(node, temp_page, false, false);
+                assert(page(temp_page).size() == 1 && page(temp_page).back().inst() == LOAD_FAST_BY_INDEX);
+                page(p).emplace_back(CALL_SYMBOL_BY_INDEX, page(temp_page).back().primaryArg(), args_count);
+                m_temp_pages.pop_back();
                 break;
+            }
 
             case CallType::Builtin:
                 assert(call_arg.has_value() && "Expected a value for call_arg with CallType::Builtin");

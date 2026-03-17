@@ -2,6 +2,7 @@
 (import builtins-tests)
 (import operators-tests)
 (import module-tests)
+(import weird-tests)
 (import utf8-tests)
 (import macro-tests)
 (import list-tests)
@@ -15,6 +16,7 @@
     builtins-tests:builtin-output
     operators-tests:operators-output
     module-tests:module-output
+    weird-tests:weird-output
     utf8-tests:utf8-output
     macro-tests:macro-output
     list-tests:list-output

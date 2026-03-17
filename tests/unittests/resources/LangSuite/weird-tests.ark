@@ -1,0 +1,26 @@
+(import std.Testing)
+(import std.List)
+
+# just putting any and all weird code samples golfers come up with here,
+# to ensure what's fixed stay fixed
+
+(test:suite weird {
+  (test:case "list:fill with let" {
+    (test:eq (list:fill (let x 2) x) [2 2]) })
+
+  (test:case "list:map with let" {
+    (mut output [])
+    (let f (fun (e) (append! output e)))
+    (list:map (let a [0 1]) f)
+    (test:eq output [0 1]) })
+
+  (test:case "declare var inside call" {
+    # those append 0 to output first, due to the inner call,
+    # then they append [0] since 'append!' returns the modified list
+    (mut output [])
+    (Q ((let Q (fun (x) (append! output x))) 0))
+    (test:eq output [0 [0]])
+
+    (set output [])
+    ((let P (fun (x) (append! output x))) (P 0))
+    (test:eq output [0 [0]]) }) })
