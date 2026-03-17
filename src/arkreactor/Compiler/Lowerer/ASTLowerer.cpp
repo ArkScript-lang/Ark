@@ -20,6 +20,7 @@ namespace Ark::internal
         Classic,
         SelfNotRecursive,
         Symbol,
+        SymbolByIndex,
         Builtin
     };
 
@@ -872,6 +873,12 @@ namespace Ark::internal
                     // we don't want to push any instruction, as we'll use an optimised instruction instead of CALL
                     page(proc_page).clear();
                 }
+                else if (inst == LOAD_FAST_BY_INDEX)
+                {
+                    call_type = CallType::SymbolByIndex;
+                    call_arg = arg;
+                    page(proc_page).clear();
+                }
                 else if (inst == BUILTIN && Builtins::builtins[arg].second.isFunction())
                 {
                     call_type = CallType::Builtin;
@@ -910,6 +917,11 @@ namespace Ark::internal
             case CallType::Symbol:
                 assert(call_arg.has_value() && "Expected a value for call_arg with CallType::Symbol");
                 page(p).emplace_back(CALL_SYMBOL, call_arg.value(), args_count);
+                break;
+
+            case CallType::SymbolByIndex:
+                assert(call_arg.has_value() && "Expected a value for call_arg with CallType::SymbolByIndex");
+                page(p).emplace_back(CALL_SYMBOL_BY_INDEX, call_arg.value(), args_count);
                 break;
 
             case CallType::Builtin:

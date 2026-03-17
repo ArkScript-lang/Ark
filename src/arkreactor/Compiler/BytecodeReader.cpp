@@ -555,6 +555,7 @@ namespace Ark
             { NEQ_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
             { NEQ_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
             { CALL_SYMBOL, ArgKind::SymRaw },
+            { CALL_SYMBOL_BY_INDEX, ArgKind::RawRaw },
             { CALL_CURRENT_PAGE, ArgKind::SymRaw },
             { GET_FIELD_FROM_SYMBOL, ArgKind::SymSym },
             { GET_FIELD_FROM_SYMBOL_INDEX, ArgKind::RawSym },

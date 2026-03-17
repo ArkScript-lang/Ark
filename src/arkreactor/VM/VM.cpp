@@ -550,6 +550,7 @@ namespace Ark
                 &&TARGET_NEQ_CONST_JUMP_IF_TRUE,
                 &&TARGET_NEQ_SYM_JUMP_IF_FALSE,
                 &&TARGET_CALL_SYMBOL,
+                &&TARGET_CALL_SYMBOL_BY_INDEX,
                 &&TARGET_CALL_CURRENT_PAGE,
                 &&TARGET_GET_FIELD_FROM_SYMBOL,
                 &&TARGET_GET_FIELD_FROM_SYMBOL_INDEX,
@@ -1848,6 +1849,15 @@ namespace Ark
                         DISPATCH();
                     }
 
+                    TARGET(CALL_SYMBOL_BY_INDEX)
+                    {
+                        UNPACK_ARGS();
+                        call(context, secondary_arg, /* function_ptr= */ loadSymbolFromIndex(primary_arg, context));
+                        if (!m_running)
+                            GOTO_HALT();
+                        DISPATCH();
+                    }
+
                     TARGET(CALL_CURRENT_PAGE)
                     {
                         UNPACK_ARGS();
@@ -2155,7 +2165,7 @@ namespace Ark
         return MaxValue16Bits;
     }
 
-    void VM::throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, ExecutionContext& context)
+    void VM::throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, ExecutionContext& context, const bool skip_function)
     {
         std::vector<std::string> arg_names;
         arg_names.reserve(expected_arg_count + 1);
@@ -2191,8 +2201,8 @@ namespace Ark
         if (context.sp >= 2 + passed_arg_count)
         {
             // -2/-3 instead of -1/-2 to skip over the function pushed on the stack
-            context.ip = context.stack[context.sp - 2 - passed_arg_count].pageAddr();
-            context.pp = context.stack[context.sp - 3 - passed_arg_count].pageAddr();
+            context.ip = context.stack[context.sp - 1 - (skip_function ? 1 : 0) - passed_arg_count].pageAddr();
+            context.pp = context.stack[context.sp - 2 - (skip_function ? 1 : 0) - passed_arg_count].pageAddr();
             context.sp -= 2;
             returnFromFuncCall(context);
         }
@@ -2328,7 +2338,7 @@ namespace Ark
             std::size_t displayed_traces = 0;
             std::size_t consecutive_similar_traces = 0;
 
-            while (context.fc != 0 && context.pp != 0)
+            while (context.fc != 0 && context.pp != 0 && context.sp > 0)
             {
                 const auto maybe_call_loc = findSourceLocation(context.ip, context.pp);
                 const auto loc_as_text = maybe_call_loc ? fmt::format(" ({}:{})", m_state.m_filenames[maybe_call_loc->filename_id], maybe_call_loc->line + 1) : "";

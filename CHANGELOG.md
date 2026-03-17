@@ -9,6 +9,7 @@
 
 ### Added
 - the bytecode reader can print the argument of a `PUSH_RETURN_ADDRESS` instruction as a hex number
+- new super instruction `CALL_SYMBOL_BY_INDEX` to optimise a `LOAD_FAST_BY_INDEX` followed by a `CALL`
 
 ### Changed
 - instruction counter in the bytecode reader are displayed in hex, and count each instruction instead of each byte

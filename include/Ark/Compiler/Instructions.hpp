@@ -391,69 +391,73 @@ namespace Ark::internal
         // @role Call a symbol by its id in `primary`, with `secondary` arguments
         CALL_SYMBOL = 0x62,
 
+        // @args symbol index, argument count
+        // @role Call a symbol by its index in the locals in `primary`, with `secondary` arguments
+        CALL_SYMBOL_BY_INDEX = 0x63,
+
         // @args symbol id (function name), argument count
         // @role Call the current page with `secondary` arguments
-        CALL_CURRENT_PAGE = 0x63,
+        CALL_CURRENT_PAGE = 0x64,
 
         // @args symbol id, field id in symbols table
         // @role Push the field of a given symbol (which has to be a closure) on the stack
-        GET_FIELD_FROM_SYMBOL = 0x64,
+        GET_FIELD_FROM_SYMBOL = 0x65,
 
         // @args symbol index, field id in symbols table
         // @role Push the field of a given symbol (which has to be a closure) on the stack
-        GET_FIELD_FROM_SYMBOL_INDEX = 0x65,
+        GET_FIELD_FROM_SYMBOL_INDEX = 0x66,
 
         // @args symbol id, symbol id2
         // @role Push symbol[symbol2]
-        AT_SYM_SYM = 0x66,
+        AT_SYM_SYM = 0x67,
 
         // @args symbol index, symbol index2
         // @role Push symbol[symbol2]
-        AT_SYM_INDEX_SYM_INDEX = 0x67,
+        AT_SYM_INDEX_SYM_INDEX = 0x68,
 
         // @args symbol index, constant id
         // @role Push symbol[constant]
-        AT_SYM_INDEX_CONST = 0x68,
+        AT_SYM_INDEX_CONST = 0x69,
 
         // @args symbol id, constant id
         // @role Check that the type of symbol is the given constant, push true if so, false otherwise
-        CHECK_TYPE_OF = 0x69,
+        CHECK_TYPE_OF = 0x6a,
 
         // @args symbol index, constant id
         // @role Check that the type of symbol is the given constant, push true if so, false otherwise
-        CHECK_TYPE_OF_BY_INDEX = 0x6a,
+        CHECK_TYPE_OF_BY_INDEX = 0x6b,
 
         // @args symbol id, number of elements
         // @role Append N elements to a reference to a list (symbol id), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
-        APPEND_IN_PLACE_SYM = 0x6b,
+        APPEND_IN_PLACE_SYM = 0x6c,
 
         // @args symbol index, number of elements
         // @role Append N elements to a reference to a list (symbol index), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
-        APPEND_IN_PLACE_SYM_INDEX = 0x6c,
+        APPEND_IN_PLACE_SYM_INDEX = 0x6d,
 
         // @args symbol index, symbol id
         // @role Compute the length of the list or string at symbol index, and store it in a variable (symbol id)
-        STORE_LEN = 0x6d,
+        STORE_LEN = 0x6e,
 
         // @args symbol id, absolute address to jump to
         // @role Compute the length of a symbol (list or string), and pop TS to compare it, then jump if false
-        LT_LEN_SYM_JUMP_IF_FALSE = 0x6e,
+        LT_LEN_SYM_JUMP_IF_FALSE = 0x6f,
 
         // @args symbol id, offset number
         // @role Multiply the symbol by (offset symbol - 2048), then push it to the stack
-        MUL_BY = 0x6f,
+        MUL_BY = 0x70,
 
         // @args symbol index, offset number
         // @role Multiply the symbol by (offset symbol - 2048), then push it to the stack
-        MUL_BY_INDEX = 0x70,
+        MUL_BY_INDEX = 0x71,
 
         // @args symbol id, offset number
         // @role Multiply the symbol by (offset symbol - 2048), then store the result using the given symbol id
-        MUL_SET_VAL = 0x71,
+        MUL_SET_VAL = 0x72,
 
         // @args op1, op2, op3
         // @role Pop 3 or 4 values from the stack, and apply the ops sequentially (only ADD, SUB, MUL, and DIV are supported). Push the result to the stack. Only op3 may be NOP.
-        FUSED_MATH = 0x72,
+        FUSED_MATH = 0x73,
 
         InstructionsCount
     };
@@ -560,6 +564,7 @@ namespace Ark::internal
         "NEQ_CONST_JUMP_IF_TRUE",
         "NEQ_SYM_JUMP_IF_FALSE",
         "CALL_SYMBOL",
+        "CALL_SYMBOL_BY_INDEX",
         "CALL_CURRENT_PAGE",
         "GET_FIELD_FROM_SYMBOL",
         "GET_FIELD_FROM_SYMBOL_INDEX",

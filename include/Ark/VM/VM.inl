@@ -355,7 +355,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
     }
 
     if (std::cmp_not_equal(needed_argc, argc)) [[unlikely]]
-        throwArityError(argc, needed_argc, context);
+        throwArityError(argc, needed_argc, context, /* skip_function= */ function_ptr == nullptr);
 }
 
 inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& builtin, const uint16_t argc, const bool remove_return_address, const bool remove_builtin)

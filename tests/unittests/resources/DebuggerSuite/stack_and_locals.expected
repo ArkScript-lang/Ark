@@ -28,10 +28,10 @@ In file tests/unittests/resources/DebuggerSuite/stack_and_locals.ark:3
     5 |     (f "correct" "wrong")
 
 dbg[pp:1,ip:4]:000> stack
-4 -> Garbage (expected)
-3 -> Instruction@28
+3 -> Instruction@24
 2 -> Function@0
-1 -> Instruction@32
+1 -> Instruction@28
+0 -> Function@0
 
 dbg[pp:1,ip:4]:000> locals 1
 scope size: 3
@@ -70,10 +70,10 @@ In file tests/unittests/resources/DebuggerSuite/stack_and_locals.ark:3
     5 |     (f "correct" "wrong")
 
 dbg[pp:1,ip:4]:000> stack
-4 -> Garbage (expected)
-3 -> Instruction@28
+3 -> Instruction@24
 2 -> Function@0
-1 -> Instruction@32
+1 -> Instruction@28
+0 -> Function@0
 
 dbg[pp:1,ip:4]:000> locals
 scope size: 3

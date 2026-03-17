@@ -364,7 +364,7 @@ namespace Ark
          */
         uint16_t findNearestVariableIdWithValue(const Value& value, internal::ExecutionContext& context) const noexcept;
 
-        [[noreturn]] void throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, internal::ExecutionContext& context);
+        [[noreturn]] void throwArityError(std::size_t passed_arg_count, std::size_t expected_arg_count, internal::ExecutionContext& context, bool skip_function = true);
 
         void initDebugger(internal::ExecutionContext& context);
 
