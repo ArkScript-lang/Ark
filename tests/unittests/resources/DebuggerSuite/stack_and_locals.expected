@@ -28,10 +28,10 @@ In file tests/unittests/resources/DebuggerSuite/stack_and_locals.ark:3
     5 |     (f "correct" "wrong")
 
 dbg[pp:1,ip:4]:000> stack
+4 -> Garbage (expected)
 3 -> Instruction@28
 2 -> Function@0
 1 -> Instruction@32
-0 -> Function@0
 
 dbg[pp:1,ip:4]:000> locals 1
 scope size: 3
@@ -42,21 +42,21 @@ dbg[pp:1,ip:4]:000> locals 2
 scope size: 3
 index |  id |      name      |    type   | value
     2 |   3 | x              |    Number | 1
-    1 |   2 | b              |    Number | 2
+    1 |   2 | a              |    Number | 1
 
 dbg[pp:1,ip:4]:000> locals 3
 scope size: 3
 index |  id |      name      |    type   | value
     2 |   3 | x              |    Number | 1
-    1 |   2 | b              |    Number | 2
-    0 |   1 | a              |    Number | 1
+    1 |   2 | a              |    Number | 1
+    0 |   1 | b              |    Number | 2
 
 dbg[pp:1,ip:4]:000> locals
 scope size: 3
 index |  id |      name      |    type   | value
     2 |   3 | x              |    Number | 1
-    1 |   2 | b              |    Number | 2
-    0 |   1 | a              |    Number | 1
+    1 |   2 | a              |    Number | 1
+    0 |   1 | b              |    Number | 2
 
 dbg[pp:1,ip:4]:000> c
 dbg: continue
@@ -70,17 +70,17 @@ In file tests/unittests/resources/DebuggerSuite/stack_and_locals.ark:3
     5 |     (f "correct" "wrong")
 
 dbg[pp:1,ip:4]:000> stack
+4 -> Garbage (expected)
 3 -> Instruction@28
 2 -> Function@0
 1 -> Instruction@32
-0 -> Function@0
 
 dbg[pp:1,ip:4]:000> locals
 scope size: 3
 index |  id |      name      |    type   | value
     2 |   3 | x              |    String | "correct"
-    1 |   2 | b              |    String | "wrong"
-    0 |   1 | a              |    String | "correct"
+    1 |   2 | a              |    String | "correct"
+    0 |   1 | b              |    String | "wrong"
 
 dbg[pp:1,ip:4]:000> c
 dbg: continue

@@ -8,9 +8,9 @@ In file tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:3
     4 |     tmp
     5 | }))
 
-[2047] In function `foo' (tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:3)
+[2046] In function `foo' (tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:3)
        ...
 [   0] In global scope (tests/unittests/resources/DiagnosticsSuite/runtime/recursion_depth.ark:7)
 
 Current scope variables values:
-a = 2045
+a = 2044

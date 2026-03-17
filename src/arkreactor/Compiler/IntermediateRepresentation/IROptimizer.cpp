@@ -30,27 +30,27 @@ namespace Ark::internal
             Rule { { LOAD_FAST_BY_INDEX, STORE }, STORE_FROM_INDEX },
             Rule { { LOAD_FAST, SET_VAL }, SET_VAL_FROM },
             Rule { { LOAD_FAST_BY_INDEX, SET_VAL }, SET_VAL_FROM_INDEX },
-            // Rule { { STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
-            //        [](const Entities entities, const std::size_t start_idx) {
-            //            return Builtins::builtins[entities[3].primaryArg()].second.isFunction() && start_idx == 0 && entities[6].inst() == RET;
-            //        },
-            //        [](const Entities e) {
-            //            return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[3].primaryArg(), 1);
-            //        } },
-            // Rule { { STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
-            //        [](const Entities entities, const std::size_t start_idx) {
-            //            return Builtins::builtins[entities[5].primaryArg()].second.isFunction() && start_idx == 0 && entities[8].inst() == RET;
-            //        },
-            //        [](const Entities e) {
-            //            return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[5].primaryArg(), 2);
-            //        } },
-            // Rule { { STORE, STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, BUILTIN, CALL },
-            //        [](const Entities entities, const std::size_t start_idx) {
-            //            return Builtins::builtins[entities[7].primaryArg()].second.isFunction() && start_idx == 0 && entities[10].inst() == RET;
-            //        },
-            //        [](const Entities e) {
-            //            return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[7].primaryArg(), 3);
-            //        } },
+            Rule { { STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, CALL_BUILTIN },
+                   [](const Entities entities, const std::size_t start_idx) {
+                       return start_idx == 0 && entities[5].inst() == RET;
+                   },
+                   [](const Entities e) {
+                       return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[3].primaryArg(), 1);
+                   } },
+            Rule { { STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, CALL_BUILTIN },
+                   [](const Entities entities, const std::size_t start_idx) {
+                       return start_idx == 0 && entities[7].inst() == RET;
+                   },
+                   [](const Entities e) {
+                       return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[5].primaryArg(), 2);
+                   } },
+            Rule { { STORE, STORE, STORE, PUSH_RETURN_ADDRESS, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, LOAD_FAST_BY_INDEX, CALL_BUILTIN },
+                   [](const Entities entities, const std::size_t start_idx) {
+                       return start_idx == 0 && entities[9].inst() == RET;
+                   },
+                   [](const Entities e) {
+                       return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[7].primaryArg(), 3);
+                   } },
             Rule { { LOAD_FAST, GET_FIELD }, GET_FIELD_FROM_SYMBOL },
             Rule { { LOAD_FAST_BY_INDEX, GET_FIELD }, GET_FIELD_FROM_SYMBOL_INDEX },
             Rule { { LIST, STORE }, STORE_LIST },

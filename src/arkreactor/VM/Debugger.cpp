@@ -98,7 +98,10 @@ namespace Ark::internal
                         last_ip = context.ip - 4;
 
                         const Value* maybe_value = vm.peekAndResolveAsPtr(context);
-                        if (maybe_value != nullptr && maybe_value->valueType() != ValueType::Undefined && maybe_value->valueType() != ValueType::InstPtr)
+                        if (maybe_value != nullptr &&
+                            maybe_value->valueType() != ValueType::Undefined &&
+                            maybe_value->valueType() != ValueType::InstPtr &&
+                            maybe_value->valueType() != ValueType::Garbage)
                             fmt::println(
                                 m_os,
                                 "{}",

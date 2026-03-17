@@ -1745,6 +1745,8 @@ namespace Ark
                             context,
                             Builtins::builtins[primary_arg].second,
                             secondary_arg,
+                            // we didn't have a PUSH_RETURN_ADDRESS instruction before,
+                            // so do not attempt to remove (pp,ip) from the stack: they're not there!
                             /* remove_return_address= */ false,
                             /* remove_builtin= */ false);
                         if (!m_running)
