@@ -14,6 +14,7 @@
 - instruction counter in the bytecode reader are displayed in hex, and count each instruction instead of each byte
 
 ### Removed
+- removed a nearly never emitted `GET_CURRENT_PAGE_ADDR` instruction, since it's now always optimised with `CALL` into a `CALL_CURRENT_PAGE` instruction
 
 ## [4.4.0] - 2026-03-13
 ### Deprecations

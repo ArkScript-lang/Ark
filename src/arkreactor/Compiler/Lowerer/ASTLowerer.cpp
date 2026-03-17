@@ -548,7 +548,7 @@ namespace Ark::internal
         // Register an opened variable as "#anonymous", which won't match any valid names inside ASTLowerer::handleCalls.
         // This way we can continue to safely apply optimisations on
         // (let name (fun (e) (map lst (fun (e) (name e)))))
-        // Otherwise, `name` would have been optimized to a GET_CURRENT_PAGE_ADDR, which would have returned the wrong page.
+        // Otherwise, `name` would have been optimized to a CALL_CURRENT_PAGE, which would have returned the wrong page.
         if (x.isAnonymousFunction())
             m_opened_vars.emplace("#anonymous");
         // push body of the function

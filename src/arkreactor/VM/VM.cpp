@@ -490,7 +490,6 @@ namespace Ark
                 &&TARGET_CREATE_SCOPE,
                 &&TARGET_RESET_SCOPE_JUMP,
                 &&TARGET_POP_SCOPE,
-                &&TARGET_GET_CURRENT_PAGE_ADDR,
                 &&TARGET_APPLY,
                 &&TARGET_BREAKPOINT,
                 &&TARGET_ADD,
@@ -1111,13 +1110,6 @@ namespace Ark
                     TARGET(POP_SCOPE)
                     {
                         context.locals.pop_back();
-                        DISPATCH();
-                    }
-
-                    TARGET(GET_CURRENT_PAGE_ADDR)
-                    {
-                        context.last_symbol = arg;
-                        push(Value(static_cast<PageAddr_t>(context.pp)), context);
                         DISPATCH();
                     }
 

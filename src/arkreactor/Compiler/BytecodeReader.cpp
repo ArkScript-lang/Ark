@@ -520,7 +520,6 @@ namespace Ark
             { SET_AT_INDEX, ArgKind::Raw },
             { SET_AT_2_INDEX, ArgKind::Raw },
             { RESET_SCOPE_JUMP, ArgKind::Raw },
-            { GET_CURRENT_PAGE_ADDR, ArgKind::Symbol },
             { LOAD_CONST_LOAD_CONST, ArgKind::ConstConst },
             { LOAD_CONST_STORE, ArgKind::ConstSym },
             { LOAD_CONST_SET_VAL, ArgKind::ConstSym },
