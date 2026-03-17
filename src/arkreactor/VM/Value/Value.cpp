@@ -136,6 +136,9 @@ namespace Ark
             case ValueType::InstPtr:
                 return fmt::format("Instruction@{}", pageAddr());
 
+            case ValueType::Garbage:
+                return fmt::format("Garbage (expected)");
+
             default:
                 return "~\\._./~";
         }

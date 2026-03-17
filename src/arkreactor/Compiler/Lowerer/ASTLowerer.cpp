@@ -862,22 +862,22 @@ namespace Ark::internal
                 page(proc_page).back().replaceInstruction(GET_FIELD_AS_CLOSURE);
             else if (page(proc_page).size() == 1)
             {
-                [[maybe_unused]] const Instruction inst = page(proc_page).back().inst();
+                const Instruction inst = page(proc_page).back().inst();
+                const uint16_t arg = page(proc_page).back().primaryArg();
 
-                // todo: bug in the VM: we pop when we shouldn't, because the function wasn't pushed since it was optimised
-                //       maybe using a 'garbage' value type can help to flag values we can delete (if any)?
-                // if (inst == LOAD_FAST)
-                // {
-                //     call_type = CallType::Symbol;
-                //     // we don't want to push any instruction, as we'll use an optimised instruction instead of CALL
-                //     page(proc_page).clear();
-                // }
-                // else if (inst == BUILTIN)
-                // {
-                //     call_type = CallType::Builtin;
-                //     call_arg = page(proc_page).back().primaryArg();
-                //     page(proc_page).clear();
-                // }
+                if (inst == LOAD_FAST)
+                {
+                    call_type = CallType::Symbol;
+                    call_arg = arg;
+                    // we don't want to push any instruction, as we'll use an optimised instruction instead of CALL
+                    page(proc_page).clear();
+                }
+                else if (inst == BUILTIN && Builtins::builtins[arg].second.isFunction())
+                {
+                    call_type = CallType::Builtin;
+                    call_arg = arg;
+                    page(proc_page).clear();
+                }
             }
         }
 
@@ -908,7 +908,8 @@ namespace Ark::internal
                 break;
 
             case CallType::Symbol:
-                page(p).emplace_back(CALL_SYMBOL, addSymbol(node), args_count);
+                assert(call_arg.has_value() && "Expected a value for call_arg with CallType::Symbol");
+                page(p).emplace_back(CALL_SYMBOL, call_arg.value(), args_count);
                 break;
 
             case CallType::Builtin:

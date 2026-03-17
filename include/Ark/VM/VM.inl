@@ -281,7 +281,9 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
         // is it a builtin function name?
         case ValueType::CProc:
         {
-            callBuiltin(context, *maybe_value_ptr, argc);
+            // We need to remove the builtin from the stack if we came from a standard CALL instruction.
+            // We know we came from a CALL instruction is function_ptr is null, since only CALL_SYMBOL supplies it.
+            callBuiltin(context, *maybe_value_ptr, argc, /* remove_return_address= */ true, /* remove_builtin= */ function_ptr == nullptr);
             return;
         }
 
@@ -356,7 +358,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
         throwArityError(argc, needed_argc, context);
 }
 
-inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& builtin, const uint16_t argc, const bool remove_return_address)
+inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& builtin, const uint16_t argc, const bool remove_return_address, const bool remove_builtin)
 {
     using namespace Ark::literals;
 
@@ -374,9 +376,8 @@ inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& bu
             val = val->reference();
         args.emplace_back(*val);
     }
-    // argc+1 to remove the arguments and the builtin
     // +2 to skip PP/IP that were pushed by PUSH_RETURN_ADDRESS
-    context.sp -= static_cast<uint16_t>(argc + 1_u16 + (remove_return_address ? 2_u16 : 0_u16));
+    context.sp -= static_cast<uint16_t>(argc + (remove_return_address ? 2_u16 : 0_u16) + (remove_builtin ? 1_u16 : 0_u16));
     // call proc
     push(builtin.proc()(args, this), context);
 }

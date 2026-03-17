@@ -152,6 +152,8 @@ Input parse_input(const std::string& path)
                     [[fallthrough]];
                 case Ark::ValueType::InstPtr:
                     [[fallthrough]];
+                case Ark::ValueType::Garbage:
+                    [[fallthrough]];
                 case Ark::ValueType::Any:
                     break;
             }

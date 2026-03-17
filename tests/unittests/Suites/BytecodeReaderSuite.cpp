@@ -71,7 +71,7 @@ ut::suite<"BytecodeReader"> bcr_suite = [] {
             using namespace std::literals::string_literals;
 
             const auto expected_symbols = std::vector<std::string> {
-                "ackermann", "m", "n"
+                "ackermann", "n", "m"
             };
             expect(that % symbols_block.symbols == expected_symbols);
             // 'ark\0' + version (2 bytes per number) + timestamp + sha -> first byte of the sym table

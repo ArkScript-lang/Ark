@@ -51,11 +51,6 @@ namespace Ark::internal
             //        [](const Entities e) {
             //            return IR::Entity(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, e[7].primaryArg(), 3);
             //        } },
-            // Rule { { BUILTIN, CALL }, CALL_BUILTIN, [](const Entities entities, const std::size_t) {
-            //           return Builtins::builtins[entities[0].primaryArg()].second.isFunction();
-            //       } },
-            // Rule { { LOAD_FAST, CALL }, CALL_SYMBOL },
-            // Rule { { GET_CURRENT_PAGE_ADDR, CALL }, CALL_CURRENT_PAGE },
             Rule { { LOAD_FAST, GET_FIELD }, GET_FIELD_FROM_SYMBOL },
             Rule { { LOAD_FAST_BY_INDEX, GET_FIELD }, GET_FIELD_FROM_SYMBOL_INDEX },
             Rule { { LIST, STORE }, STORE_LIST },

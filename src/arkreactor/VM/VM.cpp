@@ -666,33 +666,47 @@ namespace Ark
                     TARGET(RET)
                     {
                         {
-                            Value ret_or_func = *popAndResolveAsPtr(context);
-                            Value ip_or_func = *popAndResolveAsPtr(context);  // to remove the function from the stack
+                            Value ts = *popAndResolveAsPtr(context);
+                            Value ts1 = *popAndResolveAsPtr(context);
 
-                            if (ip_or_func.valueType() == ValueType::InstPtr) [[unlikely]]
+                            if (ts1.valueType() == ValueType::InstPtr)
                             {
-                                context.ip = ip_or_func.pageAddr();
+                                context.ip = ts1.pageAddr();
                                 // we always push PP then IP, thus the next value
                                 // MUST be the page pointer
                                 context.pp = pop(context)->pageAddr();
 
                                 returnFromFuncCall(context);
-                                if (ret_or_func.valueType() == ValueType::Garbage)
+                                if (ts.valueType() == ValueType::Garbage)
                                     push(Builtins::nil, context);
                                 else
-                                    push(std::move(ret_or_func), context);
+                                    push(std::move(ts), context);
                             }
-                            // value on the stack
-                            else [[likely]]
+                            else if (ts1.valueType() == ValueType::Garbage)
                             {
-                                const Value* ip = popAndResolveAsPtr(context);
+                                const Value* ip = pop(context);
                                 assert(ip->valueType() == ValueType::InstPtr && "Expected instruction pointer on the stack (is the stack trashed?)");
                                 context.ip = ip->pageAddr();
                                 context.pp = pop(context)->pageAddr();
 
                                 returnFromFuncCall(context);
-                                push(std::move(ret_or_func), context);
+                                push(std::move(ts), context);
                             }
+                            else if (ts.valueType() == ValueType::InstPtr)
+                            {
+                                context.ip = ts.pageAddr();
+                                context.pp = ts1.pageAddr();
+                                returnFromFuncCall(context);
+                                push(Builtins::nil, context);
+                            }
+                            else
+                                throw Error(
+                                    fmt::format(
+                                        "Unhandled case when returning from function call. TS=({}){}, TS1=({}){}",
+                                        std::to_string(ts.valueType()),
+                                        ts.toString(*this),
+                                        std::to_string(ts1.valueType()),
+                                        ts1.toString(*this)));
 
                             if (context.fc <= untilFrameCount)
                                 GOTO_HALT();
@@ -1712,7 +1726,12 @@ namespace Ark
                     {
                         UNPACK_ARGS();
                         // no stack size check because we do not push IP/PP since we are just calling a builtin
-                        callBuiltin(context, Builtins::builtins[primary_arg].second, secondary_arg);
+                        callBuiltin(
+                            context,
+                            Builtins::builtins[primary_arg].second,
+                            secondary_arg,
+                            /* remove_return_address= */ true,
+                            /* remove_builtin= */ false);
                         if (!m_running)
                             GOTO_HALT();
                         DISPATCH();
@@ -1722,7 +1741,12 @@ namespace Ark
                     {
                         UNPACK_ARGS();
                         // no stack size check because we do not push IP/PP since we are just calling a builtin
-                        callBuiltin(context, Builtins::builtins[primary_arg].second, secondary_arg, /* remove_return_address= */ false);
+                        callBuiltin(
+                            context,
+                            Builtins::builtins[primary_arg].second,
+                            secondary_arg,
+                            /* remove_return_address= */ false,
+                            /* remove_builtin= */ false);
                         if (!m_running)
                             GOTO_HALT();
                         DISPATCH();
@@ -1824,7 +1848,7 @@ namespace Ark
                     TARGET(CALL_SYMBOL)
                     {
                         UNPACK_ARGS();
-                        call(context, secondary_arg, loadSymbol(primary_arg, context));
+                        call(context, secondary_arg, /* function_ptr= */ loadSymbol(primary_arg, context));
                         if (!m_running)
                             GOTO_HALT();
                         DISPATCH();
