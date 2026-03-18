@@ -4,23 +4,54 @@
 # just putting any and all weird code samples golfers come up with here,
 # to ensure what's fixed stay fixed
 
+(let f1 (fun (e) (append! output e)))
+(let f2 (fun (x y) (append! output x y)))
+(let f4 (fun (a b c d) (append! output a b c d)))
+
 (test:suite weird {
   (test:case "list:fill with let" {
-    (test:eq (list:fill (let x 2) x) [2 2]) })
+    (test:eq (list:fill (let x 2) x) [2 2])
+    (test:eq (builtin__list:fill (let y 3) y) [3 3 3]) })
 
   (test:case "list:map with let" {
     (mut output [])
-    (let f (fun (e) (append! output e)))
-    (list:map (let a [0 1]) f)
+    (list:map (let a [0 1]) f1)
     (test:eq output [0 1]) })
 
-  (test:case "declare var inside call" {
+  (test:case "(Q ((let Q f1) 0))" {
     # those append 0 to output first, due to the inner call,
     # then they append [0] since 'append!' returns the modified list
     (mut output [])
-    (Q ((let Q (fun (x) (append! output x))) 0))
+    (let f1 (fun (x) (append! output x)))
+    (Q ((let Q f1) 0))
     (test:eq output [0 [0]])
 
     (set output [])
-    ((let P (fun (x) (append! output x))) (P 0))
-    (test:eq output [0 [0]]) }) })
+    ((let P f1) (P 0))
+    (test:eq output [0 [0]]) })
+
+  (test:case "((let m list:map) (list:iota 0 5) f)" {
+    (mut output [])
+    ((let m list:map) (list:iota 0 5) f1)
+    (test:eq output [0 1 2 3 4])
+
+    (set output [])
+    (m (list:iota 0 5) f1)
+    (test:eq output [0 1 2 3 4]) })
+
+  (test:case "(R 6 [(let R f2) 2])" {
+    (mut output [])
+    (R 6 [(let R f2) 2])
+    (test:eq output [6 [f2 2]]) })
+
+  (test:case "((@ [(let S f1) 2] 0) S)" {
+    (mut output [])
+    ((@ [(let S f1) 2] 0) S)
+    (test:eq output [f1]) })
+
+  # this is another insanity due to how pushing variables works: we use LOAD_FAST for `n`, which pushes a ref,
+  # and just after, (set n 2) modifies it
+  (test:case "(f4 (mut n 1) (+ 0 n) n (set n 2))" {
+    (mut output [])
+    (f4 (mut n 1) (+ 0 n) n (set n 2))
+    (test:eq output [1 1 2 2]) }) })

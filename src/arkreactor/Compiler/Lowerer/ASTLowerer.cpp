@@ -597,17 +597,12 @@ namespace Ark::internal
         {
             page(p).emplace_back(STORE, i);
             m_locals_locator.addLocal(name);
-
-            if (!is_result_unused)
-                page(p).emplace_back(LOAD_FAST_BY_INDEX, 0);
         }
         else
-        {
             page(p).emplace_back(SET_VAL, i);
 
-            if (!is_result_unused)
-                page(p).emplace_back(LOAD_FAST, i);
-        }
+        if (!is_result_unused)
+            page(p).emplace_back(LOAD_SYMBOL, i);
 
         if (is_function)
             m_opened_vars.pop();

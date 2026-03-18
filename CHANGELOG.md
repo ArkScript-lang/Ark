@@ -13,6 +13,7 @@
 
 ### Changed
 - instruction counter in the bytecode reader are displayed in hex, and count each instruction instead of each byte
+- `let` / `mut` / `set` push a copy of their value when used as expression (instead of an internal reference)
 
 ### Removed
 - removed a nearly never emitted `GET_CURRENT_PAGE_ADDR` instruction, since it's now always optimised with `CALL` into a `CALL_CURRENT_PAGE` instruction

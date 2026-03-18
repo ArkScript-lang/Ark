@@ -1,0 +1,2 @@
+(mut output ((let T "hello") (mut T print)))
+(print output)
