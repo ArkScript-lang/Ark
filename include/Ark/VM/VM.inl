@@ -325,7 +325,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
                 ErrorKind::Type,
                 fmt::format(
                     "{} is not a Function but a {}",
-                    maybe_value_ptr->toString(*this), std::to_string(call_type)));
+                    maybe_value_ptr->toString(*this, /* show_as_code= */ true), std::to_string(call_type)));
         }
     }
 
