@@ -1,4 +1,4 @@
-TypeError: hello is not a Function but a String
+TypeError: "hello" is not a Function but a String
 
 In file tests/unittests/resources/DiagnosticsSuite/runtime/call_let_mut_not_a_function.ark:1
     1 | (mut output ((let T "hello") (mut T print)))
