@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased changes] - 2026-MM-DD
+## [4.4.1] - 2026-03-19
 ### Breaking changes
 - in function calls, the function to call is now always evaluated first
 - in function calls, the arguments are now evaluated from left to right
@@ -17,6 +17,7 @@
 
 ### Removed
 - removed a nearly never emitted `GET_CURRENT_PAGE_ADDR` instruction, since it's now always optimised with `CALL` into a `CALL_CURRENT_PAGE` instruction
+- removed `list:size`, `dict:size`, `dict:contains`, `math:even` and `math:odd` since they were deprecated since ArkScript 4.2.0
 
 ## [4.4.0] - 2026-03-13
 ### Deprecations
