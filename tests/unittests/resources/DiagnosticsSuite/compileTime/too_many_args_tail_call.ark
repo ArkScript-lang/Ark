@@ -1,0 +1,3 @@
+(let f (fun(i)
+  (f (print i) (+ 1 i))))
+(f 1)

@@ -1,0 +1,7 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/too_many_args_tail_call.ark:2
+    1 | (let f (fun(i)
+    2 |   (f (print i) (+ 1 i))))
+      |   ^~~~~~~~~~~~~~~~~~~~~
+    3 | (f 1)
+    4 |
+        When performing tail-call `(f (print i) (+ 1 i))', received 2 arguments, but expected 1: `(f a)'
