@@ -98,6 +98,12 @@ namespace Ark::internal
             bool is_temp;
         };
 
+        struct Var
+        {
+            std::string name;
+            std::size_t argument_count;
+        };
+
         LocalsLocator m_locals_locator;
 
         // tables: symbols, values, plugins and codes
@@ -107,7 +113,7 @@ namespace Ark::internal
         std::vector<IR::Block> m_code_pages;
         std::vector<IR::Block> m_temp_pages;  ///< we need temporary code pages for some compilations passes
         IR::label_t m_current_label = 0;
-        std::stack<std::string> m_opened_vars;  ///< stack of vars we are currently declaring
+        std::stack<Var> m_opened_vars;  ///< stack of vars we are currently declaring
 
         enum class ErrorKind
         {
@@ -150,7 +156,7 @@ namespace Ark::internal
          */
         [[nodiscard]] bool isFunctionCallingItself(const std::string& name) noexcept
         {
-            return !m_opened_vars.empty() && m_opened_vars.top() == name;
+            return !m_opened_vars.empty() && m_opened_vars.top().name == name;
         }
 
         /**

@@ -5,6 +5,7 @@
 #include <utility>
 #include <algorithm>
 #include <fmt/core.h>
+#include <fmt/ranges.h>
 
 #include <Ark/Error/Exceptions.hpp>
 #include <Ark/Error/Diagnostics.hpp>
@@ -531,6 +532,7 @@ namespace Ark::internal
         // save page_id into the constants table as PageAddr and load the const
         page(p).emplace_back(is_closure ? MAKE_CLOSURE : LOAD_CONST, addValue(function_body_page.index, x));
 
+        std::size_t arg_count = 0;
         // pushing arguments from the stack into variables in the new scope
         for (const auto& node : x.constList()[1].constList() | std::ranges::views::reverse)
         {
@@ -538,11 +540,13 @@ namespace Ark::internal
             {
                 page(function_body_page).emplace_back(STORE, addSymbol(node));
                 m_locals_locator.addLocal(node.string());
+                arg_count++;
             }
             else if (node.nodeType() == NodeType::RefArg)
             {
                 page(function_body_page).emplace_back(STORE_REF, addSymbol(node));
                 m_locals_locator.addLocal(node.string());
+                arg_count++;
             }
         }
 
@@ -551,7 +555,7 @@ namespace Ark::internal
         // (let name (fun (e) (map lst (fun (e) (name e)))))
         // Otherwise, `name` would have been optimized to a CALL_CURRENT_PAGE, which would have returned the wrong page.
         if (x.isAnonymousFunction())
-            m_opened_vars.emplace("#anonymous");
+            m_opened_vars.emplace("#anonymous", arg_count);
         // push body of the function
         compileExpression(x.list()[2], function_body_page, false, true);
         if (x.isAnonymousFunction())
@@ -579,13 +583,23 @@ namespace Ark::internal
         const std::string name = x.constList()[1].string();
         uint16_t i = addSymbol(x.constList()[1]);
 
-        if (!m_opened_vars.empty() && m_opened_vars.top() == name)
+        if (!m_opened_vars.empty() && m_opened_vars.top().name == name)
             buildAndThrowError("Can not define a variable using the same name as the function it is defined inside. You need to rename the function or the variable", x);
 
         const bool is_function = x.constList()[2].isFunction();
         if (is_function)
         {
-            m_opened_vars.push(name);
+            std::size_t arg_count = 0;
+            if (x.constList()[2].nodeType() == NodeType::List && x.constList()[2].constList().size() >= 2 &&
+                x.constList()[2].constList()[1].nodeType() == NodeType::List)
+            {
+                for (const auto& node : x.constList()[2].constList()[1].constList())
+                {
+                    if (node.nodeType() == NodeType::Symbol || node.nodeType() == NodeType::MutArg || node.nodeType() == NodeType::RefArg)
+                        arg_count++;
+                }
+            }
+            m_opened_vars.push(Var(name, arg_count));
             x.list()[2].setFunctionKind(/* anonymous= */ false);
         }
 
@@ -815,9 +829,40 @@ namespace Ark::internal
         constexpr std::size_t start_index = 1;
         Node& node = x.list()[0];
 
+        // number of arguments
+        std::size_t args_count = 0;
+        for (auto it = x.constList().begin() + start_index, it_end = x.constList().end(); it != it_end; ++it)
+        {
+            if (it->nodeType() != NodeType::Capture && !isBreakpoint(*it))
+                args_count++;
+        }
+
         if (is_terminal && node.nodeType() == NodeType::Symbol && isFunctionCallingItself(node.string()))
         {
             pushFunctionCallArguments(x, p, /* is_tail_call= */ true);
+
+            if (const std::size_t expected_arg_count = m_opened_vars.top().argument_count; args_count != expected_arg_count)
+            {
+                std::vector<std::string> arg_names;
+                if (expected_arg_count > 0)
+                {
+                    arg_names.reserve(expected_arg_count + 1);
+                    arg_names.emplace_back("");
+                    for (std::size_t i = 0; i < expected_arg_count; ++i)
+                        arg_names.emplace_back(1, static_cast<char>('a' + i));
+                }
+
+                buildAndThrowError(
+                    fmt::format(
+                        "When performing tail-call `{}', received {} argument{}, but expected {}: `({}{})'",
+                        x.repr(),
+                        args_count,
+                        args_count > 1 ? "s" : "",
+                        expected_arg_count,
+                        node.string(),
+                        fmt::join(arg_names, " ")),
+                    x);
+            }
 
             // jump to the top of the function
             page(p).emplace_back(TAIL_CALL_SELF);
@@ -888,14 +933,6 @@ namespace Ark::internal
         m_temp_pages.pop_back();
 
         pushFunctionCallArguments(x, p, /* is_tail_call= */ false);
-
-        // number of arguments
-        std::size_t args_count = 0;
-        for (auto it = x.constList().begin() + start_index, it_end = x.constList().end(); it != it_end; ++it)
-        {
-            if (it->nodeType() != NodeType::Capture && !isBreakpoint(*it))
-                args_count++;
-        }
 
         // call the procedure
         switch (call_type)
