@@ -1,11 +1,20 @@
 # Change Log
 
+## [Unreleased changes] - 2026-MM-DD
+### Breaking changes
+
+### Deprecations
+
+### Added
+
+### Changed
+
+### Removed
+
 ## [4.4.1] - 2026-03-19
 ### Breaking changes
 - in function calls, the function to call is now always evaluated first
 - in function calls, the arguments are now evaluated from left to right
-
-### Deprecations
 
 ### Added
 - the bytecode reader can print the argument of a `PUSH_RETURN_ADDRESS` instruction as a hex number

@@ -22,7 +22,7 @@ RUN git submodule update --init --recursive \
 FROM alpine:3.21 AS builder
 
 # Install cmake
-RUN apk --no-cache add cmake clang clang-dev make gcc g++ libc-dev linux-headers
+RUN apk --no-cache add cmake clang make libc-dev linux-headers
 
 # Build
 COPY include include
@@ -32,9 +32,13 @@ COPY CMakeLists.txt .
 COPY cmake cmake
 COPY --from=submodule-initializor /out .
 COPY --from=submodule-initializor /rev .
-RUN cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ \
-    -DARK_BUILD_EXE=On -DARK_COMMIT="$(cat rev)" -DARK_BUILD_DATE="$(date +%Y-%m-%dT%H:%M:%SZ)" \
+RUN cmake -H. -Bbuild \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_C_COMPILER=clang \
+    -DCMAKE_CXX_COMPILER=clang++ \
+    -DARK_BUILD_EXE=On \
+    -DARK_COMMIT="$(cat rev)" \
+    -DARK_BUILD_DATE="$(date +%Y-%m-%dT%H:%M:%SZ)" \
     && cmake --build build --target arkscript -- -j $(nproc)
 
 FROM alpine:3.21 AS organizer
@@ -52,7 +56,7 @@ RUN apk --no-cache add cmake
 
 # Install Ark
 COPY --from=organizer /out/ark .
-RUN cmake --install build --config Release
+RUN cmake --install build --strip --config Release
 ENV LD_LIBRARY_PATH=/usr/local/lib64
 ENV ARKSCRIPT_PATH=/usr/local/lib/Ark
 
