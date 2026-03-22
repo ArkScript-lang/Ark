@@ -8,6 +8,7 @@
 ### Added
 
 ### Changed
+- all paths inside `if` should return a value, when used as an expression. If an `else` branch is missing, `nil` will be returned
 
 ### Removed
 

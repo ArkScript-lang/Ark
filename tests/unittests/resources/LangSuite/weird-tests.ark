@@ -54,4 +54,13 @@
   (test:case "(f4 (mut n 1) (+ 0 n) n (set n 2))" {
     (mut output [])
     (f4 (mut n 1) (+ 0 n) n (set n 2))
-    (test:eq output [1 1 2 2]) }) })
+    (test:eq output [1 1 2 2]) })
+
+  # not all paths in `or` return, and we have a POP at the end, that would pop the function and leave
+  # the instruction pointer alone, messing up the call stack
+  (test:case "(or false (if 0 0))" {
+    (let g (fun (a b) {
+      (or false (if 0 0))
+      b }))
+
+    (test:eq (g 1 2) 2) }) })

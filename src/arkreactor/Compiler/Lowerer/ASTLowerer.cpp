@@ -474,6 +474,11 @@ namespace Ark::internal
             page(p).back().setSourceLocation(x.constList()[3].filename(), x.constList()[3].position().start.line);
             m_locals_locator.dropVarsForBranch();
         }
+        else
+        {
+            Node tmp = Node(NodeType::List);
+            compileExpression(tmp, p, is_result_unused, is_terminal);
+        }
 
         // when else is finished, jump to end
         const auto label_end = IR::Entity::Label(m_current_label++);
