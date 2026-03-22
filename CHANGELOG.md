@@ -6,6 +6,7 @@
 ### Deprecations
 
 ### Added
+- added new macro `$gensym`, to generate a unique symbol identifier to use in macros
 
 ### Changed
 - all paths inside `if` should return a value, when used as an expression. If an `else` branch is missing, `nil` will be returned

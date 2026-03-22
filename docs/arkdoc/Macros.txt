@@ -122,3 +122,14 @@
 * (print (one 1 5 6 7 8))  # 5
 * =end
 #--
+
+--#
+* @name $gensym
+* @brief Return a new unique symbol identifier to use in macros
+* =begin
+* (macro switch (value case then ...cases) {
+*   (macro var ($gensym))
+*   (let var value)
+*   (_switch_impl var case then ...cases) })
+* =end
+#--
