@@ -61,6 +61,7 @@ namespace Ark::internal
         std::shared_ptr<MacroExecutor> m_conditional_executor;
         std::vector<std::shared_ptr<MacroExecutor>> m_executors;
         std::unordered_map<std::string, Node> m_defined_functions;
+        std::size_t m_genned_sym;
 
         /**
          * @brief Return std::nullopt if the function isn't registered, otherwise return its node

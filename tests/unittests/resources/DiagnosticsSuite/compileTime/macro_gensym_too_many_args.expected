@@ -1,0 +1,5 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/macro_gensym_too_many_args.ark:1
+    1 | (macro a ($gensym 1))
+      |          ^~~~~~~~~~~
+    2 |
+        When expanding `$gensym' inside a macro, got 1 argument, expected 0

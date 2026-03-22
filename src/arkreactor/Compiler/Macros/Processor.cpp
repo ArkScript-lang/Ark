@@ -18,7 +18,7 @@
 namespace Ark::internal
 {
     MacroProcessor::MacroProcessor(const unsigned debug) noexcept :
-        Pass("MacroProcessor", debug)
+        Pass("MacroProcessor", debug), m_genned_sym(0)
     {
         // create executors pipeline
         m_conditional_executor = std::make_shared<ConditionalExecutor>(this);
@@ -517,6 +517,12 @@ namespace Ark::internal
                     node.updateValueAndType(Node(NodeType::List));
                     node.push_back(getListNode());
                 }
+            }
+            else if (name == "$gensym")
+            {
+                checkMacroArgCountEq(node, 0, "$gensym", true);
+                node.updateValueAndType(Node(NodeType::Symbol, fmt::format("#gensym-{}", m_genned_sym)));
+                ++m_genned_sym;
             }
             else if (name == Language::Symcat)
             {
