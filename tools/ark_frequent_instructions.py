@@ -149,26 +149,31 @@ def print_most_freqs(data, max_percent=10):
     most = sorted(data.items(), key=lambda e: e[1], reverse=True)
     interesting = most[:(len(most) * max_percent) // 100]
     if compute_super_insts_usage:
+        threshold = 10
+        over, under = [(x, c) for (x, c) in most if c > threshold], [(x, c) for (x, c) in most if c <= threshold]
+
+        if under:
+            print(f"Some Super Instructions are under the usage threshold ({threshold}).\n")
+            print("| Super Instruction | Uses in compiled code |")
+            print("| ----------------- | --------------------- |")
+            print("\n".join(f"| {insts} | {count} |" for (insts, count) in under))
+
+        print("<details><summary>Super Instructions over the threshold</summary>\n")
         print("| Super Instruction | Uses in compiled code |")
         print("| ----------------- | --------------------- |")
-        print("\n".join(f"| {insts} | {count} |" for (insts, count) in interesting))
+        print("\n".join(f"| {insts} | {count} |" for (insts, count) in over))
+        print("\n</details>")
     else:
         print("\n".join(f"{insts} -> {count}" for (insts, count) in interesting))
 
-    if compute_super_insts_usage:
-        threshold = 10
-        for (inst, count) in most:
-            if count <= threshold:
-                sys.exit(1)
-
-
-if not compute_super_insts_usage:
-    print("Super instructions present:")
-print_most_freqs(super_insts_freqs, max_percent=100)
 
 if compute_super_insts_usage:
-    sys.exit(0)
+    print_most_freqs(super_insts_freqs, max_percent=100)
+else:
+    print("Super instructions present:")
+    print_most_freqs(super_insts_freqs, max_percent=100)
 
-for i in (2, 3, 4):
-    print(f"\nPairs of {i}:")
-    print_most_freqs(frequent[i])
+    print("Potential pairs of instructions that could be optimized:")
+    for i in (2, 3, 4):
+        print(f"\nPairs of {i}:")
+        print_most_freqs(frequent[i])

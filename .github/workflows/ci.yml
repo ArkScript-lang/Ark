@@ -272,11 +272,8 @@ jobs:
           python-version: '3.13'
 
       - run: |
-          KO=0
-          python3 tools/ark_frequent_instructions.py super_insts_usage > output.txt || KO=1
-          echo "SUPER_INSTS_REPORT_KO=$KO" >> $GITHUB_ENV
           echo "SUPER_INSTS_REPORT<<EOF" >> $GITHUB_ENV
-          cat output.txt >> $GITHUB_ENV
+          python3 tools/ark_frequent_instructions.py super_insts_usage >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - uses: 8BitJonny/gh-get-current-pr@4.0.0
