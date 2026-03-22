@@ -115,3 +115,15 @@
 * (print (hasField closure "B"))  # false, field names are case-sensitive
 * =end
 #--
+
+--#
+* @name apply
+* @brief Call a function with a list of arguments
+* @param f function
+* @param args list, can be empty if the function takes no argument
+* =begin
+* (print (apply + [1 2]))  # 3
+* (let foo (fun (a b c) (+ a b c)))
+* (print (apply foo [1 2 3]))  # 6
+* =end
+#--
