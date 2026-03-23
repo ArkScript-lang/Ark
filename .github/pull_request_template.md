@@ -12,3 +12,4 @@ Closes # (issue)
 - [ ] I have updated the documentation if needed (on https://github.com/ArkScript-lang/website, content/docs/)
 - [ ] I have added tests that prove my fix/feature is working
 - [ ] New and existing tests pass locally with my changes
+- [ ] AI wasn't involved in order to develop this feature
