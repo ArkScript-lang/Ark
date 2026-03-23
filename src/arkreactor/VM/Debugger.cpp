@@ -23,6 +23,7 @@ namespace Ark::internal
         m_os(std::cout),
         m_colorize(true)
     {
+        initCommands();
         saveState(context);
     }
 
@@ -33,7 +34,9 @@ namespace Ark::internal
         m_os(os),
         m_colorize(false),
         m_prompt_stream(std::make_unique<std::ifstream>(path_to_prompt_file))
-    {}
+    {
+        initCommands();
+    }
 
     void Debugger::saveState(const ExecutionContext& context)
     {
@@ -126,6 +129,79 @@ namespace Ark::internal
         // we hit a HALT instruction that set 'running' to false, ignore that if we were still running!
         vm.m_running = is_vm_running;
         m_running = false;
+    }
+
+    void Debugger::initCommands()
+    {
+        m_commands = {
+            Command(
+                "c",
+                [this](const std::string&, VM&, ExecutionContext&) {
+                    fmt::println(m_os, "dbg: continue");
+                }),
+            Command(
+                "continue",
+                [this](const std::string&, VM&, ExecutionContext&) {
+                    fmt::println(m_os, "dbg: continue");
+                }),
+            Command(
+                "q",
+                [this](const std::string&, VM&, ExecutionContext&) {
+                    fmt::println(m_os, "dbg: stop");
+                    m_quit_vm = true;
+                }),
+            Command(
+                "quit",
+                [this](const std::string&, VM&, ExecutionContext&) {
+                    fmt::println(m_os, "dbg: stop");
+                    m_quit_vm = true;
+                }),
+            Command(
+                [](const std::string& line) {
+                    return line.starts_with("stack");
+                },
+                [this](const std::string& line, VM& vm, ExecutionContext& ctx) {
+                    if (const auto arg = getArgAndParseOrError("stack", line, /* default_value= */ 5))
+                        showStack(vm, ctx, arg.value());
+                }),
+            Command(
+                [](const std::string& line) {
+                    return line.starts_with("locals");
+                },
+                [this](const std::string& line, VM& vm, ExecutionContext& ctx) {
+                    if (const auto arg = getArgAndParseOrError("locals", line, /* default_value= */ 5))
+                        showLocals(vm, ctx, arg.value());
+                }),
+            Command(
+                "help",
+                [this](const std::string&, VM&, ExecutionContext&) {
+                    fmt::println(m_os, "Available commands:");
+                    fmt::println(m_os, "  help -- display this message");
+                    fmt::println(m_os, "  c, continue -- resume execution");
+                    fmt::println(m_os, "  q, quit -- quit the debugger, stopping the script execution");
+                    fmt::println(m_os, "  stack <n=5> -- show the last n values on the stack");
+                    fmt::println(m_os, "  locals <n=5> -- show the last n values on the locals' stack");
+                }),
+        };
+    }
+
+    std::optional<Debugger::Command> Debugger::matchCommand(const std::string& line) const
+    {
+        for (const Command& c : m_commands)
+        {
+            if (c.is_exact)
+            {
+                if (c.exact_name == line)
+                    return c;
+            }
+            else
+            {
+                if (c.matcher(line))
+                    return c;
+            }
+        }
+
+        return std::nullopt;
     }
 
     void Debugger::showContext(const VM& vm, const ExecutionContext& context) const
@@ -276,39 +352,16 @@ namespace Ark::internal
 
             Utils::trimWhitespace(line);
 
-            if (line == "c" || line == "continue" || line.empty())
+            if (line.empty())
             {
                 fmt::println(m_os, "dbg: continue");
                 return std::nullopt;
             }
-            else if (line == "q" || line == "quit")
+
+            if (const auto& maybe_cmd = matchCommand(line))
             {
-                fmt::println(m_os, "dbg: stop");
-                m_quit_vm = true;
+                maybe_cmd->action(line, vm, context);
                 return std::nullopt;
-            }
-            else if (line.starts_with("stack"))
-            {
-                if (auto arg = getArgAndParseOrError("stack", line, /* default_value= */ 5))
-                    showStack(vm, context, arg.value());
-                else
-                    return std::nullopt;
-            }
-            else if (line.starts_with("locals"))
-            {
-                if (auto arg = getArgAndParseOrError("locals", line, /* default_value= */ 5))
-                    showLocals(vm, context, arg.value());
-                else
-                    return std::nullopt;
-            }
-            else if (line == "help")
-            {
-                fmt::println(m_os, "Available commands:");
-                fmt::println(m_os, "  help -- display this message");
-                fmt::println(m_os, "  c, continue -- resume execution");
-                fmt::println(m_os, "  q, quit -- quit the debugger, stopping the script execution");
-                fmt::println(m_os, "  stack <n=5> -- show the last n values on the stack");
-                fmt::println(m_os, "  locals <n=5> -- show the last n values on the locals' stack");
             }
             else
             {

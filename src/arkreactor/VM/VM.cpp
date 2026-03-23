@@ -106,7 +106,7 @@ namespace Ark
         }
     }
 
-    Value VM::createList(const std::size_t count, internal::ExecutionContext& context)
+    Value VM::createList(const std::size_t count, ExecutionContext& context)
     {
         Value l(ValueType::List);
         if (count != 0)
