@@ -1,0 +1,6 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/pop_list_in_place_too_many_args.ark:2
+    1 | (mut a [0 1 2 3])
+    2 | (pop! a 0 1 2 3)
+      |  ^~~~
+    3 |
+        Expected 2 arguments (list, index) for pop!, got 5
