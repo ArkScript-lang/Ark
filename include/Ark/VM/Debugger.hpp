@@ -11,10 +11,12 @@
 #ifndef ARK_VM_DEBUGGER_HPP
 #define ARK_VM_DEBUGGER_HPP
 
+#include <utility>
 #include <vector>
 #include <memory>
 #include <string>
 #include <optional>
+#include <functional>
 #include <filesystem>
 
 #include <Ark/Compiler/Common.hpp>
@@ -103,6 +105,27 @@ namespace Ark::internal
         }
 
     private:
+        struct Command
+        {
+            using Match_t = std::function<bool(const std::string&)>;
+            using Action_t = std::function<void(const std::string&, VM&, ExecutionContext&)>;
+
+            bool is_exact;
+            std::string exact_name;
+            Match_t matcher;
+            Action_t action;
+
+            Command(std::string name, Action_t&& do_this) :
+                is_exact(true), exact_name(std::move(name)), matcher(nullptr), action(do_this)
+            {}
+
+            Command(Match_t&& cond, Action_t&& do_this) :
+                is_exact(false), matcher(std::move(cond)), action(std::move(do_this))
+            {}
+        };
+
+        std::vector<Command> m_commands;
+
         std::vector<std::unique_ptr<SavedState>> m_states;
         std::vector<std::filesystem::path> m_libenv;
         std::vector<std::string> m_symbols;
@@ -115,6 +138,9 @@ namespace Ark::internal
         std::unique_ptr<std::istream> m_prompt_stream;
         std::string m_code;  ///< Code added while inside the debugger
         std::size_t m_line_count { 0 };
+
+        void initCommands();
+        std::optional<Command> matchCommand(const std::string& line) const;
 
         void showContext(const VM& vm, const ExecutionContext& context) const;
         void showStack(VM& vm, const ExecutionContext& context, std::size_t count) const;
