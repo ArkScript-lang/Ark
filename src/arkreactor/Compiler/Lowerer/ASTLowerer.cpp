@@ -359,6 +359,8 @@ namespace Ark::internal
             buildAndThrowError(fmt::format("Can not use {} with less than 2 arguments", name), head);
         if (std::cmp_greater(argc, MaxValue16Bits))
             buildAndThrowError(fmt::format("Too many arguments ({}), exceeds {}", argc, MaxValue16Bits), x);
+        if (argc != 2 && (inst == POP_LIST || inst == POP_LIST_IN_PLACE))
+            buildAndThrowError(fmt::format("Expected 2 arguments (list, index) for {}, got {}", name, argc), head);
         if (argc != 3 && inst == SET_AT_INDEX)
             buildAndThrowError(fmt::format("Expected 3 arguments (list, index, value) for {}, got {}", name, argc), head);
         if (argc != 4 && inst == SET_AT_2_INDEX)
