@@ -13,7 +13,6 @@ __arkscript__/
 *.arkm
 /*.ark
 *.ark.ir
-!tests/unittests/resources/BytecodeReaderSuite/*.arkc
 tools/*_hash.py
 
 # Generated files
