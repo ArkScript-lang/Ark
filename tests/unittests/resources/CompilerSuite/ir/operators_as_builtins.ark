@@ -1,1 +1,1 @@
-(print + - * / mod toNumber toString < <= > >= = != not len empty? nil? tail head @ @@ type)
+(print + - * / mod toNumber toString < <= > >= = != not len empty? nil? tail head @ @@ type append concat pop)

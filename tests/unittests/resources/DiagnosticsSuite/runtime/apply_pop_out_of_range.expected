@@ -1,0 +1,6 @@
+IndexError: pop index (4) out of range (list size: 3)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/apply_pop_out_of_range.ark:1
+    1 | (apply pop [[1 2 3] 4])
+      | ^~~~~~~~~~~~~~~~~~~~~~
+    2 |

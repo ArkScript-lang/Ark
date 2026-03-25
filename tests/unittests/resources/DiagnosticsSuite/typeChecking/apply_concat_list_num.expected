@@ -1,0 +1,14 @@
+Function concat expected at least 2 arguments and got 2
+Call
+  ↳ (concat [1] 1)
+Signature
+  ↳ (concat dst src)
+Arguments
+  → `dst' (expected List) ✓
+  → variadic `src' (expected List): 1 argument do not match:
+    1 (Number) ×
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/apply_concat_list_num.ark:1
+    1 | (apply concat [[1] 1])
+      | ^~~~~~~~~~~~~~~~~~~~~
+    2 |

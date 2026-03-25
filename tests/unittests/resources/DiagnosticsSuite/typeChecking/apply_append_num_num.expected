@@ -1,0 +1,13 @@
+Function append expected at least 2 arguments and got 2
+Call
+  ↳ (append 1 2)
+Signature
+  ↳ (append list value)
+Arguments
+  → `list' (expected List), got 1 (Number)
+  → variadic `value' (expected any)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/apply_append_num_num.ark:1
+    1 | (apply append [1 2])
+      | ^~~~~~~~~~~~~~~~~~~
+    2 |

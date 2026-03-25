@@ -163,6 +163,9 @@ namespace Ark::internal::Builtins
         ARK_BUILTIN(at);
         ARK_BUILTIN(atAt);
         ARK_BUILTIN(type);
+        ARK_BUILTIN(append_list);
+        ARK_BUILTIN(concat_list);
+        ARK_BUILTIN(pop_list);
     }
 }
 

@@ -190,4 +190,18 @@
     (test:eq (apply type [1]) (type 1))
     (test:eq (apply type [1]) "Number")
     (test:eq (apply type [nil]) (type nil))
-    (test:eq (apply type [nil]) "Nil") })})
+    (test:eq (apply type [nil]) "Nil") })
+
+  (test:case "append" {
+    (test:eq (apply append [[] 1]) [1])
+    (test:eq (apply append [[] 1 2]) [1 2])
+    (test:eq (apply append [[] 1 2 3]) [1 2 3]) })
+
+  (test:case "concat" {
+    (test:eq (apply concat [[] [1]]) [1])
+    (test:eq (apply concat [[] [1] [2 3]]) [1 2 3])
+    (test:eq (apply concat [[] [1] [2 3] [] [4 5 6]]) [1 2 3 4 5 6]) })
+
+  (test:case "pop" {
+    (test:eq (apply pop [[1 2] 0]) [2])
+    (test:eq (apply pop [[1] 0]) []) }) })

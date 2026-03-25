@@ -320,6 +320,10 @@ namespace Ark::internal
 
         if (const auto it_builtin = getBuiltin(name))
             page(p).emplace_back(Instruction::BUILTIN, it_builtin.value());
+        else if (std::ranges::find(Language::UpdateRef, name) != Language::UpdateRef.end())
+            buildAndThrowError(fmt::format("`{}' updates a list in-place, and can not be used as a value. Prefer using their copy alternative (without the `!` at the end) when possible", name), x);
+        else if (name == Language::And || name == Language::Or)
+            buildAndThrowError(fmt::format("`{}' can not be used as a value like `+', where (let add +) (add 1 2) would be valid", name), x);
         else if (getOperator(name).has_value())
             buildAndThrowError(fmt::format("Found a freestanding operator: `{}`. It can not be used as value like `+', where (let add +) (add 1 2) would be valid", name), x);
         else

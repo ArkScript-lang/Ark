@@ -134,6 +134,9 @@ namespace Ark::internal::Builtins
         { "head", Value(Operators::head) },
         { "@", Value(Operators::at) },
         { "@@", Value(Operators::atAt) },
-        { "type", Value(Operators::type) }
+        { "type", Value(Operators::type) },
+        { "append", Value(Operators::append_list) },
+        { "concat", Value(Operators::concat_list) },
+        { "pop", Value(Operators::pop_list) }
     };
 }

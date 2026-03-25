@@ -374,4 +374,70 @@ namespace Ark::internal::Builtins::Operators
 
         return Value(std::to_string(n[0].valueType()));
     }
+
+    // cppcheck-suppress constParameterReference
+    Value append_list(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (n.size() < 2 || n[0].valueType() != ValueType::List)
+            throw types::TypeCheckingError(
+                "append",
+                { { types::Contract {
+                    { types::Typedef("list", ValueType::List),
+                      types::Typedef("value", ValueType::Any, /* is_variadic= */ true) } } } },
+                n);
+
+        for (Value& e : n | std::ranges::views::drop(1))
+            n[0].list().push_back(e);
+
+        return n[0];
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value concat_list(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (n.size() < 2 || n[0].valueType() != ValueType::List)
+            throw types::TypeCheckingError(
+                "concat",
+                { { types::Contract {
+                    { types::Typedef("list", ValueType::List),
+                      types::Typedef("value", ValueType::List, /* is_variadic= */ true) } } } },
+                n);
+
+        for (Value& e : n | std::ranges::views::drop(1))
+        {
+            if (e.valueType() != ValueType::List)
+                throw types::TypeCheckingError(
+                    "concat",
+                    { { types::Contract {
+                        { types::Typedef("dst", ValueType::List),
+                          types::Typedef("src", ValueType::List, /* is_variadic= */ true) } } } },
+                    n);
+
+            std::ranges::copy(e.list(), std::back_inserter(n[0].list()));
+        }
+
+        return n[0];
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value pop_list(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::List, ValueType::Number))
+            throw types::TypeCheckingError(
+                "pop",
+                { { types::Contract {
+                    { types::Typedef("list", ValueType::List),
+                      types::Typedef("index", ValueType::Number) } } } },
+                n);
+
+        long idx = static_cast<long>(n[1].number());
+        idx = idx < 0 ? static_cast<long>(n[0].list().size()) + idx : idx;
+        if (std::cmp_greater_equal(idx, n[0].list().size()) || idx < 0)
+            VM::throwVMError(
+                ErrorKind::Index,
+                fmt::format("pop index ({}) out of range (list size: {})", idx, n[0].list().size()));
+
+        n[0].list().erase(n[0].list().begin() + idx);
+        return n[0];
+    }
 }

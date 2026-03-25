@@ -1,0 +1,13 @@
+Function concat expected at least 2 arguments but got 1
+Call
+  ↳ (concat [1])
+Signature
+  ↳ (concat list value)
+Arguments
+  → `list' (expected List) ✓
+  → variadic `value' (expected List) was not provided
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/apply_concat_list.ark:1
+    1 | (apply concat [[1]])
+      | ^~~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,3 @@
+(let a pop!)
+(mut b [])
+(a b 5)

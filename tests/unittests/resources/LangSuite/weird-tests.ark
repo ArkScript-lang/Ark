@@ -15,7 +15,7 @@
 
   (test:case "list:map with let" {
     (mut output [])
-    (list:map (let a [0 1]) f1)
+    (list:map (let z [0 1]) f1)
     (test:eq output [0 1]) })
 
   (test:case "(Q ((let Q f1) 0))" {
@@ -63,4 +63,17 @@
       (or false (if 0 0))
       b }))
 
-    (test:eq (g 1 2) 2) }) })
+    (test:eq (g 1 2) 2) })
+
+  (test:case "append, concat, pop as values" {
+    (let data [1 2 3])
+    (let a append)
+    (let c concat)
+    (let p pop)
+
+    (test:eq (type a) "CProc")
+    (test:eq (type c) "CProc")
+    (test:eq (type p) "CProc")
+    (test:eq (a data 4) [1 2 3 4])
+    (test:eq (c data [4 5]) [1 2 3 4 5])
+    (test:eq (p data 1) [1 3]) }) })
