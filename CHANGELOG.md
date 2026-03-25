@@ -7,9 +7,11 @@
 
 ### Added
 - added new macro `$gensym`, to generate a unique symbol identifier to use in macros
+- `append`, `concat`, and `pop` can be use as values
 
 ### Changed
 - all paths inside `if` should return a value, when used as an expression. If an `else` branch is missing, `nil` will be returned
+- new compile time error when trying to use `append!`, `concat!`, `pop!`, `@=` and `@@=` as values
 
 ### Removed
 

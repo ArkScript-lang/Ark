@@ -1,0 +1,6 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/let_a_pop_in_place.ark:1
+    1 | (let a pop!)
+      |        ^~~~
+    2 | (mut b [])
+    3 | (a b 5)
+        `pop!' updates a list in-place, and can not be used as a value. Prefer using their copy alternative (without the `!` at the end) when possible

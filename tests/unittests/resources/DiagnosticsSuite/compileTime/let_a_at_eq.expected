@@ -1,0 +1,6 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/let_a_at_eq.ark:1
+    1 | (let a @=)
+      |        ^~
+    2 | (mut b [])
+    3 | (a b 5 6)
+        `@=' updates a list in-place, and can not be used as a value. Prefer using their copy alternative (without the `!` at the end) when possible

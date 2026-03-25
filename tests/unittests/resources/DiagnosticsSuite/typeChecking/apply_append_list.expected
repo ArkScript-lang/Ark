@@ -1,0 +1,13 @@
+Function append expected at least 2 arguments but got 1
+Call
+  ↳ (append [1])
+Signature
+  ↳ (append list value)
+Arguments
+  → `list' (expected List) ✓
+  → variadic `value' (expected any) was not provided
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/apply_append_list.ark:1
+    1 | (apply append [[1]])
+      | ^~~~~~~~~~~~~~~~~~~
+    2 |

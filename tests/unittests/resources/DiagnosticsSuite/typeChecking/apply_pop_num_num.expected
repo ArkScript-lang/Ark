@@ -1,0 +1,13 @@
+Function pop expected 2 arguments
+Call
+  ↳ (pop 1 1)
+Signature
+  ↳ (pop list index)
+Arguments
+  → `list' (expected List), got 1 (Number)
+  → `index' (expected Number) ✓
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/apply_pop_num_num.ark:1
+    1 | (apply pop [1 1])
+      | ^~~~~~~~~~~~~~~~
+    2 |
