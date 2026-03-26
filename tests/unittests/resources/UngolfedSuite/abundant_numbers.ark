@@ -1,0 +1,8 @@
+(import std.List)
+(import std.Math)
+
+(list:map
+  (list:iota 1 1000)
+  (fun (n)
+    (if (> (list:sum (pop (math:divs n) -1)) n)
+      n)))

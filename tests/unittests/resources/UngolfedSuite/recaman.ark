@@ -1,0 +1,14 @@
+(import std.List)
+
+(mut nums [0])
+
+(list:map
+  (list:iota 0 250)
+  (fun (n) {
+    (let r (- (@ nums -1) n))
+    (append!
+      nums
+      (if (and (> r 0) (< (list:find nums r) 0))
+        r
+        (+ (@ nums -1) n)))
+    (@ nums -1) }))

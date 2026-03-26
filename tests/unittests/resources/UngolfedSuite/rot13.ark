@@ -1,0 +1,18 @@
+(import std.String)
+(import std.List)
+
+(let f (fun (c) {
+  (mut n (string:ord c))
+
+  (if (and (< 96 n) (< n 123))
+    (string:chr (+ (mod (- n 97 -13) 26) 97))
+    (if (and (< 64 n) (< n 91))
+      (string:chr (+ (mod (- n 65 -13) 26) 65))
+      c)) }))
+
+(let data [
+  "JhU |jIU_[$7DlFxP3[f@P$G3:+hb?*;}PN7k:SdksO0ts^tM"
+  "6^HMLB4*PvJ/&/daJ[6_$>T4| '<d8I0?BNvb!,eAaF3aT#)|OLBtx[Kg`ohK-]i$:;e7W9?j3U}cBE)ub36pQ/DV6=~h"
+  "r01vhc|3mead^=emB~Q OL' Lg~@'3H3A6eu9/7 rg-7}U Q':XLqQ+@EE:IeEUs 2.I&-co``#Sb:C0vTR<iH2S2WtpwR%o>Y" ])
+
+(list:map data (fun (a) (print (string:join (list:map a f) ""))))

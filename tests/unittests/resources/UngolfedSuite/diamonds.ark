@@ -1,0 +1,17 @@
+(import std.List)
+(import std.String)
+
+(list:map
+  (list:iota 1 9)
+  (fun (x) {
+    (list:map
+      (list:iota 1 (- (let m (* 2 x)) 1))
+      (fun (y)
+        ((fun (x) {
+          (let d (list:iota 1 x))
+          (let r (list:reverse (pop d -1)))
+          (print (format "{:>10}{}" (string:join d "") (string:join r ""))) })
+          (if (<= y x)
+            y
+            (- m y)))))
+    (print "") }))

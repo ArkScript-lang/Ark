@@ -3,6 +3,7 @@
 import os
 import sys
 import glob
+import math
 from itertools import islice, tee
 
 super_insts = [
@@ -75,10 +76,14 @@ ir = []
 
 rosetta = glob.glob("tests/unittests/resources/RosettaSuite/*.ark")
 examples = glob.glob("examples/*.ark")
-for file in rosetta + examples + [
+golf = glob.glob("tests/unittests/resources/UngolfedSuite/*.ark")
+
+files = rosetta + examples + golf + [
     "tests/unittests/resources/LangSuite/unittests.ark",
     "lib/std/tests/all.ark"
-]:
+]
+
+for file in files:
     os.system(f"{executable} -c {file} -fdump-ir --lib './lib/;./tests/unittests/'")
 
     d = os.path.dirname(file)
@@ -149,7 +154,9 @@ def print_most_freqs(data, max_percent=10):
     most = sorted(data.items(), key=lambda e: e[1], reverse=True)
     interesting = most[:(len(most) * max_percent) // 100]
     if compute_super_insts_usage:
-        threshold = 10
+        super_insts_used_count = sum(x for (_, x) in most)
+        # 0.1% of the global super inst usage should be our threshold
+        threshold = max(math.ceil(0.1 * (super_insts_used_count / 100)), 10)
         over, under = [(x, c) for (x, c) in most if c > threshold], [(x, c) for (x, c) in most if c <= threshold]
 
         if under:

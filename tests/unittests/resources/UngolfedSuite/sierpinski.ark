@@ -1,0 +1,12 @@
+(import std.Prelude)
+
+(mut data ["▲"])
+(mut i 0)
+
+(while (> 4 i) {
+  (let spaces (string:repeat " " (math:pow 2 i)))
+  (let e (list:map data (fun (l) (+ l " " l))))
+  (set data (concat (list:map data (fun (line) (+ spaces line spaces))) e))
+  (++ i) })
+
+(puts (format "{:nl}" data))

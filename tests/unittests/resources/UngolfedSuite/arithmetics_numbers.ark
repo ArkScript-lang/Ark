@@ -1,0 +1,9 @@
+(import std.List)
+(import std.Math)
+
+(list:map
+  (list:iota 1 1000)
+  (fun (n) {
+    (let d (math:divs n))
+    (if (math:integer? (/ (list:sum d) (len d)))
+      n) }))

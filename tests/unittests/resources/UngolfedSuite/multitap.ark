@@ -1,0 +1,28 @@
+(import std.List)
+(import std.String)
+
+(let l [0 3 6 9 12 15 19 22 -33 0])
+(let data [
+  "44466833 777 337777806667 33660 22266688 5553"
+  "58877778 0999933 777666087772444660666733 660 4884443 33 555 44466 33 0933"
+  "8870 6 6667777802555 5550333 339 022 88 80833555 5550 7777 4466688 555 3" ])
+
+(list:map
+  (list:map data (fun (s) (string:split s " ")))
+  (fun (e) {
+    (list:map
+      (list:flatMap
+        e
+        (fun ((mut p)) {
+          (mut o [])
+          (mut i 0)
+          (let l (len p))
+          (while (< i l) {
+            (append! o (list:takeWhile p (fun (c) (= c (head p)))))
+            (set p (list:drop p (len (@ o -1))))
+            (set i (+ (len (@ o -1)) i)) })
+          (if (= p [])
+            o
+            (append o p)) }))
+      (fun (p) (puts (string:chr (+ 64 (len p) (@ l (- (toNumber (head p)) 2)))))))
+    (print "") }))

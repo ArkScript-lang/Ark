@@ -1,0 +1,19 @@
+(import std.List)
+
+(mut N 1009)
+(mut a (concat [0] (list:fill N 1)))
+(mut x 0)
+
+(while (< 9 N) {
+  (mut n
+    (set N (- N 1)))
+
+  (while n {
+    (@= a n (mod x n))
+    (set x (+ (* (@ a (- n 1)) 10) (/ (- x (@ a n)) n)))
+    (set n (- n 1)) })
+
+  (puts
+    (if (= 17 x)
+      "2.7"
+      x)) })

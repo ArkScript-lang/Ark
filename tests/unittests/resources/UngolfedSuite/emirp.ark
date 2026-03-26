@@ -1,0 +1,13 @@
+(import std.Prelude)
+
+(mut sols [])
+
+(let f (fun (n) {
+  (let x (toNumber (string:reverse (toString n))))
+  (if (and (math:prime? n) (math:prime? x))
+    (append! sols n))
+
+  (if (< n 1000)
+    (f (+ 1 n))) }))
+
+(f 1)

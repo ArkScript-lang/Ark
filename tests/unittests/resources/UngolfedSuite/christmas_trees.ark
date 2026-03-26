@@ -1,0 +1,9 @@
+(import std.String)
+(import std.List)
+
+(list:map
+  (list:iota 3 7)
+  (fun (s) {
+    (let d (+ " {:^" (toString (- (* 2 s) 1)) "}"))
+    (list:map (list:iota 1 s) (fun (x) (print (format d (string:repeat "*" (- (* 2 x) 1))))))
+    (print (format d "*") "\n") }))

@@ -1,0 +1,35 @@
+(import std.Prelude)
+
+(let data [
+  "OX.\nOXX\n.XO"
+  "O.X\nXOX\nO.X"
+  "..X\nXXO\nXOO" ])
+
+(list:map
+  data
+  (fun (array) {
+    (let grid [
+      (@ array 0) (@ array 1) (@ array 2)
+      (@ array 4) (@ array 5) (@ array 6)
+      (@ array 8) (@ array 9) (@ array 10) ])
+
+    (let line (fun (i step)
+      (if (and (= (@ grid i) (@ grid (+ i step))) (= (@ grid i) (@ grid (+ i step step))) (!= "." (@ grid i)))
+        (@ grid i)
+        nil)))
+
+    (let winner
+      (head
+        (list:filter
+          [
+            # horizontal
+            (line 0 1) (line 3 1) (line 6 1)
+            # vertical
+            (line 0 3) (line 1 3) (line 2 3)
+            # diagonals
+            (line 0 4) (line 2 2) ]
+          (fun (x) (not (nil? x))))))
+
+    (if (nil? winner)
+      (print "-")
+      (print winner)) }))
