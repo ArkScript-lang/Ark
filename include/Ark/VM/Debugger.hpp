@@ -108,7 +108,7 @@ namespace Ark::internal
         struct Command
         {
             using Match_t = std::function<bool(const std::string&)>;
-            using Action_t = std::function<void(const std::string&, VM&, ExecutionContext&)>;
+            using Action_t = std::function<bool(const std::string&, VM&, ExecutionContext&)>;
 
             bool is_exact;
             std::string exact_name;

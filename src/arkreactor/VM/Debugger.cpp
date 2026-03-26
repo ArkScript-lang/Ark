@@ -138,23 +138,27 @@ namespace Ark::internal
                 "c",
                 [this](const std::string&, VM&, ExecutionContext&) {
                     fmt::println(m_os, "dbg: continue");
+                    return true;
                 }),
             Command(
                 "continue",
                 [this](const std::string&, VM&, ExecutionContext&) {
                     fmt::println(m_os, "dbg: continue");
+                    return true;
                 }),
             Command(
                 "q",
                 [this](const std::string&, VM&, ExecutionContext&) {
                     fmt::println(m_os, "dbg: stop");
                     m_quit_vm = true;
+                    return true;
                 }),
             Command(
                 "quit",
                 [this](const std::string&, VM&, ExecutionContext&) {
                     fmt::println(m_os, "dbg: stop");
                     m_quit_vm = true;
+                    return true;
                 }),
             Command(
                 [](const std::string& line) {
@@ -163,6 +167,7 @@ namespace Ark::internal
                 [this](const std::string& line, VM& vm, ExecutionContext& ctx) {
                     if (const auto arg = getArgAndParseOrError("stack", line, /* default_value= */ 5))
                         showStack(vm, ctx, arg.value());
+                    return false;
                 }),
             Command(
                 [](const std::string& line) {
@@ -171,6 +176,7 @@ namespace Ark::internal
                 [this](const std::string& line, VM& vm, ExecutionContext& ctx) {
                     if (const auto arg = getArgAndParseOrError("locals", line, /* default_value= */ 5))
                         showLocals(vm, ctx, arg.value());
+                    return false;
                 }),
             Command(
                 "help",
@@ -181,6 +187,7 @@ namespace Ark::internal
                     fmt::println(m_os, "  q, quit -- quit the debugger, stopping the script execution");
                     fmt::println(m_os, "  stack <n=5> -- show the last n values on the stack");
                     fmt::println(m_os, "  locals <n=5> -- show the last n values on the locals' stack");
+                    return false;
                 }),
         };
     }
@@ -360,8 +367,8 @@ namespace Ark::internal
 
             if (const auto& maybe_cmd = matchCommand(line))
             {
-                maybe_cmd->action(line, vm, context);
-                return std::nullopt;
+                if (maybe_cmd->action(line, vm, context))
+                    return std::nullopt;
             }
             else
             {
