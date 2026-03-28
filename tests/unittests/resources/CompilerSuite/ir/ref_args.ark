@@ -1,0 +1,14 @@
+# in tail calls, we need all arguments to be loaded by value and not by ref
+# otherwise they get mixed up and bad things happen
+
+(let f (fun (a b)
+  (f b (- a 1))))
+(f 9 9)
+
+(let g (fun (a b)
+  (g { b } (- a 1))))
+(g 9 9)
+
+(let h (fun (a b)
+  (h (or 0 b) (- a 1))))
+(h 9 9)

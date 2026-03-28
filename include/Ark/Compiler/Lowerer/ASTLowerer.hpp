@@ -255,20 +255,21 @@ namespace Ark::internal
          * @param p the current page number we're on
          * @param is_result_unused
          * @param is_terminal
+         * @param can_use_ref
          */
-        void compileExpression(Node& x, Page p, bool is_result_unused, bool is_terminal);
+        void compileExpression(Node& x, Page p, bool is_result_unused, bool is_terminal, bool can_use_ref);
 
         void compileSymbol(const Node& x, Page p, bool is_result_unused, bool can_use_ref);
         void compileListInstruction(Node& x, Page p, bool is_result_unused);
         void compileApplyInstruction(Node& x, Page p, bool is_result_unused);
-        void compileIf(Node& x, Page p, bool is_result_unused, bool is_terminal);
+        void compileIf(Node& x, Page p, bool is_result_unused, bool is_terminal, bool can_use_ref);
         void compileFunction(Node& x, Page p, bool is_result_unused);
         void compileLetMutSet(Keyword n, Node& x, Page p, bool is_result_unused);
         void compileWhile(Node& x, Page p);
         void compilePluginImport(const Node& x, Page p);
         void pushFunctionCallArguments(Node& call, Page p, bool is_tail_call);
-        void handleCalls(Node& x, Page p, bool is_result_unused, bool is_terminal);
-        void handleShortcircuit(Node& x, Page p);
+        void handleCalls(Node& x, Page p, bool is_result_unused, bool is_terminal, bool can_use_ref);
+        void handleShortcircuit(Node& x, Page p, bool can_use_ref);
         void handleOperator(Node& x, Page p, Instruction op);
         bool handleFunctionCall(Node& x, Page p, bool is_terminal);
 
