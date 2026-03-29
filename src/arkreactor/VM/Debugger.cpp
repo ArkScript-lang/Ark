@@ -135,44 +135,48 @@ namespace Ark::internal
     {
         m_commands = {
             Command(
-                "c",
+                "help",
+                "display this message",
+                [this](const std::string&, const CommandArgs&) {
+                    fmt::println(m_os, "Available commands:");
+                    for (const Command& cmd : m_commands)
+                    {
+                        if (cmd.is_exact)
+                            fmt::println(m_os, "  {} -- {}", fmt::join(cmd.names, ", "), cmd.description);
+                        else
+                            // todo: make arguments description configurable
+                            fmt::println(m_os, "  {} <n=5> -- {}", fmt::join(cmd.names, ", "), cmd.description);
+                    }
+                    return false;
+                }),
+            Command(
+                { "c", "continue" },
+                "resume execution",
                 [this](const std::string&, const CommandArgs&) {
                     fmt::println(m_os, "dbg: continue");
                     return true;
                 }),
             Command(
-                "continue",
-                [this](const std::string&, const CommandArgs&) {
-                    fmt::println(m_os, "dbg: continue");
-                    return true;
-                }),
-            Command(
-                "q",
+                { "q", "quit" },
+                "quit the debugger, stopping the script execution",
                 [this](const std::string&, const CommandArgs&) {
                     fmt::println(m_os, "dbg: stop");
                     m_quit_vm = true;
                     return true;
                 }),
             Command(
-                "quit",
-                [this](const std::string&, const CommandArgs&) {
-                    fmt::println(m_os, "dbg: stop");
-                    m_quit_vm = true;
-                    return true;
-                }),
-            Command(
-                [](const std::string& line) {
-                    return line.starts_with("stack");
-                },
+                StartsWith,
+                "stack",
+                "show the last n values on the stack",
                 [this](const std::string& line, const CommandArgs& args) {
                     if (const auto arg = getArgAndParseOrError("stack", line, /* default_value= */ 5))
                         showStack(*args.vm_ptr, *args.ctx_ptr, arg.value());
                     return false;
                 }),
             Command(
-                [](const std::string& line) {
-                    return line.starts_with("locals");
-                },
+                StartsWith,
+                "locals",
+                "show the last n values on the locals' stack",
                 [this](const std::string& line, const CommandArgs& args) {
                     if (const auto arg = getArgAndParseOrError("locals", line, /* default_value= */ 5))
                         showLocals(*args.vm_ptr, *args.ctx_ptr, arg.value());
@@ -180,6 +184,7 @@ namespace Ark::internal
                 }),
             Command(
                 "ptr",
+                "show the values of the VM pointers",
                 [this](const std::string&, const CommandArgs& args) {
                     fmt::println(
                         m_os,
@@ -187,18 +192,6 @@ namespace Ark::internal
                         fmt::styled(args.ip / 4, m_colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()),
                         fmt::styled(args.pp, m_colorize ? fmt::fg(fmt::color::green) : fmt::text_style()),
                         fmt::styled(args.ctx_ptr->sp, m_colorize ? fmt::fg(fmt::color::yellow) : fmt::text_style()));
-                    return false;
-                }),
-            Command(
-                "help",
-                [this](const std::string&, const CommandArgs&) {
-                    fmt::println(m_os, "Available commands:");
-                    fmt::println(m_os, "  help -- display this message");
-                    fmt::println(m_os, "  c, continue -- resume execution");
-                    fmt::println(m_os, "  q, quit -- quit the debugger, stopping the script execution");
-                    fmt::println(m_os, "  stack <n=5> -- show the last n values on the stack");
-                    fmt::println(m_os, "  locals <n=5> -- show the last n values on the locals' stack");
-                    fmt::println(m_os, "  ptr -- show the values of the VM pointers");
                     return false;
                 }),
         };
@@ -210,12 +203,14 @@ namespace Ark::internal
         {
             if (c.is_exact)
             {
-                if (c.exact_name == line)
+                if (std::ranges::find(c.names, line) != c.names.end())
                     return c;
             }
             else
             {
-                if (c.matcher(line))
+                if (std::ranges::find_if(c.names, [&line](const std::string& name) -> bool {
+                        return line.starts_with(name);
+                    }) != c.names.end())
                     return c;
             }
         }

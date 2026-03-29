@@ -7,7 +7,8 @@
 
 ### Added
 - added new macro `$gensym`, to generate a unique symbol identifier to use in macros
-- `append`, `concat`, and `pop` can be use as values
+- `append`, `concat`, and `pop` can be used as values
+- new `ptr` command for the debugger, printing the VM pointers (ip, pp, sp)
 
 ### Changed
 - all paths inside `if` should return a value, when used as an expression. If an `else` branch is missing, `nil` will be returned

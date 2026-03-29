@@ -112,22 +112,29 @@ namespace Ark::internal
             std::size_t ip, pp;
         };
 
+        struct StartsWith_t
+        {
+        } StartsWith;
+
         struct Command
         {
-            using Match_t = std::function<bool(const std::string&)>;
             using Action_t = std::function<bool(const std::string&, const CommandArgs&)>;
 
             bool is_exact;
-            std::string exact_name;
-            Match_t matcher;
+            std::vector<std::string> names;
+            std::string description;
             Action_t action;
 
-            Command(std::string name, Action_t&& do_this) :
-                is_exact(true), exact_name(std::move(name)), matcher(nullptr), action(do_this)
+            Command(std::string name, std::string desc, Action_t&& do_this) :
+                is_exact(true), names({ std::move(name) }), description(std::move(desc)), action(do_this)
             {}
 
-            Command(Match_t&& cond, Action_t&& do_this) :
-                is_exact(false), matcher(std::move(cond)), action(std::move(do_this))
+            Command(const std::initializer_list<std::string> list_of_names, std::string desc, Action_t&& do_this) :
+                is_exact(true), names(list_of_names), description(std::move(desc)), action(do_this)
+            {}
+
+            Command(StartsWith_t, std::string start, std::string desc, Action_t&& do_this) :
+                is_exact(false), names({ std::move(start) }), description(std::move(desc)), action(std::move(do_this))
             {}
         };
 
