@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="dbg a.ark" type="CMakeRunConfiguration" factoryName="Application"
+                   folderName="arkscript" PROGRAM_PARAMS="-fdump-ir -fdebugger a.ark" REDIRECT_INPUT="false"
+                   ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false"
+                   WORKING_DIR="file://$PROJECT_DIR$" PASS_PARENT_ENVS_2="true" PROJECT_NAME="ark"
+                   TARGET_NAME="arkscript" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="ark"
+                   RUN_TARGET_NAME="arkscript">
+        <envs>
+            <env name="MallocNanoZone" value="0"/>
+        </envs>
+        <method v="2">
+            <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask"
+                    enabled="true"/>
+        </method>
+    </configuration>
+</component>
