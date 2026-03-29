@@ -94,9 +94,14 @@ std::string sanitizeOutput(const std::string& output)
     // remove the directory prefix so that we are environment agnostic
     while (diag.find(ARK_TESTS_ROOT) != std::string::npos)
         diag.erase(diag.find(ARK_TESTS_ROOT), std::size(ARK_TESTS_ROOT) - 1);
-    Ark::Utils::ltrim(Ark::Utils::rtrim(diag));
+
+    auto lines = Ark::Utils::splitString(diag, '\n');
+    diag = "";
+    for (std::string& line : lines)
+        diag += Ark::Utils::rtrim(line) + "\n";
+
     // we most likely have a blank line at the end now
-    Ark::Utils::rtrim(diag);
+    Ark::Utils::ltrim(Ark::Utils::rtrim(diag));
 
     return diag;
 }

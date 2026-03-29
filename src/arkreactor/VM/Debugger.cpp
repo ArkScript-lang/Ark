@@ -136,26 +136,26 @@ namespace Ark::internal
         m_commands = {
             Command(
                 "c",
-                [this](const std::string&, VM&, ExecutionContext&) {
+                [this](const std::string&, const CommandArgs&) {
                     fmt::println(m_os, "dbg: continue");
                     return true;
                 }),
             Command(
                 "continue",
-                [this](const std::string&, VM&, ExecutionContext&) {
+                [this](const std::string&, const CommandArgs&) {
                     fmt::println(m_os, "dbg: continue");
                     return true;
                 }),
             Command(
                 "q",
-                [this](const std::string&, VM&, ExecutionContext&) {
+                [this](const std::string&, const CommandArgs&) {
                     fmt::println(m_os, "dbg: stop");
                     m_quit_vm = true;
                     return true;
                 }),
             Command(
                 "quit",
-                [this](const std::string&, VM&, ExecutionContext&) {
+                [this](const std::string&, const CommandArgs&) {
                     fmt::println(m_os, "dbg: stop");
                     m_quit_vm = true;
                     return true;
@@ -164,29 +164,41 @@ namespace Ark::internal
                 [](const std::string& line) {
                     return line.starts_with("stack");
                 },
-                [this](const std::string& line, VM& vm, ExecutionContext& ctx) {
+                [this](const std::string& line, const CommandArgs& args) {
                     if (const auto arg = getArgAndParseOrError("stack", line, /* default_value= */ 5))
-                        showStack(vm, ctx, arg.value());
+                        showStack(*args.vm_ptr, *args.ctx_ptr, arg.value());
                     return false;
                 }),
             Command(
                 [](const std::string& line) {
                     return line.starts_with("locals");
                 },
-                [this](const std::string& line, VM& vm, ExecutionContext& ctx) {
+                [this](const std::string& line, const CommandArgs& args) {
                     if (const auto arg = getArgAndParseOrError("locals", line, /* default_value= */ 5))
-                        showLocals(vm, ctx, arg.value());
+                        showLocals(*args.vm_ptr, *args.ctx_ptr, arg.value());
+                    return false;
+                }),
+            Command(
+                "ptr",
+                [this](const std::string&, const CommandArgs& args) {
+                    fmt::println(
+                        m_os,
+                        "IP: {} - PP: {} - SP: {}",
+                        fmt::styled(args.ip / 4, m_colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()),
+                        fmt::styled(args.pp, m_colorize ? fmt::fg(fmt::color::green) : fmt::text_style()),
+                        fmt::styled(args.ctx_ptr->sp, m_colorize ? fmt::fg(fmt::color::yellow) : fmt::text_style()));
                     return false;
                 }),
             Command(
                 "help",
-                [this](const std::string&, VM&, ExecutionContext&) {
+                [this](const std::string&, const CommandArgs&) {
                     fmt::println(m_os, "Available commands:");
                     fmt::println(m_os, "  help -- display this message");
                     fmt::println(m_os, "  c, continue -- resume execution");
                     fmt::println(m_os, "  q, quit -- quit the debugger, stopping the script execution");
                     fmt::println(m_os, "  stack <n=5> -- show the last n values on the stack");
                     fmt::println(m_os, "  locals <n=5> -- show the last n values on the locals' stack");
+                    fmt::println(m_os, "  ptr -- show the values of the VM pointers");
                     return false;
                 }),
         };
@@ -359,7 +371,7 @@ namespace Ark::internal
 
             Utils::trimWhitespace(line);
 
-            if (line.empty())
+            if (line.empty() && !unfinished_block)
             {
                 fmt::println(m_os, "dbg: continue");
                 return std::nullopt;
@@ -367,12 +379,12 @@ namespace Ark::internal
 
             if (const auto& maybe_cmd = matchCommand(line))
             {
-                if (maybe_cmd->action(line, vm, context))
+                if (maybe_cmd->action(line, CommandArgs { .vm_ptr = &vm, .ctx_ptr = &context, .ip = ip, .pp = pp }))
                     return std::nullopt;
             }
             else
             {
-                code += line;
+                code += line + "\n";
 
                 open_parens += Utils::countOpenEnclosures(line, '(', ')');
                 open_braces += Utils::countOpenEnclosures(line, '{', '}');
