@@ -6,10 +6,14 @@ In file tests/unittests/resources/DebuggerSuite/basic.ark:3
     4 | (prn (format "ark: after first breakpoint, a={}, b={}" a b))
     5 |
 
-dbg[pp:0,ip:3]:000> (let c (+ a b))
-dbg[pp:0,ip:3]:001> (prn c)
+dbg[pp:0,ip:3]:000> (let c
+dbg[pp:0,ip:3]:001: (+
+dbg[pp:0,ip:3]:002: a
+dbg[pp:0,ip:3]:003:
+dbg[pp:0,ip:3]:004: b))
+dbg[pp:0,ip:3]:005> (prn c)
 11
-dbg[pp:0,ip:3]:002> c
+dbg[pp:0,ip:3]:006> c
 dbg: continue
 ark: after first breakpoint, a=5, b=6
 
@@ -31,6 +35,7 @@ Available commands:
   q, quit -- quit the debugger, stopping the script execution
   stack <n=5> -- show the last n values on the stack
   locals <n=5> -- show the last n values on the locals' stack
+  ptr -- show the values of the VM pointers
 dbg[pp:1,ip:5]:001> continue
 dbg: continue
 ark: in (foo x y z), after second breakpoint

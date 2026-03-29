@@ -105,10 +105,17 @@ namespace Ark::internal
         }
 
     private:
+        struct CommandArgs
+        {
+            VM* vm_ptr;
+            ExecutionContext* ctx_ptr;
+            std::size_t ip, pp;
+        };
+
         struct Command
         {
             using Match_t = std::function<bool(const std::string&)>;
-            using Action_t = std::function<bool(const std::string&, VM&, ExecutionContext&)>;
+            using Action_t = std::function<bool(const std::string&, const CommandArgs&)>;
 
             bool is_exact;
             std::string exact_name;

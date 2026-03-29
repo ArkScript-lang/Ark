@@ -1,4 +1,8 @@
-(let c (+ a b))
+(let c
+(+
+a
+
+b))
 (prn c)
 c
 (prn x y z)

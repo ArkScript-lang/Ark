@@ -226,16 +226,7 @@ namespace Ark::internal::Builtins::String
             else if (it->valueType() == ValueType::False)
                 store.push_back("false");
             else if (it->valueType() == ValueType::List)
-            {
-                // std::vector<value_wrapper> r;
-                // std::ranges::transform(
-                //     it->list(),
-                //     std::back_inserter(r),
-                //     [&vm](const Value& val) -> value_wrapper {
-                //         return value_wrapper { val, vm };
-                //     });
                 store.push_back(value_wrapper { *it, vm });
-            }
             else
                 store.push_back(it->toString(*vm));
         }

@@ -7,6 +7,8 @@ In file tests/unittests/resources/DebuggerSuite/stack_and_locals.ark:8
     9 | (prn (f 1 2))
    10 |
 
+dbg[pp:0,ip:2]:000> ptr
+IP: 2 - PP: 0 - SP: 0
 dbg[pp:0,ip:2]:000> stack
 Stack is empty
 
