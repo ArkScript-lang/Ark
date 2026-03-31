@@ -56,7 +56,7 @@ namespace Ark::internal
         });
         std::ranges::transform(Language::operators, std::back_inserter(output), [](const auto& string_view) {
             auto safe_op = std::string(string_view);
-            if (const auto it = safe_op.find_first_of(R"(-+=/*<>[]()?")"); it != std::string::npos)
+            if (const auto it = safe_op.find_first_of(R"(-+*=/<>[]()?")"); it != std::string::npos)
                 safe_op.insert(it, "\\");
             return std::make_pair(safe_op, Replxx::Color::BRIGHTBLUE);
         });
@@ -68,7 +68,7 @@ namespace Ark::internal
             }),
             std::back_inserter(output), [](const auto& string) {
                 auto safe_op = string;
-                if (const auto it = safe_op.find_first_of(R"(-+=/*<>[]()?")"); it != std::string::npos)
+                if (const auto it = safe_op.find_first_of(R"(-+*=/<>[]()?")"); it != std::string::npos)
                     safe_op.insert(it, "\\");
                 return std::make_pair(safe_op, Replxx::Color::GREEN);
             });

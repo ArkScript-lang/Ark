@@ -2,6 +2,8 @@
 
 ## [Unreleased changes] - 2026-MM-DD
 ### Breaking changes
+- removed `list:permutationsWithReplacement` (deprecated in 4.4.0)
+- `list:permutations` now produces real permutations and not combinations (deprecated in 4.4.0)
 
 ### Deprecations
 
@@ -9,10 +11,12 @@
 - added new macro `$gensym`, to generate a unique symbol identifier to use in macros
 - `append`, `concat`, and `pop` can be used as values
 - new `ptr` command for the debugger, printing the VM pointers (ip, pp, sp)
+- compile time arity check when performing a tail call
 
 ### Changed
 - all paths inside `if` should return a value, when used as an expression. If an `else` branch is missing, `nil` will be returned
 - new compile time error when trying to use `append!`, `concat!`, `pop!`, `@=` and `@@=` as values
+- arguments in tail calls are loaded by value and not by reference
 
 ### Removed
 
