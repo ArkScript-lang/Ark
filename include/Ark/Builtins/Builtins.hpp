@@ -78,6 +78,7 @@ namespace Ark::internal::Builtins
         ARK_BUILTIN(format);
         ARK_BUILTIN(findSubStr);
         ARK_BUILTIN(removeAtStr);
+        ARK_BUILTIN(utf8len);
         ARK_BUILTIN(ord);
         ARK_BUILTIN(chr);
         ARK_BUILTIN(setStringAt);

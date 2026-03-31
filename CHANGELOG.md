@@ -12,11 +12,13 @@
 - `append`, `concat`, and `pop` can be used as values
 - new `ptr` command for the debugger, printing the VM pointers (ip, pp, sp)
 - compile time arity check when performing a tail call
+- `string:utf8len` to compute the number of codepoints in a string
 
 ### Changed
 - all paths inside `if` should return a value, when used as an expression. If an `else` branch is missing, `nil` will be returned
 - new compile time error when trying to use `append!`, `concat!`, `pop!`, `@=` and `@@=` as values
 - arguments in tail calls are loaded by value and not by reference
+- `string:ord` checks that it get only 1 utf8 character
 
 ### Removed
 

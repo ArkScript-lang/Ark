@@ -133,7 +133,7 @@ namespace utf8
     /**
      * @brief Check the validity of a given string in UTF8
      * @param str
-     * @return true if the given string is a valid UTF88 string
+     * @return true if the given string is a valid UTF8 string
      */
     inline bool isValid(const char* str)
     {
@@ -183,6 +183,43 @@ namespace utf8
         return true;
     }
 
+    inline std::size_t length(const char* str)
+    {
+        std::size_t count = 0;
+        const char* s = str;
+
+        if (str == nullptr)
+            return 0;
+
+        while (*s != 0)
+        {
+            if (0xf0 == (0xf8 & *s))
+            {
+                ++count;
+                s += 4;
+            }
+            else if (0xe0 == (0xf0 & *s))
+            {
+                ++count;
+                s += 3;
+            }
+            else if (0xc0 == (0xe0 & *s))
+            {
+                ++count;
+                s += 2;
+            }
+            else if (0x00 == (0x80 & *s))
+            {
+                ++count;
+                s += 1;
+            }
+            else
+                break;
+        }
+
+        return count;
+    }
+
     /**
      * @brief Compute the UTF8 codepoint for a given UTF8 char
      * @param str
@@ -190,39 +227,25 @@ namespace utf8
      */
     inline int32_t codepoint(const char* str)
     {
-        int32_t codepoint = 0;
         const char* s = str;
 
         if (isValid(str))
         {
-            while (*s != 0)
-            {
-                if (0xf0 == (0xf8 & *s))
-                {
-                    codepoint = ((0x07 & s[0]) << 18) | ((0x3f & s[1]) << 12) | ((0x3f & s[2]) << 6) | (0x3f & s[3]);
-                    s += 4;
-                }
-                else if (0xe0 == (0xf0 & *s))
-                {
-                    codepoint = ((0x0f & s[0]) << 12) | ((0x3f & s[1]) << 6) | (0x3f & s[2]);
-                    s += 3;
-                }
-                else if (0xc0 == (0xe0 & *s))
-                {
-                    codepoint = ((0x1f & s[0]) << 6) | (0x3f & s[1]);
-                    s += 2;
-                }
-                else if (0x00 == (0x80 & *s))
-                {
-                    codepoint = s[0];
-                    ++s;
-                }
-                else
-                    return -1;
-            }
-        }
+            int32_t c = 0;
 
-        return codepoint;
+            if (0xf0 == (0xf8 & *s))
+                c = ((0x07 & s[0]) << 18) | ((0x3f & s[1]) << 12) | ((0x3f & s[2]) << 6) | (0x3f & s[3]);
+            else if (0xe0 == (0xf0 & *s))
+                c = ((0x0f & s[0]) << 12) | ((0x3f & s[1]) << 6) | (0x3f & s[2]);
+            else if (0xc0 == (0xe0 & *s))
+                c = ((0x1f & s[0]) << 6) | (0x3f & s[1]);
+            else if (0x00 == (0x80 & *s))
+                c = s[0];
+            else
+                return -1;
+            return c;
+        }
+        return -1;
     }
 
     /**

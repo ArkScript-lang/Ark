@@ -1,0 +1,6 @@
+string:ord: invalid string '', expected a single character, got 0
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/string_ord_empty_str.ark:1
+    1 | (print (builtin__string:ord ""))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |
