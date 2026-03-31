@@ -1,0 +1,13 @@
+Function string:utf8len expected 1 argument but got 2
+Call
+  ↳ (string:utf8len 1 2)
+Signature
+  ↳ (string:utf8len string)
+Arguments
+  → `string' (expected String), got 1 (Number)
+  → unexpected additional args: 2 (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/utf8len_num_num.ark:1
+    1 | (print (builtin__string:utf8len 1 2))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

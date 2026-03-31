@@ -1,0 +1,6 @@
+string:ord: invalid string 'abc', expected a single character, got 3
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/string_ord_str_too_long.ark:1
+    1 | (print (builtin__string:ord "abc"))
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

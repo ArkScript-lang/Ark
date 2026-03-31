@@ -63,6 +63,7 @@ namespace Ark::internal::Builtins
         { "format", Value(String::format) },
         { "builtin__string:find", Value(String::findSubStr) },
         { "builtin__string:removeAt", Value(String::removeAtStr) },
+        { "builtin__string:utf8len", Value(String::utf8len) },
         { "builtin__string:ord", Value(String::ord) },
         { "builtin__string:chr", Value(String::chr) },
         { "builtin__string:setAt", Value(String::setStringAt) },

@@ -288,6 +288,18 @@ namespace Ark::internal::Builtins::String
             throw std::runtime_error(fmt::format("string:removeAt: index {} out of range (length: {})", num, n[0].stringRef().size()));
     }
 
+    Value utf8len(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::String))
+            throw types::TypeCheckingError(
+                "string:utf8len",
+                { { types::Contract { { types::Typedef("string", ValueType::String) } } } },
+                n);
+
+        const std::size_t len = utf8::length(n[0].stringRef().c_str());
+        return Value(static_cast<double>(len));
+    }
+
     Value ord(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::String))
@@ -296,7 +308,13 @@ namespace Ark::internal::Builtins::String
                 { { types::Contract { { types::Typedef("string", ValueType::String) } } } },
                 n);
 
-        return Value(utf8::codepoint(n[0].stringRef().c_str()));
+        if (const std::size_t len = utf8::length(n[0].stringRef().c_str()); len != 1)
+            throw std::runtime_error(fmt::format("string:ord: invalid string '{}', expected a single character, got {}", n[0].string(), len));
+
+        const int32_t codepoint = utf8::codepoint(n[0].stringRef().c_str());
+        if (codepoint == -1)
+            throw std::runtime_error(fmt::format("string:ord: invalid string '{}'", n[0].string()));
+        return Value(codepoint);
     }
 
     // cppcheck-suppress constParameterReference
