@@ -4,8 +4,9 @@ project(ark CXX)
 
 # ArkScript version (have to manually update it)
 set(ARK_VERSION_MAJOR 4)
-set(ARK_VERSION_MINOR 4)
-set(ARK_VERSION_PATCH 1)
+set(ARK_VERSION_MINOR 5)
+set(ARK_VERSION_PATCH 0)
+set(ARK_VERSION_PRERELEASE 1)
 
 # determine whether this is a standalone project or included by other projects
 if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
