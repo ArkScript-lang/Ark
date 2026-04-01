@@ -31,7 +31,7 @@ ut::suite<"State"> state_suite = [] {
             }
             catch (const std::exception& e)
             {
-                expect(that % fmt::format("StateError: Compiler and VM versions don't match: got {0}.{2}.{3} while running {1}.{2}.{3}", 1, ARK_VERSION_MAJOR, ARK_VERSION_MINOR, ARK_VERSION_PATCH) == e.what());
+                expect(that % fmt::format("StateError: Compiler and VM versions don't match: got {0}.{1}.{2} while running {3}", 1, ARK_VERSION_MINOR, ARK_VERSION_PATCH, ARK_VERSION) == e.what());
             }
         };
     };
