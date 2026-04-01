@@ -32,7 +32,7 @@ def test(prompt: str, command: str, expected: str):
 repl = get_repl()
 
 # repl headers
-repl.expect(r"ArkScript REPL -- Version [0-9]+\.[0-9]+\.[0-9]+-[a-f0-9]{8} \[LICENSE: Mozilla Public License 2\.0\]")
+repl.expect(r"ArkScript REPL -- Version [0-9]+\.[0-9]+\.[0-9]+-(pre-)?[a-f0-9]{8} \[LICENSE: Mozilla Public License 2\.0\]")
 repl.expect(r"Type \"quit\" to quit\. Try \"help\" for more information")
 
 # completion
