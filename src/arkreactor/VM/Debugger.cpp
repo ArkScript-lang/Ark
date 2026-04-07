@@ -136,6 +136,45 @@ namespace Ark::internal
         m_previous_insts.push_back(word);
     }
 
+    std::optional<Debugger::Command::Args_t> Debugger::Command::getArgs(const std::string& line, std::ostream& os) const
+    {
+        std::vector<std::string> split = Utils::splitString(line, ' ');
+        Args_t args_values = args;
+        std::size_t i = 0;
+        for (const auto& arg : std::ranges::views::drop(split, 1))
+        {
+            if (i < args.size())
+                args_values[i].second = arg;
+            else
+            {
+                fmt::println(os, "Too many arguments provided to {}, expected {}, got {}", split.front(), args.size(), split.size() - 1);
+                return std::nullopt;
+            }
+
+            ++i;
+        }
+
+        return args_values;
+    }
+
+    std::optional<std::size_t> Debugger::Command::argAsCount(const std::string& line, const std::size_t idx, std::ostream& os) const
+    {
+        const std::optional<Args_t> maybe_parsed = getArgs(line, os);
+        if (maybe_parsed && idx < maybe_parsed->size())
+        {
+            const std::string str = maybe_parsed.value()[idx].second;
+            std::size_t result = 0;
+            auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), result);
+
+            if (ec == std::errc())
+                return result;
+
+            fmt::println(os, "Couldn't parse argument as an unsigned integer");
+            return std::nullopt;
+        }
+        return std::nullopt;
+    }
+
     void Debugger::initCommands()
     {
         m_commands = {
@@ -178,7 +217,7 @@ namespace Ark::internal
                 { { "n", "5" } },
                 "show the last n values on the stack",
                 [this](const std::string& line, const CommandArgs& args) {
-                    if (const auto arg = getArgAndParseOrError("stack", line, /* default_value= */ 5))
+                    if (const auto arg = args.me.argAsCount(line, 0, m_os))
                         showStack(*args.vm_ptr, *args.ctx_ptr, arg.value());
                     return false;
                 }),
@@ -187,7 +226,7 @@ namespace Ark::internal
                 { { "n", "5" } },
                 "show the last n values on the locals' stack",
                 [this](const std::string& line, const CommandArgs& args) {
-                    if (const auto arg = getArgAndParseOrError("locals", line, /* default_value= */ 5))
+                    if (const auto arg = args.me.argAsCount(line, 0, m_os))
                         showLocals(*args.vm_ptr, *args.ctx_ptr, arg.value());
                     return false;
                 }),
@@ -208,7 +247,7 @@ namespace Ark::internal
                 { { "n", "10" } },
                 "show the last n executed instructions",
                 [this](const std::string& line, const CommandArgs& args) {
-                    if (const auto arg = getArgAndParseOrError("trace", line, /* default_value= */ 10))
+                    if (const auto arg = args.me.argAsCount(line, 0, m_os))
                         showPreviousInstructions(*args.vm_ptr, arg.value());
                     return false;
                 }),
@@ -338,44 +377,6 @@ namespace Ark::internal
         }
     }
 
-    std::optional<std::string> Debugger::getCommandArg(const std::string& command, const std::string& line)
-    {
-        std::string arg = line.substr(command.size());
-        Utils::trimWhitespace(arg);
-
-        if (arg.empty())
-            return std::nullopt;
-        return arg;
-    }
-
-    std::optional<std::size_t> Debugger::parseStringAsInt(const std::string& str)
-    {
-        std::size_t result = 0;
-        auto [ptr, ec] = std::from_chars(str.data(), str.data() + str.size(), result);
-
-        if (ec == std::errc())
-            return result;
-        return std::nullopt;
-    }
-
-    std::optional<std::size_t> Debugger::getArgAndParseOrError(const std::string& command, const std::string& line, const std::size_t default_value) const
-    {
-        const auto maybe_arg = getCommandArg(command, line);
-        std::size_t count = default_value;
-        if (maybe_arg)
-        {
-            if (const auto maybe_int = parseStringAsInt(maybe_arg.value()))
-                count = maybe_int.value();
-            else
-            {
-                fmt::println(m_os, "Couldn't parse argument as an integer");
-                return std::nullopt;
-            }
-        }
-
-        return count;
-    }
-
     std::optional<std::string> Debugger::prompt(const std::size_t ip, const std::size_t pp, VM& vm, ExecutionContext& context)
     {
         std::string code;
@@ -412,7 +413,8 @@ namespace Ark::internal
 
             if (const auto& maybe_cmd = matchCommand(line))
             {
-                if (maybe_cmd->action(line, CommandArgs { .vm_ptr = &vm, .ctx_ptr = &context, .ip = ip, .pp = pp }))
+                const Command cmd = maybe_cmd.value();
+                if (cmd.action(line, CommandArgs { .vm_ptr = &vm, .ctx_ptr = &context, .ip = ip, .pp = pp, .me = cmd }))
                     return std::nullopt;
             }
             else

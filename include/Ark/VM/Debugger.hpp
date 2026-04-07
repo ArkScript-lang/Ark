@@ -107,11 +107,13 @@ namespace Ark::internal
         }
 
     private:
+        struct Command;
         struct CommandArgs
         {
             VM* vm_ptr;
             ExecutionContext* ctx_ptr;
             std::size_t ip, pp;
+            const Command& me;
         };
 
         struct StartsWith
@@ -122,10 +124,11 @@ namespace Ark::internal
         struct Command
         {
             using Action_t = std::function<bool(const std::string&, const CommandArgs&)>;
+            using Args_t = std::vector<std::pair<std::string, std::string>>;
 
             bool is_exact;
             std::vector<std::string> names;
-            std::vector<std::pair<std::string, std::string>> args;
+            Args_t args;
             std::string description;
             Action_t action;
 
@@ -140,6 +143,10 @@ namespace Ark::internal
             Command(StartsWith start, std::vector<std::pair<std::string, std::string>> arguments, std::string desc, Action_t&& do_this) :
                 is_exact(false), names({ std::move(start.prefix) }), args(std::move(arguments)), description(std::move(desc)), action(std::move(do_this))
             {}
+
+            [[nodiscard]] std::optional<Args_t> getArgs(const std::string& line, std::ostream& os) const;
+
+            [[nodiscard]] std::optional<std::size_t> argAsCount(const std::string& line, std::size_t idx, std::ostream& os) const;
         };
 
         std::vector<Command> m_commands;
@@ -166,10 +173,6 @@ namespace Ark::internal
         void showStack(VM& vm, const ExecutionContext& context, std::size_t count) const;
         void showLocals(VM& vm, ExecutionContext& context, std::size_t count) const;
         void showPreviousInstructions(const VM& vm, std::size_t count) const;
-
-        static std::optional<std::string> getCommandArg(const std::string& command, const std::string& line);
-        static std::optional<std::size_t> parseStringAsInt(const std::string& str);
-        [[nodiscard]] std::optional<std::size_t> getArgAndParseOrError(const std::string& command, const std::string& line, std::size_t default_value) const;
 
         std::optional<std::string> prompt(std::size_t ip, std::size_t pp, VM& vm, ExecutionContext& context);
 
