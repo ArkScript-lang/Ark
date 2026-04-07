@@ -625,14 +625,18 @@ namespace Ark
             }
         };
 
-        const auto builtin_name = [](const uint16_t idx) {
+        const auto builtin_name = [](const uint16_t idx) -> std::string {
             return Builtins::builtins[idx].first;
         };
-        const auto value_str = [&stringify_value, &vals](const uint16_t idx) {
-            return stringify_value(vals.values[idx]);
+        const auto value_str = [&stringify_value, &vals](const uint16_t idx) -> std::string {
+            if (idx < vals.values.size())
+                return stringify_value(vals.values[idx]);
+            return "?";
         };
-        const auto symbol_name = [&syms](const uint16_t idx) {
-            return syms.symbols[idx];
+        const auto symbol_name = [&syms](const uint16_t idx) -> std::string {
+            if (idx < syms.symbols.size())
+                return syms.symbols[idx];
+            return "?";
         };
 
         if (const auto inst_idx = static_cast<std::size_t>(inst); inst_idx < InstructionNames.size())
