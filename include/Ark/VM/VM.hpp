@@ -105,7 +105,7 @@ namespace Ark
          * @brief Return a pointer to the first execution context, for the main thread of the app
          * @return internal::ExecutionContext*
          */
-        inline internal::ExecutionContext* getDefaultContext()
+        inline internal::ExecutionContext* getDefaultContext() const
         {
             return m_execution_contexts.front().get();
         }
