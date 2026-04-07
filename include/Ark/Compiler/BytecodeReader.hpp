@@ -18,6 +18,7 @@
 
 #include <Ark/Utils/Platform.hpp>
 #include <Ark/Compiler/Common.hpp>
+#include <Ark/Compiler/Instructions.hpp>
 #include <Ark/VM/Value/Value.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/InstLoc.hpp>
 
@@ -76,6 +77,46 @@ namespace Ark
         std::size_t start {};  ///< Point to the CODE_SEGMENT_START byte in the bytecode
     };
 
+    namespace internal
+    {
+        enum class ArgKind
+        {
+            Symbol,
+            Constant,
+            Builtin,
+            Raw,  ///< eg: Stack index, jump address, number
+            RawHex,
+            ConstConst,
+            ConstSym,
+            SymConst,
+            SymSym,
+            BuiltinRaw,  ///< Builtin, number
+            ConstRaw,    ///< Constant, number
+            SymRaw,      ///< Symbol, number
+            RawSym,      ///< Symbol index, symbol
+            RawConst,    ///< Symbol index, constant
+            RawRaw,      ///< Symbol index, symbol index
+            RawRawRaw
+        };
+
+        struct Arg
+        {
+            ArgKind kind;
+            uint8_t padding;
+            uint16_t arg;
+
+            [[nodiscard]] uint16_t primary() const
+            {
+                return arg & 0x0fff;
+            }
+
+            [[nodiscard]] uint16_t secondary() const
+            {
+                return static_cast<uint16_t>((padding << 4) | (arg & 0xf000) >> 12);
+            }
+        };
+    }
+
     /**
      * @brief This class is just a helper to
      * - check if a bytecode is valid
@@ -89,7 +130,7 @@ namespace Ark
          * @brief Construct a new Bytecode Reader object
          *
          */
-        BytecodeReader() = default;
+        BytecodeReader();
 
         /**
          * @brief Construct needed data before displaying information about a given file
@@ -182,10 +223,13 @@ namespace Ark
                      std::optional<uint16_t> sEnd = std::nullopt,
                      std::optional<uint16_t> cPage = std::nullopt) const;
 
+        void printInstruction(std::ostream& os, uint8_t inst, uint8_t padding, uint16_t imm_arg, const Symbols& syms, const Values& vals, bool colorize = true) const;
+
         friend class Ark::State;
 
     private:
         bytecode_t m_bytecode;
+        std::unordered_map<internal::Instruction, internal::ArgKind> m_arg_kinds;
 
         /**
          * @brief Read a number from the bytecode, under the instruction pointer i
