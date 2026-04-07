@@ -149,8 +149,12 @@ namespace Ark::internal
                         if (cmd.is_exact)
                             fmt::println(m_os, "  {} -- {}", fmt::join(cmd.names, ", "), cmd.description);
                         else
-                            // todo: make arguments description configurable
-                            fmt::println(m_os, "  {} <n=5> -- {}", fmt::join(cmd.names, ", "), cmd.description);
+                        {
+                            const auto v = std::views::transform(cmd.args, [](const auto& p) {
+                                return fmt::format("{}={}", p.first, p.second);
+                            });
+                            fmt::println(m_os, "  {} <{}> -- {}", fmt::join(cmd.names, ", "), fmt::join(v, ", "), cmd.description);
+                        }
                     }
                     return false;
                 }),
@@ -171,6 +175,7 @@ namespace Ark::internal
                 }),
             Command(
                 StartsWith("stack"),
+                { { "n", "5" } },
                 "show the last n values on the stack",
                 [this](const std::string& line, const CommandArgs& args) {
                     if (const auto arg = getArgAndParseOrError("stack", line, /* default_value= */ 5))
@@ -179,6 +184,7 @@ namespace Ark::internal
                 }),
             Command(
                 StartsWith("locals"),
+                { { "n", "5" } },
                 "show the last n values on the locals' stack",
                 [this](const std::string& line, const CommandArgs& args) {
                     if (const auto arg = getArgAndParseOrError("locals", line, /* default_value= */ 5))
@@ -199,6 +205,7 @@ namespace Ark::internal
                 }),
             Command(
                 StartsWith("trace"),
+                { { "n", "10" } },
                 "show the last n executed instructions",
                 [this](const std::string& line, const CommandArgs& args) {
                     if (const auto arg = getArgAndParseOrError("trace", line, /* default_value= */ 10))
