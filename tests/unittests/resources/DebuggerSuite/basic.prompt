@@ -4,7 +4,9 @@ a
 
 b))
 (prn c)
+trace
 c
 (prn x y z)
+trace
 help
 continue

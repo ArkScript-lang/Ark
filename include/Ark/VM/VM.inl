@@ -50,7 +50,7 @@ Value VM::call(const std::string& name, Args&&... args)
     context.ip = 0;
 
     // run until the function returns
-    safeRun(context, /* untilFrameCount */ frames_count);
+    safeRun<false>(context, /* untilFrameCount */ frames_count);
 
     // get result
     return *popAndResolveAsPtr(context);
@@ -82,7 +82,7 @@ inline Value VM::resolve(internal::ExecutionContext* context, const std::vector<
     context->ip = 0;
 
     // run until the function returns
-    safeRun(*context, /* untilFrameCount */ frames_count);
+    safeRun<false>(*context, /* untilFrameCount */ frames_count);
 
     // restore VM state
     context->ip = ip;

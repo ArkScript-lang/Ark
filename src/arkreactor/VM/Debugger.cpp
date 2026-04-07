@@ -93,7 +93,7 @@ namespace Ark::internal
 
                     vm.m_state.extendBytecode(compiled->pages, compiled->symbols, compiled->constants);
 
-                    if (vm.safeRun(context) == 0)
+                    if (vm.safeRun<true>(context) == 0)
                     {
                         // executing code worked
                         m_code += line + "\n";

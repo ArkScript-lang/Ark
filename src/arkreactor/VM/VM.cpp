@@ -400,10 +400,14 @@ namespace Ark
     int VM::run(const bool fail_with_exception)
     {
         init();
-        safeRun(*m_execution_contexts[0], 0, fail_with_exception);
+        if (m_state.m_features & FeatureVMDebugger)
+            safeRun<true>(*m_execution_contexts[0], 0, fail_with_exception);
+        else
+            safeRun<false>(*m_execution_contexts[0], 0, fail_with_exception);
         return m_exit_code;
     }
 
+    template <bool WithDebugger>
     int VM::safeRun(ExecutionContext& context, std::size_t untilFrameCount, bool fail_with_exception)
     {
 #if ARK_USE_COMPUTED_GOTOS
@@ -428,6 +432,11 @@ namespace Ark
                                     m_state.inst(context.pp, context.ip + 3));                                                    \
         context.ip += 4;                                                                                                          \
         context.inst_exec_counter = (context.inst_exec_counter + 1) % VMOverflowBufferSize;                                       \
+        if constexpr (WithDebugger)                                                                                               \
+        {                                                                                                                         \
+            if (!m_debugger) initDebugger(context);                                                                               \
+            m_debugger->registerInstruction(static_cast<uint32_t>((inst << 24) | (padding << 16) | arg));                         \
+        }                                                                                                                         \
         if (context.inst_exec_counter < 2 && context.sp >= VMStackSize)                                                           \
         {                                                                                                                         \
             if (context.pp != 0)                                                                                                  \

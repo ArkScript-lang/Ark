@@ -13,6 +13,17 @@ dbg[pp:0,ip:3]:003:
 dbg[pp:0,ip:3]:004: b))
 dbg[pp:0,ip:3]:005> (prn c)
 11
+dbg[pp:0,ip:3]:006> trace
+HALT
+POP
+CALL_SYMBOL prn, 1
+LOAD_FAST_BY_INDEX (0)
+PUSH_RETURN_ADDRESS (0x7)
+HALT
+STORE
+ADD
+LOAD_FAST b
+LOAD_FAST a
 dbg[pp:0,ip:3]:006> c
 dbg: continue
 ark: after first breakpoint, a=5, b=6
@@ -28,6 +39,17 @@ In file tests/unittests/resources/DebuggerSuite/basic.ark:7
 
 dbg[pp:1,ip:5]:000> (prn x y z)
 567
+dbg[pp:1,ip:5]:001> trace
+HALT
+POP
+CALL_SYMBOL prn, 3
+LOAD_FAST z
+LOAD_FAST y
+LOAD_FAST x
+PUSH_RETURN_ADDRESS (0x5)
+BREAKPOINT
+BUILTIN true
+STORE x
 dbg[pp:1,ip:5]:001> help
 Available commands:
   help -- display this message
@@ -36,6 +58,7 @@ Available commands:
   stack <n=5> -- show the last n values on the stack
   locals <n=5> -- show the last n values on the locals' stack
   ptr -- show the values of the VM pointers
+  trace <n=5> -- show the last n executed instructions
 dbg[pp:1,ip:5]:001> continue
 dbg: continue
 ark: in (foo x y z), after second breakpoint
