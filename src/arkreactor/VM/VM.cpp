@@ -400,15 +400,61 @@ namespace Ark
     int VM::run(const bool fail_with_exception)
     {
         init();
-        if (m_state.m_features & FeatureVMDebugger)
-            safeRun<true>(*m_execution_contexts[0], 0, fail_with_exception);
-        else
-            safeRun<false>(*m_execution_contexts[0], 0, fail_with_exception);
+        safeRun(*m_execution_contexts[0], 0, fail_with_exception);
+        return m_exit_code;
+    }
+
+    int VM::safeRun(ExecutionContext& context, const std::size_t untilFrameCount, const bool fail_with_exception)
+    {
+        m_running = true;
+
+        try
+        {
+            if (m_state.m_features & FeatureVMDebugger)
+                unsafeRun<true>(context, untilFrameCount);
+            else
+                unsafeRun<false>(context, untilFrameCount);
+        }
+        catch (const Error& e)
+        {
+            if (fail_with_exception)
+            {
+                std::stringstream stream;
+                backtrace(context, stream, /* colorize= */ false);
+                // It's important we have an Ark::Error here, as the constructor for NestedError
+                // does more than just aggregate error messages, hence the code duplication.
+                throw NestedError(e, stream.str(), *this);
+            }
+            showBacktraceWithException(Error(e.details(/* colorize= */ true, *this)), context);
+        }
+        catch (const std::exception& e)
+        {
+            if (fail_with_exception)
+            {
+                std::stringstream stream;
+                backtrace(context, stream, /* colorize= */ false);
+                throw NestedError(e, stream.str());
+            }
+            showBacktraceWithException(e, context);
+        }
+        catch (...)
+        {
+            if (fail_with_exception)
+                throw;
+
+#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+            throw;
+#endif
+            fmt::println("Unknown error");
+            backtrace(context);
+            m_exit_code = 1;
+        }
+
         return m_exit_code;
     }
 
     template <bool WithDebugger>
-    int VM::safeRun(ExecutionContext& context, std::size_t untilFrameCount, bool fail_with_exception)
+    void VM::unsafeRun(ExecutionContext& context, const std::size_t untilFrameCount)
     {
 #if ARK_USE_COMPUTED_GOTOS
 #    define TARGET(op) TARGET_##op:
@@ -423,7 +469,7 @@ namespace Ark
 #    define GOTO_HALT() break
 #endif
 
-#define NEXTOPARG()                                                                                                               \
+#define FETCH_NEXT_INSTRUCTION()                                                                                                  \
     do                                                                                                                            \
     {                                                                                                                             \
         inst = m_state.inst(context.pp, context.ip);                                                                              \
@@ -445,8 +491,8 @@ namespace Ark
                 throw Error("Stack overflow. Are you trying to call a function with too many arguments?");                        \
         }                                                                                                                         \
     } while (false)
-#define DISPATCH() \
-    NEXTOPARG();   \
+#define DISPATCH()            \
+    FETCH_NEXT_INSTRUCTION(); \
     DISPATCH_GOTO();
 #define UNPACK_ARGS()                                                                 \
     do                                                                                \
@@ -582,318 +628,286 @@ namespace Ark
 #    pragma GCC diagnostic pop
 #endif
 
-        try
+        uint8_t inst = 0;
+        uint8_t padding = 0;
+        uint16_t arg = 0;
+        uint16_t primary_arg = 0;
+        uint16_t secondary_arg = 0;
+
+        DISPATCH();
+        // cppcheck-suppress unreachableCode ; analysis cannot follow the chain of goto... but it works!
         {
-            uint8_t inst = 0;
-            uint8_t padding = 0;
-            uint16_t arg = 0;
-            uint16_t primary_arg = 0;
-            uint16_t secondary_arg = 0;
-
-            m_running = true;
-
-            DISPATCH();
-            // cppcheck-suppress unreachableCode ; analysis cannot follow the chain of goto... but it works!
-            {
 #if !ARK_USE_COMPUTED_GOTOS
-            dispatch_opcode:
-                switch (inst)
+        dispatch_opcode:
+            switch (inst)
 #endif
-                {
+            {
 #pragma region "Instructions"
-                    TARGET(NOP)
-                    {
-                        DISPATCH();
-                    }
+                TARGET(NOP)
+                {
+                    DISPATCH();
+                }
 
-                    TARGET(LOAD_FAST)
-                    {
-                        push(loadSymbol(arg, context), context);
-                        DISPATCH();
-                    }
+                TARGET(LOAD_FAST)
+                {
+                    push(loadSymbol(arg, context), context);
+                    DISPATCH();
+                }
 
-                    TARGET(LOAD_FAST_BY_INDEX)
-                    {
-                        push(loadSymbolFromIndex(arg, context), context);
-                        DISPATCH();
-                    }
+                TARGET(LOAD_FAST_BY_INDEX)
+                {
+                    push(loadSymbolFromIndex(arg, context), context);
+                    DISPATCH();
+                }
 
-                    TARGET(LOAD_SYMBOL)
-                    {
-                        // force resolving the reference
-                        push(*loadSymbol(arg, context), context);
-                        DISPATCH();
-                    }
+                TARGET(LOAD_SYMBOL)
+                {
+                    // force resolving the reference
+                    push(*loadSymbol(arg, context), context);
+                    DISPATCH();
+                }
 
-                    TARGET(LOAD_CONST)
-                    {
-                        push(loadConstAsPtr(arg), context);
-                        DISPATCH();
-                    }
+                TARGET(LOAD_CONST)
+                {
+                    push(loadConstAsPtr(arg), context);
+                    DISPATCH();
+                }
 
-                    TARGET(POP_JUMP_IF_TRUE)
-                    {
-                        if (Value boolean = *popAndResolveAsPtr(context); !!boolean)
-                            jump(arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(STORE)
-                    {
-                        store(arg, popAndResolveAsPtr(context), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(STORE_REF)
-                    {
-                        // Not resolving a potential ref is on purpose!
-                        // This instruction is only used by functions when storing arguments
-                        const Value* tmp = pop(context);
-                        store(arg, tmp, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(SET_VAL)
-                    {
-                        setVal(arg, popAndResolveAsPtr(context), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(POP_JUMP_IF_FALSE)
-                    {
-                        if (Value boolean = *popAndResolveAsPtr(context); !boolean)
-                            jump(arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(JUMP)
-                    {
+                TARGET(POP_JUMP_IF_TRUE)
+                {
+                    if (Value boolean = *popAndResolveAsPtr(context); !!boolean)
                         jump(arg, context);
-                        DISPATCH();
-                    }
+                    DISPATCH();
+                }
 
-                    TARGET(RET)
+                TARGET(STORE)
+                {
+                    store(arg, popAndResolveAsPtr(context), context);
+                    DISPATCH();
+                }
+
+                TARGET(STORE_REF)
+                {
+                    // Not resolving a potential ref is on purpose!
+                    // This instruction is only used by functions when storing arguments
+                    const Value* tmp = pop(context);
+                    store(arg, tmp, context);
+                    DISPATCH();
+                }
+
+                TARGET(SET_VAL)
+                {
+                    setVal(arg, popAndResolveAsPtr(context), context);
+                    DISPATCH();
+                }
+
+                TARGET(POP_JUMP_IF_FALSE)
+                {
+                    if (Value boolean = *popAndResolveAsPtr(context); !boolean)
+                        jump(arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(JUMP)
+                {
+                    jump(arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(RET)
+                {
                     {
+                        Value ts = *popAndResolveAsPtr(context);
+                        Value ts1 = *popAndResolveAsPtr(context);
+
+                        if (ts1.valueType() == ValueType::InstPtr)
                         {
-                            Value ts = *popAndResolveAsPtr(context);
-                            Value ts1 = *popAndResolveAsPtr(context);
+                            context.ip = ts1.pageAddr();
+                            // we always push PP then IP, thus the next value
+                            // MUST be the page pointer
+                            context.pp = pop(context)->pageAddr();
 
-                            if (ts1.valueType() == ValueType::InstPtr)
-                            {
-                                context.ip = ts1.pageAddr();
-                                // we always push PP then IP, thus the next value
-                                // MUST be the page pointer
-                                context.pp = pop(context)->pageAddr();
-
-                                returnFromFuncCall(context);
-                                if (ts.valueType() == ValueType::Garbage)
-                                    push(Builtins::nil, context);
-                                else
-                                    push(std::move(ts), context);
-                            }
-                            else if (ts1.valueType() == ValueType::Garbage)
-                            {
-                                const Value* ip = pop(context);
-                                assert(ip->valueType() == ValueType::InstPtr && "Expected instruction pointer on the stack (is the stack trashed?)");
-                                context.ip = ip->pageAddr();
-                                context.pp = pop(context)->pageAddr();
-
-                                returnFromFuncCall(context);
-                                push(std::move(ts), context);
-                            }
-                            else if (ts.valueType() == ValueType::InstPtr)
-                            {
-                                context.ip = ts.pageAddr();
-                                context.pp = ts1.pageAddr();
-                                returnFromFuncCall(context);
+                            returnFromFuncCall(context);
+                            if (ts.valueType() == ValueType::Garbage)
                                 push(Builtins::nil, context);
-                            }
                             else
-                                throw Error(
-                                    fmt::format(
-                                        "Unhandled case when returning from function call. TS=({}){}, TS1=({}){}",
-                                        std::to_string(ts.valueType()),
-                                        ts.toString(*this),
-                                        std::to_string(ts1.valueType()),
-                                        ts1.toString(*this)));
-
-                            if (context.fc <= untilFrameCount)
-                                GOTO_HALT();
+                                push(std::move(ts), context);
                         }
+                        else if (ts1.valueType() == ValueType::Garbage)
+                        {
+                            const Value* ip = pop(context);
+                            assert(ip->valueType() == ValueType::InstPtr && "Expected instruction pointer on the stack (is the stack trashed?)");
+                            context.ip = ip->pageAddr();
+                            context.pp = pop(context)->pageAddr();
 
-                        DISPATCH();
-                    }
-
-                    TARGET(HALT)
-                    {
-                        m_running = false;
-                        GOTO_HALT();
-                    }
-
-                    TARGET(PUSH_RETURN_ADDRESS)
-                    {
-                        push(Value(static_cast<PageAddr_t>(context.pp)), context);
-                        // arg * 4 to skip over the call instruction, so that the return address points to AFTER the call
-                        push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(arg * 4)), context);
-                        context.inst_exec_counter++;
-                        DISPATCH();
-                    }
-
-                    TARGET(CALL)
-                    {
-                        call(context, arg);
-                        if (!m_running)
-                            GOTO_HALT();
-                        DISPATCH();
-                    }
-
-                    TARGET(TAIL_CALL_SELF)
-                    {
-                        jump(0, context);
-                        context.locals.back().reset();
-                        DISPATCH();
-                    }
-
-                    TARGET(CAPTURE)
-                    {
-                        if (!context.saved_scope)
-                            context.saved_scope = ClosureScope();
-
-                        const Value* ptr = findNearestVariable(arg, context);
-                        if (!ptr)
-                            throwVMError(ErrorKind::Scope, fmt::format("Couldn't capture `{}' as it is currently unbound", m_state.m_symbols[arg]));
+                            returnFromFuncCall(context);
+                            push(std::move(ts), context);
+                        }
+                        else if (ts.valueType() == ValueType::InstPtr)
+                        {
+                            context.ip = ts.pageAddr();
+                            context.pp = ts1.pageAddr();
+                            returnFromFuncCall(context);
+                            push(Builtins::nil, context);
+                        }
                         else
-                        {
-                            ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
-                            uint16_t id = context.capture_rename_id.value_or(arg);
-                            context.saved_scope.value().push_back(id, *ptr);
-                            context.capture_rename_id.reset();
-                        }
+                            throw Error(
+                                fmt::format(
+                                    "Unhandled case when returning from function call. TS=({}){}, TS1=({}){}",
+                                    std::to_string(ts.valueType()),
+                                    ts.toString(*this),
+                                    std::to_string(ts1.valueType()),
+                                    ts1.toString(*this)));
 
+                        if (context.fc <= untilFrameCount)
+                            GOTO_HALT();
+                    }
+
+                    DISPATCH();
+                }
+
+                TARGET(HALT)
+                {
+                    m_running = false;
+                    GOTO_HALT();
+                }
+
+                TARGET(PUSH_RETURN_ADDRESS)
+                {
+                    push(Value(static_cast<PageAddr_t>(context.pp)), context);
+                    // arg * 4 to skip over the call instruction, so that the return address points to AFTER the call
+                    push(Value(ValueType::InstPtr, static_cast<PageAddr_t>(arg * 4)), context);
+                    context.inst_exec_counter++;
+                    DISPATCH();
+                }
+
+                TARGET(CALL)
+                {
+                    call(context, arg);
+                    if (!m_running)
+                        GOTO_HALT();
+                    DISPATCH();
+                }
+
+                TARGET(TAIL_CALL_SELF)
+                {
+                    jump(0, context);
+                    context.locals.back().reset();
+                    DISPATCH();
+                }
+
+                TARGET(CAPTURE)
+                {
+                    if (!context.saved_scope)
+                        context.saved_scope = ClosureScope();
+
+                    const Value* ptr = findNearestVariable(arg, context);
+                    if (!ptr)
+                        throwVMError(ErrorKind::Scope, fmt::format("Couldn't capture `{}' as it is currently unbound", m_state.m_symbols[arg]));
+                    else
+                    {
+                        ptr = ptr->valueType() == ValueType::Reference ? ptr->reference() : ptr;
+                        uint16_t id = context.capture_rename_id.value_or(arg);
+                        context.saved_scope.value().push_back(id, *ptr);
+                        context.capture_rename_id.reset();
+                    }
+
+                    DISPATCH();
+                }
+
+                TARGET(RENAME_NEXT_CAPTURE)
+                {
+                    context.capture_rename_id = arg;
+                    DISPATCH();
+                }
+
+                TARGET(BUILTIN)
+                {
+                    push(Builtins::builtins[arg].second, context);
+                    DISPATCH();
+                }
+
+                TARGET(DEL)
+                {
+                    if (Value* var = findNearestVariable(arg, context); var != nullptr)
+                    {
+                        if (var->valueType() == ValueType::User)
+                            var->usertypeRef().del();
+                        *var = Value();
                         DISPATCH();
                     }
 
-                    TARGET(RENAME_NEXT_CAPTURE)
+                    throwVMError(ErrorKind::Scope, fmt::format("Can not delete unbound variable `{}'", m_state.m_symbols[arg]));
+                }
+
+                TARGET(MAKE_CLOSURE)
+                {
+                    push(Value(Closure(context.saved_scope.value(), m_state.m_constants[arg].pageAddr())), context);
+                    context.saved_scope.reset();
+                    DISPATCH();
+                }
+
+                TARGET(GET_FIELD)
+                {
+                    Value* var = popAndResolveAsPtr(context);
+                    push(getField(var, arg, context), context);
+                    DISPATCH();
+                }
+
+                TARGET(GET_FIELD_AS_CLOSURE)
+                {
+                    Value* var = popAndResolveAsPtr(context);
+                    push(getField(var, arg, context, /* push_with_env= */ true), context);
+                    DISPATCH();
+                }
+
+                TARGET(PLUGIN)
+                {
+                    loadPlugin(arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(LIST)
+                {
                     {
-                        context.capture_rename_id = arg;
-                        DISPATCH();
+                        Value l = createList(arg, context);
+                        push(std::move(l), context);
                     }
+                    DISPATCH();
+                }
 
-                    TARGET(BUILTIN)
-                    {
-                        push(Builtins::builtins[arg].second, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(DEL)
-                    {
-                        if (Value* var = findNearestVariable(arg, context); var != nullptr)
-                        {
-                            if (var->valueType() == ValueType::User)
-                                var->usertypeRef().del();
-                            *var = Value();
-                            DISPATCH();
-                        }
-
-                        throwVMError(ErrorKind::Scope, fmt::format("Can not delete unbound variable `{}'", m_state.m_symbols[arg]));
-                    }
-
-                    TARGET(MAKE_CLOSURE)
-                    {
-                        push(Value(Closure(context.saved_scope.value(), m_state.m_constants[arg].pageAddr())), context);
-                        context.saved_scope.reset();
-                        DISPATCH();
-                    }
-
-                    TARGET(GET_FIELD)
-                    {
-                        Value* var = popAndResolveAsPtr(context);
-                        push(getField(var, arg, context), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(GET_FIELD_AS_CLOSURE)
-                    {
-                        Value* var = popAndResolveAsPtr(context);
-                        push(getField(var, arg, context, /* push_with_env= */ true), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(PLUGIN)
-                    {
-                        loadPlugin(arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(LIST)
-                    {
-                        {
-                            Value l = createList(arg, context);
-                            push(std::move(l), context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(APPEND)
-                    {
-                        {
-                            Value* list = popAndResolveAsPtr(context);
-                            if (list->valueType() != ValueType::List)
-                            {
-                                std::vector<Value> args = { *list };
-                                for (uint16_t i = 0; i < arg; ++i)
-                                    args.push_back(*popAndResolveAsPtr(context));
-                                throw types::TypeCheckingError(
-                                    "append",
-                                    { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any, /* is_variadic= */ true) } } } },
-                                    args);
-                            }
-
-                            const auto size = static_cast<uint16_t>(list->constList().size());
-
-                            Value obj { *list };
-                            obj.list().reserve(size + arg);
-
-                            for (uint16_t i = 0; i < arg; ++i)
-                                obj.push_back(*popAndResolveAsPtr(context));
-                            push(std::move(obj), context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(CONCAT)
-                    {
-                        {
-                            Value* list = popAndResolveAsPtr(context);
-                            Value obj { *list };
-
-                            for (uint16_t i = 0; i < arg; ++i)
-                            {
-                                Value* next = popAndResolveAsPtr(context);
-
-                                if (list->valueType() != ValueType::List || next->valueType() != ValueType::List)
-                                    throw types::TypeCheckingError(
-                                        "concat",
-                                        { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
-                                        { *list, *next });
-
-                                std::ranges::copy(next->list(), std::back_inserter(obj.list()));
-                            }
-                            push(std::move(obj), context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(APPEND_IN_PLACE)
+                TARGET(APPEND)
+                {
                     {
                         Value* list = popAndResolveAsPtr(context);
-                        listAppendInPlace(list, arg, context);
-                        DISPATCH();
-                    }
+                        if (list->valueType() != ValueType::List)
+                        {
+                            std::vector<Value> args = { *list };
+                            for (uint16_t i = 0; i < arg; ++i)
+                                args.push_back(*popAndResolveAsPtr(context));
+                            throw types::TypeCheckingError(
+                                "append",
+                                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any, /* is_variadic= */ true) } } } },
+                                args);
+                        }
 
-                    TARGET(CONCAT_IN_PLACE)
+                        const auto size = static_cast<uint16_t>(list->constList().size());
+
+                        Value obj { *list };
+                        obj.list().reserve(size + arg);
+
+                        for (uint16_t i = 0; i < arg; ++i)
+                            obj.push_back(*popAndResolveAsPtr(context));
+                        push(std::move(obj), context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(CONCAT)
+                {
                     {
                         Value* list = popAndResolveAsPtr(context);
+                        Value obj { *list };
 
                         for (uint16_t i = 0; i < arg; ++i)
                         {
@@ -901,1267 +915,1256 @@ namespace Ark
 
                             if (list->valueType() != ValueType::List || next->valueType() != ValueType::List)
                                 throw types::TypeCheckingError(
-                                    "concat!",
+                                    "concat",
                                     { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
                                     { *list, *next });
 
-                            std::ranges::copy(next->list(), std::back_inserter(list->list()));
+                            std::ranges::copy(next->list(), std::back_inserter(obj.list()));
                         }
-                        DISPATCH();
+                        push(std::move(obj), context);
                     }
+                    DISPATCH();
+                }
 
-                    TARGET(POP_LIST)
+                TARGET(APPEND_IN_PLACE)
+                {
+                    Value* list = popAndResolveAsPtr(context);
+                    listAppendInPlace(list, arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(CONCAT_IN_PLACE)
+                {
+                    Value* list = popAndResolveAsPtr(context);
+
+                    for (uint16_t i = 0; i < arg; ++i)
                     {
-                        {
-                            Value list = *popAndResolveAsPtr(context);
-                            Value number = *popAndResolveAsPtr(context);
+                        Value* next = popAndResolveAsPtr(context);
 
-                            if (list.valueType() != ValueType::List || number.valueType() != ValueType::Number)
-                                throw types::TypeCheckingError(
-                                    "pop",
-                                    { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
-                                    { list, number });
+                        if (list->valueType() != ValueType::List || next->valueType() != ValueType::List)
+                            throw types::TypeCheckingError(
+                                "concat!",
+                                { { types::Contract { { types::Typedef("dst", ValueType::List), types::Typedef("src", ValueType::List) } } } },
+                                { *list, *next });
 
-                            long idx = static_cast<long>(number.number());
-                            idx = idx < 0 ? static_cast<long>(list.list().size()) + idx : idx;
-                            if (std::cmp_greater_equal(idx, list.list().size()) || idx < 0)
-                                throwVMError(
-                                    ErrorKind::Index,
-                                    fmt::format("pop index ({}) out of range (list size: {})", idx, list.list().size()));
-
-                            list.list().erase(list.list().begin() + idx);
-                            push(list, context);
-                        }
-                        DISPATCH();
+                        std::ranges::copy(next->list(), std::back_inserter(list->list()));
                     }
+                    DISPATCH();
+                }
 
-                    TARGET(POP_LIST_IN_PLACE)
+                TARGET(POP_LIST)
+                {
                     {
+                        Value list = *popAndResolveAsPtr(context);
+                        Value number = *popAndResolveAsPtr(context);
+
+                        if (list.valueType() != ValueType::List || number.valueType() != ValueType::Number)
+                            throw types::TypeCheckingError(
+                                "pop",
+                                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
+                                { list, number });
+
+                        long idx = static_cast<long>(number.number());
+                        idx = idx < 0 ? static_cast<long>(list.list().size()) + idx : idx;
+                        if (std::cmp_greater_equal(idx, list.list().size()) || idx < 0)
+                            throwVMError(
+                                ErrorKind::Index,
+                                fmt::format("pop index ({}) out of range (list size: {})", idx, list.list().size()));
+
+                        list.list().erase(list.list().begin() + idx);
+                        push(list, context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(POP_LIST_IN_PLACE)
+                {
+                    {
+                        Value* list = popAndResolveAsPtr(context);
+                        Value number = *popAndResolveAsPtr(context);
+
+                        if (list->valueType() != ValueType::List || number.valueType() != ValueType::Number)
+                            throw types::TypeCheckingError(
+                                "pop!",
+                                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
+                                { *list, number });
+
+                        long idx = static_cast<long>(number.number());
+                        idx = idx < 0 ? static_cast<long>(list->list().size()) + idx : idx;
+                        if (std::cmp_greater_equal(idx, list->list().size()) || idx < 0)
+                            throwVMError(
+                                ErrorKind::Index,
+                                fmt::format("pop! index ({}) out of range (list size: {})", idx, list->list().size()));
+
+                        // Save the value we're removing to push it later.
+                        // We need to save the value and push later because we're using a pointer to 'list', and pushing before erasing
+                        // would overwrite values from the stack.
+                        if (arg)
+                            number = list->list()[static_cast<std::size_t>(idx)];
+                        list->list().erase(list->list().begin() + idx);
+                        if (arg)
+                            push(number, context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(SET_AT_INDEX)
+                {
+                    {
+                        Value* list = popAndResolveAsPtr(context);
+                        Value number = *popAndResolveAsPtr(context);
+                        Value new_value = *popAndResolveAsPtr(context);
+
+                        if (!list->isIndexable() || number.valueType() != ValueType::Number || (list->valueType() == ValueType::String && new_value.valueType() != ValueType::String))
+                            throw types::TypeCheckingError(
+                                "@=",
+                                { { types::Contract {
+                                      { types::Typedef("list", ValueType::List),
+                                        types::Typedef("index", ValueType::Number),
+                                        types::Typedef("new_value", ValueType::Any) } } },
+                                  { types::Contract {
+                                      { types::Typedef("string", ValueType::String),
+                                        types::Typedef("index", ValueType::Number),
+                                        types::Typedef("char", ValueType::String) } } } },
+                                { *list, number, new_value });
+
+                        const std::size_t size = list->valueType() == ValueType::List ? list->list().size() : list->stringRef().size();
+                        long idx = static_cast<long>(number.number());
+                        idx = idx < 0 ? static_cast<long>(size) + idx : idx;
+                        if (std::cmp_greater_equal(idx, size) || idx < 0)
+                            throwVMError(
+                                ErrorKind::Index,
+                                fmt::format("@= index ({}) out of range (indexable size: {})", idx, size));
+
+                        if (list->valueType() == ValueType::List)
                         {
-                            Value* list = popAndResolveAsPtr(context);
-                            Value number = *popAndResolveAsPtr(context);
-
-                            if (list->valueType() != ValueType::List || number.valueType() != ValueType::Number)
-                                throw types::TypeCheckingError(
-                                    "pop!",
-                                    { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("index", ValueType::Number) } } } },
-                                    { *list, number });
-
-                            long idx = static_cast<long>(number.number());
-                            idx = idx < 0 ? static_cast<long>(list->list().size()) + idx : idx;
-                            if (std::cmp_greater_equal(idx, list->list().size()) || idx < 0)
-                                throwVMError(
-                                    ErrorKind::Index,
-                                    fmt::format("pop! index ({}) out of range (list size: {})", idx, list->list().size()));
-
-                            // Save the value we're removing to push it later.
-                            // We need to save the value and push later because we're using a pointer to 'list', and pushing before erasing
-                            // would overwrite values from the stack.
+                            list->list()[static_cast<std::size_t>(idx)] = new_value;
                             if (arg)
-                                number = list->list()[static_cast<std::size_t>(idx)];
-                            list->list().erase(list->list().begin() + idx);
+                                push(new_value, context);
+                        }
+                        else
+                        {
+                            list->stringRef()[static_cast<std::size_t>(idx)] = new_value.string()[0];
                             if (arg)
-                                push(number, context);
+                                push(Value(std::string(1, new_value.string()[0])), context);
                         }
-                        DISPATCH();
                     }
+                    DISPATCH();
+                }
 
-                    TARGET(SET_AT_INDEX)
+                TARGET(SET_AT_2_INDEX)
+                {
                     {
+                        Value* list = popAndResolveAsPtr(context);
+                        Value x = *popAndResolveAsPtr(context);
+                        Value y = *popAndResolveAsPtr(context);
+                        Value new_value = *popAndResolveAsPtr(context);
+
+                        if (list->valueType() != ValueType::List || x.valueType() != ValueType::Number || y.valueType() != ValueType::Number)
+                            throw types::TypeCheckingError(
+                                "@@=",
+                                { { types::Contract {
+                                    { types::Typedef("list", ValueType::List),
+                                      types::Typedef("x", ValueType::Number),
+                                      types::Typedef("y", ValueType::Number),
+                                      types::Typedef("new_value", ValueType::Any) } } } },
+                                { *list, x, y, new_value });
+
+                        long idx_y = static_cast<long>(x.number());
+                        idx_y = idx_y < 0 ? static_cast<long>(list->list().size()) + idx_y : idx_y;
+                        if (std::cmp_greater_equal(idx_y, list->list().size()) || idx_y < 0)
+                            throwVMError(
+                                ErrorKind::Index,
+                                fmt::format("@@= index (y: {}) out of range (list size: {})", idx_y, list->list().size()));
+
+                        if (!list->list()[static_cast<std::size_t>(idx_y)].isIndexable() ||
+                            (list->list()[static_cast<std::size_t>(idx_y)].valueType() == ValueType::String && new_value.valueType() != ValueType::String))
+                            throw types::TypeCheckingError(
+                                "@@=",
+                                { { types::Contract {
+                                      { types::Typedef("list", ValueType::List),
+                                        types::Typedef("x", ValueType::Number),
+                                        types::Typedef("y", ValueType::Number),
+                                        types::Typedef("new_value", ValueType::Any) } } },
+                                  { types::Contract {
+                                      { types::Typedef("string", ValueType::String),
+                                        types::Typedef("x", ValueType::Number),
+                                        types::Typedef("y", ValueType::Number),
+                                        types::Typedef("char", ValueType::String) } } } },
+                                { *list, x, y, new_value });
+
+                        const bool is_list = list->list()[static_cast<std::size_t>(idx_y)].valueType() == ValueType::List;
+                        const std::size_t size =
+                            is_list
+                            ? list->list()[static_cast<std::size_t>(idx_y)].list().size()
+                            : list->list()[static_cast<std::size_t>(idx_y)].stringRef().size();
+
+                        long idx_x = static_cast<long>(y.number());
+                        idx_x = idx_x < 0 ? static_cast<long>(size) + idx_x : idx_x;
+                        if (std::cmp_greater_equal(idx_x, size) || idx_x < 0)
+                            throwVMError(
+                                ErrorKind::Index,
+                                fmt::format("@@= index (x: {}) out of range (inner indexable size: {})", idx_x, size));
+
+                        if (is_list)
                         {
-                            Value* list = popAndResolveAsPtr(context);
-                            Value number = *popAndResolveAsPtr(context);
-                            Value new_value = *popAndResolveAsPtr(context);
-
-                            if (!list->isIndexable() || number.valueType() != ValueType::Number || (list->valueType() == ValueType::String && new_value.valueType() != ValueType::String))
-                                throw types::TypeCheckingError(
-                                    "@=",
-                                    { { types::Contract {
-                                          { types::Typedef("list", ValueType::List),
-                                            types::Typedef("index", ValueType::Number),
-                                            types::Typedef("new_value", ValueType::Any) } } },
-                                      { types::Contract {
-                                          { types::Typedef("string", ValueType::String),
-                                            types::Typedef("index", ValueType::Number),
-                                            types::Typedef("char", ValueType::String) } } } },
-                                    { *list, number, new_value });
-
-                            const std::size_t size = list->valueType() == ValueType::List ? list->list().size() : list->stringRef().size();
-                            long idx = static_cast<long>(number.number());
-                            idx = idx < 0 ? static_cast<long>(size) + idx : idx;
-                            if (std::cmp_greater_equal(idx, size) || idx < 0)
-                                throwVMError(
-                                    ErrorKind::Index,
-                                    fmt::format("@= index ({}) out of range (indexable size: {})", idx, size));
-
-                            if (list->valueType() == ValueType::List)
-                            {
-                                list->list()[static_cast<std::size_t>(idx)] = new_value;
-                                if (arg)
-                                    push(new_value, context);
-                            }
-                            else
-                            {
-                                list->stringRef()[static_cast<std::size_t>(idx)] = new_value.string()[0];
-                                if (arg)
-                                    push(Value(std::string(1, new_value.string()[0])), context);
-                            }
+                            list->list()[static_cast<std::size_t>(idx_y)].list()[static_cast<std::size_t>(idx_x)] = new_value;
+                            if (arg)
+                                push(new_value, context);
                         }
-                        DISPATCH();
-                    }
-
-                    TARGET(SET_AT_2_INDEX)
-                    {
+                        else
                         {
-                            Value* list = popAndResolveAsPtr(context);
-                            Value x = *popAndResolveAsPtr(context);
-                            Value y = *popAndResolveAsPtr(context);
-                            Value new_value = *popAndResolveAsPtr(context);
-
-                            if (list->valueType() != ValueType::List || x.valueType() != ValueType::Number || y.valueType() != ValueType::Number)
-                                throw types::TypeCheckingError(
-                                    "@@=",
-                                    { { types::Contract {
-                                        { types::Typedef("list", ValueType::List),
-                                          types::Typedef("x", ValueType::Number),
-                                          types::Typedef("y", ValueType::Number),
-                                          types::Typedef("new_value", ValueType::Any) } } } },
-                                    { *list, x, y, new_value });
-
-                            long idx_y = static_cast<long>(x.number());
-                            idx_y = idx_y < 0 ? static_cast<long>(list->list().size()) + idx_y : idx_y;
-                            if (std::cmp_greater_equal(idx_y, list->list().size()) || idx_y < 0)
-                                throwVMError(
-                                    ErrorKind::Index,
-                                    fmt::format("@@= index (y: {}) out of range (list size: {})", idx_y, list->list().size()));
-
-                            if (!list->list()[static_cast<std::size_t>(idx_y)].isIndexable() ||
-                                (list->list()[static_cast<std::size_t>(idx_y)].valueType() == ValueType::String && new_value.valueType() != ValueType::String))
-                                throw types::TypeCheckingError(
-                                    "@@=",
-                                    { { types::Contract {
-                                          { types::Typedef("list", ValueType::List),
-                                            types::Typedef("x", ValueType::Number),
-                                            types::Typedef("y", ValueType::Number),
-                                            types::Typedef("new_value", ValueType::Any) } } },
-                                      { types::Contract {
-                                          { types::Typedef("string", ValueType::String),
-                                            types::Typedef("x", ValueType::Number),
-                                            types::Typedef("y", ValueType::Number),
-                                            types::Typedef("char", ValueType::String) } } } },
-                                    { *list, x, y, new_value });
-
-                            const bool is_list = list->list()[static_cast<std::size_t>(idx_y)].valueType() == ValueType::List;
-                            const std::size_t size =
-                                is_list
-                                ? list->list()[static_cast<std::size_t>(idx_y)].list().size()
-                                : list->list()[static_cast<std::size_t>(idx_y)].stringRef().size();
-
-                            long idx_x = static_cast<long>(y.number());
-                            idx_x = idx_x < 0 ? static_cast<long>(size) + idx_x : idx_x;
-                            if (std::cmp_greater_equal(idx_x, size) || idx_x < 0)
-                                throwVMError(
-                                    ErrorKind::Index,
-                                    fmt::format("@@= index (x: {}) out of range (inner indexable size: {})", idx_x, size));
-
-                            if (is_list)
-                            {
-                                list->list()[static_cast<std::size_t>(idx_y)].list()[static_cast<std::size_t>(idx_x)] = new_value;
-                                if (arg)
-                                    push(new_value, context);
-                            }
-                            else
-                            {
-                                list->list()[static_cast<std::size_t>(idx_y)].stringRef()[static_cast<std::size_t>(idx_x)] = new_value.string()[0];
-                                if (arg)
-                                    push(Value(std::string(1, new_value.string()[0])), context);
-                            }
+                            list->list()[static_cast<std::size_t>(idx_y)].stringRef()[static_cast<std::size_t>(idx_x)] = new_value.string()[0];
+                            if (arg)
+                                push(Value(std::string(1, new_value.string()[0])), context);
                         }
-                        DISPATCH();
                     }
+                    DISPATCH();
+                }
 
-                    TARGET(POP)
-                    {
-                        pop(context);
-                        DISPATCH();
-                    }
+                TARGET(POP)
+                {
+                    pop(context);
+                    DISPATCH();
+                }
 
-                    TARGET(SHORTCIRCUIT_AND)
-                    {
-                        if (!*peekAndResolveAsPtr(context))
-                            jump(arg, context);
-                        else
-                            pop(context);
-                        DISPATCH();
-                    }
-
-                    TARGET(SHORTCIRCUIT_OR)
-                    {
-                        if (!!*peekAndResolveAsPtr(context))
-                            jump(arg, context);
-                        else
-                            pop(context);
-                        DISPATCH();
-                    }
-
-                    TARGET(CREATE_SCOPE)
-                    {
-                        context.locals.emplace_back(context.scopes_storage.data(), context.locals.back().storageEnd());
-                        DISPATCH();
-                    }
-
-                    TARGET(RESET_SCOPE_JUMP)
-                    {
-                        context.locals.back().reset();
+                TARGET(SHORTCIRCUIT_AND)
+                {
+                    if (!*peekAndResolveAsPtr(context))
                         jump(arg, context);
-                        DISPATCH();
-                    }
+                    else
+                        pop(context);
+                    DISPATCH();
+                }
 
-                    TARGET(POP_SCOPE)
-                    {
-                        context.locals.pop_back();
-                        DISPATCH();
-                    }
+                TARGET(SHORTCIRCUIT_OR)
+                {
+                    if (!!*peekAndResolveAsPtr(context))
+                        jump(arg, context);
+                    else
+                        pop(context);
+                    DISPATCH();
+                }
 
-                    TARGET(APPLY)
+                TARGET(CREATE_SCOPE)
+                {
+                    context.locals.emplace_back(context.scopes_storage.data(), context.locals.back().storageEnd());
+                    DISPATCH();
+                }
+
+                TARGET(RESET_SCOPE_JUMP)
+                {
+                    context.locals.back().reset();
+                    jump(arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(POP_SCOPE)
+                {
+                    context.locals.pop_back();
+                    DISPATCH();
+                }
+
+                TARGET(APPLY)
+                {
                     {
+                        const Value args_list = *popAndResolveAsPtr(context),
+                                    func = *popAndResolveAsPtr(context);
+                        if (args_list.valueType() != ValueType::List || !func.isFunction())
                         {
-                            const Value args_list = *popAndResolveAsPtr(context),
-                                        func = *popAndResolveAsPtr(context);
-                            if (args_list.valueType() != ValueType::List || !func.isFunction())
-                            {
-                                throw types::TypeCheckingError(
-                                    "apply",
-                                    { {
-                                        types::Contract {
-                                            { types::Typedef("func", ValueType::PageAddr),
-                                              types::Typedef("args", ValueType::List) } },
-                                        types::Contract {
-                                            { types::Typedef("func", ValueType::Closure),
-                                              types::Typedef("args", ValueType::List) } },
-                                        types::Contract {
-                                            { types::Typedef("func", ValueType::CProc),
-                                              types::Typedef("args", ValueType::List) } },
-                                    } },
-                                    { func, args_list });
-                            }
-
-                            push(func, context);
-                            for (const Value& a : args_list.constList())
-                                push(a, context);
-
-                            call(context, static_cast<uint16_t>(args_list.constList().size()));
+                            throw types::TypeCheckingError(
+                                "apply",
+                                { {
+                                    types::Contract {
+                                        { types::Typedef("func", ValueType::PageAddr),
+                                          types::Typedef("args", ValueType::List) } },
+                                    types::Contract {
+                                        { types::Typedef("func", ValueType::Closure),
+                                          types::Typedef("args", ValueType::List) } },
+                                    types::Contract {
+                                        { types::Typedef("func", ValueType::CProc),
+                                          types::Typedef("args", ValueType::List) } },
+                                } },
+                                { func, args_list });
                         }
-                        DISPATCH();
+
+                        push(func, context);
+                        for (const Value& a : args_list.constList())
+                            push(a, context);
+
+                        call(context, static_cast<uint16_t>(args_list.constList().size()));
                     }
+                    DISPATCH();
+                }
 
 #pragma endregion
 
 #pragma region "Operators"
 
-                    TARGET(BREAKPOINT)
+                TARGET(BREAKPOINT)
+                {
                     {
+                        bool breakpoint_active = true;
+                        if (arg == 1)
+                            breakpoint_active = *popAndResolveAsPtr(context) == Builtins::trueSym;
+
+                        if (m_state.m_features & FeatureVMDebugger && breakpoint_active)
                         {
-                            bool breakpoint_active = true;
-                            if (arg == 1)
-                                breakpoint_active = *popAndResolveAsPtr(context) == Builtins::trueSym;
+                            initDebugger(context);
+                            m_debugger->run(*this, context, /* from_breakpoint= */ true);
+                            m_debugger->resetContextToSavedState(context);
 
-                            if (m_state.m_features & FeatureVMDebugger && breakpoint_active)
-                            {
-                                initDebugger(context);
-                                m_debugger->run(*this, context, /* from_breakpoint= */ true);
-                                m_debugger->resetContextToSavedState(context);
-
-                                if (m_debugger->shouldQuitVM())
-                                    GOTO_HALT();
-                            }
+                            if (m_debugger->shouldQuitVM())
+                                GOTO_HALT();
                         }
-                        DISPATCH();
                     }
+                    DISPATCH();
+                }
 
-                    TARGET(ADD)
+                TARGET(ADD)
+                {
+                    Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+
+                    if (a->valueType() == ValueType::Number && b->valueType() == ValueType::Number)
+                        push(Value(a->number() + b->number()), context);
+                    else if (a->valueType() == ValueType::String && b->valueType() == ValueType::String)
+                        push(Value(a->string() + b->string()), context);
+                    else
+                        throw types::TypeCheckingError(
+                            "+",
+                            { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } },
+                                types::Contract { { types::Typedef("a", ValueType::String), types::Typedef("b", ValueType::String) } } } },
+                            { *a, *b });
+                    DISPATCH();
+                }
+
+                TARGET(SUB)
+                {
+                    Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+
+                    if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
+                        throw types::TypeCheckingError(
+                            "-",
+                            { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                            { *a, *b });
+                    push(Value(a->number() - b->number()), context);
+                    DISPATCH();
+                }
+
+                TARGET(MUL)
+                {
+                    Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+
+                    if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
+                        throw types::TypeCheckingError(
+                            "*",
+                            { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                            { *a, *b });
+                    push(Value(a->number() * b->number()), context);
+                    DISPATCH();
+                }
+
+                TARGET(DIV)
+                {
+                    Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+
+                    if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
+                        throw types::TypeCheckingError(
+                            "/",
+                            { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                            { *a, *b });
+                    auto d = b->number();
+                    if (d == 0)
+                        throwVMError(ErrorKind::DivisionByZero, fmt::format("Can not compute expression (/ {} {})", a->toString(*this), b->toString(*this)));
+
+                    push(Value(a->number() / d), context);
+                    DISPATCH();
+                }
+
+                TARGET(GT)
+                {
+                    const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                    push(*b < *a ? Builtins::trueSym : Builtins::falseSym, context);
+                    DISPATCH();
+                }
+
+                TARGET(LT)
+                {
+                    const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                    push(*a < *b ? Builtins::trueSym : Builtins::falseSym, context);
+                    DISPATCH();
+                }
+
+                TARGET(LE)
+                {
+                    const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                    push((*a < *b || *a == *b) ? Builtins::trueSym : Builtins::falseSym, context);
+                    DISPATCH();
+                }
+
+                TARGET(GE)
+                {
+                    const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                    push((*b < *a || *a == *b) ? Builtins::trueSym : Builtins::falseSym, context);
+                    DISPATCH();
+                }
+
+                TARGET(NEQ)
+                {
+                    const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                    push(*a != *b ? Builtins::trueSym : Builtins::falseSym, context);
+                    DISPATCH();
+                }
+
+                TARGET(EQ)
+                {
+                    const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                    push(*a == *b ? Builtins::trueSym : Builtins::falseSym, context);
+                    DISPATCH();
+                }
+
+                TARGET(LEN)
+                {
+                    const Value* a = popAndResolveAsPtr(context);
+
+                    if (a->valueType() == ValueType::List)
+                        push(Value(static_cast<int>(a->constList().size())), context);
+                    else if (a->valueType() == ValueType::String)
+                        push(Value(static_cast<int>(a->string().size())), context);
+                    else if (a->valueType() == ValueType::Dict)
+                        push(Value(static_cast<int>(a->dict().size())), context);
+                    else
+                        throw types::TypeCheckingError(
+                            "len",
+                            { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                types::Contract { { types::Typedef("value", ValueType::String) } },
+                                types::Contract { { types::Typedef("value", ValueType::Dict) } } } },
+                            { *a });
+                    DISPATCH();
+                }
+
+                TARGET(IS_EMPTY)
+                {
+                    const Value* a = popAndResolveAsPtr(context);
+
+                    if (a->valueType() == ValueType::List)
+                        push(a->constList().empty() ? Builtins::trueSym : Builtins::falseSym, context);
+                    else if (a->valueType() == ValueType::String)
+                        push(a->string().empty() ? Builtins::trueSym : Builtins::falseSym, context);
+                    else if (a->valueType() == ValueType::Dict)
+                        push(std::cmp_equal(a->dict().size(), 0) ? Builtins::trueSym : Builtins::falseSym, context);
+                    else if (a->valueType() == ValueType::Nil)
+                        push(Builtins::trueSym, context);
+                    else
+                        throw types::TypeCheckingError(
+                            "empty?",
+                            { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                types::Contract { { types::Typedef("value", ValueType::Nil) } },
+                                types::Contract { { types::Typedef("value", ValueType::String) } },
+                                types::Contract { { types::Typedef("value", ValueType::Dict) } } } },
+                            { *a });
+                    DISPATCH();
+                }
+
+                TARGET(TAIL)
+                {
+                    Value* const a = popAndResolveAsPtr(context);
+                    push(helper::tail(a), context);
+                    DISPATCH();
+                }
+
+                TARGET(HEAD)
+                {
+                    Value* const a = popAndResolveAsPtr(context);
+                    push(helper::head(a), context);
+                    DISPATCH();
+                }
+
+                TARGET(IS_NIL)
+                {
+                    const Value* a = popAndResolveAsPtr(context);
+                    push((*a == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym, context);
+                    DISPATCH();
+                }
+
+                TARGET(TO_NUM)
+                {
+                    const Value* a = popAndResolveAsPtr(context);
+
+                    if (a->valueType() != ValueType::String)
+                        throw types::TypeCheckingError(
+                            "toNumber",
+                            { { types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                            { *a });
+
+                    double val;
+                    if (Utils::isDouble(a->string(), &val))
+                        push(Value(val), context);
+                    else
+                        push(Builtins::nil, context);
+                    DISPATCH();
+                }
+
+                TARGET(TO_STR)
+                {
+                    const Value* a = popAndResolveAsPtr(context);
+                    push(Value(a->toString(*this)), context);
+                    DISPATCH();
+                }
+
+                TARGET(AT)
+                {
+                    Value& b = *popAndResolveAsPtr(context);
+                    Value& a = *popAndResolveAsPtr(context);
+                    push(helper::at(a, b, *this), context);
+                    DISPATCH();
+                }
+
+                TARGET(AT_AT)
+                {
                     {
-                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                        const Value* x = popAndResolveAsPtr(context);
+                        const Value* y = popAndResolveAsPtr(context);
+                        Value& list = *popAndResolveAsPtr(context);
 
-                        if (a->valueType() == ValueType::Number && b->valueType() == ValueType::Number)
-                            push(Value(a->number() + b->number()), context);
-                        else if (a->valueType() == ValueType::String && b->valueType() == ValueType::String)
-                            push(Value(a->string() + b->string()), context);
-                        else
+                        push(helper::atAt(x, y, list), context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(MOD)
+                {
+                    const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
+                    if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
+                        throw types::TypeCheckingError(
+                            "mod",
+                            { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                            { *a, *b });
+                    push(Value(std::fmod(a->number(), b->number())), context);
+                    DISPATCH();
+                }
+
+                TARGET(TYPE)
+                {
+                    const Value* a = popAndResolveAsPtr(context);
+                    push(Value(std::to_string(a->valueType())), context);
+                    DISPATCH();
+                }
+
+                TARGET(HAS_FIELD)
+                {
+                    {
+                        Value* const field = popAndResolveAsPtr(context);
+                        Value* const closure = popAndResolveAsPtr(context);
+                        if (closure->valueType() != ValueType::Closure || field->valueType() != ValueType::String)
                             throw types::TypeCheckingError(
-                                "+",
-                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } },
-                                    types::Contract { { types::Typedef("a", ValueType::String), types::Typedef("b", ValueType::String) } } } },
-                                { *a, *b });
-                        DISPATCH();
-                    }
+                                "hasField",
+                                { { types::Contract { { types::Typedef("closure", ValueType::Closure), types::Typedef("field", ValueType::String) } } } },
+                                { *closure, *field });
 
-                    TARGET(SUB)
-                    {
-                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-
-                        if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            throw types::TypeCheckingError(
-                                "-",
-                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                { *a, *b });
-                        push(Value(a->number() - b->number()), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(MUL)
-                    {
-                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-
-                        if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            throw types::TypeCheckingError(
-                                "*",
-                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                { *a, *b });
-                        push(Value(a->number() * b->number()), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(DIV)
-                    {
-                        Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-
-                        if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            throw types::TypeCheckingError(
-                                "/",
-                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                { *a, *b });
-                        auto d = b->number();
-                        if (d == 0)
-                            throwVMError(ErrorKind::DivisionByZero, fmt::format("Can not compute expression (/ {} {})", a->toString(*this), b->toString(*this)));
-
-                        push(Value(a->number() / d), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(GT)
-                    {
-                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-                        push(*b < *a ? Builtins::trueSym : Builtins::falseSym, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(LT)
-                    {
-                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-                        push(*a < *b ? Builtins::trueSym : Builtins::falseSym, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(LE)
-                    {
-                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-                        push((*a < *b || *a == *b) ? Builtins::trueSym : Builtins::falseSym, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(GE)
-                    {
-                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-                        push((*b < *a || *a == *b) ? Builtins::trueSym : Builtins::falseSym, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(NEQ)
-                    {
-                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-                        push(*a != *b ? Builtins::trueSym : Builtins::falseSym, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(EQ)
-                    {
-                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-                        push(*a == *b ? Builtins::trueSym : Builtins::falseSym, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(LEN)
-                    {
-                        const Value* a = popAndResolveAsPtr(context);
-
-                        if (a->valueType() == ValueType::List)
-                            push(Value(static_cast<int>(a->constList().size())), context);
-                        else if (a->valueType() == ValueType::String)
-                            push(Value(static_cast<int>(a->string().size())), context);
-                        else if (a->valueType() == ValueType::Dict)
-                            push(Value(static_cast<int>(a->dict().size())), context);
-                        else
-                            throw types::TypeCheckingError(
-                                "len",
-                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
-                                    types::Contract { { types::Typedef("value", ValueType::String) } },
-                                    types::Contract { { types::Typedef("value", ValueType::Dict) } } } },
-                                { *a });
-                        DISPATCH();
-                    }
-
-                    TARGET(IS_EMPTY)
-                    {
-                        const Value* a = popAndResolveAsPtr(context);
-
-                        if (a->valueType() == ValueType::List)
-                            push(a->constList().empty() ? Builtins::trueSym : Builtins::falseSym, context);
-                        else if (a->valueType() == ValueType::String)
-                            push(a->string().empty() ? Builtins::trueSym : Builtins::falseSym, context);
-                        else if (a->valueType() == ValueType::Dict)
-                            push(std::cmp_equal(a->dict().size(), 0) ? Builtins::trueSym : Builtins::falseSym, context);
-                        else if (a->valueType() == ValueType::Nil)
-                            push(Builtins::trueSym, context);
-                        else
-                            throw types::TypeCheckingError(
-                                "empty?",
-                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
-                                    types::Contract { { types::Typedef("value", ValueType::Nil) } },
-                                    types::Contract { { types::Typedef("value", ValueType::String) } },
-                                    types::Contract { { types::Typedef("value", ValueType::Dict) } } } },
-                                { *a });
-                        DISPATCH();
-                    }
-
-                    TARGET(TAIL)
-                    {
-                        Value* const a = popAndResolveAsPtr(context);
-                        push(helper::tail(a), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(HEAD)
-                    {
-                        Value* const a = popAndResolveAsPtr(context);
-                        push(helper::head(a), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(IS_NIL)
-                    {
-                        const Value* a = popAndResolveAsPtr(context);
-                        push((*a == Builtins::nil) ? Builtins::trueSym : Builtins::falseSym, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(TO_NUM)
-                    {
-                        const Value* a = popAndResolveAsPtr(context);
-
-                        if (a->valueType() != ValueType::String)
-                            throw types::TypeCheckingError(
-                                "toNumber",
-                                { { types::Contract { { types::Typedef("value", ValueType::String) } } } },
-                                { *a });
-
-                        double val;
-                        if (Utils::isDouble(a->string(), &val))
-                            push(Value(val), context);
-                        else
-                            push(Builtins::nil, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(TO_STR)
-                    {
-                        const Value* a = popAndResolveAsPtr(context);
-                        push(Value(a->toString(*this)), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(AT)
-                    {
-                        Value& b = *popAndResolveAsPtr(context);
-                        Value& a = *popAndResolveAsPtr(context);
-                        push(helper::at(a, b, *this), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(AT_AT)
-                    {
+                        auto it = std::ranges::find(m_state.m_symbols, field->stringRef());
+                        if (it == m_state.m_symbols.end())
                         {
-                            const Value* x = popAndResolveAsPtr(context);
-                            const Value* y = popAndResolveAsPtr(context);
-                            Value& list = *popAndResolveAsPtr(context);
-
-                            push(helper::atAt(x, y, list), context);
+                            push(Builtins::falseSym, context);
+                            DISPATCH();
                         }
-                        DISPATCH();
+
+                        auto id = static_cast<std::uint16_t>(std::distance(m_state.m_symbols.begin(), it));
+                        push(closure->refClosure().refScope()[id] != nullptr ? Builtins::trueSym : Builtins::falseSym, context);
                     }
+                    DISPATCH();
+                }
 
-                    TARGET(MOD)
-                    {
-                        const Value *b = popAndResolveAsPtr(context), *a = popAndResolveAsPtr(context);
-                        if (a->valueType() != ValueType::Number || b->valueType() != ValueType::Number)
-                            throw types::TypeCheckingError(
-                                "mod",
-                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                { *a, *b });
-                        push(Value(std::fmod(a->number(), b->number())), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(TYPE)
-                    {
-                        const Value* a = popAndResolveAsPtr(context);
-                        push(Value(std::to_string(a->valueType())), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(HAS_FIELD)
-                    {
-                        {
-                            Value* const field = popAndResolveAsPtr(context);
-                            Value* const closure = popAndResolveAsPtr(context);
-                            if (closure->valueType() != ValueType::Closure || field->valueType() != ValueType::String)
-                                throw types::TypeCheckingError(
-                                    "hasField",
-                                    { { types::Contract { { types::Typedef("closure", ValueType::Closure), types::Typedef("field", ValueType::String) } } } },
-                                    { *closure, *field });
-
-                            auto it = std::ranges::find(m_state.m_symbols, field->stringRef());
-                            if (it == m_state.m_symbols.end())
-                            {
-                                push(Builtins::falseSym, context);
-                                DISPATCH();
-                            }
-
-                            auto id = static_cast<std::uint16_t>(std::distance(m_state.m_symbols.begin(), it));
-                            push(closure->refClosure().refScope()[id] != nullptr ? Builtins::trueSym : Builtins::falseSym, context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(NOT)
-                    {
-                        const Value* a = popAndResolveAsPtr(context);
-                        push(!(*a) ? Builtins::trueSym : Builtins::falseSym, context);
-                        DISPATCH();
-                    }
+                TARGET(NOT)
+                {
+                    const Value* a = popAndResolveAsPtr(context);
+                    push(!(*a) ? Builtins::trueSym : Builtins::falseSym, context);
+                    DISPATCH();
+                }
 
 #pragma endregion
 
 #pragma region "Super Instructions"
-                    TARGET(LOAD_CONST_LOAD_CONST)
+                TARGET(LOAD_CONST_LOAD_CONST)
+                {
+                    UNPACK_ARGS();
+                    push(loadConstAsPtr(primary_arg), context);
+                    push(loadConstAsPtr(secondary_arg), context);
+                    context.inst_exec_counter++;
+                    DISPATCH();
+                }
+
+                TARGET(LOAD_CONST_STORE)
+                {
+                    UNPACK_ARGS();
+                    store(secondary_arg, loadConstAsPtr(primary_arg), context);
+                    DISPATCH();
+                }
+
+                TARGET(LOAD_CONST_SET_VAL)
+                {
+                    UNPACK_ARGS();
+                    setVal(secondary_arg, loadConstAsPtr(primary_arg), context);
+                    DISPATCH();
+                }
+
+                TARGET(STORE_FROM)
+                {
+                    UNPACK_ARGS();
+                    store(secondary_arg, loadSymbol(primary_arg, context), context);
+                    DISPATCH();
+                }
+
+                TARGET(STORE_FROM_INDEX)
+                {
+                    UNPACK_ARGS();
+                    store(secondary_arg, loadSymbolFromIndex(primary_arg, context), context);
+                    DISPATCH();
+                }
+
+                TARGET(SET_VAL_FROM)
+                {
+                    UNPACK_ARGS();
+                    setVal(secondary_arg, loadSymbol(primary_arg, context), context);
+                    DISPATCH();
+                }
+
+                TARGET(SET_VAL_FROM_INDEX)
+                {
+                    UNPACK_ARGS();
+                    setVal(secondary_arg, loadSymbolFromIndex(primary_arg, context), context);
+                    DISPATCH();
+                }
+
+                TARGET(INCREMENT)
+                {
+                    UNPACK_ARGS();
                     {
-                        UNPACK_ARGS();
-                        push(loadConstAsPtr(primary_arg), context);
-                        push(loadConstAsPtr(secondary_arg), context);
-                        context.inst_exec_counter++;
-                        DISPATCH();
-                    }
-
-                    TARGET(LOAD_CONST_STORE)
-                    {
-                        UNPACK_ARGS();
-                        store(secondary_arg, loadConstAsPtr(primary_arg), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(LOAD_CONST_SET_VAL)
-                    {
-                        UNPACK_ARGS();
-                        setVal(secondary_arg, loadConstAsPtr(primary_arg), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(STORE_FROM)
-                    {
-                        UNPACK_ARGS();
-                        store(secondary_arg, loadSymbol(primary_arg, context), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(STORE_FROM_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        store(secondary_arg, loadSymbolFromIndex(primary_arg, context), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(SET_VAL_FROM)
-                    {
-                        UNPACK_ARGS();
-                        setVal(secondary_arg, loadSymbol(primary_arg, context), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(SET_VAL_FROM_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        setVal(secondary_arg, loadSymbolFromIndex(primary_arg, context), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(INCREMENT)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* var = loadSymbol(primary_arg, context);
-
-                            // use internal reference, shouldn't break anything so far, unless it's already a ref
-                            if (var->valueType() == ValueType::Reference)
-                                var = var->reference();
-
-                            if (var->valueType() == ValueType::Number)
-                                push(Value(var->number() + secondary_arg), context);
-                            else
-                                throw types::TypeCheckingError(
-                                    "+",
-                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                    { *var, Value(secondary_arg) });
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(INCREMENT_BY_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* var = loadSymbolFromIndex(primary_arg, context);
-
-                            // use internal reference, shouldn't break anything so far, unless it's already a ref
-                            if (var->valueType() == ValueType::Reference)
-                                var = var->reference();
-
-                            if (var->valueType() == ValueType::Number)
-                                push(Value(var->number() + secondary_arg), context);
-                            else
-                                throw types::TypeCheckingError(
-                                    "+",
-                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                    { *var, Value(secondary_arg) });
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(INCREMENT_STORE)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* var = loadSymbol(primary_arg, context);
-
-                            // use internal reference, shouldn't break anything so far, unless it's already a ref
-                            if (var->valueType() == ValueType::Reference)
-                                var = var->reference();
-
-                            if (var->valueType() == ValueType::Number)
-                            {
-                                auto val = Value(var->number() + secondary_arg);
-                                setVal(primary_arg, &val, context);
-                            }
-                            else
-                                throw types::TypeCheckingError(
-                                    "+",
-                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                    { *var, Value(secondary_arg) });
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(DECREMENT)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* var = loadSymbol(primary_arg, context);
-
-                            // use internal reference, shouldn't break anything so far, unless it's already a ref
-                            if (var->valueType() == ValueType::Reference)
-                                var = var->reference();
-
-                            if (var->valueType() == ValueType::Number)
-                                push(Value(var->number() - secondary_arg), context);
-                            else
-                                throw types::TypeCheckingError(
-                                    "-",
-                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                    { *var, Value(secondary_arg) });
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(DECREMENT_BY_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* var = loadSymbolFromIndex(primary_arg, context);
-
-                            // use internal reference, shouldn't break anything so far, unless it's already a ref
-                            if (var->valueType() == ValueType::Reference)
-                                var = var->reference();
-
-                            if (var->valueType() == ValueType::Number)
-                                push(Value(var->number() - secondary_arg), context);
-                            else
-                                throw types::TypeCheckingError(
-                                    "-",
-                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                    { *var, Value(secondary_arg) });
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(DECREMENT_STORE)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* var = loadSymbol(primary_arg, context);
-
-                            // use internal reference, shouldn't break anything so far, unless it's already a ref
-                            if (var->valueType() == ValueType::Reference)
-                                var = var->reference();
-
-                            if (var->valueType() == ValueType::Number)
-                            {
-                                auto val = Value(var->number() - secondary_arg);
-                                setVal(primary_arg, &val, context);
-                            }
-                            else
-                                throw types::TypeCheckingError(
-                                    "-",
-                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                    { *var, Value(secondary_arg) });
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(STORE_TAIL)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* list = loadSymbol(primary_arg, context);
-                            Value tail = helper::tail(list);
-                            store(secondary_arg, &tail, context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(STORE_TAIL_BY_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* list = loadSymbolFromIndex(primary_arg, context);
-                            Value tail = helper::tail(list);
-                            store(secondary_arg, &tail, context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(STORE_HEAD)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* list = loadSymbol(primary_arg, context);
-                            Value head = helper::head(list);
-                            store(secondary_arg, &head, context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(STORE_HEAD_BY_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* list = loadSymbolFromIndex(primary_arg, context);
-                            Value head = helper::head(list);
-                            store(secondary_arg, &head, context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(STORE_LIST)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value l = createList(primary_arg, context);
-                            store(secondary_arg, &l, context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(SET_VAL_TAIL)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* list = loadSymbol(primary_arg, context);
-                            Value tail = helper::tail(list);
-                            setVal(secondary_arg, &tail, context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(SET_VAL_TAIL_BY_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* list = loadSymbolFromIndex(primary_arg, context);
-                            Value tail = helper::tail(list);
-                            setVal(secondary_arg, &tail, context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(SET_VAL_HEAD)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* list = loadSymbol(primary_arg, context);
-                            Value head = helper::head(list);
-                            setVal(secondary_arg, &head, context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(SET_VAL_HEAD_BY_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* list = loadSymbolFromIndex(primary_arg, context);
-                            Value head = helper::head(list);
-                            setVal(secondary_arg, &head, context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(CALL_BUILTIN)
-                    {
-                        UNPACK_ARGS();
-                        // no stack size check because we do not push IP/PP since we are just calling a builtin
-                        callBuiltin(
-                            context,
-                            Builtins::builtins[primary_arg].second,
-                            secondary_arg,
-                            /* remove_return_address= */ true,
-                            /* remove_builtin= */ false);
-                        if (!m_running)
-                            GOTO_HALT();
-                        DISPATCH();
-                    }
-
-                    TARGET(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS)
-                    {
-                        UNPACK_ARGS();
-                        // no stack size check because we do not push IP/PP since we are just calling a builtin
-                        callBuiltin(
-                            context,
-                            Builtins::builtins[primary_arg].second,
-                            secondary_arg,
-                            // we didn't have a PUSH_RETURN_ADDRESS instruction before,
-                            // so do not attempt to remove (pp,ip) from the stack: they're not there!
-                            /* remove_return_address= */ false,
-                            /* remove_builtin= */ false);
-                        if (!m_running)
-                            GOTO_HALT();
-                        DISPATCH();
-                    }
-
-                    TARGET(LT_CONST_JUMP_IF_FALSE)
-                    {
-                        UNPACK_ARGS();
-                        const Value* sym = popAndResolveAsPtr(context);
-                        if (!(*sym < *loadConstAsPtr(primary_arg)))
-                            jump(secondary_arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(LT_CONST_JUMP_IF_TRUE)
-                    {
-                        UNPACK_ARGS();
-                        const Value* sym = popAndResolveAsPtr(context);
-                        if (*sym < *loadConstAsPtr(primary_arg))
-                            jump(secondary_arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(LT_SYM_JUMP_IF_FALSE)
-                    {
-                        UNPACK_ARGS();
-                        const Value* sym = popAndResolveAsPtr(context);
-                        if (!(*sym < *loadSymbol(primary_arg, context)))
-                            jump(secondary_arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(GT_CONST_JUMP_IF_TRUE)
-                    {
-                        UNPACK_ARGS();
-                        const Value* sym = popAndResolveAsPtr(context);
-                        const Value* cst = loadConstAsPtr(primary_arg);
-                        if (*cst < *sym)
-                            jump(secondary_arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(GT_CONST_JUMP_IF_FALSE)
-                    {
-                        UNPACK_ARGS();
-                        const Value* sym = popAndResolveAsPtr(context);
-                        const Value* cst = loadConstAsPtr(primary_arg);
-                        if (!(*cst < *sym))
-                            jump(secondary_arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(GT_SYM_JUMP_IF_FALSE)
-                    {
-                        UNPACK_ARGS();
-                        const Value* sym = popAndResolveAsPtr(context);
-                        const Value* rhs = loadSymbol(primary_arg, context);
-                        if (!(*rhs < *sym))
-                            jump(secondary_arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(EQ_CONST_JUMP_IF_TRUE)
-                    {
-                        UNPACK_ARGS();
-                        const Value* sym = popAndResolveAsPtr(context);
-                        if (*sym == *loadConstAsPtr(primary_arg))
-                            jump(secondary_arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(EQ_SYM_INDEX_JUMP_IF_TRUE)
-                    {
-                        UNPACK_ARGS();
-                        const Value* sym = popAndResolveAsPtr(context);
-                        if (*sym == *loadSymbolFromIndex(primary_arg, context))
-                            jump(secondary_arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(NEQ_CONST_JUMP_IF_TRUE)
-                    {
-                        UNPACK_ARGS();
-                        const Value* sym = popAndResolveAsPtr(context);
-                        if (*sym != *loadConstAsPtr(primary_arg))
-                            jump(secondary_arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(NEQ_SYM_JUMP_IF_FALSE)
-                    {
-                        UNPACK_ARGS();
-                        const Value* sym = popAndResolveAsPtr(context);
-                        if (*sym == *loadSymbol(primary_arg, context))
-                            jump(secondary_arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(CALL_SYMBOL)
-                    {
-                        UNPACK_ARGS();
-                        call(context, secondary_arg, /* function_ptr= */ loadSymbol(primary_arg, context));
-                        if (!m_running)
-                            GOTO_HALT();
-                        DISPATCH();
-                    }
-
-                    TARGET(CALL_SYMBOL_BY_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        call(context, secondary_arg, /* function_ptr= */ loadSymbolFromIndex(primary_arg, context));
-                        if (!m_running)
-                            GOTO_HALT();
-                        DISPATCH();
-                    }
-
-                    TARGET(CALL_CURRENT_PAGE)
-                    {
-                        UNPACK_ARGS();
-                        context.last_symbol = primary_arg;
-                        call(context, secondary_arg, /* function_ptr= */ nullptr, /* or_address= */ static_cast<PageAddr_t>(context.pp));
-                        if (!m_running)
-                            GOTO_HALT();
-                        DISPATCH();
-                    }
-
-                    TARGET(GET_FIELD_FROM_SYMBOL)
-                    {
-                        UNPACK_ARGS();
-                        push(getField(loadSymbol(primary_arg, context), secondary_arg, context), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(GET_FIELD_FROM_SYMBOL_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        push(getField(loadSymbolFromIndex(primary_arg, context), secondary_arg, context), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(AT_SYM_SYM)
-                    {
-                        UNPACK_ARGS();
-                        push(helper::at(*loadSymbol(primary_arg, context), *loadSymbol(secondary_arg, context), *this), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(AT_SYM_INDEX_SYM_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        push(helper::at(*loadSymbolFromIndex(primary_arg, context), *loadSymbolFromIndex(secondary_arg, context), *this), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(AT_SYM_INDEX_CONST)
-                    {
-                        UNPACK_ARGS();
-                        push(helper::at(*loadSymbolFromIndex(primary_arg, context), *loadConstAsPtr(secondary_arg), *this), context);
-                        DISPATCH();
-                    }
-
-                    TARGET(CHECK_TYPE_OF)
-                    {
-                        UNPACK_ARGS();
-                        const Value* sym = loadSymbol(primary_arg, context);
-                        const Value* cst = loadConstAsPtr(secondary_arg);
-                        push(
-                            cst->valueType() == ValueType::String &&
-                                    std::to_string(sym->valueType()) == cst->string()
-                                ? Builtins::trueSym
-                                : Builtins::falseSym,
-                            context);
-                        DISPATCH();
-                    }
-
-                    TARGET(CHECK_TYPE_OF_BY_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        const Value* sym = loadSymbolFromIndex(primary_arg, context);
-                        const Value* cst = loadConstAsPtr(secondary_arg);
-                        push(
-                            cst->valueType() == ValueType::String &&
-                                    std::to_string(sym->valueType()) == cst->string()
-                                ? Builtins::trueSym
-                                : Builtins::falseSym,
-                            context);
-                        DISPATCH();
-                    }
-
-                    TARGET(APPEND_IN_PLACE_SYM)
-                    {
-                        UNPACK_ARGS();
-                        listAppendInPlace(loadSymbol(primary_arg, context), secondary_arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(APPEND_IN_PLACE_SYM_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        listAppendInPlace(loadSymbolFromIndex(primary_arg, context), secondary_arg, context);
-                        DISPATCH();
-                    }
-
-                    TARGET(STORE_LEN)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* a = loadSymbolFromIndex(primary_arg, context);
-                            Value len;
-                            if (a->valueType() == ValueType::List)
-                                len = Value(static_cast<int>(a->constList().size()));
-                            else if (a->valueType() == ValueType::String)
-                                len = Value(static_cast<int>(a->string().size()));
-                            else
-                                throw types::TypeCheckingError(
-                                    "len",
-                                    { { types::Contract { { types::Typedef("value", ValueType::List) } },
-                                        types::Contract { { types::Typedef("value", ValueType::String) } } } },
-                                    { *a });
-                            store(secondary_arg, &len, context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(LT_LEN_SYM_JUMP_IF_FALSE)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            const Value* sym = loadSymbol(primary_arg, context);
-                            Value size;
-
-                            if (sym->valueType() == ValueType::List)
-                                size = Value(static_cast<int>(sym->constList().size()));
-                            else if (sym->valueType() == ValueType::String)
-                                size = Value(static_cast<int>(sym->string().size()));
-                            else
-                                throw types::TypeCheckingError(
-                                    "len",
-                                    { { types::Contract { { types::Typedef("value", ValueType::List) } },
-                                        types::Contract { { types::Typedef("value", ValueType::String) } } } },
-                                    { *sym });
-
-                            if (!(*popAndResolveAsPtr(context) < size))
-                                jump(secondary_arg, context);
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(MUL_BY)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* var = loadSymbol(primary_arg, context);
-                            const int other = static_cast<int>(secondary_arg) - 2048;
-
-                            // use internal reference, shouldn't break anything so far, unless it's already a ref
-                            if (var->valueType() == ValueType::Reference)
-                                var = var->reference();
-
-                            if (var->valueType() == ValueType::Number)
-                                push(Value(var->number() * other), context);
-                            else
-                                throw types::TypeCheckingError(
-                                    "*",
-                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                    { *var, Value(other) });
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(MUL_BY_INDEX)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* var = loadSymbolFromIndex(primary_arg, context);
-                            const int other = static_cast<int>(secondary_arg) - 2048;
-
-                            // use internal reference, shouldn't break anything so far, unless it's already a ref
-                            if (var->valueType() == ValueType::Reference)
-                                var = var->reference();
-
-                            if (var->valueType() == ValueType::Number)
-                                push(Value(var->number() * other), context);
-                            else
-                                throw types::TypeCheckingError(
-                                    "*",
-                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                    { *var, Value(other) });
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(MUL_SET_VAL)
-                    {
-                        UNPACK_ARGS();
-                        {
-                            Value* var = loadSymbol(primary_arg, context);
-                            const int other = static_cast<int>(secondary_arg) - 2048;
-
-                            // use internal reference, shouldn't break anything so far, unless it's already a ref
-                            if (var->valueType() == ValueType::Reference)
-                                var = var->reference();
-
-                            if (var->valueType() == ValueType::Number)
-                            {
-                                auto val = Value(var->number() * other);
-                                setVal(primary_arg, &val, context);
-                            }
-                            else
-                                throw types::TypeCheckingError(
-                                    "*",
-                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                    { *var, Value(other) });
-                        }
-                        DISPATCH();
-                    }
-
-                    TARGET(FUSED_MATH)
-                    {
-                        const auto op1 = static_cast<Instruction>(padding),
-                                   op2 = static_cast<Instruction>((arg & 0xff00) >> 8),
-                                   op3 = static_cast<Instruction>(arg & 0x00ff);
-                        const std::size_t arg_count = (op1 != NOP) + (op2 != NOP) + (op3 != NOP);
-
-                        const Value* d = popAndResolveAsPtr(context);
-                        const Value* c = popAndResolveAsPtr(context);
-                        const Value* b = popAndResolveAsPtr(context);
-
-                        if (d->valueType() != ValueType::Number || c->valueType() != ValueType::Number)
+                        Value* var = loadSymbol(primary_arg, context);
+
+                        // use internal reference, shouldn't break anything so far, unless it's already a ref
+                        if (var->valueType() == ValueType::Reference)
+                            var = var->reference();
+
+                        if (var->valueType() == ValueType::Number)
+                            push(Value(var->number() + secondary_arg), context);
+                        else
                             throw types::TypeCheckingError(
-                                helper::mathInstToStr(op1),
+                                "+",
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                { *c, *d });
+                                { *var, Value(secondary_arg) });
+                    }
+                    DISPATCH();
+                }
 
-                        double temp = helper::doMath(c->number(), d->number(), op1);
-                        if (b->valueType() != ValueType::Number)
+                TARGET(INCREMENT_BY_INDEX)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* var = loadSymbolFromIndex(primary_arg, context);
+
+                        // use internal reference, shouldn't break anything so far, unless it's already a ref
+                        if (var->valueType() == ValueType::Reference)
+                            var = var->reference();
+
+                        if (var->valueType() == ValueType::Number)
+                            push(Value(var->number() + secondary_arg), context);
+                        else
                             throw types::TypeCheckingError(
-                                helper::mathInstToStr(op2),
+                                "+",
                                 { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                { *b, Value(temp) });
-                        temp = helper::doMath(b->number(), temp, op2);
+                                { *var, Value(secondary_arg) });
+                    }
+                    DISPATCH();
+                }
 
-                        if (arg_count == 2)
-                            push(Value(temp), context);
-                        else if (arg_count == 3)
+                TARGET(INCREMENT_STORE)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* var = loadSymbol(primary_arg, context);
+
+                        // use internal reference, shouldn't break anything so far, unless it's already a ref
+                        if (var->valueType() == ValueType::Reference)
+                            var = var->reference();
+
+                        if (var->valueType() == ValueType::Number)
                         {
-                            const Value* a = popAndResolveAsPtr(context);
-                            if (a->valueType() != ValueType::Number)
-                                throw types::TypeCheckingError(
-                                    helper::mathInstToStr(op3),
-                                    { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
-                                    { *a, Value(temp) });
-
-                            temp = helper::doMath(a->number(), temp, op3);
-                            push(Value(temp), context);
+                            auto val = Value(var->number() + secondary_arg);
+                            setVal(primary_arg, &val, context);
                         }
                         else
-                            throw Error(
-                                fmt::format(
-                                    "FUSED_MATH got {} arguments, expected 2 or 3. Arguments: {:x}{:x}{:x}. There is a bug in the codegen!",
-                                    arg_count, static_cast<uint8_t>(op1), static_cast<uint8_t>(op2), static_cast<uint8_t>(op3)));
-                        DISPATCH();
+                            throw types::TypeCheckingError(
+                                "+",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *var, Value(secondary_arg) });
                     }
-#pragma endregion
+                    DISPATCH();
                 }
-#if ARK_USE_COMPUTED_GOTOS
-            dispatch_end:
-                do
+
+                TARGET(DECREMENT)
                 {
-                } while (false);
-#endif
-            }
-        }
-        catch (const Error& e)
-        {
-            if (fail_with_exception)
-            {
-                std::stringstream stream;
-                backtrace(context, stream, /* colorize= */ false);
-                // It's important we have an Ark::Error here, as the constructor for NestedError
-                // does more than just aggregate error messages, hence the code duplication.
-                throw NestedError(e, stream.str(), *this);
-            }
-            else
-                showBacktraceWithException(Error(e.details(/* colorize= */ true, *this)), context);
-        }
-        catch (const std::exception& e)
-        {
-            if (fail_with_exception)
-            {
-                std::stringstream stream;
-                backtrace(context, stream, /* colorize= */ false);
-                throw NestedError(e, stream.str());
-            }
-            else
-                showBacktraceWithException(e, context);
-        }
-        catch (...)
-        {
-            if (fail_with_exception)
-                throw;
+                    UNPACK_ARGS();
+                    {
+                        Value* var = loadSymbol(primary_arg, context);
 
-#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
-            throw;
-#endif
-            fmt::println("Unknown error");
-            backtrace(context);
-            m_exit_code = 1;
-        }
+                        // use internal reference, shouldn't break anything so far, unless it's already a ref
+                        if (var->valueType() == ValueType::Reference)
+                            var = var->reference();
 
-        return m_exit_code;
+                        if (var->valueType() == ValueType::Number)
+                            push(Value(var->number() - secondary_arg), context);
+                        else
+                            throw types::TypeCheckingError(
+                                "-",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *var, Value(secondary_arg) });
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(DECREMENT_BY_INDEX)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* var = loadSymbolFromIndex(primary_arg, context);
+
+                        // use internal reference, shouldn't break anything so far, unless it's already a ref
+                        if (var->valueType() == ValueType::Reference)
+                            var = var->reference();
+
+                        if (var->valueType() == ValueType::Number)
+                            push(Value(var->number() - secondary_arg), context);
+                        else
+                            throw types::TypeCheckingError(
+                                "-",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *var, Value(secondary_arg) });
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(DECREMENT_STORE)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* var = loadSymbol(primary_arg, context);
+
+                        // use internal reference, shouldn't break anything so far, unless it's already a ref
+                        if (var->valueType() == ValueType::Reference)
+                            var = var->reference();
+
+                        if (var->valueType() == ValueType::Number)
+                        {
+                            auto val = Value(var->number() - secondary_arg);
+                            setVal(primary_arg, &val, context);
+                        }
+                        else
+                            throw types::TypeCheckingError(
+                                "-",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *var, Value(secondary_arg) });
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(STORE_TAIL)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* list = loadSymbol(primary_arg, context);
+                        Value tail = helper::tail(list);
+                        store(secondary_arg, &tail, context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(STORE_TAIL_BY_INDEX)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* list = loadSymbolFromIndex(primary_arg, context);
+                        Value tail = helper::tail(list);
+                        store(secondary_arg, &tail, context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(STORE_HEAD)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* list = loadSymbol(primary_arg, context);
+                        Value head = helper::head(list);
+                        store(secondary_arg, &head, context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(STORE_HEAD_BY_INDEX)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* list = loadSymbolFromIndex(primary_arg, context);
+                        Value head = helper::head(list);
+                        store(secondary_arg, &head, context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(STORE_LIST)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value l = createList(primary_arg, context);
+                        store(secondary_arg, &l, context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(SET_VAL_TAIL)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* list = loadSymbol(primary_arg, context);
+                        Value tail = helper::tail(list);
+                        setVal(secondary_arg, &tail, context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(SET_VAL_TAIL_BY_INDEX)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* list = loadSymbolFromIndex(primary_arg, context);
+                        Value tail = helper::tail(list);
+                        setVal(secondary_arg, &tail, context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(SET_VAL_HEAD)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* list = loadSymbol(primary_arg, context);
+                        Value head = helper::head(list);
+                        setVal(secondary_arg, &head, context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(SET_VAL_HEAD_BY_INDEX)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* list = loadSymbolFromIndex(primary_arg, context);
+                        Value head = helper::head(list);
+                        setVal(secondary_arg, &head, context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(CALL_BUILTIN)
+                {
+                    UNPACK_ARGS();
+                    // no stack size check because we do not push IP/PP since we are just calling a builtin
+                    callBuiltin(
+                        context,
+                        Builtins::builtins[primary_arg].second,
+                        secondary_arg,
+                        /* remove_return_address= */ true,
+                        /* remove_builtin= */ false);
+                    if (!m_running)
+                        GOTO_HALT();
+                    DISPATCH();
+                }
+
+                TARGET(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS)
+                {
+                    UNPACK_ARGS();
+                    // no stack size check because we do not push IP/PP since we are just calling a builtin
+                    callBuiltin(
+                        context,
+                        Builtins::builtins[primary_arg].second,
+                        secondary_arg,
+                        // we didn't have a PUSH_RETURN_ADDRESS instruction before,
+                        // so do not attempt to remove (pp,ip) from the stack: they're not there!
+                        /* remove_return_address= */ false,
+                        /* remove_builtin= */ false);
+                    if (!m_running)
+                        GOTO_HALT();
+                    DISPATCH();
+                }
+
+                TARGET(LT_CONST_JUMP_IF_FALSE)
+                {
+                    UNPACK_ARGS();
+                    const Value* sym = popAndResolveAsPtr(context);
+                    if (!(*sym < *loadConstAsPtr(primary_arg)))
+                        jump(secondary_arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(LT_CONST_JUMP_IF_TRUE)
+                {
+                    UNPACK_ARGS();
+                    const Value* sym = popAndResolveAsPtr(context);
+                    if (*sym < *loadConstAsPtr(primary_arg))
+                        jump(secondary_arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(LT_SYM_JUMP_IF_FALSE)
+                {
+                    UNPACK_ARGS();
+                    const Value* sym = popAndResolveAsPtr(context);
+                    if (!(*sym < *loadSymbol(primary_arg, context)))
+                        jump(secondary_arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(GT_CONST_JUMP_IF_TRUE)
+                {
+                    UNPACK_ARGS();
+                    const Value* sym = popAndResolveAsPtr(context);
+                    const Value* cst = loadConstAsPtr(primary_arg);
+                    if (*cst < *sym)
+                        jump(secondary_arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(GT_CONST_JUMP_IF_FALSE)
+                {
+                    UNPACK_ARGS();
+                    const Value* sym = popAndResolveAsPtr(context);
+                    const Value* cst = loadConstAsPtr(primary_arg);
+                    if (!(*cst < *sym))
+                        jump(secondary_arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(GT_SYM_JUMP_IF_FALSE)
+                {
+                    UNPACK_ARGS();
+                    const Value* sym = popAndResolveAsPtr(context);
+                    const Value* rhs = loadSymbol(primary_arg, context);
+                    if (!(*rhs < *sym))
+                        jump(secondary_arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(EQ_CONST_JUMP_IF_TRUE)
+                {
+                    UNPACK_ARGS();
+                    const Value* sym = popAndResolveAsPtr(context);
+                    if (*sym == *loadConstAsPtr(primary_arg))
+                        jump(secondary_arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(EQ_SYM_INDEX_JUMP_IF_TRUE)
+                {
+                    UNPACK_ARGS();
+                    const Value* sym = popAndResolveAsPtr(context);
+                    if (*sym == *loadSymbolFromIndex(primary_arg, context))
+                        jump(secondary_arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(NEQ_CONST_JUMP_IF_TRUE)
+                {
+                    UNPACK_ARGS();
+                    const Value* sym = popAndResolveAsPtr(context);
+                    if (*sym != *loadConstAsPtr(primary_arg))
+                        jump(secondary_arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(NEQ_SYM_JUMP_IF_FALSE)
+                {
+                    UNPACK_ARGS();
+                    const Value* sym = popAndResolveAsPtr(context);
+                    if (*sym == *loadSymbol(primary_arg, context))
+                        jump(secondary_arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(CALL_SYMBOL)
+                {
+                    UNPACK_ARGS();
+                    call(context, secondary_arg, /* function_ptr= */ loadSymbol(primary_arg, context));
+                    if (!m_running)
+                        GOTO_HALT();
+                    DISPATCH();
+                }
+
+                TARGET(CALL_SYMBOL_BY_INDEX)
+                {
+                    UNPACK_ARGS();
+                    call(context, secondary_arg, /* function_ptr= */ loadSymbolFromIndex(primary_arg, context));
+                    if (!m_running)
+                        GOTO_HALT();
+                    DISPATCH();
+                }
+
+                TARGET(CALL_CURRENT_PAGE)
+                {
+                    UNPACK_ARGS();
+                    context.last_symbol = primary_arg;
+                    call(context, secondary_arg, /* function_ptr= */ nullptr, /* or_address= */ static_cast<PageAddr_t>(context.pp));
+                    if (!m_running)
+                        GOTO_HALT();
+                    DISPATCH();
+                }
+
+                TARGET(GET_FIELD_FROM_SYMBOL)
+                {
+                    UNPACK_ARGS();
+                    push(getField(loadSymbol(primary_arg, context), secondary_arg, context), context);
+                    DISPATCH();
+                }
+
+                TARGET(GET_FIELD_FROM_SYMBOL_INDEX)
+                {
+                    UNPACK_ARGS();
+                    push(getField(loadSymbolFromIndex(primary_arg, context), secondary_arg, context), context);
+                    DISPATCH();
+                }
+
+                TARGET(AT_SYM_SYM)
+                {
+                    UNPACK_ARGS();
+                    push(helper::at(*loadSymbol(primary_arg, context), *loadSymbol(secondary_arg, context), *this), context);
+                    DISPATCH();
+                }
+
+                TARGET(AT_SYM_INDEX_SYM_INDEX)
+                {
+                    UNPACK_ARGS();
+                    push(helper::at(*loadSymbolFromIndex(primary_arg, context), *loadSymbolFromIndex(secondary_arg, context), *this), context);
+                    DISPATCH();
+                }
+
+                TARGET(AT_SYM_INDEX_CONST)
+                {
+                    UNPACK_ARGS();
+                    push(helper::at(*loadSymbolFromIndex(primary_arg, context), *loadConstAsPtr(secondary_arg), *this), context);
+                    DISPATCH();
+                }
+
+                TARGET(CHECK_TYPE_OF)
+                {
+                    UNPACK_ARGS();
+                    const Value* sym = loadSymbol(primary_arg, context);
+                    const Value* cst = loadConstAsPtr(secondary_arg);
+                    push(
+                        cst->valueType() == ValueType::String &&
+                                std::to_string(sym->valueType()) == cst->string()
+                            ? Builtins::trueSym
+                            : Builtins::falseSym,
+                        context);
+                    DISPATCH();
+                }
+
+                TARGET(CHECK_TYPE_OF_BY_INDEX)
+                {
+                    UNPACK_ARGS();
+                    const Value* sym = loadSymbolFromIndex(primary_arg, context);
+                    const Value* cst = loadConstAsPtr(secondary_arg);
+                    push(
+                        cst->valueType() == ValueType::String &&
+                                std::to_string(sym->valueType()) == cst->string()
+                            ? Builtins::trueSym
+                            : Builtins::falseSym,
+                        context);
+                    DISPATCH();
+                }
+
+                TARGET(APPEND_IN_PLACE_SYM)
+                {
+                    UNPACK_ARGS();
+                    listAppendInPlace(loadSymbol(primary_arg, context), secondary_arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(APPEND_IN_PLACE_SYM_INDEX)
+                {
+                    UNPACK_ARGS();
+                    listAppendInPlace(loadSymbolFromIndex(primary_arg, context), secondary_arg, context);
+                    DISPATCH();
+                }
+
+                TARGET(STORE_LEN)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* a = loadSymbolFromIndex(primary_arg, context);
+                        Value len;
+                        if (a->valueType() == ValueType::List)
+                            len = Value(static_cast<int>(a->constList().size()));
+                        else if (a->valueType() == ValueType::String)
+                            len = Value(static_cast<int>(a->string().size()));
+                        else
+                            throw types::TypeCheckingError(
+                                "len",
+                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                { *a });
+                        store(secondary_arg, &len, context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(LT_LEN_SYM_JUMP_IF_FALSE)
+                {
+                    UNPACK_ARGS();
+                    {
+                        const Value* sym = loadSymbol(primary_arg, context);
+                        Value size;
+
+                        if (sym->valueType() == ValueType::List)
+                            size = Value(static_cast<int>(sym->constList().size()));
+                        else if (sym->valueType() == ValueType::String)
+                            size = Value(static_cast<int>(sym->string().size()));
+                        else
+                            throw types::TypeCheckingError(
+                                "len",
+                                { { types::Contract { { types::Typedef("value", ValueType::List) } },
+                                    types::Contract { { types::Typedef("value", ValueType::String) } } } },
+                                { *sym });
+
+                        if (!(*popAndResolveAsPtr(context) < size))
+                            jump(secondary_arg, context);
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(MUL_BY)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* var = loadSymbol(primary_arg, context);
+                        const int other = static_cast<int>(secondary_arg) - 2048;
+
+                        // use internal reference, shouldn't break anything so far, unless it's already a ref
+                        if (var->valueType() == ValueType::Reference)
+                            var = var->reference();
+
+                        if (var->valueType() == ValueType::Number)
+                            push(Value(var->number() * other), context);
+                        else
+                            throw types::TypeCheckingError(
+                                "*",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *var, Value(other) });
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(MUL_BY_INDEX)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* var = loadSymbolFromIndex(primary_arg, context);
+                        const int other = static_cast<int>(secondary_arg) - 2048;
+
+                        // use internal reference, shouldn't break anything so far, unless it's already a ref
+                        if (var->valueType() == ValueType::Reference)
+                            var = var->reference();
+
+                        if (var->valueType() == ValueType::Number)
+                            push(Value(var->number() * other), context);
+                        else
+                            throw types::TypeCheckingError(
+                                "*",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *var, Value(other) });
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(MUL_SET_VAL)
+                {
+                    UNPACK_ARGS();
+                    {
+                        Value* var = loadSymbol(primary_arg, context);
+                        const int other = static_cast<int>(secondary_arg) - 2048;
+
+                        // use internal reference, shouldn't break anything so far, unless it's already a ref
+                        if (var->valueType() == ValueType::Reference)
+                            var = var->reference();
+
+                        if (var->valueType() == ValueType::Number)
+                        {
+                            auto val = Value(var->number() * other);
+                            setVal(primary_arg, &val, context);
+                        }
+                        else
+                            throw types::TypeCheckingError(
+                                "*",
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *var, Value(other) });
+                    }
+                    DISPATCH();
+                }
+
+                TARGET(FUSED_MATH)
+                {
+                    const auto op1 = static_cast<Instruction>(padding),
+                               op2 = static_cast<Instruction>((arg & 0xff00) >> 8),
+                               op3 = static_cast<Instruction>(arg & 0x00ff);
+                    const std::size_t arg_count = (op1 != NOP) + (op2 != NOP) + (op3 != NOP);
+
+                    const Value* d = popAndResolveAsPtr(context);
+                    const Value* c = popAndResolveAsPtr(context);
+                    const Value* b = popAndResolveAsPtr(context);
+
+                    if (d->valueType() != ValueType::Number || c->valueType() != ValueType::Number)
+                        throw types::TypeCheckingError(
+                            helper::mathInstToStr(op1),
+                            { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                            { *c, *d });
+
+                    double temp = helper::doMath(c->number(), d->number(), op1);
+                    if (b->valueType() != ValueType::Number)
+                        throw types::TypeCheckingError(
+                            helper::mathInstToStr(op2),
+                            { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                            { *b, Value(temp) });
+                    temp = helper::doMath(b->number(), temp, op2);
+
+                    if (arg_count == 2)
+                        push(Value(temp), context);
+                    else if (arg_count == 3)
+                    {
+                        const Value* a = popAndResolveAsPtr(context);
+                        if (a->valueType() != ValueType::Number)
+                            throw types::TypeCheckingError(
+                                helper::mathInstToStr(op3),
+                                { { types::Contract { { types::Typedef("a", ValueType::Number), types::Typedef("b", ValueType::Number) } } } },
+                                { *a, Value(temp) });
+
+                        temp = helper::doMath(a->number(), temp, op3);
+                        push(Value(temp), context);
+                    }
+                    else
+                        throw Error(
+                            fmt::format(
+                                "FUSED_MATH got {} arguments, expected 2 or 3. Arguments: {:x}{:x}{:x}. There is a bug in the codegen!",
+                                arg_count, static_cast<uint8_t>(op1), static_cast<uint8_t>(op2), static_cast<uint8_t>(op3)));
+                    DISPATCH();
+                }
+#pragma endregion
+            }
+#if ARK_USE_COMPUTED_GOTOS
+        dispatch_end:
+            do
+            {
+            } while (false);
+#endif
+        }
     }
 
     uint16_t VM::findNearestVariableIdWithValue(const Value& value, ExecutionContext& context) const noexcept
