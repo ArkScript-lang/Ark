@@ -131,6 +131,11 @@ namespace Ark::internal
         m_running = false;
     }
 
+    void Debugger::registerInstruction(const uint32_t word) noexcept
+    {
+        m_previous_insts.push_back(word);
+    }
+
     void Debugger::initCommands()
     {
         m_commands = {
@@ -165,8 +170,7 @@ namespace Ark::internal
                     return true;
                 }),
             Command(
-                StartsWith,
-                "stack",
+                StartsWith("stack"),
                 "show the last n values on the stack",
                 [this](const std::string& line, const CommandArgs& args) {
                     if (const auto arg = getArgAndParseOrError("stack", line, /* default_value= */ 5))
@@ -174,8 +178,7 @@ namespace Ark::internal
                     return false;
                 }),
             Command(
-                StartsWith,
-                "locals",
+                StartsWith("locals"),
                 "show the last n values on the locals' stack",
                 [this](const std::string& line, const CommandArgs& args) {
                     if (const auto arg = getArgAndParseOrError("locals", line, /* default_value= */ 5))
@@ -192,6 +195,14 @@ namespace Ark::internal
                         fmt::styled(args.ip / 4, m_colorize ? fmt::fg(fmt::color::cyan) : fmt::text_style()),
                         fmt::styled(args.pp, m_colorize ? fmt::fg(fmt::color::green) : fmt::text_style()),
                         fmt::styled(args.ctx_ptr->sp, m_colorize ? fmt::fg(fmt::color::yellow) : fmt::text_style()));
+                    return false;
+                }),
+            Command(
+                StartsWith("trace"),
+                "show the last n executed instructions",
+                [this](const std::string& line, const CommandArgs& args) {
+                    if (const auto arg = getArgAndParseOrError("trace", line, /* default_value= */ 10))
+                        showPreviousInstructions(*args.vm_ptr, arg.value());
                     return false;
                 }),
         };
@@ -298,6 +309,26 @@ namespace Ark::internal
             fmt::println(m_os, "Current scope is empty");
 
         fmt::println(m_os, "");
+    }
+
+    void Debugger::showPreviousInstructions(const VM& vm, const std::size_t count) const
+    {
+        BytecodeReader bcr;
+        bcr.feed(vm.bytecode());
+
+        const auto syms = bcr.symbols();
+        const auto vals = bcr.values(syms);
+
+        for (std::size_t i = 0; i < count; ++i)
+        {
+            if (i >= m_previous_insts.size())
+                break;
+
+            const uint8_t inst = (m_previous_insts[m_previous_insts.size() - 1 - i] >> 24) & 0xff;
+            const uint8_t padding = (m_previous_insts[m_previous_insts.size() - 1 - i] >> 16) & 0xff;
+            const uint16_t arg = m_previous_insts[m_previous_insts.size() - 1 - i] & 0xffff;
+            bcr.printInstruction(m_os, inst, padding, arg, syms, vals, m_colorize);
+        }
     }
 
     std::optional<std::string> Debugger::getCommandArg(const std::string& command, const std::string& line)

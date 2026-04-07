@@ -94,6 +94,8 @@ namespace Ark::internal
          */
         void run(VM& vm, ExecutionContext& context, bool from_breakpoint);
 
+        void registerInstruction(uint32_t word) noexcept;
+
         [[nodiscard]] inline bool isRunning() const noexcept
         {
             return m_running;
@@ -112,9 +114,10 @@ namespace Ark::internal
             std::size_t ip, pp;
         };
 
-        struct StartsWith_t
+        struct StartsWith
         {
-        } StartsWith;
+            std::string prefix;
+        };
 
         struct Command
         {
@@ -133,8 +136,8 @@ namespace Ark::internal
                 is_exact(true), names(list_of_names), description(std::move(desc)), action(do_this)
             {}
 
-            Command(StartsWith_t, std::string start, std::string desc, Action_t&& do_this) :
-                is_exact(false), names({ std::move(start) }), description(std::move(desc)), action(std::move(do_this))
+            Command(StartsWith start, std::string desc, Action_t&& do_this) :
+                is_exact(false), names({ std::move(start.prefix) }), description(std::move(desc)), action(std::move(do_this))
             {}
         };
 
@@ -147,6 +150,8 @@ namespace Ark::internal
         bool m_running { false };
         bool m_quit_vm { false };
 
+        std::vector<uint32_t> m_previous_insts;
+
         std::ostream& m_os;
         bool m_colorize;
         std::unique_ptr<std::istream> m_prompt_stream;
@@ -154,11 +159,12 @@ namespace Ark::internal
         std::size_t m_line_count { 0 };
 
         void initCommands();
-        std::optional<Command> matchCommand(const std::string& line) const;
+        [[nodiscard]] std::optional<Command> matchCommand(const std::string& line) const;
 
         void showContext(const VM& vm, const ExecutionContext& context) const;
         void showStack(VM& vm, const ExecutionContext& context, std::size_t count) const;
         void showLocals(VM& vm, ExecutionContext& context, std::size_t count) const;
+        void showPreviousInstructions(const VM& vm, std::size_t count) const;
 
         static std::optional<std::string> getCommandArg(const std::string& command, const std::string& line);
         static std::optional<std::size_t> parseStringAsInt(const std::string& str);
