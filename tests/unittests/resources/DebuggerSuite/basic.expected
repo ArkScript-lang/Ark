@@ -58,7 +58,7 @@ Available commands:
   stack <n=5> -- show the last n values on the stack
   locals <n=5> -- show the last n values on the locals' stack
   ptr -- show the values of the VM pointers
-  trace <n=5> -- show the last n executed instructions
+  trace <n=10> -- show the last n executed instructions
 dbg[pp:1,ip:5]:001> continue
 dbg: continue
 ark: in (foo x y z), after second breakpoint

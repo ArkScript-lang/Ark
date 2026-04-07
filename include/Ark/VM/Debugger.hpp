@@ -125,6 +125,7 @@ namespace Ark::internal
 
             bool is_exact;
             std::vector<std::string> names;
+            std::vector<std::pair<std::string, std::string>> args;
             std::string description;
             Action_t action;
 
@@ -136,8 +137,8 @@ namespace Ark::internal
                 is_exact(true), names(list_of_names), description(std::move(desc)), action(do_this)
             {}
 
-            Command(StartsWith start, std::string desc, Action_t&& do_this) :
-                is_exact(false), names({ std::move(start.prefix) }), description(std::move(desc)), action(std::move(do_this))
+            Command(StartsWith start, std::vector<std::pair<std::string, std::string>> arguments, std::string desc, Action_t&& do_this) :
+                is_exact(false), names({ std::move(start.prefix) }), args(std::move(arguments)), description(std::move(desc)), action(std::move(do_this))
             {}
         };
 
