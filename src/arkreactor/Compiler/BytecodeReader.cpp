@@ -9,10 +9,98 @@
 #include <Ark/Compiler/Serialization/IntegerSerializer.hpp>
 #include <fmt/core.h>
 #include <fmt/color.h>
+#include <fmt/ostream.h>
 
 namespace Ark
 {
     using namespace Ark::internal;
+
+    BytecodeReader::BytecodeReader()
+    {
+        m_arg_kinds = {
+            { LOAD_FAST, ArgKind::Symbol },
+            { LOAD_FAST_BY_INDEX, ArgKind::Raw },
+            { LOAD_SYMBOL, ArgKind::Symbol },
+            { LOAD_CONST, ArgKind::Constant },
+            { POP_JUMP_IF_TRUE, ArgKind::Raw },
+            { STORE, ArgKind::Symbol },
+            { STORE_REF, ArgKind::Symbol },
+            { SET_VAL, ArgKind::Symbol },
+            { POP_JUMP_IF_FALSE, ArgKind::Raw },
+            { JUMP, ArgKind::Raw },
+            { PUSH_RETURN_ADDRESS, ArgKind::RawHex },
+            { CALL, ArgKind::Raw },
+            { CAPTURE, ArgKind::Symbol },
+            { RENAME_NEXT_CAPTURE, ArgKind::Symbol },
+            { BUILTIN, ArgKind::Builtin },
+            { DEL, ArgKind::Symbol },
+            { MAKE_CLOSURE, ArgKind::Constant },
+            { GET_FIELD, ArgKind::Symbol },
+            { PLUGIN, ArgKind::Constant },
+            { LIST, ArgKind::Raw },
+            { APPEND, ArgKind::Raw },
+            { CONCAT, ArgKind::Raw },
+            { APPEND_IN_PLACE, ArgKind::Raw },
+            { CONCAT_IN_PLACE, ArgKind::Raw },
+            { POP_LIST, ArgKind::Raw },
+            { POP_LIST_IN_PLACE, ArgKind::Raw },
+            { SET_AT_INDEX, ArgKind::Raw },
+            { SET_AT_2_INDEX, ArgKind::Raw },
+            { RESET_SCOPE_JUMP, ArgKind::Raw },
+            { LOAD_CONST_LOAD_CONST, ArgKind::ConstConst },
+            { LOAD_CONST_STORE, ArgKind::ConstSym },
+            { LOAD_CONST_SET_VAL, ArgKind::ConstSym },
+            { STORE_FROM, ArgKind::SymSym },
+            { STORE_FROM_INDEX, ArgKind::RawSym },
+            { SET_VAL_FROM, ArgKind::SymSym },
+            { SET_VAL_FROM_INDEX, ArgKind::RawSym },
+            { INCREMENT, ArgKind::SymRaw },
+            { INCREMENT_BY_INDEX, ArgKind::RawRaw },
+            { INCREMENT_STORE, ArgKind::RawRaw },
+            { DECREMENT, ArgKind::SymRaw },
+            { DECREMENT_BY_INDEX, ArgKind::RawRaw },
+            { DECREMENT_STORE, ArgKind::SymRaw },
+            { STORE_TAIL, ArgKind::SymSym },
+            { STORE_TAIL_BY_INDEX, ArgKind::RawSym },
+            { STORE_HEAD, ArgKind::SymSym },
+            { STORE_HEAD_BY_INDEX, ArgKind::RawSym },
+            { STORE_LIST, ArgKind::RawSym },
+            { SET_VAL_TAIL, ArgKind::SymSym },
+            { SET_VAL_TAIL_BY_INDEX, ArgKind::RawSym },
+            { SET_VAL_HEAD, ArgKind::SymSym },
+            { SET_VAL_HEAD_BY_INDEX, ArgKind::RawSym },
+            { CALL_BUILTIN, ArgKind::BuiltinRaw },
+            { CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, ArgKind::BuiltinRaw },
+            { LT_CONST_JUMP_IF_FALSE, ArgKind::ConstRaw },
+            { LT_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
+            { LT_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
+            { GT_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
+            { GT_CONST_JUMP_IF_FALSE, ArgKind::ConstRaw },
+            { GT_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
+            { EQ_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
+            { EQ_SYM_INDEX_JUMP_IF_TRUE, ArgKind::SymRaw },
+            { NEQ_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
+            { NEQ_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
+            { CALL_SYMBOL, ArgKind::SymRaw },
+            { CALL_SYMBOL_BY_INDEX, ArgKind::RawRaw },
+            { CALL_CURRENT_PAGE, ArgKind::SymRaw },
+            { GET_FIELD_FROM_SYMBOL, ArgKind::SymSym },
+            { GET_FIELD_FROM_SYMBOL_INDEX, ArgKind::RawSym },
+            { AT_SYM_SYM, ArgKind::SymSym },
+            { AT_SYM_INDEX_SYM_INDEX, ArgKind::RawRaw },
+            { AT_SYM_INDEX_CONST, ArgKind::RawConst },
+            { CHECK_TYPE_OF, ArgKind::SymConst },
+            { CHECK_TYPE_OF_BY_INDEX, ArgKind::RawConst },
+            { APPEND_IN_PLACE_SYM, ArgKind::SymRaw },
+            { APPEND_IN_PLACE_SYM_INDEX, ArgKind::RawRaw },
+            { STORE_LEN, ArgKind::RawSym },
+            { LT_LEN_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
+            { MUL_BY, ArgKind::RawRaw },
+            { MUL_BY_INDEX, ArgKind::RawRaw },
+            { MUL_SET_VAL, ArgKind::RawRaw },
+            { FUSED_MATH, ArgKind::RawRawRaw }
+        };
+    }
 
     void BytecodeReader::feed(const bytecode_t& bytecode)
     {
@@ -439,215 +527,6 @@ namespace Ark
                 fmt::print("\n");
         }
 
-        const auto stringify_value = [](const Value& val) -> std::string {
-            switch (val.valueType())
-            {
-                case ValueType::Number:
-                    return fmt::format("{} (Number)", val.number());
-                case ValueType::String:
-                    return fmt::format("{} (String)", val.string());
-                case ValueType::PageAddr:
-                    return fmt::format("{} (PageAddr)", val.pageAddr());
-                default:
-                    return "";
-            }
-        };
-
-        enum class ArgKind
-        {
-            Symbol,
-            Constant,
-            Builtin,
-            Raw,  ///< eg: Stack index, jump address, number
-            RawHex,
-            ConstConst,
-            ConstSym,
-            SymConst,
-            SymSym,
-            BuiltinRaw,  ///< Builtin, number
-            ConstRaw,    ///< Constant, number
-            SymRaw,      ///< Symbol, number
-            RawSym,      ///< Symbol index, symbol
-            RawConst,    ///< Symbol index, constant
-            RawRaw,      ///< Symbol index, symbol index
-            RawRawRaw
-        };
-
-        struct Arg
-        {
-            ArgKind kind;
-            uint8_t padding;
-            uint16_t arg;
-
-            [[nodiscard]] uint16_t primary() const
-            {
-                return arg & 0x0fff;
-            }
-
-            [[nodiscard]] uint16_t secondary() const
-            {
-                return static_cast<uint16_t>((padding << 4) | (arg & 0xf000) >> 12);
-            }
-        };
-
-        const std::unordered_map<Instruction, ArgKind> arg_kinds = {
-            { LOAD_FAST, ArgKind::Symbol },
-            { LOAD_FAST_BY_INDEX, ArgKind::Raw },
-            { LOAD_SYMBOL, ArgKind::Symbol },
-            { LOAD_CONST, ArgKind::Constant },
-            { POP_JUMP_IF_TRUE, ArgKind::Raw },
-            { STORE, ArgKind::Symbol },
-            { STORE_REF, ArgKind::Symbol },
-            { SET_VAL, ArgKind::Symbol },
-            { POP_JUMP_IF_FALSE, ArgKind::Raw },
-            { JUMP, ArgKind::Raw },
-            { PUSH_RETURN_ADDRESS, ArgKind::RawHex },
-            { CALL, ArgKind::Raw },
-            { CAPTURE, ArgKind::Symbol },
-            { RENAME_NEXT_CAPTURE, ArgKind::Symbol },
-            { BUILTIN, ArgKind::Builtin },
-            { DEL, ArgKind::Symbol },
-            { MAKE_CLOSURE, ArgKind::Constant },
-            { GET_FIELD, ArgKind::Symbol },
-            { PLUGIN, ArgKind::Constant },
-            { LIST, ArgKind::Raw },
-            { APPEND, ArgKind::Raw },
-            { CONCAT, ArgKind::Raw },
-            { APPEND_IN_PLACE, ArgKind::Raw },
-            { CONCAT_IN_PLACE, ArgKind::Raw },
-            { POP_LIST, ArgKind::Raw },
-            { POP_LIST_IN_PLACE, ArgKind::Raw },
-            { SET_AT_INDEX, ArgKind::Raw },
-            { SET_AT_2_INDEX, ArgKind::Raw },
-            { RESET_SCOPE_JUMP, ArgKind::Raw },
-            { LOAD_CONST_LOAD_CONST, ArgKind::ConstConst },
-            { LOAD_CONST_STORE, ArgKind::ConstSym },
-            { LOAD_CONST_SET_VAL, ArgKind::ConstSym },
-            { STORE_FROM, ArgKind::SymSym },
-            { STORE_FROM_INDEX, ArgKind::RawSym },
-            { SET_VAL_FROM, ArgKind::SymSym },
-            { SET_VAL_FROM_INDEX, ArgKind::RawSym },
-            { INCREMENT, ArgKind::SymRaw },
-            { INCREMENT_BY_INDEX, ArgKind::RawRaw },
-            { INCREMENT_STORE, ArgKind::RawRaw },
-            { DECREMENT, ArgKind::SymRaw },
-            { DECREMENT_BY_INDEX, ArgKind::RawRaw },
-            { DECREMENT_STORE, ArgKind::SymRaw },
-            { STORE_TAIL, ArgKind::SymSym },
-            { STORE_TAIL_BY_INDEX, ArgKind::RawSym },
-            { STORE_HEAD, ArgKind::SymSym },
-            { STORE_HEAD_BY_INDEX, ArgKind::RawSym },
-            { STORE_LIST, ArgKind::RawSym },
-            { SET_VAL_TAIL, ArgKind::SymSym },
-            { SET_VAL_TAIL_BY_INDEX, ArgKind::RawSym },
-            { SET_VAL_HEAD, ArgKind::SymSym },
-            { SET_VAL_HEAD_BY_INDEX, ArgKind::RawSym },
-            { CALL_BUILTIN, ArgKind::BuiltinRaw },
-            { CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, ArgKind::BuiltinRaw },
-            { LT_CONST_JUMP_IF_FALSE, ArgKind::ConstRaw },
-            { LT_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
-            { LT_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
-            { GT_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
-            { GT_CONST_JUMP_IF_FALSE, ArgKind::ConstRaw },
-            { GT_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
-            { EQ_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
-            { EQ_SYM_INDEX_JUMP_IF_TRUE, ArgKind::SymRaw },
-            { NEQ_CONST_JUMP_IF_TRUE, ArgKind::ConstRaw },
-            { NEQ_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
-            { CALL_SYMBOL, ArgKind::SymRaw },
-            { CALL_SYMBOL_BY_INDEX, ArgKind::RawRaw },
-            { CALL_CURRENT_PAGE, ArgKind::SymRaw },
-            { GET_FIELD_FROM_SYMBOL, ArgKind::SymSym },
-            { GET_FIELD_FROM_SYMBOL_INDEX, ArgKind::RawSym },
-            { AT_SYM_SYM, ArgKind::SymSym },
-            { AT_SYM_INDEX_SYM_INDEX, ArgKind::RawRaw },
-            { AT_SYM_INDEX_CONST, ArgKind::RawConst },
-            { CHECK_TYPE_OF, ArgKind::SymConst },
-            { CHECK_TYPE_OF_BY_INDEX, ArgKind::RawConst },
-            { APPEND_IN_PLACE_SYM, ArgKind::SymRaw },
-            { APPEND_IN_PLACE_SYM_INDEX, ArgKind::RawRaw },
-            { STORE_LEN, ArgKind::RawSym },
-            { LT_LEN_SYM_JUMP_IF_FALSE, ArgKind::SymRaw },
-            { MUL_BY, ArgKind::RawRaw },
-            { MUL_BY_INDEX, ArgKind::RawRaw },
-            { MUL_SET_VAL, ArgKind::RawRaw },
-            { FUSED_MATH, ArgKind::RawRawRaw }
-        };
-
-        const auto builtin_name = [](const uint16_t idx) {
-            return Builtins::builtins[idx].first;
-        };
-        const auto value_str = [&stringify_value, &vals](const uint16_t idx) {
-            return stringify_value(vals.values[idx]);
-        };
-        const auto symbol_name = [&syms](const uint16_t idx) {
-            return syms.symbols[idx];
-        };
-
-        const auto color_print_inst = [=](const std::string& name, std::optional<Arg> arg = std::nullopt) {
-            fmt::print("{}", fmt::styled(name, fmt::fg(fmt::color::gold)));
-            if (arg.has_value())
-            {
-                constexpr auto sym_color = fmt::fg(fmt::color::green);
-                constexpr auto const_color = fmt::fg(fmt::color::magenta);
-                constexpr auto raw_color = fmt::fg(fmt::color::red);
-
-                switch (auto [kind, _, idx] = arg.value(); kind)
-                {
-                    case ArgKind::Symbol:
-                        fmt::print(sym_color, " {}\n", symbol_name(idx));
-                        break;
-                    case ArgKind::Constant:
-                        fmt::print(const_color, " {}\n", value_str(idx));
-                        break;
-                    case ArgKind::Builtin:
-                        fmt::print(" {}\n", builtin_name(idx));
-                        break;
-                    case ArgKind::Raw:
-                        fmt::print(raw_color, " ({})\n", idx);
-                        break;
-                    case ArgKind::RawHex:
-                        fmt::print(raw_color, " ({:#x})\n", idx);
-                        break;
-                    case ArgKind::ConstConst:
-                        fmt::print(" {}, {}\n", fmt::styled(value_str(arg->primary()), const_color), fmt::styled(value_str(arg->secondary()), const_color));
-                        break;
-                    case ArgKind::ConstSym:
-                        fmt::print(" {}, {}\n", fmt::styled(value_str(arg->primary()), const_color), fmt::styled(symbol_name(arg->secondary()), sym_color));
-                        break;
-                    case ArgKind::SymConst:
-                        fmt::print(" {}, {}\n", fmt::styled(symbol_name(arg->primary()), sym_color), fmt::styled(value_str(arg->secondary()), const_color));
-                        break;
-                    case ArgKind::SymSym:
-                        fmt::print(" {}, {}\n", fmt::styled(symbol_name(arg->primary()), sym_color), fmt::styled(symbol_name(arg->secondary()), sym_color));
-                        break;
-                    case ArgKind::BuiltinRaw:
-                        fmt::print(" {}, {}\n", builtin_name(arg->primary()), fmt::styled(arg->secondary(), raw_color));
-                        break;
-                    case ArgKind::ConstRaw:
-                        fmt::print(" {}, {}\n", fmt::styled(value_str(arg->primary()), const_color), fmt::styled(arg->secondary(), raw_color));
-                        break;
-                    case ArgKind::SymRaw:
-                        fmt::print(" {}, {}\n", fmt::styled(symbol_name(arg->primary()), sym_color), fmt::styled(arg->secondary(), raw_color));
-                        break;
-                    case ArgKind::RawSym:
-                        fmt::print(" {}, {}\n", fmt::styled(arg->primary(), raw_color), fmt::styled(symbol_name(arg->secondary()), sym_color));
-                        break;
-                    case ArgKind::RawConst:
-                        fmt::print(" {}, {}\n", fmt::styled(arg->primary(), raw_color), fmt::styled(value_str(arg->secondary()), const_color));
-                        break;
-                    case ArgKind::RawRaw:
-                        fmt::print(" {}, {}\n", fmt::styled(arg->primary(), raw_color), fmt::styled(arg->secondary(), raw_color));
-                        break;
-                    case ArgKind::RawRawRaw:
-                        fmt::print(" {}, {}, {}\n", fmt::styled(arg->padding, raw_color), fmt::styled((arg->arg & 0xff00) >> 8, raw_color), fmt::styled(arg->arg & 0x00ff, raw_color));
-                        break;
-                }
-            }
-            else
-                fmt::print("\n");
-        };
-
         if (segment == BytecodeSegment::All || segment == BytecodeSegment::Code || segment == BytecodeSegment::HeadersOnly)
         {
             uint16_t pp = 0;
@@ -705,16 +584,7 @@ namespace Ark
                         // padding inst arg arg
                         fmt::print(" {:02x} {:02x} {:02x} {:02x} ", inst, padding, page[j + 2], page[j + 3]);
 
-                        if (const auto idx = static_cast<std::size_t>(inst); idx < InstructionNames.size())
-                        {
-                            const auto inst_name = InstructionNames[idx];
-                            if (const auto iinst = static_cast<Instruction>(inst); arg_kinds.contains(iinst))
-                                color_print_inst(inst_name, Arg { arg_kinds.at(iinst), padding, arg });
-                            else
-                                color_print_inst(inst_name);
-                        }
-                        else
-                            fmt::println("Unknown instruction");
+                        printInstruction(std::cout, inst, padding, arg, syms, vals);
                     }
                 }
                 if (displayCode && segment != BytecodeSegment::HeadersOnly)
@@ -730,5 +600,111 @@ namespace Ark
         const auto x = static_cast<uint16_t>(m_bytecode[i] << 8);
         const uint16_t y = m_bytecode[++i];
         return x + y;
+    }
+
+    fmt::text_style withForeColor(const fmt::color color, const bool colorize)
+    {
+        if (colorize)
+            return fmt::fg(color);
+        return {};
+    }
+
+    void BytecodeReader::printInstruction(std::ostream& os, const uint8_t inst, const uint8_t padding, const uint16_t imm_arg, const Symbols& syms, const Values& vals, const bool colorize) const
+    {
+        const auto stringify_value = [](const Value& val) -> std::string {
+            switch (val.valueType())
+            {
+                case ValueType::Number:
+                    return fmt::format("{} (Number)", val.number());
+                case ValueType::String:
+                    return fmt::format("{} (String)", val.string());
+                case ValueType::PageAddr:
+                    return fmt::format("{} (PageAddr)", val.pageAddr());
+                default:
+                    return "";
+            }
+        };
+
+        const auto builtin_name = [](const uint16_t idx) {
+            return Builtins::builtins[idx].first;
+        };
+        const auto value_str = [&stringify_value, &vals](const uint16_t idx) {
+            return stringify_value(vals.values[idx]);
+        };
+        const auto symbol_name = [&syms](const uint16_t idx) {
+            return syms.symbols[idx];
+        };
+
+        if (const auto inst_idx = static_cast<std::size_t>(inst); inst_idx < InstructionNames.size())
+        {
+            const std::string name = InstructionNames[inst_idx];
+            std::optional<Arg> arg = std::nullopt;
+            if (const auto iinst = static_cast<Instruction>(inst); m_arg_kinds.contains(iinst))
+                arg = Arg { m_arg_kinds.at(iinst), padding, imm_arg };
+
+            fmt::print(os, "{}", fmt::styled(name, withForeColor(fmt::color::gold, colorize)));
+            if (arg.has_value())
+            {
+                const auto sym_color = withForeColor(fmt::color::green, colorize);
+                const auto const_color = withForeColor(fmt::color::magenta, colorize);
+                const auto raw_color = withForeColor(fmt::color::red, colorize);
+
+                switch (auto [kind, _, idx] = arg.value(); kind)
+                {
+                    case ArgKind::Symbol:
+                        fmt::print(os, " {}\n", fmt::styled(symbol_name(idx), sym_color));
+                        break;
+                    case ArgKind::Constant:
+                        fmt::print(os, " {}\n", fmt::styled(value_str(idx), const_color));
+                        break;
+                    case ArgKind::Builtin:
+                        fmt::print(os, " {}\n", builtin_name(idx));
+                        break;
+                    case ArgKind::Raw:
+                        fmt::print(os, " ({})\n", fmt::styled(idx, raw_color));
+                        break;
+                    case ArgKind::RawHex:
+                        fmt::print(os, " ({:#x})\n", fmt::styled(idx, raw_color));
+                        break;
+                    case ArgKind::ConstConst:
+                        fmt::print(os, " {}, {}\n", fmt::styled(value_str(arg->primary()), const_color), fmt::styled(value_str(arg->secondary()), const_color));
+                        break;
+                    case ArgKind::ConstSym:
+                        fmt::print(os, " {}, {}\n", fmt::styled(value_str(arg->primary()), const_color), fmt::styled(symbol_name(arg->secondary()), sym_color));
+                        break;
+                    case ArgKind::SymConst:
+                        fmt::print(os, " {}, {}\n", fmt::styled(symbol_name(arg->primary()), sym_color), fmt::styled(value_str(arg->secondary()), const_color));
+                        break;
+                    case ArgKind::SymSym:
+                        fmt::print(os, " {}, {}\n", fmt::styled(symbol_name(arg->primary()), sym_color), fmt::styled(symbol_name(arg->secondary()), sym_color));
+                        break;
+                    case ArgKind::BuiltinRaw:
+                        fmt::print(os, " {}, {}\n", builtin_name(arg->primary()), fmt::styled(arg->secondary(), raw_color));
+                        break;
+                    case ArgKind::ConstRaw:
+                        fmt::print(os, " {}, {}\n", fmt::styled(value_str(arg->primary()), const_color), fmt::styled(arg->secondary(), raw_color));
+                        break;
+                    case ArgKind::SymRaw:
+                        fmt::print(os, " {}, {}\n", fmt::styled(symbol_name(arg->primary()), sym_color), fmt::styled(arg->secondary(), raw_color));
+                        break;
+                    case ArgKind::RawSym:
+                        fmt::print(os, " {}, {}\n", fmt::styled(arg->primary(), raw_color), fmt::styled(symbol_name(arg->secondary()), sym_color));
+                        break;
+                    case ArgKind::RawConst:
+                        fmt::print(os, " {}, {}\n", fmt::styled(arg->primary(), raw_color), fmt::styled(value_str(arg->secondary()), const_color));
+                        break;
+                    case ArgKind::RawRaw:
+                        fmt::print(os, " {}, {}\n", fmt::styled(arg->primary(), raw_color), fmt::styled(arg->secondary(), raw_color));
+                        break;
+                    case ArgKind::RawRawRaw:
+                        fmt::print(os, " {}, {}, {}\n", fmt::styled(arg->padding, raw_color), fmt::styled((arg->arg & 0xff00) >> 8, raw_color), fmt::styled(arg->arg & 0x00ff, raw_color));
+                        break;
+                }
+            }
+            else
+                fmt::print(os, "\n");
+        }
+        else
+            fmt::println(os, "Unknown instruction");
     }
 }
