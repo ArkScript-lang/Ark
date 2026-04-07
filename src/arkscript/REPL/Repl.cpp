@@ -56,7 +56,7 @@ namespace Ark
                     else
                         std::ignore = m_vm.forceReloadPlugins();
 
-                    if (m_vm.safeRun(*m_vm.m_execution_contexts[0]) == 0)
+                    if (m_vm.safeRun<false>(*m_vm.m_execution_contexts[0]) == 0)
                     {
                         // save good code
                         m_code = new_code + m_temp_additional_code;

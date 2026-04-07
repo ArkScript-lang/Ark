@@ -13,6 +13,7 @@
 - new `ptr` command for the debugger, printing the VM pointers (ip, pp, sp)
 - compile time arity check when performing a tail call
 - `string:utf8len` to compute the number of codepoints in a string
+- new `trace` command for the debugger, printing the last executed instructions
 
 ### Changed
 - all paths inside `if` should return a value, when used as an expression. If an `else` branch is missing, `nil` will be returned

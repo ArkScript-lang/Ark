@@ -199,6 +199,7 @@ namespace Ark
          * @param fail_with_exception throw if true, display a stacktrace if false
          * @return int the exit code
          */
+        template <bool WithDebugger>
         int safeRun(internal::ExecutionContext& context, std::size_t untilFrameCount = 0, bool fail_with_exception = false);
 
         /**
