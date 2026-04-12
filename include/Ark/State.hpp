@@ -195,7 +195,7 @@ namespace Ark
          * @param ip instruction pointer
          * @return uint8_t instruction
          */
-        [[nodiscard]] inline constexpr uint8_t inst(const std::size_t pp, const std::size_t ip) const noexcept
+        [[nodiscard]] ARK_ALWAYS_INLINE constexpr uint8_t inst(const std::size_t pp, const std::size_t ip) const noexcept
         {
             return m_code[pp * m_max_page_size + ip];
         }

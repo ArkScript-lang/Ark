@@ -1,0 +1,11 @@
+name,iterations,real_time,cpu_time,time_unit,bytes_per_second,items_per_second,label,error_occurred,error_message
+"quicksort",7777,0.0898954,0.0897916,ms,,,,,
+"ackermann/iterations:50",50,30.3846,30.3572,ms,,,,,
+"fibonacci/iterations:100",100,2.96052,2.95734,ms,,,,,
+"builtins",1200,0.578368,0.577753,ms,,,,,
+"binary_trees",1,840.857,839.947,ms,,,,,
+"for_sum",9,77.2381,77.1461,ms,,,,,
+"create_closure/iterations:500",500,0.753453,0.752774,ms,,,,,
+"create_list/iterations:500",500,1.68291,1.68105,ms,,,,,
+"create_list_with_ref/iterations:500",500,1.46395,1.46262,ms,,,,,
+"n_queens/iterations:50",50,11.9545,11.9399,ms,,,,,

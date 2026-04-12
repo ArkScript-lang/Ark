@@ -47,7 +47,16 @@ namespace Ark::internal
          * @param id The symbol id of the variable
          * @param val The value linked to the symbol
          */
-        void pushBack(uint16_t id, Value&& val) noexcept;
+        ARK_ALWAYS_INLINE void pushBack(uint16_t id, Value&& val) noexcept
+        {
+            if (id < m_min_id)
+                m_min_id = id;
+            if (id > m_max_id)
+                m_max_id = id;
+
+            m_storage[m_start + m_size] = std::make_pair(id, std::move(val));
+            ++m_size;
+        }
 
         /**
          * @brief Put a value in the scope
@@ -55,7 +64,16 @@ namespace Ark::internal
          * @param id The symbol id of the variable
          * @param val The value linked to the symbol
          */
-        void pushBack(uint16_t id, const Value& val) noexcept;
+        ARK_ALWAYS_INLINE void pushBack(uint16_t id, const Value& val) noexcept
+        {
+            if (id < m_min_id)
+                m_min_id = id;
+            if (id > m_max_id)
+                m_max_id = id;
+
+            m_storage[m_start + m_size] = std::make_pair(id, val);
+            ++m_size;
+        }
 
         /**
          * @brief Insert one or more pairs at the beginning of the scope
@@ -72,7 +90,10 @@ namespace Ark::internal
          * @return true On success
          * @return false Otherwise
          */
-        [[nodiscard]] bool maybeHas(uint16_t id) const noexcept;
+        [[nodiscard]] ARK_ALWAYS_INLINE bool maybeHas(const uint16_t id) const noexcept
+        {
+            return m_min_id <= id && id <= m_max_id;
+        }
 
         /**
          * @brief Get a value from its symbol id
@@ -103,7 +124,7 @@ namespace Ark::internal
          *
          * @return const pair_t&
          */
-        [[nodiscard]] inline const pair_t& atPos(const std::size_t i) const noexcept
+        [[nodiscard]] ARK_ALWAYS_INLINE const pair_t& atPos(const std::size_t i) const noexcept
         {
             return m_storage[m_start + i];
         }
@@ -113,7 +134,7 @@ namespace Ark::internal
          *
          * @return const pair_t&
          */
-        [[nodiscard]] inline pair_t& atPosReverse(const std::size_t i) noexcept
+        [[nodiscard]] ARK_ALWAYS_INLINE pair_t& atPosReverse(const std::size_t i) noexcept
         {
             return m_storage[m_start + m_size - 1 - i];
         }
@@ -128,7 +149,7 @@ namespace Ark::internal
          *
          * @return const std::size_t
          */
-        [[nodiscard]] inline std::size_t size() const noexcept
+        [[nodiscard]] ARK_ALWAYS_INLINE std::size_t size() const noexcept
         {
             return m_size;
         }
@@ -138,7 +159,7 @@ namespace Ark::internal
          *
          * @return std::size_t
          */
-        [[nodiscard]] inline std::size_t storageEnd() const noexcept
+        [[nodiscard]] ARK_ALWAYS_INLINE std::size_t storageEnd() const noexcept
         {
             return m_start + m_size;
         }

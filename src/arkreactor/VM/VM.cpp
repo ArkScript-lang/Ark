@@ -46,7 +46,7 @@ namespace Ark
         m_exit_code = 0;
 
         context.locals.clear();
-        context.locals.reserve(128);
+        context.locals.reserve(64);
         context.locals.emplace_back(context.scopes_storage.data(), 0);
 
         // loading bound stuff
@@ -321,14 +321,7 @@ namespace Ark
         else
         {
             // mark the used context as ready to be used again
-            for (std::size_t i = 1; i < m_execution_contexts.size(); ++i)
-            {
-                if (m_execution_contexts[i].get() == ec)
-                {
-                    ec->setActive(false);
-                    break;
-                }
-            }
+            ec->setActive(false);
         }
     }
 
@@ -469,27 +462,22 @@ namespace Ark
 #    define GOTO_HALT() break
 #endif
 
-#define FETCH_NEXT_INSTRUCTION()                                                                                                  \
-    do                                                                                                                            \
-    {                                                                                                                             \
-        inst = m_state.inst(context.pp, context.ip);                                                                              \
-        padding = m_state.inst(context.pp, context.ip + 1);                                                                       \
-        arg = static_cast<uint16_t>((m_state.inst(context.pp, context.ip + 2) << 8) +                                             \
-                                    m_state.inst(context.pp, context.ip + 3));                                                    \
-        context.ip += 4;                                                                                                          \
-        context.inst_exec_counter = (context.inst_exec_counter + 1) % VMOverflowBufferSize;                                       \
-        if constexpr (WithDebugger)                                                                                               \
-        {                                                                                                                         \
-            if (!m_debugger) initDebugger(context);                                                                               \
-            m_debugger->registerInstruction(static_cast<uint32_t>((inst << 24) | (padding << 16) | arg));                         \
-        }                                                                                                                         \
-        if (context.inst_exec_counter < 2 && context.sp >= VMStackSize)                                                           \
-        {                                                                                                                         \
-            if (context.pp != 0)                                                                                                  \
-                throw Error("Stack overflow. You could consider rewriting your function to make use of tail-call optimization."); \
-            else                                                                                                                  \
-                throw Error("Stack overflow. Are you trying to call a function with too many arguments?");                        \
-        }                                                                                                                         \
+#define FETCH_NEXT_INSTRUCTION()                                                                          \
+    do                                                                                                    \
+    {                                                                                                     \
+        inst = m_state.inst(context.pp, context.ip);                                                      \
+        padding = m_state.inst(context.pp, context.ip + 1);                                               \
+        arg = static_cast<uint16_t>((m_state.inst(context.pp, context.ip + 2) << 8) +                     \
+                                    m_state.inst(context.pp, context.ip + 3));                            \
+        context.ip += 4;                                                                                  \
+        context.inst_exec_counter = (context.inst_exec_counter + 1) % VMOverflowBufferSize;               \
+        if constexpr (WithDebugger)                                                                       \
+        {                                                                                                 \
+            if (!m_debugger) initDebugger(context);                                                       \
+            m_debugger->registerInstruction(static_cast<uint32_t>((inst << 24) | (padding << 16) | arg)); \
+        }                                                                                                 \
+        if (context.inst_exec_counter < 2 && context.sp >= VMStackSize)                                   \
+            stackOverflowError(context);                                                                  \
     } while (false)
 #define DISPATCH()            \
     FETCH_NEXT_INSTRUCTION(); \

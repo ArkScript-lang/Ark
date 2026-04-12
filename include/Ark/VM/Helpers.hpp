@@ -20,7 +20,7 @@ namespace Ark::helper
 {
     using namespace internal;
 
-    inline Value tail(Value* a)
+    inline ARK_ALWAYS_INLINE Value tail(Value* a)
     {
         if (a->valueType() == ValueType::List)
         {
@@ -49,7 +49,7 @@ namespace Ark::helper
             { *a });
     }
 
-    inline Value head(Value* a)
+    inline ARK_ALWAYS_INLINE Value head(Value* a)
     {
         if (a->valueType() == ValueType::List)
         {
@@ -71,7 +71,7 @@ namespace Ark::helper
             { *a });
     }
 
-    inline Value at(Value& container, Value& index, VM& vm)
+    inline ARK_ALWAYS_INLINE Value at(Value& container, Value& index, VM& vm)
     {
         if (index.valueType() != ValueType::Number)
             throw types::TypeCheckingError(
@@ -110,7 +110,7 @@ namespace Ark::helper
                 { container, index });
     }
 
-    inline Value atAt(const Value* x, const Value* y, Value& list)
+    inline ARK_ALWAYS_INLINE Value atAt(const Value* x, const Value* y, Value& list)
     {
         if (y->valueType() != ValueType::Number || x->valueType() != ValueType::Number ||
             list.valueType() != ValueType::List)
@@ -148,7 +148,7 @@ namespace Ark::helper
             return Value(std::string(1, list.list()[static_cast<std::size_t>(idx_y)].stringRef()[static_cast<std::size_t>(idx_x)]));
     }
 
-    inline double doMath(double a, double b, const Instruction op)
+    inline ARK_ALWAYS_INLINE double doMath(double a, double b, const Instruction op)
     {
         if (op == ADD)
             a += b;
@@ -166,7 +166,7 @@ namespace Ark::helper
         return a;
     }
 
-    inline std::string mathInstToStr(const Instruction op)
+    inline ARK_ALWAYS_INLINE std::string mathInstToStr(const Instruction op)
     {
         if (op == ADD)
             return "+";

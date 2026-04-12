@@ -17,6 +17,14 @@
 #    define ARK_OS_LINUX
 #endif
 
+#if defined(__GNUC__) || defined(__clang__)
+#    define ARK_ALWAYS_INLINE __attribute__((always_inline))
+#elif defined(_MSC_VER) && !defined(__clang__)
+#    define ARK_ALWAYS_INLINE __forceinline
+#else
+#    define ARK_ALWAYS_INLINE
+#endif
+
 #ifndef ARK_STATIC
 #    ifdef ARK_OS_WINDOWS
 // Windows compilers need specific (and different) keywords for export and import
@@ -36,7 +44,7 @@
 // the same keyword is used for both importing and exporting
 #            define ARK_API __attribute__((__visibility__("default")))
 #        else
-// GCC < 4 has no mechanism to explicitely hide symbols, everything's exported
+// GCC < 4 has no mechanism to explicitly hide symbols, everything's exported
 #            define ARK_API
 #        endif
 #    endif

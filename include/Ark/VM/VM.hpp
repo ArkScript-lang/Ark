@@ -105,7 +105,7 @@ namespace Ark
          * @brief Return a pointer to the first execution context, for the main thread of the app
          * @return internal::ExecutionContext*
          */
-        inline internal::ExecutionContext* getDefaultContext() const
+        [[nodiscard]] internal::ExecutionContext* getDefaultContext() const
         {
             return m_execution_contexts.front().get();
         }
@@ -167,7 +167,7 @@ namespace Ark
          */
         [[noreturn]] static void throwVMError(internal::ErrorKind kind, const std::string& message);
 
-        [[nodiscard]] inline const bytecode_t& bytecode() const
+        [[nodiscard]] const bytecode_t& bytecode() const
         {
             return m_state.m_bytecode;
         }
@@ -204,6 +204,14 @@ namespace Ark
         template <bool WithDebugger>
         void unsafeRun(internal::ExecutionContext& context, std::size_t untilFrameCount = 0);
 
+        [[noreturn]] static ARK_ALWAYS_INLINE void stackOverflowError(const internal::ExecutionContext& context)
+        {
+            if (context.pp != 0)
+                throw Error("Stack overflow. You could consider rewriting your function to make use of tail-call optimization.");
+            else
+                throw Error("Stack overflow. Are you trying to call a function with too many arguments?");
+        }
+
         /**
          * @brief Initialize the VM according to the parameters
          *
@@ -221,7 +229,7 @@ namespace Ark
          * @param context
          * @return Value* nullptr if the symbol could not be loaded
          */
-        [[nodiscard]] inline Value* loadSymbol(uint16_t id, internal::ExecutionContext& context);
+        [[nodiscard]] inline ARK_ALWAYS_INLINE Value* loadSymbol(uint16_t id, internal::ExecutionContext& context);
 
         /**
          * @brief Load a symbol by its (reversed) index in the current scope
@@ -230,7 +238,7 @@ namespace Ark
          * @param context
          * @return Value*
          */
-        [[nodiscard]] inline Value* loadSymbolFromIndex(uint16_t index, internal::ExecutionContext& context);
+        [[nodiscard]] inline ARK_ALWAYS_INLINE Value* loadSymbolFromIndex(uint16_t index, internal::ExecutionContext& context);
 
         /**
          * @brief Load a constant from the constant table by its id
@@ -238,7 +246,7 @@ namespace Ark
          * @param id
          * @return Value*
          */
-        [[nodiscard]] inline Value* loadConstAsPtr(uint16_t id) const;
+        [[nodiscard]] inline ARK_ALWAYS_INLINE Value* loadConstAsPtr(uint16_t id) const;
 
         /**
          * @brief Create a new symbol with an associated value in the current scope
@@ -247,7 +255,7 @@ namespace Ark
          * @param val
          * @param context
          */
-        inline void store(uint16_t id, const Value* val, internal::ExecutionContext& context);
+        inline ARK_ALWAYS_INLINE void store(uint16_t id, const Value* val, internal::ExecutionContext& context);
 
         /**
          * @brief Change the value of a symbol given its identifier
@@ -256,9 +264,9 @@ namespace Ark
          * @param val
          * @param context
          */
-        inline void setVal(uint16_t id, const Value* val, internal::ExecutionContext& context);
+        inline ARK_ALWAYS_INLINE void setVal(uint16_t id, const Value* val, internal::ExecutionContext& context);
 
-        inline void jump(uint16_t address, internal::ExecutionContext& context);
+        inline ARK_ALWAYS_INLINE void jump(uint16_t address, internal::ExecutionContext& context);
 
         Value getField(Value* closure, uint16_t id, const internal::ExecutionContext& context, bool push_with_env = false);
 
@@ -276,9 +284,9 @@ namespace Ark
          * @param context
          * @return Value*
          */
-        inline Value* pop(internal::ExecutionContext& context);
+        inline ARK_ALWAYS_INLINE Value* pop(internal::ExecutionContext& context);
 
-        inline Value* peek(internal::ExecutionContext& context, std::size_t offset = 0);
+        inline ARK_ALWAYS_INLINE Value* peek(internal::ExecutionContext& context, std::size_t offset = 0);
 
         /**
          * @brief Return a pointer to the top of the stack without consuming it, and resolve it if possible
@@ -287,7 +295,7 @@ namespace Ark
          * @param offset
          * @return Value*
          */
-        inline Value* peekAndResolveAsPtr(internal::ExecutionContext& context, std::size_t offset = 0);
+        inline ARK_ALWAYS_INLINE Value* peekAndResolveAsPtr(internal::ExecutionContext& context, std::size_t offset = 0);
 
         /**
          * @brief Push a value on the stack
@@ -295,7 +303,7 @@ namespace Ark
          * @param value
          * @param context
          */
-        inline void push(const Value& value, internal::ExecutionContext& context) noexcept;
+        inline ARK_ALWAYS_INLINE void push(const Value& value, internal::ExecutionContext& context) noexcept;
 
         /**
          * @brief Push a value on the stack
@@ -303,7 +311,7 @@ namespace Ark
          * @param value
          * @param context
          */
-        inline void push(Value&& value, internal::ExecutionContext& context) noexcept;
+        inline ARK_ALWAYS_INLINE void push(Value&& value, internal::ExecutionContext& context) noexcept;
 
         /**
          * @brief Push a value on the stack as a reference
@@ -311,7 +319,7 @@ namespace Ark
          * @param valptr
          * @param context
          */
-        inline void push(Value* valptr, internal::ExecutionContext& context) noexcept;
+        inline ARK_ALWAYS_INLINE void push(Value* valptr, internal::ExecutionContext& context) noexcept;
 
         /**
          * @brief Pop a value from the stack and resolve it if possible, then return it
@@ -319,7 +327,7 @@ namespace Ark
          * @param context
          * @return Value*
          */
-        inline Value* popAndResolveAsPtr(internal::ExecutionContext& context);
+        inline ARK_ALWAYS_INLINE Value* popAndResolveAsPtr(internal::ExecutionContext& context);
 
         // ================================================
         //                locals related
@@ -334,6 +342,10 @@ namespace Ark
          */
         inline Value* findNearestVariable(uint16_t id, internal::ExecutionContext& context) noexcept;
 
+        // ================================================
+        //                 function calls
+        // ================================================
+
         /**
          * @brief Destroy the current frame and get back to the previous one, resuming execution
          *
@@ -342,7 +354,28 @@ namespace Ark
          *
          * @param context
          */
-        inline void returnFromFuncCall(internal::ExecutionContext& context);
+        inline ARK_ALWAYS_INLINE void returnFromFuncCall(internal::ExecutionContext& context);
+
+        /**
+         * @brief Function called when the CALL instruction is met in the bytecode
+         *
+         * @param context
+         * @param argc number of arguments already sent
+         * @param function_ptr optional pointer to the function to call. If not provided, obtain it from the stack (unless or_address is not 0)
+         * @param or_address optional page address, used if non-zero and function_ptr is nullptr
+         */
+        inline ARK_ALWAYS_INLINE void call(internal::ExecutionContext& context, uint16_t argc, Value* function_ptr = nullptr, internal::PageAddr_t or_address = 0);
+
+        /**
+         * @brief Builtin called when the CALL_BUILTIN instruction is met in the bytecode
+         *
+         * @param context
+         * @param builtin the builtin to call
+         * @param argc number of arguments already sent
+         * @param remove_return_address remove the return address pushed by the compiler
+         * @param remove_builtin remove the builtin that was pushed to the stack for the call
+         */
+        inline ARK_ALWAYS_INLINE void callBuiltin(internal::ExecutionContext& context, const Value& builtin, uint16_t argc, bool remove_return_address = true, bool remove_builtin = true);
 
         /**
          * @brief Load a plugin from a constant id
@@ -392,27 +425,6 @@ namespace Ark
          * @param colorize
          */
         void backtrace(internal::ExecutionContext& context, std::ostream& os = std::cerr, bool colorize = true);
-
-        /**
-         * @brief Function called when the CALL instruction is met in the bytecode
-         *
-         * @param context
-         * @param argc number of arguments already sent
-         * @param function_ptr optional pointer to the function to call. If not provided, obtain it from the stack (unless or_address is not 0)
-         * @param or_address optional page address, used if non-zero and function_ptr is nullptr
-         */
-        inline void call(internal::ExecutionContext& context, uint16_t argc, Value* function_ptr = nullptr, internal::PageAddr_t or_address = 0);
-
-        /**
-         * @brief Builtin called when the CALL_BUILTIN instruction is met in the bytecode
-         *
-         * @param context
-         * @param builtin the builtin to call
-         * @param argc number of arguments already sent
-         * @param remove_return_address remove the return address pushed by the compiler
-         * @param remove_builtin remove the builtin that was pushed to the stack for the call
-         */
-        inline void callBuiltin(internal::ExecutionContext& context, const Value& builtin, uint16_t argc, bool remove_return_address = true, bool remove_builtin = true);
     };
 
 #include "VM.inl"
