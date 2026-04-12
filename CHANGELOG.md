@@ -14,6 +14,7 @@
 - compile time arity check when performing a tail call
 - `string:utf8len` to compute the number of codepoints in a string
 - new `trace` command for the debugger, printing the last executed instructions
+- ability to build ArkScript statically via CMake using `-DARK_STATIC=On`
 
 ### Changed
 - all paths inside `if` should return a value, when used as an expression. If an `else` branch is missing, `nil` will be returned

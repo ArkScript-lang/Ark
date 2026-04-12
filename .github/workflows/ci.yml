@@ -119,6 +119,27 @@ jobs:
           with_deps: true
           unity: "Off"
 
+  static-build:
+    runs-on: ubuntu-24.04
+    name: "Build statically"
+    needs: [ check ]
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Setup compilers, dependencies, project and build
+        uses: ./.github/workflows/setup-compilers
+        with:
+          os_name: ubuntu-24.04
+          compiler: clang
+          compiler_version: 16
+          sanitizers: "On"
+          with_deps: true
+          unity: "On"
+          static: "On"
+
   install-arkscript:
     runs-on: ${{ matrix.os }}
     name: Install ArkScript on ${{ matrix.os }}
@@ -130,6 +151,9 @@ jobs:
         os:
           - ubuntu-24.04
           - macos-14
+        static:
+          - On
+          - Off
 
     steps:
       - uses: actions/checkout@v5
@@ -144,6 +168,7 @@ jobs:
           compiler_version: 16
           sanitizers: "On"
           with_deps: false
+          static: ${{ matrix.static }}
 
       - name: Install via cmake
         run: |

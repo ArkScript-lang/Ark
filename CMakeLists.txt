@@ -27,6 +27,7 @@ endif ()
 
 option(ARK_BUILD_EXE "Build a standalone arkscript executable" Off)
 option(ARK_ENABLE_SYSTEM "Enable sys:exec" On)  # enable use of (sys:exec "command here")
+option(ARK_STATIC "Build ArkScript statically" Off)
 option(ARK_NO_STDLIB "Do not install the standard library with the Ark library" Off)
 option(ARK_BUILD_MODULES "Build the std library modules or not" Off)
 option(ARK_SANITIZERS "Enable ASAN and UBSAN" Off)
@@ -70,7 +71,7 @@ file(GLOB_RECURSE SOURCE_FILES
         ${ark_SOURCE_DIR}/src/arkreactor/*.cpp
         ${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc)
 
-if (NOT ARK_EMSCRIPTEN)
+if (NOT ARK_EMSCRIPTEN AND NOT ARK_STATIC)
     add_library(ArkReactor SHARED ${SOURCE_FILES})
     enable_lto(ArkReactor)
     set_target_properties(ArkReactor PROPERTIES
@@ -78,6 +79,7 @@ if (NOT ARK_EMSCRIPTEN)
             LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_BINDIR})
 else ()
     add_library(ArkReactor STATIC ${SOURCE_FILES})
+    target_compile_definitions(ArkReactor PRIVATE ARK_STATIC)
 endif ()
 
 target_include_directories(ArkReactor
@@ -241,10 +243,12 @@ if (ARK_TESTS)
     file(GLOB_RECURSE SOURCES
             ${ark_SOURCE_DIR}/tests/unittests/*.cpp
             ${ark_SOURCE_DIR}/tests/unittests/Suites/*.cpp
-            ${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc
             ${ark_SOURCE_DIR}/src/arkscript/Formatter.cpp
             ${ark_SOURCE_DIR}/src/arkscript/JsonCompiler.cpp
             ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp)
+    if (NOT ARK_STATIC)
+        list(APPEND SOURCES ${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc)
+    endif ()
     add_executable(unittests ${SOURCES})
     target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/tests/unittests)
     target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/include)
@@ -324,9 +328,10 @@ if (ARK_BUILD_EXE)
     target_compile_definitions(ArkReactor PRIVATE ARK_BUILD_EXE=1)
 
     # additional files needed for the exe (repl, command line and stuff)
-    file(GLOB_RECURSE EXE_SOURCES
-            ${ark_SOURCE_DIR}/src/arkscript/*.cpp
-            ${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc)
+    file(GLOB_RECURSE EXE_SOURCES ${ark_SOURCE_DIR}/src/arkscript/*.cpp)
+    if (NOT ARK_STATIC)
+        list(APPEND EXE_SOURCES "${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc")
+    endif ()
     add_executable(arkscript ${EXE_SOURCES})
 
     target_include_directories(arkscript SYSTEM PUBLIC "${ark_SOURCE_DIR}/thirdparties/clipp/include")
