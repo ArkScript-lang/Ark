@@ -202,7 +202,7 @@ endif ()
 # Create the different (optional) targets
 #####################################################
 
-if (ARK_BUILD_MODULES)
+if (ARK_BUILD_MODULES AND NOT ARK_STATIC)
     get_directory_property(old_dir_compile_options COMPILE_OPTIONS)
     add_compile_options(-w)
     add_subdirectory(${ark_SOURCE_DIR}/lib/modules)
@@ -358,8 +358,8 @@ if (ARK_BUILD_EXE)
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif ()
 
-if (ARK_SANITIZERS)
-    message(STATUS "Enabling address sanitizer and undefined behavior sanitizer")
+if (ARK_SANITIZERS AND NOT ARK_STATIC)
+    message(STATUS "Enabling ASAN and UBSAN")
     add_address_sanitizer()
     add_undefined_sanitizer()
 endif ()

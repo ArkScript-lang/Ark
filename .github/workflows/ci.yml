@@ -142,7 +142,7 @@ jobs:
 
   install-arkscript:
     runs-on: ${{ matrix.os }}
-    name: Install ArkScript on ${{ matrix.os }}
+    name: "Install ArkScript on ${{ matrix.os }} (static: ${{ matrix.static }})"
     needs: [ check ]
 
     strategy:
