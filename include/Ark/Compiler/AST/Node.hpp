@@ -261,7 +261,7 @@ namespace Ark::internal
      * @param node
      * @return std::string a string corresponding to the node type
      */
-    inline std::string typeToString(const Node& node) noexcept
+    ARK_ALWAYS_INLINE inline std::string typeToString(const Node& node) noexcept
     {
         if (node.nodeType() == NodeType::Symbol)
         {

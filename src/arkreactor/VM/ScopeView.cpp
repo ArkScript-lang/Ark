@@ -10,28 +10,6 @@ namespace Ark::internal
         m_storage(storage), m_start(start), m_size(0), m_min_id(MaxValue16Bits), m_max_id(0)
     {}
 
-    void ScopeView::pushBack(uint16_t id, Value&& val) noexcept
-    {
-        if (id < m_min_id)
-            m_min_id = id;
-        if (id > m_max_id)
-            m_max_id = id;
-
-        m_storage[m_start + m_size] = std::make_pair(id, std::move(val));
-        ++m_size;
-    }
-
-    void ScopeView::pushBack(uint16_t id, const Value& val) noexcept
-    {
-        if (id < m_min_id)
-            m_min_id = id;
-        if (id > m_max_id)
-            m_max_id = id;
-
-        m_storage[m_start + m_size] = std::make_pair(id, val);
-        ++m_size;
-    }
-
     void ScopeView::insertFront(const std::vector<pair_t>& values) noexcept
     {
         const std::size_t offset_by = values.size();
@@ -60,11 +38,6 @@ namespace Ark::internal
         }
 
         m_size += offset_by;
-    }
-
-    bool ScopeView::maybeHas(const uint16_t id) const noexcept
-    {
-        return m_min_id <= id && id <= m_max_id;
     }
 
     Value* ScopeView::operator[](const uint16_t id_to_look_for) noexcept

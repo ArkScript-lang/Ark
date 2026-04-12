@@ -96,12 +96,12 @@ namespace Ark::internal
 
         void registerInstruction(uint32_t word) noexcept;
 
-        [[nodiscard]] inline bool isRunning() const noexcept
+        [[nodiscard]] ARK_ALWAYS_INLINE bool isRunning() const noexcept
         {
             return m_running;
         }
 
-        [[nodiscard]] inline bool shouldQuitVM() const noexcept
+        [[nodiscard]] ARK_ALWAYS_INLINE bool shouldQuitVM() const noexcept
         {
             return m_quit_vm;
         }

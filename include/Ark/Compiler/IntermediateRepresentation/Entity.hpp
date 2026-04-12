@@ -60,25 +60,25 @@ namespace Ark::internal::IR
 
         [[nodiscard]] Word bytecode() const;
 
-        [[nodiscard]] inline label_t label() const { return m_label; }
+        [[nodiscard]] label_t label() const { return m_label; }
 
-        [[nodiscard]] inline Kind kind() const { return m_kind; }
+        [[nodiscard]] Kind kind() const { return m_kind; }
 
-        [[nodiscard]] inline Instruction inst() const { return m_inst; }
+        [[nodiscard]] Instruction inst() const { return m_inst; }
 
-        [[nodiscard]] inline uint16_t primaryArg() const { return m_primary_arg; }
+        [[nodiscard]] uint16_t primaryArg() const { return m_primary_arg; }
 
-        [[nodiscard]] inline uint16_t secondaryArg() const { return m_secondary_arg; }
+        [[nodiscard]] uint16_t secondaryArg() const { return m_secondary_arg; }
 
-        [[nodiscard]] inline uint16_t tertiaryArg() const { return m_tertiary_arg; }
+        [[nodiscard]] uint16_t tertiaryArg() const { return m_tertiary_arg; }
 
         void setSourceLocation(const std::string& filename, std::size_t line);
 
-        [[nodiscard]] inline bool hasValidSourceLocation() const { return !m_source_file.empty(); }
+        [[nodiscard]] bool hasValidSourceLocation() const { return !m_source_file.empty(); }
 
-        [[nodiscard]] inline const std::string& filename() const { return m_source_file; }
+        [[nodiscard]] const std::string& filename() const { return m_source_file; }
 
-        [[nodiscard]] inline std::size_t sourceLine() const { return m_source_line; }
+        [[nodiscard]] std::size_t sourceLine() const { return m_source_line; }
 
     private:
         Kind m_kind;

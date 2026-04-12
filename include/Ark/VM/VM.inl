@@ -94,7 +94,7 @@ inline Value VM::resolve(internal::ExecutionContext* context, const std::vector<
 
 #pragma region "instruction helpers"
 
-inline Value* VM::loadSymbol(const uint16_t id, internal::ExecutionContext& context)
+inline ARK_ALWAYS_INLINE Value* VM::loadSymbol(const uint16_t id, internal::ExecutionContext& context)
 {
     context.last_symbol = id;
     if (Value* var = findNearestVariable(context.last_symbol, context); var != nullptr) [[likely]]
@@ -109,7 +109,7 @@ inline Value* VM::loadSymbol(const uint16_t id, internal::ExecutionContext& cont
     return nullptr;
 }
 
-inline Value* VM::loadSymbolFromIndex(const uint16_t index, internal::ExecutionContext& context)
+inline ARK_ALWAYS_INLINE Value* VM::loadSymbolFromIndex(const uint16_t index, internal::ExecutionContext& context)
 {
     // we need to load symbols from the end, because function calls add a reference to the current function
     // upon calling it. Which changes the index by 1, making it less clear, because it needs special
@@ -121,12 +121,12 @@ inline Value* VM::loadSymbolFromIndex(const uint16_t index, internal::ExecutionC
     return &value;
 }
 
-inline Value* VM::loadConstAsPtr(const uint16_t id) const
+inline ARK_ALWAYS_INLINE Value* VM::loadConstAsPtr(const uint16_t id) const
 {
     return &m_state.m_constants[id];
 }
 
-inline void VM::store(const uint16_t id, const Value* val, internal::ExecutionContext& context)
+inline ARK_ALWAYS_INLINE void VM::store(const uint16_t id, const Value* val, internal::ExecutionContext& context)
 {
     // avoid adding the pair (id, _) multiple times, with different values
     Value* local = context.locals.back()[id];
@@ -136,7 +136,7 @@ inline void VM::store(const uint16_t id, const Value* val, internal::ExecutionCo
         *local = *val;
 }
 
-inline void VM::setVal(const uint16_t id, const Value* val, internal::ExecutionContext& context)
+inline ARK_ALWAYS_INLINE void VM::setVal(const uint16_t id, const Value* val, internal::ExecutionContext& context)
 {
     if (Value* var = findNearestVariable(id, context); var != nullptr) [[likely]]
     {
@@ -154,7 +154,7 @@ inline void VM::setVal(const uint16_t id, const Value* val, internal::ExecutionC
                 val->toString(*this)));
 }
 
-inline void VM::jump(const uint16_t address, internal::ExecutionContext& context)
+inline ARK_ALWAYS_INLINE void VM::jump(const uint16_t address, internal::ExecutionContext& context)
 {
     // instructions are on 4 bytes!
     context.ip = address * 4;
@@ -164,7 +164,7 @@ inline void VM::jump(const uint16_t address, internal::ExecutionContext& context
 
 #pragma region "stack management"
 
-inline Value* VM::pop(internal::ExecutionContext& context)
+inline ARK_ALWAYS_INLINE Value* VM::pop(internal::ExecutionContext& context)
 {
     if (context.sp > 0) [[likely]]
     {
@@ -174,7 +174,7 @@ inline Value* VM::pop(internal::ExecutionContext& context)
     return &m_undefined_value;
 }
 
-inline Value* VM::peek(internal::ExecutionContext& context, const std::size_t offset)
+inline ARK_ALWAYS_INLINE Value* VM::peek(internal::ExecutionContext& context, const std::size_t offset)
 {
     if (context.sp > offset)
     {
@@ -184,7 +184,7 @@ inline Value* VM::peek(internal::ExecutionContext& context, const std::size_t of
     return &m_undefined_value;
 }
 
-inline Value* VM::peekAndResolveAsPtr(internal::ExecutionContext& context, const std::size_t offset)
+inline ARK_ALWAYS_INLINE Value* VM::peekAndResolveAsPtr(internal::ExecutionContext& context, const std::size_t offset)
 {
     if (context.sp > offset)
     {
@@ -196,26 +196,26 @@ inline Value* VM::peekAndResolveAsPtr(internal::ExecutionContext& context, const
     return &m_undefined_value;
 }
 
-inline void VM::push(const Value& value, internal::ExecutionContext& context) noexcept
+inline ARK_ALWAYS_INLINE void VM::push(const Value& value, internal::ExecutionContext& context) noexcept
 {
     context.stack[context.sp] = value;
     ++context.sp;
 }
 
-inline void VM::push(Value&& value, internal::ExecutionContext& context) noexcept
+inline ARK_ALWAYS_INLINE void VM::push(Value&& value, internal::ExecutionContext& context) noexcept
 {
     context.stack[context.sp] = std::move(value);
     ++context.sp;
 }
 
-inline void VM::push(Value* valptr, internal::ExecutionContext& context) noexcept
+inline ARK_ALWAYS_INLINE void VM::push(Value* valptr, internal::ExecutionContext& context) noexcept
 {
     context.stack[context.sp].m_type = ValueType::Reference;
     context.stack[context.sp].m_value = valptr;
     ++context.sp;
 }
 
-inline Value* VM::popAndResolveAsPtr(internal::ExecutionContext& context)
+inline ARK_ALWAYS_INLINE Value* VM::popAndResolveAsPtr(internal::ExecutionContext& context)
 {
     Value* tmp = pop(context);
     if (tmp->valueType() == ValueType::Reference)
@@ -235,14 +235,14 @@ inline Value* VM::findNearestVariable(const uint16_t id, internal::ExecutionCont
     return nullptr;
 }
 
-inline void VM::returnFromFuncCall(internal::ExecutionContext& context)
+inline ARK_ALWAYS_INLINE void VM::returnFromFuncCall(internal::ExecutionContext& context)
 {
     --context.fc;
     context.stacked_closure_scopes.pop_back();
     context.locals.pop_back();
 }
 
-inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, Value* function_ptr, const internal::PageAddr_t or_address)
+inline ARK_ALWAYS_INLINE void VM::call(internal::ExecutionContext& context, const uint16_t argc, Value* function_ptr, const internal::PageAddr_t or_address)
 {
     using namespace internal;
 
@@ -358,7 +358,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
         throwArityError(argc, needed_argc, context, /* skip_function= */ function_ptr == nullptr);
 }
 
-inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& builtin, const uint16_t argc, const bool remove_return_address, const bool remove_builtin)
+inline ARK_ALWAYS_INLINE void VM::callBuiltin(internal::ExecutionContext& context, const Value& builtin, const uint16_t argc, const bool remove_return_address, const bool remove_builtin)
 {
     using namespace Ark::literals;
 
