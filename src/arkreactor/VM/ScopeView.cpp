@@ -1,15 +1,9 @@
 #include <Ark/VM/ScopeView.hpp>
 
-#include <Ark/Constants.hpp>
-
 #include <cassert>
 
 namespace Ark::internal
 {
-    ScopeView::ScopeView(pair_t* storage, const std::size_t start) noexcept :
-        m_storage(storage), m_start(start), m_size(0), m_min_id(MaxValue16Bits), m_max_id(0)
-    {}
-
     void ScopeView::insertFront(const std::vector<pair_t>& values) noexcept
     {
         const std::size_t offset_by = values.size();
@@ -40,34 +34,6 @@ namespace Ark::internal
         m_size += offset_by;
     }
 
-    Value* ScopeView::operator[](const uint16_t id_to_look_for) noexcept
-    {
-        if (!maybeHas(id_to_look_for))
-            return nullptr;
-
-        for (std::size_t i = m_start; i < m_start + m_size; ++i)
-        {
-            auto& [id, value] = m_storage[i];
-            if (id == id_to_look_for)
-                return &value;
-        }
-        return nullptr;
-    }
-
-    const Value* ScopeView::operator[](const uint16_t id_to_look_for) const noexcept
-    {
-        if (!maybeHas(id_to_look_for))
-            return nullptr;
-
-        for (std::size_t i = m_start; i < m_start + m_size; ++i)
-        {
-            auto& [id, value] = m_storage[i];
-            if (id == id_to_look_for)
-                return &value;
-        }
-        return nullptr;
-    }
-
     uint16_t ScopeView::idFromValue(const Value& val) const noexcept
     {
         for (std::size_t i = m_start; i < m_start + m_size; ++i)
@@ -77,13 +43,6 @@ namespace Ark::internal
                 return id;
         }
         return MaxValue16Bits;
-    }
-
-    void ScopeView::reset() noexcept
-    {
-        m_size = 0;
-        m_min_id = MaxValue16Bits;
-        m_max_id = 0;
     }
 
     bool operator==(const ScopeView& A, const ScopeView& B) noexcept

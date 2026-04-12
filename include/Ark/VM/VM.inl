@@ -126,6 +126,16 @@ inline ARK_ALWAYS_INLINE Value* VM::loadConstAsPtr(const uint16_t id) const
     return &m_state.m_constants[id];
 }
 
+inline ARK_ALWAYS_INLINE Value* VM::findNearestVariable(const uint16_t id, internal::ExecutionContext& context) noexcept
+{
+    for (auto it = context.locals.rbegin(), it_end = context.locals.rend(); it != it_end; ++it)
+    {
+        if (Value* val = (*it)[id]; val != nullptr)
+            return val;
+    }
+    return nullptr;
+}
+
 inline ARK_ALWAYS_INLINE void VM::store(const uint16_t id, const Value* val, internal::ExecutionContext& context)
 {
     // avoid adding the pair (id, _) multiple times, with different values
@@ -225,16 +235,6 @@ inline ARK_ALWAYS_INLINE Value* VM::popAndResolveAsPtr(internal::ExecutionContex
 
 #pragma endregion
 
-inline Value* VM::findNearestVariable(const uint16_t id, internal::ExecutionContext& context) noexcept
-{
-    for (auto it = context.locals.rbegin(), it_end = context.locals.rend(); it != it_end; ++it)
-    {
-        if (Value* val = (*it)[id]; val != nullptr)
-            return val;
-    }
-    return nullptr;
-}
-
 inline ARK_ALWAYS_INLINE void VM::returnFromFuncCall(internal::ExecutionContext& context)
 {
     --context.fc;
@@ -242,7 +242,7 @@ inline ARK_ALWAYS_INLINE void VM::returnFromFuncCall(internal::ExecutionContext&
     context.locals.pop_back();
 }
 
-inline ARK_ALWAYS_INLINE void VM::call(internal::ExecutionContext& context, const uint16_t argc, Value* function_ptr, const internal::PageAddr_t or_address)
+inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, Value* function_ptr, const internal::PageAddr_t or_address)
 {
     using namespace internal;
 
@@ -358,7 +358,7 @@ inline ARK_ALWAYS_INLINE void VM::call(internal::ExecutionContext& context, cons
         throwArityError(argc, needed_argc, context, /* skip_function= */ function_ptr == nullptr);
 }
 
-inline ARK_ALWAYS_INLINE void VM::callBuiltin(internal::ExecutionContext& context, const Value& builtin, const uint16_t argc, const bool remove_return_address, const bool remove_builtin)
+inline void VM::callBuiltin(internal::ExecutionContext& context, const Value& builtin, const uint16_t argc, const bool remove_return_address, const bool remove_builtin)
 {
     using namespace Ark::literals;
 
