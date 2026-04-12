@@ -11,9 +11,9 @@
 #ifndef ARK_VM_SCOPE_HPP
 #define ARK_VM_SCOPE_HPP
 
-#include <array>
 #include <cinttypes>
 
+#include <Ark/Constants.hpp>
 #include <Ark/Utils/Platform.hpp>
 #include <Ark/VM/Value/Value.hpp>
 
@@ -39,7 +39,9 @@ namespace Ark::internal
          * @param storage pointer to the shared scope storage
          * @param start first free starting position
          */
-        ScopeView(pair_t* storage, std::size_t start) noexcept;
+        ARK_ALWAYS_INLINE ScopeView(pair_t* storage, const std::size_t start) noexcept :
+            m_storage(storage), m_start(start), m_size(0), m_min_id(MaxValue16Bits), m_max_id(0)
+        {}
 
         /**
          * @brief Put a value in the scope
@@ -101,7 +103,19 @@ namespace Ark::internal
          * @param id_to_look_for
          * @return Value* Returns nullptr if the value can not be found
          */
-        [[nodiscard]] Value* operator[](uint16_t id_to_look_for) noexcept;
+        [[nodiscard]] ARK_ALWAYS_INLINE Value* operator[](const uint16_t id_to_look_for) noexcept
+        {
+            if (!maybeHas(id_to_look_for))
+                return nullptr;
+
+            for (std::size_t i = m_start; i < m_start + m_size; ++i)
+            {
+                auto& [id, value] = m_storage[i];
+                if (id == id_to_look_for)
+                    return &value;
+            }
+            return nullptr;
+        }
 
         /**
          * @brief Get a value from its symbol id
@@ -109,7 +123,19 @@ namespace Ark::internal
          * @param id_to_look_for
          * @return const Value* Returns nullptr if the value can not be found
          */
-        [[nodiscard]] const Value* operator[](uint16_t id_to_look_for) const noexcept;
+        [[nodiscard]] ARK_ALWAYS_INLINE const Value* operator[](const uint16_t id_to_look_for) const noexcept
+        {
+            if (!maybeHas(id_to_look_for))
+                return nullptr;
+
+            for (std::size_t i = m_start; i < m_start + m_size; ++i)
+            {
+                auto& [id, value] = m_storage[i];
+                if (id == id_to_look_for)
+                    return &value;
+            }
+            return nullptr;
+        }
 
         /**
          * @brief Get the id of a variable based on its value ; used for debug only
@@ -134,7 +160,7 @@ namespace Ark::internal
          *
          * @return const pair_t&
          */
-        [[nodiscard]] ARK_ALWAYS_INLINE pair_t& atPosReverse(const std::size_t i) noexcept
+        [[nodiscard]] ARK_ALWAYS_INLINE pair_t& atPosReverse(const std::size_t i) const noexcept
         {
             return m_storage[m_start + m_size - 1 - i];
         }
@@ -142,7 +168,12 @@ namespace Ark::internal
         /**
          * @brief Reset size, min and max id for the scope, to signify it's empty
          */
-        void reset() noexcept;
+        ARK_ALWAYS_INLINE void reset() noexcept
+        {
+            m_size = 0;
+            m_min_id = MaxValue16Bits;
+            m_max_id = 0;
+        }
 
         /**
          * @brief Return the size of the scope

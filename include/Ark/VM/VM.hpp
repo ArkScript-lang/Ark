@@ -249,6 +249,15 @@ namespace Ark
         [[nodiscard]] inline ARK_ALWAYS_INLINE Value* loadConstAsPtr(uint16_t id) const;
 
         /**
+         * @brief Find the nearest variable of a given id
+         *
+         * @param id the id to find
+         * @param context
+         * @return Value*
+         */
+        inline ARK_ALWAYS_INLINE Value* findNearestVariable(uint16_t id, internal::ExecutionContext& context) noexcept;
+
+        /**
          * @brief Create a new symbol with an associated value in the current scope
          *
          * @param id
@@ -268,9 +277,9 @@ namespace Ark
 
         inline ARK_ALWAYS_INLINE void jump(uint16_t address, internal::ExecutionContext& context);
 
-        Value getField(Value* closure, uint16_t id, const internal::ExecutionContext& context, bool push_with_env = false);
+        [[nodiscard]] Value getField(Value* closure, uint16_t id, const internal::ExecutionContext& context, bool push_with_env = false);
 
-        Value createList(std::size_t count, internal::ExecutionContext& context);
+        [[nodiscard]] Value createList(std::size_t count, internal::ExecutionContext& context);
 
         void listAppendInPlace(Value* list, std::size_t count, internal::ExecutionContext& context);
 
@@ -286,6 +295,13 @@ namespace Ark
          */
         inline ARK_ALWAYS_INLINE Value* pop(internal::ExecutionContext& context);
 
+        /**
+         * @brief Return a pointer to the top of the stack without consuming it
+         *
+         * @param context
+         * @param offset
+         * @return Value*
+         */
         inline ARK_ALWAYS_INLINE Value* peek(internal::ExecutionContext& context, std::size_t offset = 0);
 
         /**
@@ -330,19 +346,6 @@ namespace Ark
         inline ARK_ALWAYS_INLINE Value* popAndResolveAsPtr(internal::ExecutionContext& context);
 
         // ================================================
-        //                locals related
-        // ================================================
-
-        /**
-         * @brief Find the nearest variable of a given id
-         *
-         * @param id the id to find
-         * @param context
-         * @return Value*
-         */
-        inline Value* findNearestVariable(uint16_t id, internal::ExecutionContext& context) noexcept;
-
-        // ================================================
         //                 function calls
         // ================================================
 
@@ -364,7 +367,7 @@ namespace Ark
          * @param function_ptr optional pointer to the function to call. If not provided, obtain it from the stack (unless or_address is not 0)
          * @param or_address optional page address, used if non-zero and function_ptr is nullptr
          */
-        inline ARK_ALWAYS_INLINE void call(internal::ExecutionContext& context, uint16_t argc, Value* function_ptr = nullptr, internal::PageAddr_t or_address = 0);
+        inline void call(internal::ExecutionContext& context, uint16_t argc, Value* function_ptr = nullptr, internal::PageAddr_t or_address = 0);
 
         /**
          * @brief Builtin called when the CALL_BUILTIN instruction is met in the bytecode
@@ -375,7 +378,7 @@ namespace Ark
          * @param remove_return_address remove the return address pushed by the compiler
          * @param remove_builtin remove the builtin that was pushed to the stack for the call
          */
-        inline ARK_ALWAYS_INLINE void callBuiltin(internal::ExecutionContext& context, const Value& builtin, uint16_t argc, bool remove_return_address = true, bool remove_builtin = true);
+        inline void callBuiltin(internal::ExecutionContext& context, const Value& builtin, uint16_t argc, bool remove_return_address = true, bool remove_builtin = true);
 
         /**
          * @brief Load a plugin from a constant id
