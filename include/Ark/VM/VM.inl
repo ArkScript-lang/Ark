@@ -282,7 +282,7 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
         case ValueType::CProc:
         {
             // We need to remove the builtin from the stack if we came from a standard CALL instruction.
-            // We know we came from a CALL instruction is function_ptr is null, since only CALL_SYMBOL supplies it.
+            // We know we came from a CALL instruction if function_ptr is null, since only CALL_SYMBOL supplies it.
             callBuiltin(context, *maybe_value_ptr, argc, /* remove_return_address= */ true, /* remove_builtin= */ function_ptr == nullptr);
             return;
         }
@@ -290,13 +290,11 @@ inline void VM::call(internal::ExecutionContext& context, const uint16_t argc, V
         // is it a user defined function?
         case ValueType::PageAddr:
         {
-            const PageAddr_t new_page_pointer = page_addr;
-
             // create dedicated scope
             context.locals.emplace_back(context.scopes_storage.data(), context.locals.back().storageEnd());
             // set up pointers (frame counter, page, instruction)
             context.fc++;
-            context.pp = new_page_pointer;
+            context.pp = page_addr;
             context.ip = 0;
             break;
         }
