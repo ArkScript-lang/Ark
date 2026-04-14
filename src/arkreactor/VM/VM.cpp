@@ -663,7 +663,7 @@ namespace Ark
 
                 TARGET(POP_JUMP_IF_TRUE)
                 {
-                    if (Value boolean = *popAndResolveAsPtr(context); !!boolean)
+                    if (!!*popAndResolveAsPtr(context))
                         jump(arg, context);
                     DISPATCH();
                 }
@@ -691,7 +691,7 @@ namespace Ark
 
                 TARGET(POP_JUMP_IF_FALSE)
                 {
-                    if (Value boolean = *popAndResolveAsPtr(context); !boolean)
+                    if (!*popAndResolveAsPtr(context))
                         jump(arg, context);
                     DISPATCH();
                 }
@@ -857,10 +857,7 @@ namespace Ark
 
                 TARGET(LIST)
                 {
-                    {
-                        Value l = createList(arg, context);
-                        push(std::move(l), context);
-                    }
+                    push(createList(arg, context), context);
                     DISPATCH();
                 }
 
