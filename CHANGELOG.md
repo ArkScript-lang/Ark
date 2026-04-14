@@ -1,11 +1,9 @@
 # Change Log
 
-## [Unreleased changes] - 2026-MM-DD
+## [4.5.0] - 2026-04-14
 ### Breaking changes
 - removed `list:permutationsWithReplacement` (deprecated in 4.4.0)
 - `list:permutations` now produces real permutations and not combinations (deprecated in 4.4.0)
-
-### Deprecations
 
 ### Added
 - added new macro `$gensym`, to generate a unique symbol identifier to use in macros
@@ -21,8 +19,6 @@
 - new compile time error when trying to use `append!`, `concat!`, `pop!`, `@=` and `@@=` as values
 - arguments in tail calls are loaded by value and not by reference
 - `string:ord` checks that it get only 1 utf8 character
-
-### Removed
 
 ## [4.4.1] - 2026-03-19
 ### Breaking changes
