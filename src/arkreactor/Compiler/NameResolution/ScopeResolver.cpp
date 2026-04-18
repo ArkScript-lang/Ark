@@ -3,6 +3,8 @@
 #include <ranges>
 #include <algorithm>
 
+#include <Ark/Compiler/Common.hpp>
+
 namespace Ark::internal
 {
     ScopeResolver::ScopeResolver()
@@ -74,8 +76,8 @@ namespace Ark::internal
             {
                 // prioritize non-hidden symbols
                 if ((maybe_name.has_value() &&
-                     maybe_name.value().ends_with("#hidden") &&
-                     !maybe_fqn.value().name.ends_with("#hidden")) ||
+                     maybe_name.value().ends_with(HiddenSymbolSuffix) &&
+                     !maybe_fqn.value().name.ends_with(HiddenSymbolSuffix)) ||
                     !maybe_name.has_value())
                     maybe_name = maybe_fqn.value().name;
             }

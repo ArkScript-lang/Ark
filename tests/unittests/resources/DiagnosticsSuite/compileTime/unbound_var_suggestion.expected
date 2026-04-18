@@ -3,4 +3,4 @@ In file tests/unittests/resources/DiagnosticsSuite/compileTime/unbound_var_sugge
     2 | (let a ber)
       |        ^~~
     3 |
-        Unbound variable error "ber" (did you mean "bar"?)
+        Unbound variable "ber" (did you mean "bar"?)

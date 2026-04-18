@@ -316,7 +316,7 @@ ut::suite<"Embedding"> embedding_suite = [] {
         const std::string code = "(import std.Sys) (let foo sys:args) (let b bar)";
         const std::string expected = R"(    1 | (import std.Sys) (let foo sys:args) (let b bar)
       |                                            ^~~
-        Unbound variable error "bar" (variable is used but not defined))";
+        Unbound variable "bar" (variable is used but not defined))";
 
         should("compile the string with an error") = [&] {
             try

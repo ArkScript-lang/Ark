@@ -1,5 +1,17 @@
 # Change Log
 
+## [Unreleased changes] - 2026-MM-DD
+### Breaking changes
+
+### Deprecations
+
+### Added
+- special error message when trying to use a hidden symbol due to importing
+
+### Changed
+
+### Removed
+
 ## [4.5.0] - 2026-04-14
 ### Breaking changes
 - removed `list:permutationsWithReplacement` (deprecated in 4.4.0)

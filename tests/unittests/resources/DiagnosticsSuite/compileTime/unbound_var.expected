@@ -2,4 +2,4 @@ In file tests/unittests/resources/DiagnosticsSuite/compileTime/unbound_var.ark:1
     1 | (let a b)
       |        ^
     2 |
-        Unbound variable error "b" (variable is used but not defined)
+        Unbound variable "b" (variable is used but not defined)

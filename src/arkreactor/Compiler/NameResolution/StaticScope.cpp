@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <fmt/format.h>
 
+#include <Ark/Compiler/Common.hpp>
+
 namespace Ark::internal
 {
     std::string StaticScope::add(const std::string& name, bool is_mutable)
@@ -47,7 +49,7 @@ namespace Ark::internal
     {
         // Since we do multiple passes on namespaces, we need to check if the given name is already hidden,
         // so that we can save the name as it was on the first pass
-        if (name.ends_with("#hidden"))
+        if (name.ends_with(HiddenSymbolSuffix))
         {
             std::string std_name = name.substr(0, name.find_first_of('#'));
             return m_vars.emplace(name, std_name, is_mutable).first->name;
@@ -61,7 +63,7 @@ namespace Ark::internal
         const std::string unprefixed_name = starts_with_prefix ? name.substr(name.find_first_of(':') + 1) : name;
 
         if (!m_symbols.empty() && !hasSymbol(unprefixed_name) && !m_with_prefix && !m_is_glob)
-            return m_vars.emplace(fqn + "#hidden", fqn, is_mutable).first->name;
+            return m_vars.emplace(fqn + std::string(HiddenSymbolSuffix), fqn, is_mutable).first->name;
         return m_vars.emplace(fqn, fqn, is_mutable).first->name;
     }
 
@@ -98,7 +100,7 @@ namespace Ark::internal
                 if (auto maybe_decl = scope->get(name, origin_namespace, extensive_lookup); maybe_decl.has_value())
                 {
                     // prioritize non-hidden declarations
-                    if ((decl.has_value() && decl.value().name.ends_with("#hidden")) || !decl.has_value())
+                    if ((decl.has_value() && decl.value().name.ends_with(HiddenSymbolSuffix)) || !decl.has_value())
                         decl = maybe_decl;
                 }
             }

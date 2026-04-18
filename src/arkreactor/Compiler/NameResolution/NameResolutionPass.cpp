@@ -322,7 +322,7 @@ namespace Ark::internal
         if (!allowed)
         {
             std::string message;
-            if (fqn.ends_with("#hidden"))
+            if (fqn.ends_with(HiddenSymbolSuffix))
                 message = fmt::format(
                     R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to add it to the symbol list while importing?)",
                     symbol.string(),
@@ -353,7 +353,13 @@ namespace Ark::internal
 
                 const std::string suggestion = offerSuggestion(str);
                 if (suggestion.empty())
-                    message = fmt::format(R"(Unbound variable error "{}" (variable is used but not defined))", str);
+                    message = fmt::format(R"(Unbound variable "{}" (variable is used but not defined))", str);
+                else if (suggestion.ends_with(HiddenSymbolSuffix))
+                {
+                    const std::string prefix = suggestion.substr(0, suggestion.find_first_of(':'));
+                    const std::string suffix = suggestion.substr(suggestion.find_first_of(':') + 1, suggestion.size() - prefix.size() - 1 - HiddenSymbolSuffix.size());
+                    message = fmt::format(R"(Unbound variable "{0}". Did you forget to add '{1}' when importing '{2}', eg `(import {2} :{1})'? (symbol is visible but not available))", str, suffix, prefix);
+                }
                 else
                 {
                     const std::string prefix = suggestion.substr(0, suggestion.find_first_of(':'));
@@ -362,7 +368,7 @@ namespace Ark::internal
                         prefix,
                         str);
                     const bool add_note = suggestion.ends_with(":" + str);
-                    message = fmt::format(R"(Unbound variable error "{}" (did you mean "{}"?{}))", str, suggestion, add_note ? note_about_prefix : "");
+                    message = fmt::format(R"(Unbound variable "{}" (did you mean "{}"?{}))", str, suggestion, add_note ? note_about_prefix : "");
                 }
 
                 throw CodeError(message, CodeErrorContext(sym.filename(), sym.position()));
@@ -378,6 +384,12 @@ namespace Ark::internal
             std::size_t suggestion_distance = word.size() / 2;
             for (const std::string& symbol : dict)
             {
+                if (symbol.starts_with(word) && symbol.ends_with(HiddenSymbolSuffix))
+                {
+                    suggestion = symbol;
+                    break;
+                }
+
                 const std::size_t current_distance = Utils::levenshteinDistance(word, symbol);
                 if (current_distance <= suggestion_distance)
                 {

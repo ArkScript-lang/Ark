@@ -1,0 +1,3 @@
+(import package.d)
+
+(print c:odd)

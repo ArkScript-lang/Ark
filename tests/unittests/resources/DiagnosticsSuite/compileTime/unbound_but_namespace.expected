@@ -4,4 +4,4 @@ In file tests/unittests/resources/DiagnosticsSuite/compileTime/unbound_but_names
     3 | (print bar)
       |        ^~~
     4 |
-        Unbound variable error "bar" (did you mean "b:bar"? You either forgot to import it in the symbol list (eg `(import b :bar)') or need to fully qualify it by adding the namespace)
+        Unbound variable "bar" (did you mean "b:bar"? You either forgot to import it in the symbol list (eg `(import b :bar)') or need to fully qualify it by adding the namespace)

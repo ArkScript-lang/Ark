@@ -1,0 +1,7 @@
+In file tests/unittests/resources/DiagnosticsSuite/compileTime/use_not_in_import_list_prefixed.ark:3
+    1 | (import package.d)
+    2 |
+    3 | (print c:odd)
+      |        ^~~~~
+    4 |
+        Unbound variable "c:odd". Did you forget to add 'odd' when importing 'c', eg `(import c :odd)'? (symbol is visible but not available)
