@@ -470,7 +470,7 @@ namespace Ark
         arg = static_cast<uint16_t>((m_state.inst(context.pp, context.ip + 2) << 8) +                     \
                                     m_state.inst(context.pp, context.ip + 3));                            \
         context.ip += 4;                                                                                  \
-        context.inst_exec_counter = (context.inst_exec_counter + 1) % VMOverflowBufferSize;               \
+        context.inst_exec_counter = (context.inst_exec_counter + 1) & VMOverflowBufferSize;               \
         if constexpr (WithDebugger)                                                                       \
         {                                                                                                 \
             if (!m_debugger) initDebugger(context);                                                       \
