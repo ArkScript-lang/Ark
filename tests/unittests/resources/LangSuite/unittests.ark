@@ -8,6 +8,7 @@
 (import list-tests)
 (import string-tests)
 (import async-tests)
+(import lambda-core-tests)
 
 (import std.List)
 
@@ -21,7 +22,8 @@
     macro-tests:macro-output
     list-tests:list-output
     string-tests:string-output
-    async-tests:async-output ]))
+    async-tests:async-output
+    lambda-core-tests:lambda-output ]))
 (let success_count (list:sum (@ outputs 0)))
 (let failure_count (list:sum (@ outputs 1)))
 

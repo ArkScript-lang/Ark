@@ -1,0 +1,63 @@
+(import std.Testing)
+
+(let _true (fun (x)
+  (fun (y &x) x)))
+(let _false (fun (x)
+  (fun (y) y)))
+(let _not (fun (b)
+  ((b _false) _true)))
+(let _and (fun (b1)
+  (fun (b2 &b1)
+    ((b1 b2) _false))))
+(let _or (fun (b1)
+  (fun (b2 &b1)
+    ((b1 _true) b2))))
+
+(let _zero (fun (f) (fun (x) x)))
+(let _succ (fun (n)
+  (fun (f &n)
+    (fun (x &n &f)
+      (f ((n f) x))))))
+(let _pred (fun (n)
+  (fun (f &n)
+    (fun (x &n &f)
+      (((n (fun (g &f) (fun (h &g &f) (h (g f))))) (fun (u &x) x)) (fun (a) a))))))
+(let _one (_succ _zero))
+
+(let read_church (fun (n)
+  ((n (fun (x) (+ x 1))) 0)))
+(let read_bool (fun (b)
+  ((b true) false)))
+
+(test:suite lambda {
+  (test:case "logic" {
+    (test:eq (read_bool _true) true)
+    (test:eq (read_bool _false) false)
+
+    (test:case "not" {
+      (test:eq (read_bool (_not _true)) false)
+      (test:eq (read_bool (_not _false)) true) })
+
+    (test:case "and" {
+      (test:eq (read_bool ((_and _true) _true)) true)
+      (test:eq (read_bool ((_and _true) _false)) false)
+      (test:eq (read_bool ((_and _false) _true)) false)
+      (test:eq (read_bool ((_and _false) _false)) false) })
+
+    (test:case "or" {
+      (test:eq (read_bool ((_or _true) _true)) true)
+      (test:eq (read_bool ((_or _true) _false)) true)
+      (test:eq (read_bool ((_or _false) _true)) true)
+      (test:eq (read_bool ((_or _false) _false)) false) })})
+
+  (test:case "church numerals" {
+    (test:case "zero / succ" {
+      (test:eq (read_church _zero) 0)
+      (test:eq (read_church _one) 1)
+      (test:eq (read_church (_succ _one)) 2)
+      (test:eq (read_church (_succ (_succ _one))) 3) })
+
+    (test:case "pred" {
+      (test:eq (read_church (_pred _one)) 0)
+      (test:eq (read_church (_pred (_succ _one))) 1)
+      (test:eq (read_church (_pred (_succ (_succ _one)))) 2) })})})
