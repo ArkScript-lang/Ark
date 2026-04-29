@@ -126,6 +126,16 @@ Make sure you follow the [contribution guidelines](https://arkscript-lang.dev/do
 
 Don't know what to work on? No worries, we have a [list of things to do](https://github.com/ArkScript-lang/Ark/issues) :wink:
 
+### Strict No LLM / No AI Policy
+
+No LLMs for issues.
+
+No LLMs for patches / pull requests.
+
+No LLMs for comments on the bug tracker, including translation.
+
+English is encouraged, but not required. You are welcome to post in your native language and rely on others to have their own translation tools of choice to interpret your words.
+
 ### Related projects
 
 We have other projects tightly related to ArkScript, which aren't necessarily C++ oriented:
