@@ -1,17 +1,11 @@
 # Change Log
 
-## [Unreleased changes] - 2026-MM-DD
-### Breaking changes
-
-### Deprecations
-
+## [4.5.1] - 2026-05-05
 ### Added
 - special error message when trying to use a hidden symbol due to importing
 
 ### Changed
 - avoid generating `LOAD_FAST_BY_INDEX` instructions when trying to fetch a potentially unreachable variable
-
-### Removed
 
 ## [4.5.0] - 2026-04-14
 ### Breaking changes
