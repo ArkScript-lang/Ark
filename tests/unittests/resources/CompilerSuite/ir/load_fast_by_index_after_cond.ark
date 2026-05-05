@@ -1,0 +1,9 @@
+(let foo (fun (toggle) {
+  (let i 0)
+  (if toggle
+    (let a "error, I shouldn't be loaded!"))
+  (let b 5)
+  (print i b) }))
+
+(foo false) # 05
+(foo true) # 05

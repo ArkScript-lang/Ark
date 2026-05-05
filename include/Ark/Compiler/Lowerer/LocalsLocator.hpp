@@ -66,13 +66,27 @@ namespace Ark::internal
 
         /**
          * @brief Drop potentially defined variables in the last saved branch
+         *
+         * @return true if vars were dropped, meaning that we created at least one variable in a branch
+         * @return false if nothing was dropped
          */
-        void dropVarsForBranch();
+        bool dropVarsForBranch();
+
+        /**
+         * @brief Mark the last variable of a scope as unreachable, blocking lookupLastScopeByName(..) from returning a value past that point
+         */
+        void markLastLocalAsUnreachable();
 
     private:
         struct Scope
         {
-            std::vector<std::string> data;
+            struct Var
+            {
+                std::string name;
+                bool unreachable = false;
+            };
+
+            std::vector<Var> data;
             ScopeType type;
         };
 

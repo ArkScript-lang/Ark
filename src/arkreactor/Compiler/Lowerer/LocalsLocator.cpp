@@ -13,8 +13,12 @@ namespace Ark::internal
     void LocalsLocator::addLocal(const std::string& name)
     {
         auto& scope = m_scopes.back();
-        if (std::ranges::find(scope.data, name) == scope.data.end())
-            scope.data.push_back(name);
+        if (std::ranges::find_if(
+                scope.data,
+                [&name](const Scope::Var& v) {
+                    return name == v.name;
+                }) == scope.data.end())
+            scope.data.push_back(Scope::Var { .name = name, .unreachable = false });
     }
 
     std::optional<std::size_t> LocalsLocator::lookupLastScopeByName(const std::string& name)
@@ -24,8 +28,14 @@ namespace Ark::internal
         if (type != ScopeType::Closure)
         {
             // Compute the index of the variable in the active scope from the end.
-            if (const auto it = std::ranges::find(data, name); it != data.end())
-                return static_cast<std::size_t>(std::distance(it, data.end())) - 1;
+            for (auto it = data.rbegin(); it != data.rend(); ++it)
+            {
+                // If a variable is marked unreachable, then anything before it can not be accessed as well
+                if (it->unreachable)
+                    return std::nullopt;
+                if (it->name == name)
+                    return static_cast<std::size_t>(std::distance(data.rbegin(), it));
+            }
         }
 
         return std::nullopt;
@@ -48,15 +58,24 @@ namespace Ark::internal
         m_drop_for_conds.push_back(m_scopes.back().data.size());
     }
 
-    void LocalsLocator::dropVarsForBranch()
+    bool LocalsLocator::dropVarsForBranch()
     {
         const auto old_length = m_drop_for_conds.back();
         m_drop_for_conds.pop_back();
 
         auto& back = m_scopes.back();
         if (back.data.size() > old_length)
+        {
             back.data.erase(
                 back.data.begin() + static_cast<decltype(back.data)::difference_type>(old_length),
                 back.data.end());
+            return true;
+        }
+        return false;
+    }
+
+    void LocalsLocator::markLastLocalAsUnreachable()
+    {
+        m_scopes.back().data.back().unreachable = true;
     }
 }

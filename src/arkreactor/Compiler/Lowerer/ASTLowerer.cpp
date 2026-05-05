@@ -474,13 +474,15 @@ namespace Ark::internal
         const auto label_then = IR::Entity::Label(m_current_label++);
         page(p).emplace_back(IR::Entity::GotoIf(label_then, true));
 
+        bool created_vars = false;
+
         // "false" branch code
         if (x.constList().size() == 4)  // we have an else clause
         {
             m_locals_locator.saveScopeLengthForBranch();
             compileExpression(x.list()[3], p, is_result_unused, is_terminal, can_use_ref);
             page(p).back().setSourceLocation(x.constList()[3].filename(), x.constList()[3].position().start.line);
-            m_locals_locator.dropVarsForBranch();
+            created_vars = m_locals_locator.dropVarsForBranch();
         }
         else
         {
@@ -498,9 +500,15 @@ namespace Ark::internal
         m_locals_locator.saveScopeLengthForBranch();
         compileExpression(x.list()[2], p, is_result_unused, is_terminal, can_use_ref);
         page(p).back().setSourceLocation(x.constList()[2].filename(), x.constList()[2].position().start.line);
-        m_locals_locator.dropVarsForBranch();
+        created_vars = created_vars || m_locals_locator.dropVarsForBranch();
         // set jump to end pos
         page(p).emplace_back(label_end);
+
+        // if we have at least one branch that introduced a new variable,
+        // we have to mark the last variable in the current scope as unreachable
+        // to avoid generating bad indices for LOAD_FAST_BY_INDEX
+        if (created_vars)
+            m_locals_locator.markLastLocalAsUnreachable();
     }
 
     void ASTLowerer::compileFunction(Node& x, const Page p, const bool is_result_unused)
