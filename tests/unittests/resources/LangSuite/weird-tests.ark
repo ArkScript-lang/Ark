@@ -98,4 +98,16 @@
         (i (or 0 b) (- a 1)) })))
     (i 2 2)
 
-    (test:eq output [[2 2] [2 1] [1 1] [1 0]]) }) })
+    (test:eq output [[2 2] [2 1] [1 1] [1 0]]) })
+
+  (test:case "use a variable after a condition" {
+    (let var_after_cond (fun (toggle) {
+      (let i 0)
+      (if toggle
+        (let a 1))
+      (let b 5)
+      (let res (+ i b))
+      (test:eq res 5) }))
+
+    (var_after_cond false)
+    (var_after_cond true) }) })

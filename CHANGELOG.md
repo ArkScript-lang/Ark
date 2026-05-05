@@ -9,6 +9,7 @@
 - special error message when trying to use a hidden symbol due to importing
 
 ### Changed
+- avoid generating `LOAD_FAST_BY_INDEX` instructions when trying to fetch a potentially unreachable variable
 
 ### Removed
 
