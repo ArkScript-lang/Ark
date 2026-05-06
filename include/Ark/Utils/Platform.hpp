@@ -17,10 +17,12 @@
 #    define ARK_OS_LINUX
 #endif
 
-#if defined(__GNUC__) || defined(__clang__)
-#    define ARK_ALWAYS_INLINE __attribute__((always_inline))
-#elif defined(_MSC_VER) && !defined(__clang__)
-#    define ARK_ALWAYS_INLINE __forceinline
+#ifndef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+#    if defined(__GNUC__) || defined(__clang__)
+#        define ARK_ALWAYS_INLINE __attribute__((always_inline))
+#    elif defined(_MSC_VER) && !defined(__clang__)
+#        define ARK_ALWAYS_INLINE __forceinline
+#    endif
 #else
 #    define ARK_ALWAYS_INLINE
 #endif
