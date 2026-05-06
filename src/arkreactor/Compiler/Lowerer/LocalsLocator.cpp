@@ -76,6 +76,7 @@ namespace Ark::internal
 
     void LocalsLocator::markLastLocalAsUnreachable()
     {
-        m_scopes.back().data.back().unreachable = true;
+        if (!m_scopes.back().data.empty())
+            m_scopes.back().data.back().unreachable = true;
     }
 }
