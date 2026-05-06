@@ -110,4 +110,12 @@
       (test:eq res 5) }))
 
     (var_after_cond false)
-    (var_after_cond true) }) })
+    (var_after_cond true) })
+
+  (test:case "no segfault when marking variables as unreachable in the compiler" {
+    (mut n 1)
+    (while (< n 10) {
+      (if (> n 1)
+        ((let F (fun (m) (if m m 1))) n))
+      (set n (+ n 1)) })
+    (test:eq n 10) }) })

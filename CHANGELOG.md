@@ -1,5 +1,9 @@
 # Change Log
 
+## [4.5.2] - 2026-05-06
+### Changed
+- fix compiler segfault when there is no variable to mark as unreachable
+
 ## [4.5.1] - 2026-05-05
 ### Added
 - special error message when trying to use a hidden symbol due to importing
