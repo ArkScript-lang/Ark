@@ -33,38 +33,6 @@ namespace Ark::internal::Builtins::List
         return Value(-1);
     }
 
-    Value sliceList(std::vector<Value>& n, VM* vm [[maybe_unused]])
-    {
-        if (!types::check(n, ValueType::List, ValueType::Number, ValueType::Number, ValueType::Number))
-            throw types::TypeCheckingError(
-                "list:slice",
-                { { types::Contract { { types::Typedef("list", ValueType::List),
-                                        types::Typedef("start", ValueType::Number),
-                                        types::Typedef("end", ValueType::Number),
-                                        types::Typedef("step", ValueType::Number) } } } },
-                n);
-
-        const long step = static_cast<long>(n[3].number());
-        if (step <= 0)
-            throw std::runtime_error("list:slice: step can not be null or negative");
-
-        auto start = static_cast<long>(n[1].number());
-        auto end = static_cast<long>(n[2].number());
-
-        if (start > end)
-            throw std::runtime_error(fmt::format("list:slice: start position ({}) must be less or equal to the end position ({})", start, end));
-        if (start < 0)
-            throw std::runtime_error(fmt::format("list:slice: start index {} can not be less than 0", start));
-        if (std::cmp_greater(end, n[0].list().size()))
-            throw std::runtime_error(fmt::format("list:slice: end index {} out of range (length: {})", end, n[0].list().size()));
-
-        std::vector<Value> list;
-        for (auto i = static_cast<std::size_t>(start); std::cmp_less(i, end); i += static_cast<std::size_t>(step))
-            list.push_back(n[0].list()[i]);
-
-        return Value(std::move(list));
-    }
-
     Value sort_(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
         if (!types::check(n, ValueType::List))

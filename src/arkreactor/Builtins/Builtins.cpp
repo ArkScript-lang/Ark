@@ -30,7 +30,7 @@ namespace Ark::internal::Builtins
         // List
         { "builtin__list:reverse", Value(List::reverseList) },
         { "builtin__list:find", Value(List::findInList) },
-        { "builtin__list:slice", Value(List::sliceList) },
+        { "builtin__list:slice", Value(slice) },
         { "builtin__list:sort", Value(List::sort_) },
         { "builtin__list:fill", Value(List::fill) },
         { "builtin__list:setAt", Value(List::setListAt) },

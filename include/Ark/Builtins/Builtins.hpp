@@ -38,7 +38,6 @@ namespace Ark::internal::Builtins
     {
         ARK_BUILTIN(reverseList);
         ARK_BUILTIN(findInList);
-        ARK_BUILTIN(sliceList);
         ARK_BUILTIN(sort_);
         ARK_BUILTIN(fill);
         ARK_BUILTIN(setListAt);
