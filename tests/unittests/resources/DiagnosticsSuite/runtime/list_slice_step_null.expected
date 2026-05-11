@@ -1,6 +1,0 @@
-list:slice: step can not be null or negative
-
-In file tests/unittests/resources/DiagnosticsSuite/runtime/list_slice_step_null.ark:1
-    1 | (builtin__list:slice [1 2 3 4 5 6 7 8 9] 4 5 -1)
-      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    2 |

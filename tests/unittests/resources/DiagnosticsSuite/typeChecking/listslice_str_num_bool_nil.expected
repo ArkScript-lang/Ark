@@ -1,10 +1,19 @@
-Function list:slice expected 4 arguments
+Function slice expected between 3 arguments and 4 arguments
 Call
-  ↳ (list:slice "hello" 1 true nil)
+  ↳ (slice "hello" 1 true nil)
 Signature
-  ↳ (list:slice list start end step)
+  ↳ (slice container start end)
 Arguments
-  → `list' (expected List), got "hello" (String)
+  → `container' (expected List, or String) ✓
+  → `start' (expected Number) ✓
+  → `end' (expected Number), got true (Bool)
+  → unexpected additional args: nil (Nil)
+
+Alternative 2:
+Signature
+  ↳ (slice container start end step)
+Arguments
+  → `container' (expected List, or String) ✓
   → `start' (expected Number) ✓
   → `end' (expected Number), got true (Bool)
   → `step' (expected Number), got nil (Nil)

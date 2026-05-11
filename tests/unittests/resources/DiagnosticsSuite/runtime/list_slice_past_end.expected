@@ -1,6 +1,0 @@
-list:slice: end index 12 out of range (length: 9)
-
-In file tests/unittests/resources/DiagnosticsSuite/runtime/list_slice_past_end.ark:1
-    1 | (builtin__list:slice [1 2 3 4 5 6 7 8 9] 6 12 1)
-      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    2 |
