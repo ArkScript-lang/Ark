@@ -12,6 +12,7 @@
 
 #include <Ark/TypeChecker.hpp>
 #include <Ark/VM/VM.hpp>
+#include <Ark/Compiler/AST/utf8_char.hpp>
 
 struct value_wrapper
 {
@@ -352,5 +353,26 @@ namespace Ark::internal::Builtins::String
 
         string[static_cast<std::size_t>(idx)] = n[2].string()[0];
         return n[0];
+    }
+
+    Value codepoints(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::String))
+            throw types::TypeCheckingError(
+                "string:codepoints",
+                { { types::Contract { { types::Typedef("string", ValueType::String) } } } },
+                n);
+
+        Value data(ValueType::List);
+        auto it = n[0].stringRef().begin();
+        const auto end = n[0].stringRef().end();
+        while (it != end)
+        {
+            auto [next, sym] = utf8_char_t::at(it, end);
+            data.push_back(Value(sym.codepoint()));
+            it = next;
+        }
+
+        return data;
     }
 }

@@ -1,5 +1,34 @@
 # Change Log
 
+## [Unreleased changes] - 2026-MM-DD
+### Breaking changes
+
+### Deprecations
+- `std.Range` has been entirely deprecated and is scheduled for removal
+
+### Added
+- standard library:
+  - list:slice1
+  - list:first
+  - list:last
+  - list:cumulativeSum
+  - list:cumulativeProduct
+  - list:zeros
+  - list:ones
+  - string:lpad
+  - string:rpad
+  - string:ascii?
+  - string:first
+  - string:last
+  - string:codepoints
+- new builtin `builtin__string:codepoints` returning the Unicode codepoints of a string as a list of numbers
+
+### Changed
+- `$repr` shows the correct representation for macros
+- `$symcat` accepts symbols and strings as its first argument
+
+### Removed
+
 ## [4.5.2] - 2026-05-06
 ### Changed
 - fix compiler segfault when there is no variable to mark as unreachable

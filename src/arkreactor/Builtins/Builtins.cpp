@@ -67,6 +67,7 @@ namespace Ark::internal::Builtins
         { "builtin__string:ord", Value(String::ord) },
         { "builtin__string:chr", Value(String::chr) },
         { "builtin__string:setAt", Value(String::setStringAt) },
+        { "builtin__string:codepoints", Value(String::codepoints) },
 
         // Mathematics
         { "builtin__math:exp", Value(Mathematics::exponential) },
