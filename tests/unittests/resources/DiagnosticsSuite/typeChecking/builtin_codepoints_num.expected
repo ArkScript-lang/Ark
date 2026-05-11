@@ -1,0 +1,12 @@
+Function string:codepoints expected 1 argument
+Call
+  ↳ (string:codepoints 1)
+Signature
+  ↳ (string:codepoints string)
+Arguments
+  → `string' (expected String), got 1 (Number)
+
+In file tests/unittests/resources/DiagnosticsSuite/typeChecking/builtin_codepoints_num.ark:1
+    1 | (builtin__string:codepoints 1)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

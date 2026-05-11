@@ -81,6 +81,7 @@ namespace Ark::internal::Builtins
         ARK_BUILTIN(ord);
         ARK_BUILTIN(chr);
         ARK_BUILTIN(setStringAt);
+        ARK_BUILTIN(codepoints);
     }
 
     namespace Mathematics
