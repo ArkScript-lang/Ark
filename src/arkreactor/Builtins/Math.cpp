@@ -290,7 +290,7 @@ namespace Ark::internal::Builtins::Mathematics
         if (!isInt(num) || num < 0)
             throw std::runtime_error("math:countOnes: expected a positive integer input");
 
-        return Value(std::popcount(static_cast<unsigned long>(num)));
+        return Value(std::popcount(static_cast<uint64_t>(num)));
     }
 
     // cppcheck-suppress constParameterReference
@@ -305,7 +305,7 @@ namespace Ark::internal::Builtins::Mathematics
         if (!isInt(num) || num < 0)
             throw std::runtime_error("math:countZeros: expected a positive integer input");
 
-        return Value(std::popcount(~static_cast<unsigned long>(num)));
+        return Value(std::popcount(~static_cast<uint64_t>(num)));
     }
 
     // cppcheck-suppress constParameterReference
@@ -320,7 +320,7 @@ namespace Ark::internal::Builtins::Mathematics
         if (!isInt(num))
             throw std::runtime_error("math:bitNot: expected an integer input, got a real number");
 
-        return Value(~static_cast<long>(num));
+        return Value(~static_cast<int64_t>(num));
     }
 
     // cppcheck-suppress constParameterReference
@@ -338,7 +338,7 @@ namespace Ark::internal::Builtins::Mathematics
         if (!isInt(a) || !isInt(b))
             throw std::runtime_error("math:bitAnd: expected integer input, got real number");
 
-        return Value(static_cast<long>(a) & static_cast<long>(b));
+        return Value(static_cast<int64_t>(a) & static_cast<int64_t>(b));
     }
 
     // cppcheck-suppress constParameterReference
@@ -356,7 +356,7 @@ namespace Ark::internal::Builtins::Mathematics
         if (!isInt(a) || !isInt(b))
             throw std::runtime_error("math:bitOr: expected integer input, got real number");
 
-        return Value(static_cast<long>(a) | static_cast<long>(b));
+        return Value(static_cast<int64_t>(a) | static_cast<int64_t>(b));
     }
 
     // cppcheck-suppress constParameterReference
@@ -374,7 +374,7 @@ namespace Ark::internal::Builtins::Mathematics
         if (!isInt(a) || !isInt(b))
             throw std::runtime_error("math:bitXor: expected integer input, got real number");
 
-        return Value(static_cast<long>(a) ^ static_cast<long>(b));
+        return Value(static_cast<int64_t>(a) ^ static_cast<int64_t>(b));
     }
 
     // cppcheck-suppress constParameterReference
@@ -392,7 +392,7 @@ namespace Ark::internal::Builtins::Mathematics
         if (!isInt(a) || !isInt(b))
             throw std::runtime_error("math:rshift: expected integer input, got real number");
 
-        return Value(static_cast<long>(a) >> static_cast<long>(b));
+        return Value(static_cast<int64_t>(a) >> static_cast<int64_t>(b));
     }
 
     // cppcheck-suppress constParameterReference
@@ -410,6 +410,6 @@ namespace Ark::internal::Builtins::Mathematics
         if (!isInt(a) || !isInt(b))
             throw std::runtime_error("math:lshift: expected integer input, got real number");
 
-        return Value(static_cast<long>(a) << static_cast<long>(b));
+        return Value(static_cast<int64_t>(a) << static_cast<int64_t>(b));
     }
 }
