@@ -139,7 +139,7 @@ namespace Ark
         {}
 
         explicit Value(int value) noexcept;
-        explicit Value(long value) noexcept;
+        explicit Value(int64_t value) noexcept;
         explicit Value(double value) noexcept;
         explicit Value(const String_t& value) noexcept;
         explicit Value(const char* value) noexcept;

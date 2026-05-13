@@ -24,7 +24,7 @@ namespace Ark
         m_type(ValueType::Number), m_value(static_cast<double>(value))
     {}
 
-    Value::Value(const long value) noexcept :
+    Value::Value(const int64_t value) noexcept :
         m_type(ValueType::Number), m_value(static_cast<double>(value))
     {}
 
