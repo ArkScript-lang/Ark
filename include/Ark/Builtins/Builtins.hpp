@@ -123,6 +123,13 @@ namespace Ark::internal::Builtins
         ARK_BUILTIN(bitwiseXor);
         ARK_BUILTIN(bitwiseRshift);
         ARK_BUILTIN(bitwiseLshift);
+        ARK_BUILTIN(bitCeil);
+        ARK_BUILTIN(bitFloor);
+        ARK_BUILTIN(bitWidth);
+        ARK_BUILTIN(countLeftZeros);
+        ARK_BUILTIN(countLeftOnes);
+        ARK_BUILTIN(countRightZeros);
+        ARK_BUILTIN(countRightOnes);
     }
 
     namespace Async

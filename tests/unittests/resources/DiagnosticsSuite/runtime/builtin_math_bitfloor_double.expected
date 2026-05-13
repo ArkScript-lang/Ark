@@ -1,0 +1,6 @@
+math:bitFloor: expected a positive integer input
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_bitfloor_double.ark:1
+    1 | (builtin__math:bitFloor 1.5)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

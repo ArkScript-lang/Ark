@@ -103,6 +103,13 @@ namespace Ark::internal::Builtins
         { "builtin__math:bitXor", Value(Mathematics::bitwiseXor) },
         { "builtin__math:rshift", Value(Mathematics::bitwiseRshift) },
         { "builtin__math:lshift", Value(Mathematics::bitwiseLshift) },
+        { "builtin__math:bitCeil", Value(Mathematics::bitCeil) },
+        { "builtin__math:bitFloor", Value(Mathematics::bitFloor) },
+        { "builtin__math:bitWidth", Value(Mathematics::bitWidth) },
+        { "builtin__math:countLeftZeros", Value(Mathematics::countLeftZeros) },
+        { "builtin__math:countLeftOnes", Value(Mathematics::countLeftOnes) },
+        { "builtin__math:countRightZeros", Value(Mathematics::countRightZeros) },
+        { "builtin__math:countRightOnes", Value(Mathematics::countRightOnes) },
 
         // Async
         { "async", Value(Async::async) },

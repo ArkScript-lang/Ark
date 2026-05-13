@@ -1,0 +1,6 @@
+math:countLeftOnes: expected positive integer input
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_countleftones_num_neg_num.ark:1
+    1 | (builtin__math:countLeftOnes -1 2)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,6 @@
+math:bitOr: expected integer input, got real number
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_bitor_double_num.ark:1
+    1 | (builtin__math:bitOr 1.5 2)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,6 @@
+math:countRightZeros: bitCount must be an integer in [1, 64], got 0
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_countrightzeros_num_zero.ark:1
+    1 | (builtin__math:countRightZeros 1 0)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

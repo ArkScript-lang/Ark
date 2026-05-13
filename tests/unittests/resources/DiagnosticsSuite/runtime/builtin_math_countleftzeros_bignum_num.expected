@@ -1,0 +1,6 @@
+math:countLeftZeros: number does not fit in the given bit count (8)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_countleftzeros_bignum_num.ark:1
+    1 | (builtin__math:countLeftZeros 65535 8)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,6 @@
+math:bitNot: expected an integer input, got a real number
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_bitnot_double.ark:1
+    1 | (builtin__math:bitNot 1.5)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

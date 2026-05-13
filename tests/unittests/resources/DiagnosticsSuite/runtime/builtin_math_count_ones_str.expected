@@ -1,0 +1,12 @@
+Function math:countOnes expected 1 argument
+Call
+  ↳ (math:countOnes "1")
+Signature
+  ↳ (math:countOnes value)
+Arguments
+  → `value' (expected Number), got "1" (String)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_count_ones_str.ark:1
+    1 | (builtin__math:countOnes "1")
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |
