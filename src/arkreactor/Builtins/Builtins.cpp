@@ -95,6 +95,14 @@ namespace Ark::internal::Builtins
         { "builtin__math:asinh", Value(Mathematics::asinh_) },
         { "builtin__math:atanh", Value(Mathematics::atanh_) },
         { "random", Value(Mathematics::random) },
+        { "builtin__math:countOnes", Value(Mathematics::countOnes) },
+        { "builtin__math:countZeros", Value(Mathematics::countZeros) },
+        { "builtin__math:bitNot", Value(Mathematics::bitwiseNot) },
+        { "builtin__math:bitAnd", Value(Mathematics::bitwiseAnd) },
+        { "builtin__math:bitOr", Value(Mathematics::bitwiseOr) },
+        { "builtin__math:bitXor", Value(Mathematics::bitwiseXor) },
+        { "builtin__math:rshift", Value(Mathematics::bitwiseRshift) },
+        { "builtin__math:lshift", Value(Mathematics::bitwiseLshift) },
 
         // Async
         { "async", Value(Async::async) },
