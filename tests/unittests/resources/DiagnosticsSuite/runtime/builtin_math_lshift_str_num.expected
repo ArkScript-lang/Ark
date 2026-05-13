@@ -1,0 +1,13 @@
+Function math:lshift expected 2 arguments
+Call
+  ↳ (math:lshift "1" 2)
+Signature
+  ↳ (math:lshift a b)
+Arguments
+  → `a' (expected Number), got "1" (String)
+  → `b' (expected Number) ✓
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_lshift_str_num.ark:1
+    1 | (builtin__math:lshift "1" 2)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

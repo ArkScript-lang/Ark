@@ -1,0 +1,13 @@
+Function math:countRightOnes expected 2 arguments
+Call
+  ↳ (math:countRightOnes "1" 2)
+Signature
+  ↳ (math:countRightOnes num bitCount)
+Arguments
+  → `num' (expected Number), got "1" (String)
+  → `bitCount' (expected Number) ✓
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_countrightones_str_num.ark:1
+    1 | (builtin__math:countRightOnes "1" 2)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,6 @@
+math:bitXor: expected integer input, got real number
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_bitxor_double_num.ark:1
+    1 | (builtin__math:bitXor 1.5 2)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

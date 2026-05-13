@@ -1,0 +1,13 @@
+Function math:bitOr expected 2 arguments
+Call
+  ↳ (math:bitOr "1" 2)
+Signature
+  ↳ (math:bitOr a b)
+Arguments
+  → `a' (expected Number), got "1" (String)
+  → `b' (expected Number) ✓
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_bitor_str_num.ark:1
+    1 | (builtin__math:bitOr "1" 2)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

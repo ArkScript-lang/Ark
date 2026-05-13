@@ -1,0 +1,6 @@
+math:countLeftOnes: bitCount must be an integer in [1, 64], got 65
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_countleftones_num_65.ark:1
+    1 | (builtin__math:countLeftOnes 1 65)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

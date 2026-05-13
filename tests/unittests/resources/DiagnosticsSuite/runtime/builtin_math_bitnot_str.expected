@@ -1,0 +1,12 @@
+Function math:bitNot expected 1 argument
+Call
+  ↳ (math:bitNot "1")
+Signature
+  ↳ (math:bitNot value)
+Arguments
+  → `value' (expected Number), got "1" (String)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_bitnot_str.ark:1
+    1 | (builtin__math:bitNot "1")
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,12 @@
+Function math:bitFloor expected 1 argument
+Call
+  ↳ (math:bitFloor "1")
+Signature
+  ↳ (math:bitFloor value)
+Arguments
+  → `value' (expected Number), got "1" (String)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_bitfloor_str.ark:1
+    1 | (builtin__math:bitFloor "1")
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

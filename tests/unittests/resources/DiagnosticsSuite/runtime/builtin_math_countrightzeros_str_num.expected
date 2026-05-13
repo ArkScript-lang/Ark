@@ -1,0 +1,13 @@
+Function math:countRightZeros expected 2 arguments
+Call
+  ↳ (math:countRightZeros "1" 2)
+Signature
+  ↳ (math:countRightZeros num bitCount)
+Arguments
+  → `num' (expected Number), got "1" (String)
+  → `bitCount' (expected Number) ✓
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_countrightzeros_str_num.ark:1
+    1 | (builtin__math:countRightZeros "1" 2)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,6 @@
+math:countRightZeros: expected positive integer input
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_countrightzeros_num_double.ark:1
+    1 | (builtin__math:countRightZeros 1 2.5)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

@@ -1,0 +1,12 @@
+Function math:bitCeil expected 1 argument
+Call
+  ↳ (math:bitCeil "1")
+Signature
+  ↳ (math:bitCeil value)
+Arguments
+  → `value' (expected Number), got "1" (String)
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_bitceil_str.ark:1
+    1 | (builtin__math:bitCeil "1")
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |

@@ -412,4 +412,153 @@ namespace Ark::internal::Builtins::Mathematics
 
         return Value(static_cast<int64_t>(a) << static_cast<int64_t>(b));
     }
+
+    // cppcheck-suppress constParameterReference
+    Value bitCeil(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:bitCeil",
+                { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
+                n);
+        const double num = n[0].number();
+        if (!isInt(num) || num < 0)
+            throw std::runtime_error("math:bitCeil: expected a positive integer input");
+
+        return Value(static_cast<int64_t>(std::bit_ceil(static_cast<uint64_t>(num))));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value bitFloor(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:bitFloor",
+                { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
+                n);
+        const double num = n[0].number();
+        if (!isInt(num) || num < 0)
+            throw std::runtime_error("math:bitFloor: expected a positive integer input");
+
+        return Value(static_cast<int64_t>(std::bit_floor(static_cast<uint64_t>(num))));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value bitWidth(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:bitWidth",
+                { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
+                n);
+        const double num = n[0].number();
+        if (!isInt(num) || num < 0)
+            throw std::runtime_error("math:bitWidth: expected a positive integer input");
+
+        return Value(std::bit_width(static_cast<uint64_t>(num)));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value countLeftZeros(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:countLeftZeros",
+                { { types::Contract {
+                    { types::Typedef("num", ValueType::Number),
+                      types::Typedef("bitCount", ValueType::Number) } } } },
+                n);
+        const double a = n[0].number();
+        const double b = n[1].number();
+        if (!isInt(a) || !isInt(b) || a < 0)
+            throw std::runtime_error("math:countLeftZeros: expected positive integer input");
+
+        const uint64_t num = static_cast<uint64_t>(a);
+        const uint64_t bit_count = static_cast<uint64_t>(b);
+        if (b <= 0.0 || bit_count > 64)
+            throw std::runtime_error(fmt::format("math:countLeftZeros: bitCount must be an integer in [1, 64], got {}", b));
+        const uint64_t mask = bit_count == 64 ? std::numeric_limits<uint64_t>::max() : (static_cast<uint64_t>(1) << static_cast<uint64_t>(bit_count)) - 1;
+        if (std::cmp_greater(num, mask))
+            throw std::runtime_error(fmt::format("math:countLeftZeros: number does not fit in the given bit count ({})", bit_count));
+
+        return Value(std::countl_zero(num & mask));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value countLeftOnes(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:countLeftOnes",
+                { { types::Contract {
+                    { types::Typedef("num", ValueType::Number),
+                      types::Typedef("bitCount", ValueType::Number) } } } },
+                n);
+        const double a = n[0].number();
+        const double b = n[1].number();
+        if (!isInt(a) || !isInt(b) || a < 0)
+            throw std::runtime_error("math:countLeftOnes: expected positive integer input");
+
+        const uint64_t num = static_cast<uint64_t>(a);
+        const uint64_t bit_count = static_cast<uint64_t>(b);
+        if (b <= 0.0 || bit_count > 64)
+            throw std::runtime_error(fmt::format("math:countLeftOnes: bitCount must be an integer in [1, 64], got {}", b));
+        const uint64_t mask = bit_count == 64 ? std::numeric_limits<uint64_t>::max() : (static_cast<uint64_t>(1) << static_cast<uint64_t>(bit_count)) - 1;
+        if (std::cmp_greater(num, mask))
+            throw std::runtime_error(fmt::format("math:countLeftOnes: number does not fit in the given bit count ({})", bit_count));
+
+        return Value(std::countl_one(num & mask));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value countRightZeros(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:countRightZeros",
+                { { types::Contract {
+                    { types::Typedef("num", ValueType::Number),
+                      types::Typedef("bitCount", ValueType::Number) } } } },
+                n);
+        const double a = n[0].number();
+        const double b = n[1].number();
+        if (!isInt(a) || !isInt(b) || a < 0)
+            throw std::runtime_error("math:countRightZeros: expected positive integer input");
+
+        const uint64_t num = static_cast<uint64_t>(a);
+        const uint64_t bit_count = static_cast<uint64_t>(b);
+        if (b <= 0.0 || bit_count > 64)
+            throw std::runtime_error(fmt::format("math:countRightZeros: bitCount must be an integer in [1, 64], got {}", b));
+        const uint64_t mask = bit_count == 64 ? std::numeric_limits<uint64_t>::max() : (static_cast<uint64_t>(1) << static_cast<uint64_t>(bit_count)) - 1;
+        if (std::cmp_greater(num, mask))
+            throw std::runtime_error(fmt::format("math:countRightZeros: number does not fit in the given bit count ({})", bit_count));
+
+        return Value(std::countr_zero(num & mask));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value countRightOnes(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:countRightOnes",
+                { { types::Contract {
+                    { types::Typedef("num", ValueType::Number),
+                      types::Typedef("bitCount", ValueType::Number) } } } },
+                n);
+        const double a = n[0].number();
+        const double b = n[1].number();
+        if (!isInt(a) || !isInt(b) || a < 0)
+            throw std::runtime_error("math:countRightOnes: expected positive integer input");
+
+        const uint64_t num = static_cast<uint64_t>(a);
+        const uint64_t bit_count = static_cast<uint64_t>(b);
+        if (b <= 0.0 || bit_count > 64)
+            throw std::runtime_error(fmt::format("math:countRightOnes: bitCount must be an integer in [1, 64], got {}", b));
+        const uint64_t mask = bit_count == 64 ? std::numeric_limits<uint64_t>::max() : (static_cast<uint64_t>(1) << static_cast<uint64_t>(bit_count)) - 1;
+        if (std::cmp_greater(num, mask))
+            throw std::runtime_error(fmt::format("math:countRightOnes: number does not fit in the given bit count ({})", bit_count));
+
+        return Value(std::countr_one(num & mask));
+    }
 }

@@ -1,0 +1,13 @@
+Function math:bitAnd expected 2 arguments
+Call
+  ↳ (math:bitAnd "1" 2)
+Signature
+  ↳ (math:bitAnd a b)
+Arguments
+  → `a' (expected Number), got "1" (String)
+  → `b' (expected Number) ✓
+
+In file tests/unittests/resources/DiagnosticsSuite/runtime/builtin_math_bitand_str_num.ark:1
+    1 | (builtin__math:bitAnd "1" 2)
+      | ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2 |
