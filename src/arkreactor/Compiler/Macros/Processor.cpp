@@ -528,7 +528,8 @@ namespace Ark::internal
             {
                 if (node.list().size() <= 2)
                     throwMacroProcessingError(fmt::format("When expanding `{}', expected at least 2 arguments, got {} arguments", Language::Symcat, argcount), node);
-                checkMacroTypeError(Language::Symcat.data(), "symbol", NodeType::Symbol, node.list()[1]);
+                if (node.list()[1].nodeType() != NodeType::Symbol && node.list()[1].nodeType() != NodeType::String)
+                    checkMacroTypeError(Language::Symcat.data(), "symbol", NodeType::Symbol, node.list()[1]);
 
                 std::string sym = node.list()[1].string();
 
