@@ -130,8 +130,14 @@
     (test:case "builtin macros" {
         (macro nil-type ($type nil))
         (macro bool-type ($type true))
-        (test:eq "Nil" nil-type)
-        (test:eq "Bool" bool-type) })
+        (macro show-repr (v) ($repr v))
+        (test:eq nil-type "Nil")
+        (test:eq bool-type "Bool")
+        (test:eq (show-repr (macro a 5)) "(macro a 5)")
+        # function macros are evaluated on instantiation
+        (test:eq (show-repr show-repr) "(macro show-repr (v) ($repr v))")
+        # constant macros are evaluated on declaration
+        (test:eq (show-repr nil-type) "(macro nil-type \"Nil\")") })
 
     (test:case "generate valid arkscript code with macros" {
         (macro make-func (retval) (fun () retval))

@@ -585,7 +585,15 @@ namespace Ark::internal
                 checkMacroArgCountEq(node, 1, Language::Repr.data(), true);
 
                 const Node arg = node.constList()[1];
-                node.updateValueAndType(Node(NodeType::String, arg.repr()));
+                if (arg.nodeType() == NodeType::Symbol)
+                {
+                    if (const Node* arg_as_macro = findNearestMacro(arg.string()); arg_as_macro != nullptr)
+                        node.updateValueAndType(Node(NodeType::String, arg_as_macro->repr()));
+                    else
+                        node.updateValueAndType(Node(NodeType::String, arg.repr()));
+                }
+                else
+                    node.updateValueAndType(Node(NodeType::String, arg.repr()));
             }
             else if (name == Language::AsIs)
             {
