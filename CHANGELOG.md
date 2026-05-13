@@ -26,6 +26,7 @@
 ### Changed
 - `$repr` shows the correct representation for macros
 - `$symcat` accepts symbols and strings as its first argument
+- `math:pow` uses a more precise way of computing values when inputs are integers
 
 ### Removed
 
