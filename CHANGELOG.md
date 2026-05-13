@@ -5,6 +5,7 @@
 
 ### Deprecations
 - `std.Range` has been entirely deprecated and is scheduled for removal
+- `bitwise` module is deprecated in favor of new builtins, included in `std.Math`
 
 ### Added
 - standard library:
@@ -21,7 +22,16 @@
   - string:first
   - string:last
   - string:codepoints
+  - math:countOnes
+  - math:countZeros
+  - math:bitNot
+  - math:bitAnd
+  - math:bitOr
+  - math:bitXor
+  - math:lshift
+  - math:rshift
 - new builtin `builtin__string:codepoints` returning the Unicode codepoints of a string as a list of numbers
+- new bitwise builtins
 
 ### Changed
 - `$repr` shows the correct representation for macros

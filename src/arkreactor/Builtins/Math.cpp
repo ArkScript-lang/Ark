@@ -2,6 +2,7 @@
 #include <cmath>
 #include <fmt/core.h>
 #include <random>
+#include <bit>
 
 #include <Ark/Builtins/Builtins.hpp>
 
@@ -269,5 +270,146 @@ namespace Ark::internal::Builtins::Mathematics
 
         const auto x = static_cast<int>(gen());
         return Value(x);
+    }
+
+    bool isInt(const double num)
+    {
+        double intpart;
+        return std::modf(num, &intpart) == 0.0;
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value countOnes(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:countOnes",
+                { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
+                n);
+        const double num = n[0].number();
+        if (!isInt(num) || num < 0)
+            throw std::runtime_error("math:countOnes: expected a positive integer input");
+
+        return Value(std::popcount(static_cast<unsigned long>(num)));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value countZeros(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:countZeros",
+                { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
+                n);
+        const double num = n[0].number();
+        if (!isInt(num) || num < 0)
+            throw std::runtime_error("math:countZeros: expected a positive integer input");
+
+        return Value(std::popcount(~static_cast<unsigned long>(num)));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value bitwiseNot(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:bitNot",
+                { { types::Contract { { types::Typedef("value", ValueType::Number) } } } },
+                n);
+        const double num = n[0].number();
+        if (!isInt(num))
+            throw std::runtime_error("math:bitNot: expected an integer input, got a real number");
+
+        return Value(~static_cast<long>(num));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value bitwiseAnd(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:bitAnd",
+                { { types::Contract {
+                    { types::Typedef("a", ValueType::Number),
+                      types::Typedef("b", ValueType::Number) } } } },
+                n);
+        const double a = n[0].number();
+        const double b = n[1].number();
+        if (!isInt(a) || !isInt(b))
+            throw std::runtime_error("math:bitAnd: expected integer input, got real number");
+
+        return Value(static_cast<long>(a) & static_cast<long>(b));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value bitwiseOr(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:bitOr",
+                { { types::Contract {
+                    { types::Typedef("a", ValueType::Number),
+                      types::Typedef("b", ValueType::Number) } } } },
+                n);
+        const double a = n[0].number();
+        const double b = n[1].number();
+        if (!isInt(a) || !isInt(b))
+            throw std::runtime_error("math:bitOr: expected integer input, got real number");
+
+        return Value(static_cast<long>(a) | static_cast<long>(b));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value bitwiseXor(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:bitXor",
+                { { types::Contract {
+                    { types::Typedef("a", ValueType::Number),
+                      types::Typedef("b", ValueType::Number) } } } },
+                n);
+        const double a = n[0].number();
+        const double b = n[1].number();
+        if (!isInt(a) || !isInt(b))
+            throw std::runtime_error("math:bitXor: expected integer input, got real number");
+
+        return Value(static_cast<long>(a) ^ static_cast<long>(b));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value bitwiseRshift(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:rshift",
+                { { types::Contract {
+                    { types::Typedef("a", ValueType::Number),
+                      types::Typedef("b", ValueType::Number) } } } },
+                n);
+        const double a = n[0].number();
+        const double b = n[1].number();
+        if (!isInt(a) || !isInt(b))
+            throw std::runtime_error("math:rshift: expected integer input, got real number");
+
+        return Value(static_cast<long>(a) >> static_cast<long>(b));
+    }
+
+    // cppcheck-suppress constParameterReference
+    Value bitwiseLshift(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::Number, ValueType::Number))
+            throw types::TypeCheckingError(
+                "math:lshift",
+                { { types::Contract {
+                    { types::Typedef("a", ValueType::Number),
+                      types::Typedef("b", ValueType::Number) } } } },
+                n);
+        const double a = n[0].number();
+        const double b = n[1].number();
+        if (!isInt(a) || !isInt(b))
+            throw std::runtime_error("math:lshift: expected integer input, got real number");
+
+        return Value(static_cast<long>(a) << static_cast<long>(b));
     }
 }

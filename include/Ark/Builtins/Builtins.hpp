@@ -114,6 +114,15 @@ namespace Ark::internal::Builtins
         ARK_BUILTIN(atanh_);
 
         ARK_BUILTIN(random);
+
+        ARK_BUILTIN(countOnes);
+        ARK_BUILTIN(countZeros);
+        ARK_BUILTIN(bitwiseNot);
+        ARK_BUILTIN(bitwiseAnd);
+        ARK_BUILTIN(bitwiseOr);
+        ARK_BUILTIN(bitwiseXor);
+        ARK_BUILTIN(bitwiseRshift);
+        ARK_BUILTIN(bitwiseLshift);
     }
 
     namespace Async
