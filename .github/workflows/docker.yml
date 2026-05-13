@@ -46,6 +46,7 @@ jobs:
         with:
           file: Dockerfile
           tags: arkscript/nightly:latest,arkscript/nightly:${{ env.sha_short }}
+          push: true
           # keep .git repository
           context: .
 
