@@ -30,6 +30,17 @@
   - math:bitXor
   - math:lshift
   - math:rshift
+  - math:bitCeil
+  - math:bitFloor
+  - math:bitWidth
+  - math:countLeftZeros
+  - math:countLeftOnes
+  - math:countRightZeros
+  - math:countRightOnes
+  - math:circularLeftShift
+  - math:circularRightShift
+  - math:toBase
+  - math:countDigits
 - new builtin `builtin__string:codepoints` returning the Unicode codepoints of a string as a list of numbers
 - new bitwise builtins
 
