@@ -455,7 +455,7 @@ namespace Ark::internal::Builtins::Mathematics
         if (!isInt(num) || num < 0)
             throw std::runtime_error("math:bitWidth: expected a positive integer input");
 
-        return Value(std::bit_width(static_cast<uint64_t>(num)));
+        return Value(static_cast<int64_t>(std::bit_width(static_cast<uint64_t>(num))));
     }
 
     // cppcheck-suppress constParameterReference
@@ -481,7 +481,7 @@ namespace Ark::internal::Builtins::Mathematics
         if (std::cmp_greater(num, mask))
             throw std::runtime_error(fmt::format("math:countLeftZeros: number does not fit in the given bit count ({})", bit_count));
 
-        return Value(std::countl_zero(num & mask));
+        return Value(static_cast<int64_t>(bit_count) - static_cast<int64_t>(std::bit_width(num)));
     }
 
     // cppcheck-suppress constParameterReference
@@ -507,7 +507,7 @@ namespace Ark::internal::Builtins::Mathematics
         if (std::cmp_greater(num, mask))
             throw std::runtime_error(fmt::format("math:countLeftOnes: number does not fit in the given bit count ({})", bit_count));
 
-        return Value(std::countl_one(num & mask));
+        return Value(static_cast<int64_t>(std::countl_one(num | ~mask)) - static_cast<int64_t>(64 - bit_count));
     }
 
     // cppcheck-suppress constParameterReference
@@ -533,7 +533,7 @@ namespace Ark::internal::Builtins::Mathematics
         if (std::cmp_greater(num, mask))
             throw std::runtime_error(fmt::format("math:countRightZeros: number does not fit in the given bit count ({})", bit_count));
 
-        return Value(std::countr_zero(num & mask));
+        return Value(static_cast<int64_t>(std::countr_zero(num & mask)));
     }
 
     // cppcheck-suppress constParameterReference
@@ -559,6 +559,6 @@ namespace Ark::internal::Builtins::Mathematics
         if (std::cmp_greater(num, mask))
             throw std::runtime_error(fmt::format("math:countRightOnes: number does not fit in the given bit count ({})", bit_count));
 
-        return Value(std::countr_one(num & mask));
+        return Value(static_cast<int64_t>(std::countr_one(num & mask)));
     }
 }
