@@ -1,8 +1,6 @@
 # Change Log
 
-## [Unreleased changes] - 2026-MM-DD
-### Breaking changes
-
+## [4.6.0] - 2026-05-17
 ### Deprecations
 - `std.Range` has been entirely deprecated and is scheduled for removal
 - `bitwise` module is deprecated in favor of new builtins, included in `std.Math`
@@ -41,7 +39,7 @@
   - math:circularRightShift
   - math:toBase
   - math:countDigits
-- new builtin `builtin__string:codepoints` returning the Unicode codepoints of a string as a list of numbers
+- new experimental builtin `builtin__string:codepoints` returning the Unicode codepoints of a string as a list of numbers
 - new bitwise builtins
 
 ### Changed
@@ -49,8 +47,6 @@
 - `$symcat` accepts symbols and strings as its first argument
 - `math:pow` uses a more precise way of computing values when inputs are integers
 - docker images use alpine 3.23 as a base instead of 3.21
-
-### Removed
 
 ## [4.5.2] - 2026-05-06
 ### Changed
