@@ -51,7 +51,7 @@
         (set _index (+ 1 _index))})
     _output }))
 
-(import std.Math :min :max)  # needed for math:min, math:max
+(import some.Math :min :max)  # needed for math:min, math:max
 
 # @brief Drop the first n elements of a list
 # @param _L the list to work on

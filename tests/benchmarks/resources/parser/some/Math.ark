@@ -1,0 +1,481 @@
+# @brief Calculate e^number
+# @param value the Number
+# =begin
+# (math:exp 1)  # 2.7182...
+# =end
+# @author https://github.com/SuperFola
+(let exp (fun (_x) (builtin__math:exp _x)))
+
+# @brief Calculate the logarithm of a number
+# @param value the Number
+# =begin
+# (math:ln 1)  # 0
+# =end
+# @author https://github.com/SuperFola
+(let ln (fun (_x) (builtin__math:ln _x)))
+
+# @brief Get the smallest possible integer greater than the number
+# @param value the Number
+# =begin
+# (math:ceil 0.2)  # 1
+# =end
+# @author https://github.com/SuperFola
+(let ceil (fun (_x) (builtin__math:ceil _x)))
+
+# @brief Get the smallest possible integer equal to the given number
+# @param value the Number
+# =begin
+# (math:floor 1.7)  # 1
+# =end
+# @author https://github.com/SuperFola
+(let floor (fun (_x) (builtin__math:floor _x)))
+
+# @brief Get the smallest possible integer equal to or greater than the given number
+# @param value the Number
+# =begin
+# (math:round 0.2)  # 0
+# (math:round 0.6)  # 1
+# =end
+# @author https://github.com/SuperFola
+(let round (fun (_x) (builtin__math:round _x)))
+
+# @brief Check if a Number is NaN
+# @param value the Number
+# =begin
+# (math:NaN? 2)  # false
+# (math:NaN? math:NaN)  # true
+# =end
+# @author https://github.com/SuperFola
+(let NaN? (fun (_x) (builtin__math:NaN? _x)))
+
+# @brief Check if a Number if Inf
+# @param value the Number
+# =begin
+# (math:Inf? 1)  # false
+# (math:Inf? math:NaN)  # false
+# =end
+# @author https://github.com/SuperFola
+(let Inf? (fun (_x) (builtin__math:Inf? _x)))
+
+# @brief Calculate the cosinus of a number
+# @param value the Number (radians)
+# =begin
+# (math:cos 0)  # 1
+# (math:cos math:pi)  # -1
+# =end
+# @author https://github.com/SuperFola
+(let cos (fun (_x) (builtin__math:cos _x)))
+
+# @brief Calculate the sinus of a number
+# @param value the Number (radians)
+# =begin
+# (math:sin 0)  # 0
+# (math:cos (/ math:pi 2))  # 1
+# =end
+# @author https://github.com/SuperFola
+(let sin (fun (_x) (builtin__math:sin _x)))
+
+# @brief Calculate the tangent of a number
+# @param value the Number (radians)
+# =begin
+# (math:tan 0)  # 0
+# (math:cos (/ math:pi 4))  # 1
+# =end
+# @author https://github.com/SuperFola
+(let tan (fun (_x) (builtin__math:tan _x)))
+
+# @brief Calculate the arc cosinus of a number
+# @param value the Number
+# =begin
+# (math:arccos 1)  # 0
+# =end
+# @author https://github.com/SuperFola
+(let arccos (fun (_x) (builtin__math:arccos _x)))
+
+# @brief Calculate the arc sinus of a number
+# @param value the Number
+# =begin
+# (math:arcsin 1)  # 1.570796326794897 (/ math:pi 2)
+# =end
+# @author https://github.com/SuperFola
+(let arcsin (fun (_x) (builtin__math:arcsin _x)))
+
+# @brief Calculate the arc tangent of a number
+# @param value the Number
+# =begin
+# (math:arctan 0)  # 0
+# =end
+# @author https://github.com/SuperFola
+(let arctan (fun (_x) (builtin__math:arctan _x)))
+
+# @brief Calculate the hyperbolic cosinus of a number
+# @param value the Number
+# @author https://github.com/Gryfenfer97
+(let cosh (fun (_x) (builtin__math:cosh _x)))
+
+# @brief Calculate the hyperbolic sinus of a number
+# @param value the Number
+# @author https://github.com/Gryfenfer97
+(let sinh (fun (_x) (builtin__math:sinh _x)))
+
+# @brief Calculate the hyperbolic tangent of a number
+# @param value the Number
+# @author https://github.com/Gryfenfer97
+(let tanh (fun (_x) (builtin__math:tanh _x)))
+
+# @brief Calculate the hyperbolic arc cosinus of a number
+# @param value the Number
+# @author https://github.com/Gryfenfer97
+(let acosh (fun (_x) (builtin__math:acosh _x)))
+
+# @brief Calculate the hyperbolic arc sinus of a number
+# @param value the Number
+# @author https://github.com/Gryfenfer97
+(let asinh (fun (_x) (builtin__math:asinh _x)))
+
+# @brief Calculate the hyperbolic arc tangent of a number
+# @param value the Number
+# @author https://github.com/Gryfenfer97
+(let atanh (fun (_x) (builtin__math:atanh _x)))
+
+# @brief Pi value (3.14159...)
+# @author https://github.com/SuperFola
+(let pi builtin__math:pi)
+
+# @brief E value (2.7182...)
+# @author https://github.com/SuperFola
+(let e builtin__math:e)
+
+# @brief Tau, the ratio of the circumference to the radius of a circle, which is equal to 2*pi (6.28318...)
+# @author https://github.com/SuperFola
+(let tau builtin__math:tau)
+
+# @brief Float infinite value
+# @author https://github.com/SuperFola
+(let Inf builtin__math:Inf)
+
+# @brief Float not-a-number value
+# @author https://github.com/SuperFola
+(let NaN builtin__math:NaN)
+
+# @brief Return the absolute value of a number
+# @param _x the number to get the absolute value of
+# @author https://github.com/rstefanic
+(let abs (fun (_x)
+  (if (< _x 0)
+    (* -1 _x)
+    _x)))
+
+# @brief Return true if the number is even, false otherwise
+# @param _n the number
+# @author https://github.com/rstefanic
+(let even? (fun (_n) (= 0 (mod _n 2))))
+
+# @brief Return true if the number is odd, false otherwise
+# @param _n the number
+# @author https://github.com/rstefanic
+(let odd? (fun (_n) (= 1 (abs (mod _n 2)))))
+
+# @brief Get the minimum between two numbers
+# @param _a the first number
+# @param _b the second number
+# @author https://github.com/rstefanic
+(let min (fun (_a _b)
+  (if (< _a _b)
+    _a
+    _b)))
+
+# @brief Get the maximum between two numbers
+# @param _a the first number
+# @param _b the second number
+# @author https://github.com/rstefanic
+(let max (fun (_a _b)
+  (if (> _a _b)
+    _a
+    _b)))
+
+# @brief Increment a given number by 1
+# @param _x number
+# @author https://github.com/SuperFola
+(let increment (fun (_x) (+ 1 _x)))
+
+# @brief Decrement a given number by 1
+# @param _x number
+# @author https://github.com/SuperFola
+(let decrement (fun (_x) (- _x 1)))
+
+# @brief Multiply a number by -1, turning positive numbers negative and negative numbers positive
+# @param _x number
+# @author https://github.com/SuperFola
+(let negate (fun (_x) (* -1 _x)))
+
+# @brief Get a number to a given power
+# @details Note that it's defined as exp(a * ln(x)), thus won't work for negative numbers
+# @param _x the number to pow
+# @param _a the exponent
+# @author https://github.com/SuperFola
+(let pow (fun (_x _a) (exp (* _a (ln _x)))))
+
+# @brief Get the square root of a number
+# @details Square roots can't be taken for negative numbers for obvious reasons.
+# @param _x the number
+# @author https://github.com/SuperFola
+(let sqrt (fun (_x)
+  (if (= 0 _x)
+    0
+    (exp (* 0.5 (ln _x))))))
+
+# @brief Compute the nth fibonacci term
+# @param n the number
+# @author https://github.com/SuperFola
+(let fibo (fun (n) {
+  (let impl (fun (n p c)
+    (if (<= n 0)
+      0
+      (if (= n 1)
+        c
+        (impl (- n 1) c (+ p c))))))
+  (impl n 0 1) }))
+
+# @brief Check if a given number is prime
+# @param n the number
+# @author https://github.com/SuperFola
+(let prime? (fun (n)
+  (if (= 2 n)
+    true
+    (if (or (= 0 (mod n 2)) (= 1 n) (!= 0 (mod n 1)))
+      false
+      {
+        (let k (ceil (+ 1 (sqrt n))))
+        (mut i 3)
+        (mut continue true)
+
+        (while (and continue (< i k)) {
+          (if (= 0 (mod n i))
+            (set continue false))
+          (set i (+ 2 i)) })
+        continue }))))
+
+# @brief Returns the list of a number's divisors
+# @param n the number
+# =begin
+# (math:divs 6) # Returns [1 2 3 6]
+# =end
+# @author https://github.com/Wafelack
+(let divs (fun (n) {
+  (assert (>= n 1) "divs: n must be greater or equal to 1")
+  (assert (= 0 (mod n 1)) "divs: n must be an integer")
+  (mut i 1)
+  (mut divisors [])
+  (let top (ceil (/ n 2)))
+
+  (while (and (<= i top) (!= top n)) {
+    (if (= (mod n i) 0) (append! divisors i))
+    (set i (+ i 1)) })
+  (append divisors n) }))
+
+# @brief Returns the logarithm base n of a number
+# @param x the number
+# @param n the base
+# =begin
+# (math:log 81 3) # Returns 4
+# =end
+# @author https://github.com/Gryfenfer97
+(let log (fun (x n) {
+  (assert (and (> x 0) (>= n 1)) "log: x must be greater than 0, and n must be greater or equal to 1")
+  (round (/ (ln x) (ln n))) }))
+
+# @brief Returns the logarithm base 2 of a number
+# @param x the number
+# =begin
+# (math:log2 128) # Returns 7
+# =end
+# @author https://github.com/Gryfenfer97
+(let log2 (fun (x) (log x 2)))
+
+# @brief Returns the logarithm base 10 of a number
+# @param x the number
+# =begin
+# (math:log10 1000) # Returns 3
+# =end
+# @author https://github.com/Gryfenfer97
+(let log10 (fun (x) (log x 10)))
+
+# @brief Returns the quotient of the euclidean division of a and b
+# @param a the dividend
+# @param b the divisor
+# =begin
+# (math:floordiv 14 6) # Returns 2
+# =end
+# @author https://github.com/fabien-zoccola
+(let floordiv (fun (a b) (floor (/ a b))))
+
+# @brief Create a complex number
+# @param real the real part of the complex number
+# @param imag the imaginary value
+# =begin
+# (let c (math:complex 1 2))
+# (print c.real " " c.imag)  # 1 2
+# =end
+# @author https://github.com/SuperFola
+(let complex (fun (real imag)
+  (fun (&real &imag) ())))
+
+# @brief Compute the addition of two complex number
+# @param _c0 the first complex number
+# @param _c1 the second complex number
+# =begin
+# (let c (math:complex-add (math:complex 1 2) (math:complex 3 4)))
+# (print c.real " " c.imag)  # 4 6
+# =end
+# @author https://github.com/SuperFola
+(let complex-add (fun (_c0 _c1) (complex (+ _c0.real _c1.real) (+ _c0.imag _c1.imag))))
+
+# @brief Compute the subtraction of two complex number
+# @param _c0 the first complex number
+# @param _c1 the second complex number
+# =begin
+# (let c (math:complex-sub (math:complex 1 2) (math:complex 3 4)))
+# (print c.real " " c.imag)  # -2 -2
+# =end
+# @author https://github.com/SuperFola
+(let complex-sub (fun (_c0 _c1) (complex (- _c0.real _c1.real) (- _c0.imag _c1.imag))))
+
+# @brief Compute the multiplication of two complex number
+# @param _c0 the first complex number
+# @param _c1 the second complex number
+# =begin
+# (let c (math:complex-mul (math:complex 1 2) (math:complex 3 4)))
+# (print c.real " " c.imag)  # -5 10
+# =end
+# @author https://github.com/SuperFola
+(let complex-mul (fun (_c0 _c1) (complex (+ (* _c0.real _c1.real) (- 0 (* _c0.imag _c1.imag))) (+ (* _c0.real _c1.imag) (* _c1.real _c0.imag)))))
+
+# @brief Compute the conjugate of a complex number
+# @param _c the complex number
+# =begin
+# (let c (math:complex-conjugate (math:complex 1 2)))
+# (print c.real " " c.imag)  # 1 -2
+# =end
+# @author https://github.com/SuperFola
+(let complex-conjugate (fun (_c) (complex _c.real (- 0 _c.imag))))
+
+# @brief Compute the module of a complex number
+# @param _c the complex number
+# =begin
+# (let c (math:complex-module (math:complex 1 2)))
+# (print c)  # 2.2360679774997896964...
+# =end
+# @author https://github.com/SuperFola
+(let complex-module (fun (_c) (sqrt (+ (* _c.real _c.real) (* _c.imag _c.imag)))))
+
+# @brief Compute the division of two complex number
+# @param _c0 the first complex number
+# @param _c1 the second complex number
+# =begin
+# (let c (math:complex-div (math:complex 1 2) (math:complex 3 4)))
+# (print c.real " " c.imag)  # 0.44 0.08
+# =end
+# @author https://github.com/SuperFola
+(let complex-div (fun (_c0 _c1) {
+  (let _conj (complex-conjugate _c1))
+  (let _top (complex-mul _c0 _conj))
+  (let _denom (+ (* _c1.real _c1.real) (* _c1.imag _c1.imag)))
+  (complex (/ _top.real _denom) (/ _top.imag _denom)) }))
+
+# @brief Limit a given value to a range
+# @param _x value to limit
+# @param _min minimum
+# @param _max maximum
+# =begin
+# (print (math:clamp 5 0 2))  # 2
+# (print (math:clamp 6 0 10))  # 6
+# =end
+# @author https://github.com/SuperFola
+(let clamp (fun (_x _min _max) (max _min (min _x _max))))
+
+# @brief Linearly interpolate a value in [0; 1] between two bounds
+# @param _x value to interpolate (must be between 0 and 1)
+# @param _v0 lower bound
+# @param _v1 upper bound
+# =begin
+# (print (math:lerp 0.22 15 132))  # 40.74
+# =end
+# @author https://github.com/SuperFola
+(let lerp (fun (_x _v0 _v1) (+ (* (- 1 _x) _v0) (* _x _v1))))
+
+# @brief Compute the dot product of two vectors
+# @details The vectors must have the same length
+# @param _v1 vector 1
+# @param _v2 vector 2
+# =begin
+# (print (math:dotProduct [1 2 3] [4 5 6]))  # 32
+# =end
+# @author https://github.com/SuperFola
+(let dotProduct (fun (_v1 _v2) {
+  (assert (= (len _v1) (len _v2)) "vectors should have the same length")
+
+  (mut _result 0)
+  (mut _i 0)
+  (while (< _i (len _v1)) {
+    (set _result (+ _result (* (@ _v1 _i) (@ _v2 _i))))
+    (set _i (+ 1 _i)) })
+
+  _result }))
+
+# @brief Compute a percentage of how much b is better than a
+# @details Returns a positive number when _a is bigger than _b, negative otherwise
+# @param _a the base
+# @param _b new measure to compare
+# =begin
+# (let base 55)  # something takes 55ms to run
+# (let new 43)  # now it takes 43ms
+# (print (math:improvementRatioPercentage base new))  # 27.9069767442
+# # 'new' is 27%~ faster than 'base'
+# =end
+# @author https://github.com/SuperFola
+(let improvementRatioPercentage (fun (_a _b) (* 100 (- (/ _a _b) 1))))
+
+# @brief Copy the sign of a given number
+# @param _x number
+# =begin
+# (print (math:copySign 5))  # 1
+# (print (math:copySign -3))  # -1
+# =end
+# @author https://github.com/SuperFola
+(let copySign (fun (_x)
+  (if (< _x 0)
+    -1
+    1)))
+
+# @brief Convert an angle in degrees to radians
+# @param _degrees angle in degrees
+# =begin
+# (print (math:radians 90))   # pi/2
+# =end
+# @author https://github.com/SuperFola
+(let radians (fun (_degrees) (/ (* _degrees pi) 180)))
+
+# @brief Convert an angle in radians to degrees
+# @param _radians angle in radians
+# =begin
+# (print (math:radians (/ math:pi 2)))   # 90
+# =end
+# @author https://github.com/SuperFola
+(let degrees (fun (_radians) (/ (* 180 _radians) pi)))
+
+# @brief Compute the factorial of a number
+# @param _n integer
+# =begin
+# (print (math:factorial 5))   # 120
+# =end
+# @author https://github.com/SuperFola
+(let factorial (fun ((mut _n))
+  (if (< _n 0)
+    0
+    {
+      (mut _res 1)
+      (while (> _n 0) {
+        (set _res (* _res _n))
+        (set _n (- _n 1)) })
+      _res })))
