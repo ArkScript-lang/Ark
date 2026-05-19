@@ -1,5 +1,21 @@
 # Change Log
 
+## [Unreleased changes] - 2026-MM-DD
+### Breaking changes
+
+### Deprecations
+
+### Added
+- new builtin to extract the bytes of a string: builtin__string:bytes
+- math:fromBase to convert a number from a given base to base 10
+- string:surrogate? and string:privateUse? to check if an unicode character is in one of those planes
+
+### Changed
+- math:toBase handles 0 correctly
+- math:countDigits returns 1 for 0
+
+### Removed
+
 ## [4.6.0] - 2026-05-17
 ### Deprecations
 - `std.Range` has been entirely deprecated and is scheduled for removal

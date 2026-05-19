@@ -375,4 +375,22 @@ namespace Ark::internal::Builtins::String
 
         return data;
     }
+
+    Value bytes(std::vector<Value>& n, VM* vm [[maybe_unused]])
+    {
+        if (!types::check(n, ValueType::String))
+            throw types::TypeCheckingError(
+                "string:bytes",
+                { { types::Contract { { types::Typedef("string", ValueType::String) } } } },
+                n);
+
+        Value data(ValueType::List);
+        for (const char c : n[0].stringRef())
+        {
+            const auto b = static_cast<unsigned char>(c);
+            data.push_back(Value(static_cast<int>(b)));
+        }
+
+        return data;
+    }
 }
