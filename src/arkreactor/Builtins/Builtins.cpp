@@ -51,6 +51,8 @@ namespace Ark::internal::Builtins
 
         // Time
         { "time", Value(Time::timeSinceEpoch) },
+        { "builtin__time:timeToDate", Value(Time::timestampToDate) },
+        { "builtin__time:parseDate", Value(Time::parseDate) },
 
         // System
         { "builtin__sys:platform", platform },
