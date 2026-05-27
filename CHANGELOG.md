@@ -9,6 +9,7 @@
 - new builtin to extract the bytes of a string: builtin__string:bytes
 - math:fromBase to convert a number from a given base to base 10
 - string:surrogate? and string:privateUse? to check if an unicode character is in one of those planes
+- new builtins `builtin__time:timeToDate` and `builtin__time:parseDate` to convert a timestamp to a date, and parse a string date as a timestamp
 
 ### Changed
 - math:toBase handles 0 correctly

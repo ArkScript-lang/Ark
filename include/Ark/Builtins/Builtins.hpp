@@ -62,6 +62,8 @@ namespace Ark::internal::Builtins
     namespace Time
     {
         ARK_BUILTIN(timeSinceEpoch);
+        ARK_BUILTIN(timestampToDate);
+        ARK_BUILTIN(parseDate);
     }
 
     namespace System
