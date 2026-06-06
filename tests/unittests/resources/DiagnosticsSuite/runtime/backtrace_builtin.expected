@@ -6,16 +6,16 @@ Signature
 Arguments
   → `list' (expected List), got "live" (String)
 
-In file /lib/std/List.ark:63
-   60 | # (list:sort [4 2 3])  # [1 2 4]
-   61 | # =end
-   62 | # @author https://github.com/SuperFola
-   63 | (let sort (fun (_L) (builtin__list:sort _L)))
+In file /lib/std/List.ark:206
+  203 | # (list:sort [4 2 3])  # [1 2 4]
+  204 | # =end
+  205 | # @author https://github.com/SuperFola
+  206 | (let sort (fun (_L) (builtin__list:sort _L)))
       | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-   64 |
-   65 | # @brief Generate a List of n copies of an element
+  207 |
+  208 | # @brief Check if a List is sorted
 
-[   2] In function `list:sort' (/lib/std/List.ark:63)
+[   2] In function `list:sort' (/lib/std/List.ark:206)
 [   1] In global scope (tests/unittests/resources/DiagnosticsSuite/runtime/backtrace_builtin.ark:3)
 
 Current scope variables values:

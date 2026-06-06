@@ -7,13 +7,48 @@
 
 ### Added
 - new builtin to extract the bytes of a string: builtin__string:bytes
-- math:fromBase to convert a number from a given base to base 10
-- string:surrogate? and string:privateUse? to check if an unicode character is in one of those planes
 - new builtins `builtin__time:timeToDate` and `builtin__time:parseDate` to convert a timestamp to a date, and parse a string date as a timestamp
+- standard library
+  - math:fromBase to convert a number from a given base to base 10
+  - string:surrogate? and string:privateUse? to check if a Unicode character is in one of those planes
+  - list:findAfter to search for an element in a list after a given index
+  - list:findIf to search for an element in a list using a predicate
+  - list:search to search for a set of contiguous elements in a list
+  - list:minMax to get the minimum and maximum values of a list of numbers in a single call
+  - list:sorted? to check if a list is sorted
+  - list:lowerBound, list:upperBound
+  - list:binarySearch
+  - list:shiftLeft, list:shiftRight
+  - datetime library
+    - timezoneOffsets
+    - timezoneOffset
+    - makeUTCTimestamp
+    - timestamps: year0, year1970, year200
+    - toUTCTimestamp
+    - asUTCDate, asLocalDate
+    - plusSeconds, minusSeconds
+    - plusMinutes, minusMinutes
+    - plusHours, minusHours
+    - plusDays, minusDays
+    - plusWeeks, minusWeeks
+    - plusMonths, minusMonths
+    - plusYears, minusYears
+    - atStartOfDay, atEndOfDay
+    - today, yesterday, tomorrow
+    - nextDay, previousDay
+    - delta, asDelta
+    - asSeconds
+    - plusDelta, minusDelta
+    - year, month, day, hour, minute, second, millisecond, dayOfWeek, dayOfYear
+    - leapYear?
+    - monthLength, yearLength
+    - asISO8601
+    - parse, parseAs
 
 ### Changed
 - math:toBase handles 0 correctly
 - math:countDigits returns 1 for 0
+- builtin__list:find can take an optional third argument, to specify at which index to start looking from
 
 ### Removed
 

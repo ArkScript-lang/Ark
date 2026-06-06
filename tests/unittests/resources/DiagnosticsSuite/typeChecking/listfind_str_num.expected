@@ -1,4 +1,4 @@
-Function list:find expected 2 arguments
+Function list:find expected between 2 arguments and 3 arguments
 Call
   ↳ (list:find "hello" 1)
 Signature
@@ -6,6 +6,14 @@ Signature
 Arguments
   → `list' (expected List), got "hello" (String)
   → `value' (expected any) ✓
+
+Alternative 2:
+Signature
+  ↳ (list:find list value index)
+Arguments
+  → `list' (expected List), got "hello" (String)
+  → `value' (expected any) ✓
+  → `index' (expected Number) was not provided
 
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/listfind_str_num.ark:1
     1 | (builtin__list:find "hello" 1)
