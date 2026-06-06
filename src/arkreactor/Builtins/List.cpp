@@ -5,6 +5,7 @@
 #include <fmt/core.h>
 
 #include <Ark/TypeChecker.hpp>
+#include <Ark/VM/DefaultValues.hpp>
 
 namespace Ark::internal::Builtins::List
 {
@@ -22,14 +23,25 @@ namespace Ark::internal::Builtins::List
 
     Value findInList(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (!types::check(n, ValueType::List, ValueType::Any))
+        if (!types::check(n, ValueType::List, ValueType::Any) &&
+            !types::check(n, ValueType::List, ValueType::Any, ValueType::Number))
             throw types::TypeCheckingError(
                 "list:find",
-                { { types::Contract { { types::Typedef("list", ValueType::List), types::Typedef("value", ValueType::Any) } } } },
+                { { types::Contract {
+                        { types::Typedef("list", ValueType::List),
+                          types::Typedef("value", ValueType::Any) } },
+                    types::Contract {
+                        { types::Typedef("list", ValueType::List),
+                          types::Typedef("value", ValueType::Any),
+                          types::Typedef("index", ValueType::Number) } } } },
                 n);
 
-        if (const auto it = std::ranges::find(n[0].list(), n[1]); it != n[0].list().end())
-            return Value(static_cast<int>(std::distance<decltype(n[0].list().begin())>(n[0].list().begin(), it)));
+        const long offset = n.size() == 3 ? static_cast<long>(n[2].number()) : 0L;
+        if (std::cmp_less(offset, n[0].list().size()))
+        {
+            if (const auto it = std::ranges::find(n[0].list().begin() + offset, n[0].list().end(), n[1]); it != n[0].list().end())
+                return Value(static_cast<int>(std::distance<decltype(n[0].list().begin())>(n[0].list().begin() + offset, it) + offset));
+        }
         return Value(-1);
     }
 
@@ -50,8 +62,9 @@ namespace Ark::internal::Builtins::List
         if (!types::check(n, ValueType::Number, ValueType::Any))
             throw types::TypeCheckingError(
                 "list:fill",
-                { { types::Contract { { types::Typedef("size", ValueType::Number),
-                                        types::Typedef("value", ValueType::Any) } } } },
+                { { types::Contract {
+                    { types::Typedef("size", ValueType::Number),
+                      types::Typedef("value", ValueType::Any) } } } },
                 n);
 
         const auto c = static_cast<std::size_t>(n[0].number());
@@ -68,9 +81,10 @@ namespace Ark::internal::Builtins::List
         if (!types::check(n, ValueType::List, ValueType::Number, ValueType::Any))
             throw types::TypeCheckingError(
                 "list:setAt",
-                { { types::Contract { { types::Typedef("list", ValueType::List),
-                                        types::Typedef("index", ValueType::Number),
-                                        types::Typedef("value", ValueType::Any) } } } },
+                { { types::Contract {
+                    { types::Typedef("list", ValueType::List),
+                      types::Typedef("index", ValueType::Number),
+                      types::Typedef("value", ValueType::Any) } } } },
                 n);
 
         auto& list = n[0].list();
