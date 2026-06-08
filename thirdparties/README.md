@@ -9,5 +9,6 @@ Includes
 * [picosha2](https://github.com/okdshin/PicoSHA2), MIT License
 * [replxx](https://github.com/AmokHuginnsson/replxx/blob/master/LICENSE.md), MIT License + specifities
 * [ut](https://github.com/boost-ext/ut), BSL 1.0
+* newlib, BSD & MIT License ([COPYING.NEWLIB](https://sourceware.org/git/?p=newlib-cygwin.git;a=blob_plain;f=COPYING.NEWLIB;h=2bf6f0bed40635a9398b5a4d9b0828d59bf1213f;hb=HEAD))
 
 All used by [Ark](https://github.com/ArkScript-lang/Ark)

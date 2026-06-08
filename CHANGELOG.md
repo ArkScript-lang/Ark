@@ -7,7 +7,7 @@
 
 ### Added
 - new builtin to extract the bytes of a string: builtin__string:bytes
-- new builtins `builtin__time:timeToDate` and `builtin__time:parseDate` to convert a timestamp to a date, and parse a string date as a timestamp
+- new builtins `builtin__time:asUTCDate` and `builtin__time:parseDate` to convert a timestamp to a date, and parse a string date as a timestamp
 - standard library
   - math:fromBase to convert a number from a given base to base 10
   - string:surrogate? and string:privateUse? to check if a Unicode character is in one of those planes
@@ -21,11 +21,11 @@
   - list:shiftLeft, list:shiftRight
   - datetime library
     - timezoneOffsets
-    - timezoneOffset
+    - utcOffsetMinutes
     - makeUTCTimestamp
     - timestamps: year0, year1970, year200
     - toUTCTimestamp
-    - asUTCDate, asLocalDate
+    - asUTCDate
     - plusSeconds, minusSeconds
     - plusMinutes, minusMinutes
     - plusHours, minusHours
@@ -42,6 +42,7 @@
     - year, month, day, hour, minute, second, millisecond, dayOfWeek, dayOfYear
     - leapYear?
     - monthLength, yearLength
+    - utcOffsetRepr
     - asISO8601
     - parse, parseAs
 
