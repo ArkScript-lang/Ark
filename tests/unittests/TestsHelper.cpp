@@ -28,7 +28,7 @@ void updateExpectedFile(const TestData& data, const std::string& actual)
         f.close();
     }
 }
-
+                                                                                                      
 void iterTestFiles(const std::string& folder, std::function<void(TestData&&)>&& test, IterTestFilesParam&& params)
 {
     boost::ut::test(folder) = [&] {

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(ark CXX)
+project(ark CXX C)
 
 # ArkScript version (have to manually update it)
 set(ARK_VERSION_MAJOR 4)
@@ -169,6 +169,11 @@ endif ()
 
 add_subdirectory("${ark_SOURCE_DIR}/thirdparties/ankerl_unordered_dense" EXCLUDE_FROM_ALL)
 target_link_libraries(ArkReactor PUBLIC unordered_dense::unordered_dense)
+
+add_library(newlib STATIC ${ark_SOURCE_DIR}/thirdparties/newlib/src/gmtime_r.c)
+target_include_directories(newlib SYSTEM PUBLIC ${ark_SOURCE_DIR}/thirdparties/newlib/include)
+target_include_directories(ArkReactor SYSTEM PUBLIC ${ark_SOURCE_DIR}/thirdparties/newlib/include)
+target_link_libraries(ArkReactor PRIVATE newlib)
 
 if (UNIX OR LINUX)
     find_package(Threads)

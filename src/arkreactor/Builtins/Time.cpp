@@ -6,9 +6,8 @@
 
 #undef abs
 #include <chrono>
-#include <ctime>
 
-#include <Ark/VM/VM.hpp>
+#include <newlib/gmtime_r.h>
 
 namespace Ark::internal::Builtins::Time
 {
@@ -31,43 +30,37 @@ namespace Ark::internal::Builtins::Time
 
     Value timestampToDate(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {
-        if (!types::check(n, ValueType::Number, ValueType::Any))
+        if (!types::check(n, ValueType::Number))
             throw types::TypeCheckingError(
-                "timeToDate",
+                "asUTCDate",
                 { { types::Contract {
-                    { types::Typedef("timestamp", ValueType::Number),
-                      types::Typedef("utc?", ValueType::Any) } } } },
+                    { types::Typedef("timestamp", ValueType::Number) } } } },
                 n);
 
-        const bool is_utc = n[1] == True;
-        const auto timestamp = std::chrono::milliseconds(static_cast<long long>(1000.0 * n[0].number()));
-        const auto timepoint = std::chrono::time_point<std::chrono::system_clock>(timestamp);
-        const std::time_t time = std::chrono::system_clock::to_time_t(timepoint);
-        const std::tm* calendar_time = is_utc ? std::gmtime(&time) : std::localtime(&time);
+        nl_tm calendar_time {};
+        nl_gmtime_r(static_cast<long long>(n[0].number()), &calendar_time);
 
-        if (calendar_time != nullptr)
-        {
-            int week = calendar_time->tm_wday;
-            if (week == 0)  // Sunday
-                week = 6;
-            else
-                --week;  // 0-5: Monday-Saturday
+        int week = calendar_time.tm_wday;
+        if (week == 0)  // Sunday
+            week = 6;
+        else
+            --week;  // 0-5: Monday-Saturday
 
-            internal::Dict dict;
-            dict.set(Value("millisecond"), Value(timestamp.count() % 1000));
-            dict.set(Value("second"), Value(calendar_time->tm_sec));
-            dict.set(Value("minute"), Value(calendar_time->tm_min));
-            dict.set(Value("hour"), Value(calendar_time->tm_hour));
-            dict.set(Value("day"), Value(calendar_time->tm_mday));
-            dict.set(Value("month"), Value(calendar_time->tm_mon + 1));
-            dict.set(Value("year"), Value(calendar_time->tm_year + 1900));
-            dict.set(Value("week_day"), Value(week));
-            dict.set(Value("year_day"), Value(calendar_time->tm_yday));
-            dict.set(Value("is_dst"), calendar_time->tm_isdst ? True : False);
+        internal::Dict dict;
+        const double ms = n[0].number() - static_cast<double>(static_cast<long long>(n[0].number()));
 
-            return Value(std::move(dict));
-        }
-        return Nil;
+        dict.set(Value("millisecond"), Value(static_cast<int>(1000.0 * ms)));
+        dict.set(Value("second"), Value(calendar_time.tm_sec));
+        dict.set(Value("minute"), Value(calendar_time.tm_min));
+        dict.set(Value("hour"), Value(calendar_time.tm_hour));
+        dict.set(Value("day"), Value(calendar_time.tm_mday));
+        dict.set(Value("month"), Value(calendar_time.tm_mon + 1));
+        dict.set(Value("year"), Value(calendar_time.tm_year + 1900));
+        dict.set(Value("week_day"), Value(week));
+        dict.set(Value("year_day"), Value(calendar_time.tm_yday));
+        dict.set(Value("is_dst"), calendar_time.tm_isdst ? True : False);
+
+        return Value(std::move(dict));
     }
 
     int64_t makeTimestamp(const int tm_sec, const int tm_min, const int tm_hour, const int tm_mday, const int tm_mon, const int tm_year)
