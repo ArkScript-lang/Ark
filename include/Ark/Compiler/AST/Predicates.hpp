@@ -59,6 +59,16 @@ namespace Ark::internal
         }
     } IsHex;
 
+    inline struct IsOct final : CharPred
+    {
+        IsOct() :
+            CharPred("oct") {}
+        bool operator()(const utf8_char_t::codepoint_t c) const override
+        {
+            return '0' <= c && c <= '7';
+        }
+    } IsOct;
+
     inline struct IsAlpha final : CharPred
     {
         IsAlpha() :

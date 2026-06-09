@@ -295,6 +295,17 @@ namespace Ark::internal
         return true;
     }
 
+    bool BaseParser::octNumber(unsigned int length, std::string* s)
+    {
+        while (length != 0)
+        {
+            if (!accept(IsOct, s))
+                return false;
+            --length;
+        }
+        return true;
+    }
+
     bool BaseParser::name(std::string* s)
     {
         const auto alpha_symbols = IsEither(IsAlpha, IsSymbol);

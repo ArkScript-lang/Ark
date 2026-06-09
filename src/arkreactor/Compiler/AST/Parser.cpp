@@ -911,6 +911,49 @@ namespace Ark::internal
                         else
                             error("Invalid escape sequence, expected 8 hex digits: \\UABCDEF78", pos);
                     }
+                    else if (accept(IsChar('x')))
+                    {
+                        std::string seq;
+                        if (hexNumber(2, &seq))
+                        {
+                            if (m_mode == ParserMode::Interpret)
+                            {
+                                std::size_t begin = 0;
+                                for (; seq[begin] == '0'; ++begin)
+                                    ;
+                                const char c = static_cast<char>(16 * utf8::details::ASCIIHexToInt[static_cast<unsigned char>(seq[0])] +
+                                                                 utf8::details::ASCIIHexToInt[static_cast<unsigned char>(seq[1])]);
+                                if (c == '\0')
+                                    error("Invalid escape sequence", pos);
+                                res += c;
+                            }
+                            else
+                                res += "x" + seq;
+                        }
+                        else
+                            error("Invalid escape sequence, expected 2 hex digits: \\x1b", pos);
+                    }
+                    else if (accept(IsChar('0')))
+                    {
+                        std::string seq;
+                        if (octNumber(2, &seq))
+                        {
+                            if (m_mode == ParserMode::Interpret)
+                            {
+                                std::size_t begin = 0;
+                                for (; seq[begin] == '0'; ++begin)
+                                    ;
+                                const char c = static_cast<char>(8 * (seq[0] - '0') + (seq[1] - '0'));
+                                if (c == '\0')
+                                    error("Invalid escape sequence", pos);
+                                res += c;
+                            }
+                            else
+                                res += "0" + seq;
+                        }
+                        else
+                            error("Invalid escape sequence, expected 2 oct digits: \\033", pos);
+                    }
                     else
                     {
                         backtrack(getCount() - 1);

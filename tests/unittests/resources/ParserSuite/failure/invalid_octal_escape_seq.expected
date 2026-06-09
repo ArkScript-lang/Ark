@@ -1,0 +1,5 @@
+In file tests/unittests/resources/ParserSuite/failure/invalid_octal_escape_seq.ark:1
+    1 | (print "\000")
+      |         ^~~~
+    2 |
+        Invalid escape sequence

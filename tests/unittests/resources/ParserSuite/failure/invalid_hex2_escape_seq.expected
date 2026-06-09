@@ -1,0 +1,5 @@
+In file tests/unittests/resources/ParserSuite/failure/invalid_hex2_escape_seq.ark:1
+    1 | (print "\xgg")
+      |         ^~
+    2 |
+        Invalid escape sequence, expected 2 hex digits: \x1b

@@ -1,0 +1,5 @@
+In file tests/unittests/resources/ParserSuite/failure/invalid_hex2_escape_seq_0.ark:1
+    1 | (print "\x00")
+      |         ^~~~
+    2 |
+        Invalid escape sequence

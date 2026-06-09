@@ -45,6 +45,7 @@
     - utcOffsetRepr
     - asISO8601
     - parse, parseAs
+- new escape sequences: `\0xx` (octal escape sequences using 2 chars) and `\xyz` (hex escape sequences using 2 chars)
 
 ### Changed
 - math:toBase handles 0 correctly
