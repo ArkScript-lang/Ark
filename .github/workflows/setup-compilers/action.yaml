@@ -118,9 +118,16 @@ runs:
         if [[ '${{ inputs.with_deps }}' == 'true' ]]; then
           additional_args="-DSQLite3_INCLUDE_DIR=$(pwd)/sqlite_code/sqlite-amalgamation-${SQLITE_VERSION} -DSQLite3_LIBRARY=$(pwd)/sqlite_lib/sqlite3.lib"
         fi
+        if [[ '${{ inputs.compiler_version }}' == '22' ]]; then
+          generator="Visual Studio 17 2022"
+        elif [[ '${{ inputs.compiler_version }}' == '26' ]]; then
+          generator="Visual Studio 18 2026"
+        else
+          generator="Visual Studio 00 Unknown"
+        fi
         ToggleModules=$([[ '${{ inputs.with_deps }}' == 'true' ]] && echo 'On' || echo 'Off')
         cmake -Bbuild \
-          -G "Visual Studio 17 2022" -T v143 \
+          -G "$generator" -T v143 \
           -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
           -DARK_SANITIZERS=${{ inputs.sanitizers }} \
           -DARK_COVERAGE=${{ inputs.coverage }} \
