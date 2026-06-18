@@ -37,8 +37,8 @@ namespace Ark::internal
         processNode(m_ast, 0);
 
         m_logger.traceEnd();
-        m_logger.trace("AST after processing macros");
-        if (m_logger.shouldTrace())
+        m_logger.debug("AST after processing macros");
+        if (m_logger.shouldDebug())
             m_ast.debugPrint(std::cout) << '\n';
     }
 

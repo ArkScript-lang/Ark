@@ -22,8 +22,8 @@ namespace Ark::internal
         pruneUnusedGlobalVariables(m_ast);
         m_logger.traceEnd();
 
-        m_logger.trace("AST after name pruning nodes");
-        if (m_logger.shouldTrace())
+        m_logger.debug("AST after name pruning nodes");
+        if (m_logger.shouldDebug())
             m_ast.debugPrint(std::cout) << '\n';
     }
 

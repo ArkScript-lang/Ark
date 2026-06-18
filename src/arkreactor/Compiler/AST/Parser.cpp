@@ -50,7 +50,7 @@ namespace Ark::internal
 
     void Parser::process(const std::string& filename, const std::string& code)
     {
-        m_logger.traceStart("process");
+        m_logger.traceStart(std::string(filename));
         initParser(filename, code);
 
         while (!isEOF())

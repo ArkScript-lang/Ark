@@ -50,8 +50,8 @@ namespace Ark::internal
         [[nodiscard]] inline unsigned debugLevel() const { return m_debug; }
 
         [[nodiscard]] inline bool shouldInfo() const { return m_debug >= 1; }
-        [[nodiscard]] inline bool shouldDebug() const { return m_debug >= 2; }
-        [[nodiscard]] inline bool shouldTrace() const { return m_debug >= 3; }
+        [[nodiscard]] inline bool shouldTrace() const { return m_debug >= 2; }
+        [[nodiscard]] inline bool shouldDebug() const { return m_debug >= 3; }
 
         /**
          * @brief Write an info level log using fmtlib
