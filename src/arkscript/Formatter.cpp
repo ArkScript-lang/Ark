@@ -500,16 +500,27 @@ std::string Formatter::formatDel(const Node& node, const std::size_t indent)
 
 std::string Formatter::formatCall(const Node& node, const std::size_t indent)
 {
-    bool is_list = false;
-    bool is_dict = false;
+    enum class CallKind
+    {
+        List,
+        Dict,
+        Switch,
+        Nothing
+    };
+
+    CallKind kind = CallKind::Nothing;
+
     bool is_multiline = false;
 
     if (!node.constList().empty() && node.constList().front().nodeType() == NodeType::Symbol)
     {
-        if (node.constList().front().string() == "list")
-            is_list = true;
-        else if (node.constList().front().string() == "dict")
-            is_dict = true;
+        const auto& sym = node.constList().front().string();
+        if (sym == "list")
+            kind = CallKind::List;
+        else if (sym == "dict")
+            kind = CallKind::Dict;
+        else if (sym == "switch")
+            kind = CallKind::Switch;
     }
 
     std::vector<std::string> formatted_args;
@@ -521,7 +532,7 @@ std::string Formatter::formatCall(const Node& node, const std::size_t indent)
             is_multiline = true;
     }
 
-    std::string result = is_list ? "[" : ("(" + format(node.constList()[0], indent, false));
+    std::string result = kind == CallKind::List ? "[" : "(" + format(node.constList()[0], indent, false);
 
     // Split args on multiple lines even if, individually, they fit in the configured line length, if grouped together
     // on a single line they are too long
@@ -538,16 +549,24 @@ std::string Formatter::formatCall(const Node& node, const std::size_t indent)
     for (std::size_t i = 0, end = formatted_args.size(); i < end; ++i)
     {
         const std::string& formatted_node = formatted_args[i];
-        if (is_dict)
+        if (kind == CallKind::Dict)
         {
             if (i % 2 == 0 && formatted_args.size() > 2)  // one pair per line if we have at least 2 key-value pairs
                 result += "\n" + format(node.constList()[i + 1], indent + 1, true);
             else
                 result += " " + formatted_node;
         }
+        else if (kind == CallKind::Switch)
+        {
+            // % 1 because we want `(switch var` to stay together, then the pairs on their own lines
+            if (i % 2 == 1 && formatted_args.size() > 3)  // one pair per line, same as dict
+                result += "\n" + format(node.constList()[i + 1], indent + 1, true);
+            else
+                result += " " + formatted_node;
+        }
         else if (is_multiline)
             result += "\n" + format(node.constList()[i + 1], indent + 1, true);
-        else if (is_list && i == 0)
+        else if (kind == CallKind::List && i == 0)
             result += formatted_node;
         else  // put all arguments on the same line
             result += " " + formatted_node;
@@ -555,7 +574,7 @@ std::string Formatter::formatCall(const Node& node, const std::size_t indent)
     if (!node.constList().back().commentAfter().empty())
         result += "\n" + prefix(indent);
 
-    result += is_list ? "]" : ")";
+    result += kind == CallKind::List ? "]" : ")";
     return result;
 }
 
