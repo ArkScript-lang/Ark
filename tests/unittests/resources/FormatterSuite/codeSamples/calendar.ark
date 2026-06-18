@@ -1,0 +1,9 @@
+(fun (week) (print
+    (format
+      "{:n}"
+      (list:map
+        week
+        (fun (day)
+          (if (= day (datetime:day today))
+            (format "\033[31m{:2}\033[0m" day)
+            (format "{:2}" day)))))))

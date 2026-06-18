@@ -151,13 +151,23 @@ bool Formatter::isLongLine(const Node& node)
     return max_len >= FormatterConfig::LongLineLength || (newlines > 0 && node.isListLike() && newlines + 1 >= node.constList().size());
 }
 
-bool Formatter::shouldSplitOnNewline(const Node& node)
+bool Formatter::shouldSplitOnNewline(const Node& node, const bool on_multiple_lines)
 {
-    if (node.comment().empty() && (isBeginBlock(node) || isFuncCall(node)))
+    if (node.comment().empty() && isBeginBlock(node))
         return false;
-    if (isLongLine(node) || (node.isListLike() && node.constList().size() > 1) || !node.comment().empty())
-        return true;
-    return false;
+    // If we have a function call that isn't on multiple lines,
+    // or a function call that is special (eg a switch, dict or list),
+    // no need to add a new line before the node.
+    // e.g. this is on multiple lines, but we have a special call:
+    // (let a (switch day
+    //   1 nil
+    //   2 true))
+    if (node.comment().empty() && isFuncCall(node) && (!on_multiple_lines || callKind(node) != CallKind::Nothing))
+        return false;
+    return on_multiple_lines ||
+        isLongLine(node) ||
+        (node.isListLike() && node.constList().size() > 1) ||
+        !node.comment().empty();
 }
 
 bool Formatter::shouldAddNewLineBetweenNodes(const Node& node, const std::size_t at)
@@ -181,6 +191,22 @@ bool Formatter::shouldAddNewLineBetweenNodes(const Node& node, const std::size_t
     if (child.position().start.line - previous_line > 2 && !child.comment().empty())
         return true;
     return false;
+}
+
+CallKind Formatter::callKind(const Node& node)
+{
+    if (!node.constList().empty() && node.constList().front().nodeType() == NodeType::Symbol)
+    {
+        const auto& sym = node.constList().front().string();
+        if (sym == "list")
+            return CallKind::List;
+        if (sym == "dict")
+            return CallKind::Dict;
+        if (sym == "switch")
+            return CallKind::Switch;
+    }
+
+    return CallKind::Nothing;
 }
 
 std::string Formatter::format(const Node& node, std::size_t indent, bool after_newline)
@@ -333,8 +359,9 @@ std::string Formatter::formatFunction(const Node& node, const std::size_t indent
     else
         formatted_args += format(args_node, indent, false);
 
-    if (!shouldSplitOnNewline(body_node) && args_node.comment().empty())
-        return fmt::format("(fun{} {})", formatted_args, format(body_node, indent + 1, false));
+    const std::string same_line_f = format(body_node, indent + 1, false);
+    if (!shouldSplitOnNewline(body_node, isOnMultipleLines(same_line_f)) && args_node.comment().empty())
+        return fmt::format("(fun{} {})", formatted_args, same_line_f);
     return fmt::format("(fun{}\n{})", formatted_args, format(body_node, indent + 1, true));
 }
 
@@ -346,8 +373,9 @@ std::string Formatter::formatVariable(const Node& node, const std::size_t indent
     const std::string formatted_bind = format(node.constList()[1], indent, false);
 
     // we don't want to add another indentation level here, because it would result in a (let a (fun ()\n{indent+=4}...))
-    if (isFuncDef(body_node) || !shouldSplitOnNewline(body_node))
-        return fmt::format("({} {} {})", keyword, formatted_bind, format(body_node, indent, false));
+    const std::string same_line_f = format(body_node, indent, false);
+    if (isFuncDef(body_node) || !shouldSplitOnNewline(body_node, isOnMultipleLines(same_line_f)))
+        return fmt::format("({} {} {})", keyword, formatted_bind, same_line_f);
     return fmt::format("({} {}\n{})", keyword, formatted_bind, format(body_node, indent + 1, true));
 }
 
@@ -367,14 +395,14 @@ std::string Formatter::formatCondition(const Node& node, const std::size_t inden
         cond_on_newline ? "\n" : " ",
         cond_on_newline ? format(cond_node, indent + 1, true) : formatted_cond);
 
-    const bool split_then_newline = shouldSplitOnNewline(then_node) || isBeginBlock(then_node);
-
     // (if cond then)
     if (node.constList().size() == 3)
     {
+        const std::string same_line_f = format(then_node, indent + 1, false);
+        const bool split_then_newline = shouldSplitOnNewline(then_node, isOnMultipleLines(same_line_f)) || isBeginBlock(then_node);
         if (cond_on_newline || split_then_newline)
             return fmt::format("{}\n{})", if_cond_formatted, format(then_node, indent + 1, true));
-        return fmt::format("{} {})", if_cond_formatted, format(then_node, indent + 1, false));
+        return fmt::format("{} {})", if_cond_formatted, same_line_f);
     }
     // (if cond then else)
     return fmt::format(
@@ -390,12 +418,10 @@ std::string Formatter::formatLoop(const Node& node, const std::size_t indent)
     const Node cond_node = node.constList()[1];
     const Node body_node = node.constList()[2];
 
-    bool cond_on_newline = false;
-    std::string formatted_cond = format(cond_node, indent + 1, false);
-    if (formatted_cond.find('\n') != std::string::npos)
-        cond_on_newline = true;
+    const std::string formatted_cond = format(cond_node, indent + 1, false);
+    const bool cond_on_newline = isOnMultipleLines(formatted_cond);
 
-    if (cond_on_newline || shouldSplitOnNewline(body_node))
+    if (cond_on_newline || shouldSplitOnNewline(body_node, cond_on_newline))
         return fmt::format(
             "(while{}{}\n{})",
             cond_on_newline ? "\n" : " ",
@@ -500,28 +526,8 @@ std::string Formatter::formatDel(const Node& node, const std::size_t indent)
 
 std::string Formatter::formatCall(const Node& node, const std::size_t indent)
 {
-    enum class CallKind
-    {
-        List,
-        Dict,
-        Switch,
-        Nothing
-    };
-
-    CallKind kind = CallKind::Nothing;
-
+    const CallKind kind = callKind(node);
     bool is_multiline = false;
-
-    if (!node.constList().empty() && node.constList().front().nodeType() == NodeType::Symbol)
-    {
-        const auto& sym = node.constList().front().string();
-        if (sym == "list")
-            kind = CallKind::List;
-        else if (sym == "dict")
-            kind = CallKind::Dict;
-        else if (sym == "switch")
-            kind = CallKind::Switch;
-    }
 
     std::vector<std::string> formatted_args;
     for (std::size_t i = 1, end = node.constList().size(); i < end; ++i)

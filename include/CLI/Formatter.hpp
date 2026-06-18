@@ -2,6 +2,7 @@
 #define ARK_FORMATTER_HPP
 
 #include <string>
+#include <ranges>
 
 #include <Ark/Compiler/AST/Parser.hpp>
 
@@ -10,6 +11,14 @@ constexpr struct FormatterConfig
     static constexpr std::size_t SpacePerIndent = 2;    ///< Indentation level of each node
     static constexpr std::size_t LongLineLength = 120;  ///< Max number of characters per line segment to consider splitting
 } FormatterConfig;
+
+enum class CallKind
+{
+    List,
+    Dict,
+    Switch,
+    Nothing
+};
 
 class Formatter final
 {
@@ -94,9 +103,10 @@ private:
     /**
      * @brief Decide if a node should be split on a newline or not
      * @param node
+     * @param on_multiple_lines
      * @return bool
      */
-    [[nodiscard]] bool shouldSplitOnNewline(const Ark::internal::Node& node);
+    [[nodiscard]] bool shouldSplitOnNewline(const Ark::internal::Node& node, bool on_multiple_lines);
 
     /**
      * @brief Decide if we should add a newline after a node in a block
@@ -115,6 +125,13 @@ private:
     {
         return std::string(indent * FormatterConfig::SpacePerIndent, ' ');
     }
+
+    [[nodiscard]] static bool isOnMultipleLines(const std::string& formatted)
+    {
+        return std::ranges::count(formatted, '\n') >= 1;
+    }
+
+    static CallKind callKind(const Ark::internal::Node& node);
 
     /**
      * @brief Handles all node formatting
