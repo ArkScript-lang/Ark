@@ -30,7 +30,7 @@ jobs:
           }
           - {
             os: windows-2022, name: "Windows VS 2022",
-            compiler: msvc, compiler_version: "",
+            compiler: msvc, compiler_version: 22,
             artifact: "windows-msvc-22"
           }
           - {

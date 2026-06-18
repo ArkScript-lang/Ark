@@ -1,10 +1,6 @@
 # Change Log
 
-## [Unreleased changes] - 2026-MM-DD
-### Breaking changes
-
-### Deprecations
-
+## [4.7.0] - 2026-06-18
 ### Added
 - new builtin to extract the bytes of a string: builtin__string:bytes
 - new builtins `builtin__time:asUTCDate` and `builtin__time:parseDate` to convert a timestamp to a date, and parse a string date as a timestamp
@@ -19,6 +15,8 @@
   - list:lowerBound, list:upperBound
   - list:binarySearch
   - list:shiftLeft, list:shiftRight
+  - list:countOccurrences
+  - std.Colours with CSS colours
   - datetime library
     - timezoneOffsets
     - utcOffsetMinutes
@@ -46,13 +44,13 @@
     - asISO8601
     - parse, parseAs
 - new escape sequences: `\0xx` (octal escape sequences using 2 chars) and `\xyz` (hex escape sequences using 2 chars)
+- ci: compile using visual studio 2022 and 2026
 
 ### Changed
 - math:toBase handles 0 correctly
 - math:countDigits returns 1 for 0
 - builtin__list:find can take an optional third argument, to specify at which index to start looking from
-
-### Removed
+- fixed formatting of function calls on multiple lines, unnecessary indents were added
 
 ## [4.6.0] - 2026-05-17
 ### Deprecations
