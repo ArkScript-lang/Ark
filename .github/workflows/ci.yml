@@ -362,7 +362,7 @@ jobs:
             artifact: "ubuntu-gcc-14"
           }
           - {
-            os: windows-latest, name: "Windows VS 2022",
+            os: windows-2022, name: "Windows VS 2022",
             compiler: msvc, compiler_version: "", sanitizers: "On",
             artifact: "windows-msvc-22"
           }
@@ -479,7 +479,7 @@ jobs:
         config:
           - { os: ubuntu-24.04,  name: "Ubuntu Clang 16", artifact: "ubuntu-clang-16", compiler_version: 16, }
           - { os: ubuntu-24.04,  name: "Ubuntu GCC 14",   artifact: "ubuntu-gcc-14", compiler_version: 14, }
-          - { os: windows-latest, name: "Windows VS 2022", artifact: "windows-msvc-22", compiler_version: 22, }
+          - { os: windows-2022, name: "Windows VS 2022", artifact: "windows-msvc-22", compiler_version: 22, }
           - { os: macos-14,   name: "MacOS Clang 16",  artifact: "macos-clang-16", compiler_version: 16, }
 
     steps:
