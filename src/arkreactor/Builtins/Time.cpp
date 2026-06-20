@@ -63,16 +63,19 @@ namespace Ark::internal::Builtins::Time
         return Value(std::move(dict));
     }
 
+    constexpr int64_t floor_div(const int64_t a, const int64_t b)
+    {
+        return a / b - (a % b != 0 && (a ^ b) < 0);
+    }
+
     int64_t makeTimestamp(const int tm_sec, const int tm_min, const int tm_hour, const int tm_mday, const int tm_mon, const int tm_year)
     {
         constexpr int MonthsPerYear = 12;
         static const std::array<int, MonthsPerYear> cumulative_days = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 
-        const long year = 1900 + tm_year + tm_mon / MonthsPerYear;
+        const long year = tm_year + tm_mon / MonthsPerYear;
         int64_t result = (year - 1970) * 365 + cumulative_days[static_cast<std::size_t>(tm_mon % MonthsPerYear)];
-        result += (year - 1968) / 4;
-        result -= (year - 1900) / 100;
-        result += (year - 1600) / 400;
+        result += floor_div(year - 1968, 4) - floor_div(year - 1900, 100) + floor_div(year - 1600, 400);
         if ((year % 4) == 0 &&
             ((year % 100) != 0 || (year % 400) == 0) &&
             (tm_mon % MonthsPerYear) < 2)
@@ -105,6 +108,6 @@ namespace Ark::internal::Builtins::Time
 
         if (ss.fail())
             return Nil;
-        return Value(makeTimestamp(t.tm_sec, t.tm_min, t.tm_hour, t.tm_mday, t.tm_mon, t.tm_year));
+        return Value(makeTimestamp(t.tm_sec, t.tm_min, t.tm_hour, t.tm_mday, t.tm_mon, t.tm_year + 1900));
     }
 }

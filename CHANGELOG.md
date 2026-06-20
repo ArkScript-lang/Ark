@@ -1,5 +1,17 @@
 # Change Log
 
+## [Unreleased changes] - 2026-MM-DD
+### Breaking changes
+
+### Deprecated
+
+### Added
+
+### Changed
+- fixed a bug with `datetime:parse` and `datetime:parseAs` where some dates would be offset by a day
+
+### Removed
+
 ## [4.7.0] - 2026-06-18
 ### Added
 - new builtin to extract the bytes of a string: builtin__string:bytes
