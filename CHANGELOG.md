@@ -1,16 +1,8 @@
 # Change Log
 
-## [Unreleased changes] - 2026-MM-DD
-### Breaking changes
-
-### Deprecated
-
-### Added
-
+## [4.7.1] - 2026-06-21
 ### Changed
 - fixed a bug with `datetime:parse` and `datetime:parseAs` where some dates would be offset by a day
-
-### Removed
 
 ## [4.7.0] - 2026-06-18
 ### Added
