@@ -68,7 +68,7 @@ namespace Ark::internal::Builtins::List
                 n);
 
         const auto c = static_cast<std::size_t>(n[0].number());
-        std::vector<Value> l;
+        Value::List_t l;
         l.reserve(c);
         for (std::size_t i = 0; i < c; i++)
             l.push_back(n[1]);

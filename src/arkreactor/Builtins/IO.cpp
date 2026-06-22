@@ -161,8 +161,12 @@ namespace Ark::internal::Builtins::IO
                 fmt::format("io:readLinesFile: couldn't read file \"{}\" because it doesn't exist", filename));
 
         Value out = Value(ValueType::List);
-        for (auto&& s : Utils::splitString(Utils::readFile(filename), '\n'))
-            out.push_back(Value(s));
+        std::ranges::transform(
+            Utils::splitString(Utils::readFile(filename), '\n'),
+            std::back_inserter(out.list()),
+            [](const auto& s) {
+                return Value(s);
+            });
         return out;
     }
 
@@ -187,7 +191,7 @@ namespace Ark::internal::Builtins::IO
                 { { types::Contract { { types::Typedef("path", ValueType::String) } } } },
                 n);
 
-        std::vector<Value> r;
+        Value::List_t r;
         for (const auto& entry : std::filesystem::directory_iterator(n[0].string()))
             // cppcheck-suppress useStlAlgorithm
             // We can't use std::transform with a directory_iterator

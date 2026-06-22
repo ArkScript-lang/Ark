@@ -11,6 +11,7 @@ namespace Ark::internal::Builtins
     extern const Value trueSym = Value(ValueType::True);
     extern const Value nil = Value(ValueType::Nil);
     extern const Value platform = Value(ARK_PLATFORM_NAME);
+    extern const Value version = Value(std::string(ARK_VERSION));
 
     namespace Mathematics
     {
@@ -56,6 +57,7 @@ namespace Ark::internal::Builtins
 
         // System
         { "builtin__sys:platform", platform },
+        { "builtin__sys:version", version },
         { "builtin__sys:exec", Value(System::system_) },
         { "builtin__sys:sleep", Value(System::sleep) },
         { "builtin__sys:exit", Value(System::exit_) },

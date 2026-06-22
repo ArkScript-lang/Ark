@@ -26,7 +26,6 @@ namespace Ark
         // default value for builtin__sys:args is empty list
         const Value val(ValueType::List);
         m_bound[std::string(internal::Language::SysArgs)] = val;
-
         m_bound[std::string(internal::Language::SysProgramName)] = Value("");
     }
 
@@ -228,7 +227,6 @@ namespace Ark
         // default value for builtin__sys:args is empty list
         const Value val(ValueType::List);
         m_bound[std::string(internal::Language::SysArgs)] = val;
-
         m_bound[std::string(internal::Language::SysProgramName)] = Value("");
     }
 

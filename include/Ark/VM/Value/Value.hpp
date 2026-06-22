@@ -239,9 +239,9 @@ namespace std
 }
 
 template <>
-struct std::hash<std::vector<Ark::Value>>
+struct std::hash<Ark::Value::List_t>
 {
-    [[nodiscard]] std::size_t operator()(const std::vector<Ark::Value>& s) const noexcept
+    [[nodiscard]] std::size_t operator()(const Ark::Value::List_t& s) const noexcept
     {
         return std::hash<const Ark::Value*> {}(s.data());
     }

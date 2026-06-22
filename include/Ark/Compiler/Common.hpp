@@ -130,6 +130,7 @@ namespace Ark::internal
             SetAt2InPlace
         };
 
+        constexpr std::string_view SysVersion = "builtin__sys:version";
         constexpr std::string_view SysArgs = "builtin__sys:args";
         constexpr std::string_view SysProgramName = "builtin__sys:programName";
 

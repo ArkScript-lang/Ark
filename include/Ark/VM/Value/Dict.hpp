@@ -67,7 +67,7 @@ namespace Ark::internal
          *
          * @return std::vector<Value>
          */
-        std::vector<Value> keys();
+        Value::List_t keys();
 
         /**
          * @brief Compute the number of (key, value) pairs in the dict

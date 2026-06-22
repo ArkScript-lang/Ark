@@ -28,9 +28,9 @@ namespace Ark::internal
         m_dict.erase(key);
     }
 
-    std::vector<Value> Dict::keys()
+    Value::List_t Dict::keys()
     {
-        std::vector<Value> keys;
+        Value::List_t keys;
         keys.reserve(m_dict.size());
         std::ranges::copy(std::ranges::views::keys(m_dict), std::back_inserter(keys));
 

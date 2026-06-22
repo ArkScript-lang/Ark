@@ -1,5 +1,20 @@
 # Change Log
 
+## [Unreleased changes] - 2026-MM-DD
+### Breaking changes
+
+### Deprecated
+
+### Added
+- stdlib:
+    - list:intersection
+    - list:difference
+    - sys:version, has the version of the ArkScript VM
+
+### Changed
+
+### Removed
+
 ## [4.7.1] - 2026-06-21
 ### Changed
 - fixed a bug with `datetime:parse` and `datetime:parseAs` where some dates would be offset by a day

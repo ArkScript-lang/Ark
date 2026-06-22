@@ -28,6 +28,7 @@ namespace Ark::internal::Builtins
     extern const Value trueSym;
     extern const Value nil;
     extern const Value platform;
+    extern const Value version;
 
     ARK_API extern const std::vector<std::pair<std::string, Value>> builtins;
 
