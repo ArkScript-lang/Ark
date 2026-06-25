@@ -118,4 +118,16 @@
       (if (> n 1)
         ((let F (fun (m) (if m m 1))) n))
       (set n (+ n 1)) })
-    (test:eq n 10) }) })
+    (test:eq n 10) })
+
+  (test:case "recursive structure" {
+    (let make (fun ((mut x)) {
+      (let _set (fun (y) (set x y)))
+      (fun (&x &_set) ()) }))
+    (let closure (make 1))
+    (closure._set closure)
+    (test:eq closure closure.x)
+    (test:eq closure closure.x.x)
+    (test:eq closure.x closure.x.x)
+    (test:eq closure closure.x.x.x.x.x)
+    (test:eq (toString closure) (+ "(.x=Ref(self) ._set=" (toString closure._set) ")")) }) })

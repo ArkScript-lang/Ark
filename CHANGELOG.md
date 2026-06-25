@@ -12,6 +12,7 @@
     - sys:version, has the version of the ArkScript VM
 
 ### Changed
+- fix a bug related to recursive closures: once a closure was referenced in its own scope, we couldn't convert it to string or compare it against another closure/itself
 
 ### Removed
 

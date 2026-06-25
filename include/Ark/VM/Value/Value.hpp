@@ -202,6 +202,7 @@ namespace Ark
         friend ARK_API bool operator!(const Value& A) noexcept;
 
         friend class Ark::VM;
+        friend class Ark::internal::Closure;
         friend class Ark::BytecodeReader;
         friend struct std::hash<Ark::Value>;
 

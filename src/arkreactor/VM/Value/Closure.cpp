@@ -29,11 +29,15 @@ namespace Ark::internal
         std::string out = "(";
         for (std::size_t i = 0, end = m_scope->m_data.size(); i < end; ++i)
         {
+            const auto& [id, value] = m_scope->m_data[i];
             if (i != 0)
                 out += ' ';
 
-            out += '.' + vm.m_state.m_symbols[m_scope->m_data[i].first] + '=';
-            out += m_scope->m_data[i].second.toString(vm);
+            out += '.' + vm.m_state.m_symbols[id] + '=';
+            if (value.valueType() == ValueType::Closure && value.closure().scopePtr() == scopePtr())
+                out += "Ref(self)";
+            else
+                out += value.toString(vm);
         }
         return out + ")";
     }
@@ -43,6 +47,9 @@ namespace Ark::internal
         // they do not come from the same closure builder
         if (A.m_page_addr != B.m_page_addr)
             return false;
+        // pointers are identical, we are dealing with the same object
+        if (A.m_scope.get() == B.m_scope.get())
+            return true;
 
         return *A.m_scope == *B.m_scope;
     }
