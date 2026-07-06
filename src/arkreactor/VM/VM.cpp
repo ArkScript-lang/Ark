@@ -4,6 +4,7 @@
 #include <numeric>
 #include <fmt/core.h>
 #include <fmt/color.h>
+#include <fmt/ranges.h>
 #include <fmt/ostream.h>
 
 #include <Ark/Utils/Files.hpp>
@@ -11,7 +12,6 @@
 #include <Ark/Error/Diagnostics.hpp>
 #include <Ark/TypeChecker.hpp>
 #include <Ark/VM/ModuleMapping.hpp>
-#include <Ark/Compiler/Instructions.hpp>
 #include <Ark/VM/Value/Dict.hpp>
 #include <Ark/VM/Helpers.hpp>
 

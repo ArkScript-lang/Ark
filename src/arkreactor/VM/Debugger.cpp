@@ -2,6 +2,7 @@
 
 #include <fmt/core.h>
 #include <fmt/color.h>
+#include <fmt/ranges.h>
 #include <fmt/ostream.h>
 #include <chrono>
 #include <thread>
