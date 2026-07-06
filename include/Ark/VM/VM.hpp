@@ -15,15 +15,8 @@
 #include <vector>
 #include <string>
 #include <ranges>
-#include <cassert>
-#include <utility>
 #include <cinttypes>
-#include <unordered_map>
-#include <algorithm>
-#include <fmt/core.h>
-#include <fmt/ranges.h>
 
-#include <Ark/Compiler/Instructions.hpp>
 #include <Ark/VM/Value/Value.hpp>
 #include <Ark/State.hpp>
 #include <Ark/VM/ScopeView.hpp>
@@ -31,7 +24,6 @@
 #include <Ark/VM/ExecutionContext.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 #include <Ark/Utils/Platform.hpp>
-#include <Ark/Utils/Literals.hpp>
 #include <Ark/VM/SharedLibrary.hpp>
 #include <Ark/VM/Value/Future.hpp>
 #include <Ark/VM/Debugger.hpp>
@@ -429,8 +421,8 @@ namespace Ark
          */
         void backtrace(internal::ExecutionContext& context, std::ostream& os = std::cerr, bool colorize = true);
     };
+}
 
 #include "VM.inl"
-}
 
 #endif
