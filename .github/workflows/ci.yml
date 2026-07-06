@@ -461,14 +461,16 @@ jobs:
 
       - name: Run tests
         run: |
+          # we are in /home/runner/work/Ark/Ark/build/
           export ASAN_OPTIONS=detect_odr_violation=0
+          export LSAN_OPTIONS=suppressions=../lsan-suppressions.txt
           ./build/unittests
 
       - name: Gather coverage
         run: cmake --build build --target coverage
 
       - name: Coveralls
-        uses: coverallsapp/github-action@master
+        uses: coverallsapp/github-action@main
         with:
           path-to-lcov: build/coverage.info
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -503,6 +505,7 @@ jobs:
         shell: bash
         run: |
           export ASAN_OPTIONS=detect_odr_violation=0
+          export LSAN_OPTIONS=suppressions=lsan-suppressions.txt
           ./unittests
 
       - uses: actions/setup-python@v6
@@ -515,6 +518,7 @@ jobs:
         shell: bash
         run: |
           export ASAN_OPTIONS=detect_odr_violation=0
+          export LSAN_OPTIONS=suppressions=lsan-suppressions.txt
           chmod u+x ./lib/modules/.github/run-tests
           (./lib/modules/.github/run-tests src)
 
@@ -695,4 +699,6 @@ jobs:
             --verbose -s \
             --demangle=yes \
             --error-exitcode=1 \
+            --suppressions=valgrind-suppressions.txt \
+            --gen-suppressions=all \
             build/arkscript -L ./lib tests/unittests/resources/LangSuite/unittests.ark valgrind

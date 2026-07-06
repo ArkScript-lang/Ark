@@ -1,0 +1,12 @@
+{
+   ignore_closure_leak
+   Memcheck:Leak
+   ...
+   fun:_ZN3Ark8internal7ClosureC1ERKNS0_12ClosureScopeEt
+}
+{
+   ignore_closure_leak_2
+   Memcheck:Leak
+   ...
+   fun:construct<Ark::internal::ClosureScope, const Ark::internal::ClosureScope &>
+}

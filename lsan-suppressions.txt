@@ -1,0 +1,2 @@
+# ArkScript closures that contain references to themselves are seen as leaky
+leak:Ark::internal::ClosureScope::ClosureScope(Ark::internal::ClosureScope const&)
