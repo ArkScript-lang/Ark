@@ -1,3 +1,5 @@
 unmatchedSuppression
 missingIncludeSystem
 unusedFunction
+unusedStructMember
+checkersReport

@@ -12,6 +12,7 @@ __arkscript__/
 *.arkc
 *.arkm
 /*.ark
+Zscripts/
 *.ark.ir
 tools/*_hash.py
 
