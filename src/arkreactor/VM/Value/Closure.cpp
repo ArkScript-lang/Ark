@@ -7,6 +7,23 @@
 
 namespace Ark::internal
 {
+    // This can cause a memory leak if a closure is referencing itself.
+    // However, I don't think this is worthy to try and fix, I spent far
+    // too much time (~10 days, 4 different solutions) and energy on it,
+    // and no solution was good enough, they all had pretty big flaws:
+    // 1. keeping the closures in a central place and reference them using
+    //    raw pointers : need GC or have a growing memory that will be
+    //    fred only at the end).
+    // 2. use a generational storage, one scope = one generation, free old
+    //    gens when we create a new one. Alas we can create a closure in a
+    //    gen and return it in another, so it would have created dangling refs.
+    // 3. use a variant weak/shared and copy as weak ptr, the leak is still
+    //    there.
+    // 4. like 1, put all shared ptrs in the execution context and use weak ref,
+    //    it needs a GC or the memory will grow until the execution context is
+    //    deleted.
+    // This problem is being ignored by the CI, via lsan-suppressions.txt and
+    // valgrind-suppressions.txt.
     Closure::Closure(const ClosureScope& scope, const PageAddr_t pa) noexcept :
         m_scope(std::make_shared<ClosureScope>(scope)),
         m_page_addr(pa)

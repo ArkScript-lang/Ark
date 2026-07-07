@@ -23,7 +23,7 @@ repos:
           "--suppressions-list=cppcheck-suppressions.txt",
           "--check-level=exhaustive",
           "--force",
-          "-I", "include",
+          "-I include",
           "-j", "8"
         ]
   - repo: https://github.com/compilerla/conventional-pre-commit
