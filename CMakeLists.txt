@@ -38,6 +38,10 @@ option(ARK_UNITY_BUILD "Enable unity build" Off)
 option(ARK_JS_ONLY "Compiles to native JS (No WASM). Can be used only when compiling with emsdk" OFF)
 
 include(cmake/vars.cmake)
+if (CMAKE_BUILD_TYPE STREQUAL "")
+    message(WARNING "CMAKE_BUILD_TYPE was not specified, defaulting to 'Debug'")
+    set(CMAKE_BUILD_TYPE "Debug")
+endif ()
 
 if (NOT ARK_EMSCRIPTEN)
     include(cmake/link_time_optimization.cmake)
