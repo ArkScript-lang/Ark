@@ -5,7 +5,7 @@
 * =begin
 * (macro a 5)
 * ($undef a)
-* (print a)  # will fail, as 'a' doesn't exist anymore
+* (print a)  # will fail, as 'a' doesn't exist any more
 * =end
 #--
 

@@ -1,7 +1,7 @@
 [Setup]
 AppName=ArkScript
 AppVersion=@ARK_VERSION_MAJOR@.@ARK_VERSION_MINOR@.@ARK_VERSION_PATCH@
-AppPublisher=Lex Plateau
+AppPublisher=Lexy Plateau
 AppPublisherURL=https://arkscript-lang.dev
 DefaultDirName={autopf}\ArkScript
 DefaultGroupName=ArkScript

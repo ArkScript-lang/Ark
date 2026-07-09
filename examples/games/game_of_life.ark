@@ -35,11 +35,15 @@
     indices
     (fun (i) {
       (let neighs (neigh board i))
-      (switch neighs 2 (@= copy i (@ board i)) 3 (@= copy i alive) _ (@= copy i dead)) }))
+      (switch neighs
+        2 (@= copy i (@ board i))
+        3 (@= copy i alive)
+        _ (@= copy i dead)) }))
 
   copy }))
 
-(let display (fun (board width height) (print
+(let display (fun (board width height)
+  (print
     (string:join
       (list:map
         (list:chunkBy

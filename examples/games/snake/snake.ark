@@ -169,26 +169,24 @@
   (snake.reset_auto_move)
   (mut event (sf:pollEvent))
 
-  (switch
-    event
+  (switch event [
+    [(sf:event "quit") (fun () (sf:window:close))]
     [
-      [(sf:event "quit") (fun () (sf:window:close))]
-      [
-        (sf:event "keyup" "up")
-        (fun ()
-          (snake.move 0 -1 board))]
-      [
-        (sf:event "keyup" "down")
-        (fun ()
-          (snake.move 0 1 board))]
-      [
-        (sf:event "keyup" "right")
-        (fun ()
-          (snake.move 1 0 board))]
-      [
-        (sf:event "keyup" "left")
-        (fun ()
-          (snake.move -1 0 board))]])
+      (sf:event "keyup" "up")
+      (fun ()
+        (snake.move 0 -1 board))]
+    [
+      (sf:event "keyup" "down")
+      (fun ()
+        (snake.move 0 1 board))]
+    [
+      (sf:event "keyup" "right")
+      (fun ()
+        (snake.move 1 0 board))]
+    [
+      (sf:event "keyup" "left")
+      (fun ()
+        (snake.move -1 0 board))]])
 
   # update
   (if (= 0 (board.has_apple_left?))

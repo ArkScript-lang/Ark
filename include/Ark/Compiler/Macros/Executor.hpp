@@ -1,6 +1,6 @@
 /**
  * @file Executor.hpp
- * @author Ray John Alovera (rakista112@gmail.com), Lex Plateau (lexplt.dev@gmail.com)
+ * @author Ray John Alovera (rakista112@gmail.com), Lexy Plateau (lexplt.dev@gmail.com)
  * @brief The base class for all MacroExecutors
  * @date 2024-03-03
  *

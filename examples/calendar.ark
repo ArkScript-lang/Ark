@@ -7,13 +7,18 @@
 (let startOfMonth (datetime:toUTCTimestamp (dict:update (datetime:asUTCDate today) (dict "day" 1))))
 (let months ["January" "February" "March" "April" "May" "June" "July" "August" "September" "October" "November" "December"])
 (let day (datetime:day today))
-(let suffix (switch day 1 "st" 2 "nd" 3 "rd" _ "th"))
+(let suffix (switch day
+  1 "st"
+  2 "nd"
+  3 "rd"
+  _ "th"))
 
 (print (format "{} {}{}, {}\n" (@ months (- (datetime:month today) 1)) day suffix (datetime:year today)))
 (print "Mo Tu We Th Fr Sa Su")
 (list:map
   (list:chunkBy (concat (list:fill (datetime:dayOfWeek startOfMonth) "") (list:iota 1 (datetime:monthLength today))) 7)
-  (fun (week) (print
+  (fun (week)
+    (print
       (format
         "{:n}"
         (list:map
