@@ -1,4 +1,4 @@
-page_0
+page_#anonymous
 	LOAD_CONST_STORE 0, 0
 	PUSH_RETURN_ADDRESS L0
 	LOAD_CONST_LOAD_CONST 3, 4
@@ -51,7 +51,7 @@ page_0
 	LOAD_CONST_STORE 18, 11
 	HALT 0
 
-page_1
+page_1 (#anonymous)
 	STORE 1
 	STORE 2
 	STORE 3
@@ -64,32 +64,32 @@ page_1
 	RET 0
 	HALT 0
 
-page_2
+page_2 (#anonymous)
 	STORE 5
 	SET_VAL_FROM_INDEX 0, 2
 	LOAD_SYMBOL 2
 	RET 0
 	HALT 0
 
-page_3
+page_3 (#anonymous)
 	BUILTIN 2
 	RET 0
 	HALT 0
 
-page_4
+page_4 (#anonymous)
 	STORE 9
 	CAPTURE 9
 	MAKE_CLOSURE 15
 	RET 0
 	HALT 0
 
-page_5
+page_5 (#anonymous)
 	DECREMENT_STORE 9, 1
 	LOAD_FAST 9
 	RET 0
 	HALT 0
 
-page_6
+page_6 (#anonymous)
 	PUSH_RETURN_ADDRESS L8
 	LOAD_CONST 19
 	PUSH_RETURN_ADDRESS L9

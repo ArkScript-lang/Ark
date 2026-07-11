@@ -268,17 +268,17 @@ namespace Ark::internal
         for (const auto& block : pages)
         {
             m_ir.emplace_back();
-            IR::Block& current_block = m_ir.back();
+            std::vector<IR::Entity>& current_block = m_ir.back().data;
 
             std::size_t i = 0;
-            const std::size_t end = block.size();
+            const std::size_t end = block.data.size();
 
             while (i < end)
             {
                 std::optional<EntityWithOffset> maybe_compacted = replaceWithRules(
                     std::span(
-                        block.begin() + static_cast<IR::Block::difference_type>(i),
-                        block.size() - i),
+                        block.data.begin() + static_cast<IR::Block::vec_t::difference_type>(i),
+                        block.data.size() - i),
                     i);
 
                 if (maybe_compacted.has_value())
@@ -289,7 +289,7 @@ namespace Ark::internal
                 }
                 else
                 {
-                    current_block.emplace_back(block[i]);
+                    current_block.emplace_back(block.data[i]);
                     ++i;
                 }
             }

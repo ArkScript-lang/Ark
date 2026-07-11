@@ -1,4 +1,4 @@
-page_0
+page_#anonymous
 	LOAD_CONST 0
 	STORE 0
 	PUSH_RETURN_ADDRESS L0
@@ -81,7 +81,7 @@ page_0
 	POP 0
 	HALT 0
 
-page_1
+page_1 (create-human)
 	STORE 1
 	STORE 2
 	STORE 3
@@ -95,7 +95,7 @@ page_1
 	RET 0
 	HALT 0
 
-page_2
+page_2 (set-age)
 	STORE 5
 	LOAD_FAST_BY_INDEX 0
 	SET_VAL 2
@@ -103,19 +103,19 @@ page_2
 	RET 0
 	HALT 0
 
-page_3
+page_3 (#anonymous)
 	BUILTIN 2
 	RET 0
 	HALT 0
 
-page_4
+page_4 (countdown-from)
 	STORE 9
 	CAPTURE 9
 	MAKE_CLOSURE 15
 	RET 0
 	HALT 0
 
-page_5
+page_5 (#anonymous)
 	LOAD_FAST 9
 	LOAD_CONST 16
 	SUB 0

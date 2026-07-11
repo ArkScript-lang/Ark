@@ -123,11 +123,17 @@ namespace Ark::internal
             InvalidNodeInTailCallNoReturnValue
         };
 
-        Page createNewCodePage(const bool temp = false) noexcept
+        struct PageCreationData
         {
-            if (!temp)
+            bool temp = false;
+            std::optional<std::string> name = std::nullopt;
+        };
+
+        Page createNewCodePage(PageCreationData&& args = PageCreationData { .temp = false, .name = std::nullopt }) noexcept
+        {
+            if (!args.temp)
             {
-                m_code_pages.emplace_back();
+                m_code_pages.emplace_back(args.name);
                 return Page { .index = m_start_page_at_offset + m_code_pages.size() - 1u, .is_temp = false };
             }
 
@@ -139,13 +145,13 @@ namespace Ark::internal
          * @brief helper functions to get a temp or finalized code page
          *
          * @param page page descriptor
-         * @return std::vector<IR::Block>&
+         * @return std::vector<IR::Entity>&
          */
-        IR::Block& page(const Page page) noexcept
+        IR::Block::vec_t& page(const Page page) noexcept
         {
             if (!page.is_temp)
-                return m_code_pages[page.index - m_start_page_at_offset];
-            return m_temp_pages[page.index];
+                return m_code_pages[page.index - m_start_page_at_offset].data;
+            return m_temp_pages[page.index].data;
         }
 
         /**

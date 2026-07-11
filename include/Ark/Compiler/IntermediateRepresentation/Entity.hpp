@@ -14,6 +14,7 @@
 #include <cinttypes>
 #include <vector>
 #include <string>
+#include <optional>
 
 #include <Ark/Compiler/IntermediateRepresentation/Word.hpp>
 #include <Ark/Compiler/Instructions.hpp>
@@ -91,7 +92,17 @@ namespace Ark::internal::IR
         std::size_t m_source_line { 0 };
     };
 
-    using Block = std::vector<Entity>;
+    struct Block
+    {
+        using vec_t = std::vector<Entity>;
+        std::optional<std::string> name;
+        vec_t data;
+
+        std::string debugName() const
+        {
+            return name.value_or("#anonymous");
+        }
+    };
 }
 
 #endif  // ARK_COMPILER_INTERMEDIATEREPRESENTATION_ENTITY_HPP

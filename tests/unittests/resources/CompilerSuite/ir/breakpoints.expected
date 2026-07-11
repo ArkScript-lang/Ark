@@ -1,4 +1,4 @@
-page_0
+page_#anonymous
 	BUILTIN 1
 	BREAKPOINT 1
 	LOAD_CONST 0
@@ -48,7 +48,7 @@ page_0
 	POP 0
 	HALT 0
 
-page_1
+page_1 (foo)
 	STORE 1
 	STORE 2
 	STORE 3
@@ -92,7 +92,7 @@ page_1
 	RET 0
 	HALT 0
 
-page_2
+page_2 (bar)
 	BUILTIN 2
 	RET 0
 	HALT 0
