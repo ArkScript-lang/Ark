@@ -19,6 +19,7 @@
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Compiler/Lowerer/ASTLowerer.hpp>
+#include <Ark/Compiler/IntermediateRepresentation/IRInliner.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/IROptimizer.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/IRCompiler.hpp>
 #include <Ark/Constants.hpp>
@@ -128,6 +129,7 @@ namespace Ark
 
         internal::Logger m_logger;
         internal::ASTLowerer m_lowerer;
+        internal::IRInliner m_ir_inliner;
         internal::IROptimizer m_ir_optimizer;
         internal::IRCompiler m_ir_compiler;
 

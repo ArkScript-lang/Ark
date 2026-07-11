@@ -26,6 +26,7 @@ namespace Ark
         m_name_resolver(debug),
         m_logger("Welder", debug),
         m_lowerer(debug),
+        m_ir_inliner(debug),
         m_ir_optimizer(debug),
         m_ir_compiler(debug)
     {}
@@ -68,6 +69,9 @@ namespace Ark
 
             if ((m_features & FeatureIROptimizer) != 0)
             {
+                m_ir_inliner.process(m_ir, m_lowerer.symbols(), m_lowerer.values());
+                m_ir = m_ir_inliner.intermediateRepresentation();
+
                 m_ir_optimizer.process(m_ir, m_lowerer.symbols(), m_lowerer.values());
                 m_ir = m_ir_optimizer.intermediateRepresentation();
             }
@@ -142,6 +146,7 @@ namespace Ark
         m_ast_optimizer.configureLogger(os);
         m_name_resolver.configureLogger(os);
         m_lowerer.configureLogger(os);
+        m_ir_inliner.configureLogger(os);
         m_ir_optimizer.configureLogger(os);
         m_ir_compiler.configureLogger(os);
         m_logger.configureOutputStream(&os);
