@@ -43,7 +43,7 @@ ArkScript is
 * **a functional language**: every parameter is passed by value, everything is immutable unless specified
 * **expressive**: has only 8 types to represent any data you might need, provides closures with explicit capture
 * **promoting functionalities before performances**: expressiveness often brings more productivity
-* **decent performance wise**: even if performances aren't priority #1, ArkScript has an optimizing compiler and [decent performances](https://arkscript-lang.dev/tools/benchmarks/)
+* **decent performance wise**: even if performances aren't priority #1, ArkScript has an optimising compiler and [decent performances](https://arkscript-lang.dev/tools/benchmarks/)
 * **a Lisp inspired language**: your code is data and can be easily manipulated via *macros*
 * **extensible**: supports C++ module to use it in the language, adding functionalities
 
@@ -172,7 +172,7 @@ For performance reasons, some functions might be written in C++, in `include/Ark
 
 ### Using CMake
 
-Different CMake switches are available to customize the build:
+Different CMake switches are available to customise the build:
 
 * `-DARK_BUILD_EXE` to generate an executable, defaults to Off, building a shared library only
 * `-DARK_ENABLE_SYSTEM` to enable `sys:exec` (execute shell commands without restrictions), defaults to On
@@ -306,10 +306,10 @@ This project was inspired by [game programing patterns](http://gameprogrammingpa
 
 ## Copyright and Licence information
 
-Copyright (c) 2019-2026 Lexy Plateau. All rights reserved.
+Copyright © 2019-2026 Lexy Plateau. All rights reserved.
 
 ### Using ArkScript in your company
 
 I (Lexy Plateau) am working pretty much alone on this project, and I try to do my best to leave it as bug free and as performant as possible. However, this is a side project for which I'm currently **not paid** to work on, thus I can't fix every bug or address every feature request in a timely manner.
 
-Please reach out either by email (lexplt.dev@gmail.com) or via a [discussion](https://github.com/orgs/ArkScript-lang/discussions) before using the language in a company project, so that we can set up a support contract. If you don't want to set up a contract, your issues and support requests won't be prioritized (and possibly left unanswered).
+Please reach out either by email (lexplt.dev@gmail.com) or via a [discussion](https://github.com/orgs/ArkScript-lang/discussions) before using the language in a company project, so that we can set up a support contract. If you don't want to set up a contract, your issues and support requests won't be prioritised (and possibly left unanswered).
