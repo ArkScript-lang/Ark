@@ -543,7 +543,7 @@ namespace Ark
                         "{} {} (length: {})",
                         fmt::styled("Code segment", fmt::fg(fmt::color::magenta)),
                         fmt::styled(pp, fmt::fg(fmt::color::magenta)),
-                        page.size());
+                        page.size() / 4);
 
                 if (page.empty())
                 {

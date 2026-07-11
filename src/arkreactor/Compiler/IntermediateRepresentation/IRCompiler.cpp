@@ -333,16 +333,12 @@ namespace Ark::internal
         m_bytecode.push_back(INST_LOC_TABLE_START);
         serializeOn2BytesToVecBE(locations.size(), m_bytecode);
 
-        std::optional<internal::InstLoc> prev = std::nullopt;
-
         for (const auto& loc : locations)
         {
             serializeOn2BytesToVecBE(loc.page_pointer, m_bytecode);
             serializeOn2BytesToVecBE(loc.inst_pointer, m_bytecode);
             serializeOn2BytesToVecBE(loc.filename_id, m_bytecode);
             serializeToVecBE(loc.line, m_bytecode);
-
-            prev = loc;
         }
     }
 }
