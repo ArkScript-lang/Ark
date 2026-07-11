@@ -1,4 +1,4 @@
-page_0
+page_#anonymous
 	LOAD_CONST_STORE 0, 0
 	MUL_BY_INDEX 0, 2054
 	SET_VAL 0
@@ -11,7 +11,7 @@ page_0
 	POP 0
 	HALT 0
 
-page_1
+page_1 (#anonymous)
 	MUL_BY 0, 2055
 	STORE 2
 	MUL_BY 0, 2055

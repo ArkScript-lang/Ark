@@ -1,4 +1,4 @@
-page_0
+page_#anonymous
 	LOAD_CONST_STORE 0, 0
 	LOAD_CONST_STORE 1, 2
 	LOAD_CONST_STORE 2, 4
@@ -59,19 +59,19 @@ page_0
 	POP_SCOPE 0
 	HALT 0
 
-page_1
+page_1 (#anonymous)
 	CALL_BUILTIN_WITHOUT_RETURN_ADDRESS 26, 1
 .L0:
 	RET 0
 	HALT 0
 
-page_2
+page_2 (#anonymous)
 	CALL_BUILTIN_WITHOUT_RETURN_ADDRESS 27, 1
 .L1:
 	RET 0
 	HALT 0
 
-page_3
+page_3 (#anonymous)
 	CALL_BUILTIN_WITHOUT_RETURN_ADDRESS 28, 1
 .L2:
 	RET 0

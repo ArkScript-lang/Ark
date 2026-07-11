@@ -31,7 +31,7 @@ namespace Ark::internal
         // compute a list of unique filenames
         for (const auto& page : pages)
         {
-            for (const auto& inst : page)
+            for (const auto& inst : page.data)
             {
                 if (std::ranges::find(m_filenames, inst.filename()) == m_filenames.end() && inst.hasValidSourceLocation())
                     m_filenames.push_back(inst.filename());
@@ -70,8 +70,13 @@ namespace Ark::internal
         std::size_t index = 0;
         for (const auto& block : m_ir)
         {
-            fmt::println(stream, "page_{}", index);
-            for (const auto& entity : block)
+            if (index == 0)
+                // global scope
+                fmt::println(stream, "page_{}", block.debugName());
+            else
+                fmt::println(stream, "page_{} ({})", index, block.debugName());
+
+            for (const auto& entity : block.data)
             {
                 switch (entity.kind())
                 {
@@ -116,7 +121,7 @@ namespace Ark::internal
         // push the different code segments
         for (std::size_t i = 0, end = m_ir.size(); i < end; ++i)
         {
-            IR::Block& page = m_ir[i];
+            IR::Block::vec_t& page = m_ir[i].data;
             // just in case we got too far, always add a HALT to be sure the
             // VM won't do anything crazy
             page.emplace_back(HALT);
@@ -126,7 +131,17 @@ namespace Ark::internal
                 return a.kind() != IR::Kind::Label;
             });
             if (std::cmp_greater(page_size, MaxValue16Bits))
-                throw std::overflow_error(fmt::format("Size of page {} exceeds the maximum size of {}", i, MaxValue16Bits));
+            {
+                std::string message;
+                if (i == 0)
+                    message = fmt::format("Global scope exceeds the maximum number of instructions ({})", MaxValue16Bits);
+                else if (m_ir[i].name.has_value())
+                    message = fmt::format("Function {} exceeds the maximum number of instructions ({})", m_ir[i].name.value(), MaxValue16Bits);
+                else
+                    message = fmt::format("Anonymous function at page {} exceeds the maximum number of instructions ({})", i, MaxValue16Bits);
+
+                throw std::overflow_error(message);
+            }
 
             m_bytecode.push_back(CODE_SEGMENT_START);
             serializeOn2BytesToVecBE(page_size, m_bytecode);
@@ -304,7 +319,7 @@ namespace Ark::internal
             const auto& page = pages[i];
             uint16_t ip = 0;
 
-            for (const auto& inst : page)
+            for (const auto& inst : page.data)
             {
                 if (inst.hasValidSourceLocation())
                 {

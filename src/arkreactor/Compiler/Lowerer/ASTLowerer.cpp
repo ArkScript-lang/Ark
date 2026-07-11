@@ -304,7 +304,6 @@ namespace Ark::internal
             else
             {
                 // If we are here, we should have a function name via the m_opened_vars.
-                // Push arguments first, then function name, then call it.
                 handleCalls(x, p, is_result_unused, is_terminal, can_use_ref);
             }
         }
@@ -548,8 +547,12 @@ namespace Ark::internal
                 ? LocalsLocator::ScopeType::Closure
                 : LocalsLocator::ScopeType::Function);
 
+        std::optional<std::string> page_name = std::nullopt;
+        if (!m_opened_vars.empty() && !x.isAnonymousFunction())
+            page_name = m_opened_vars.top().name;
+
         // create new page for function body
-        const auto function_body_page = createNewCodePage();
+        const auto function_body_page = createNewCodePage({ .name = page_name });
         // save page_id into the constants table as PageAddr and load the const
         page(p).emplace_back(is_closure ? MAKE_CLOSURE : LOAD_CONST, addValue(function_body_page.index, x));
 
@@ -574,7 +577,7 @@ namespace Ark::internal
         // Register an opened variable as "#anonymous", which won't match any valid names inside ASTLowerer::handleCalls.
         // This way we can continue to safely apply optimisations on
         // (let name (fun (e) (map lst (fun (e) (name e)))))
-        // Otherwise, `name` would have been optimized to a CALL_CURRENT_PAGE, which would have returned the wrong page.
+        // Otherwise, `name` would have been optimised to a CALL_CURRENT_PAGE, which would have returned the wrong page.
         if (x.isAnonymousFunction())
             m_opened_vars.emplace("#anonymous", arg_count);
         // push body of the function
@@ -903,7 +906,7 @@ namespace Ark::internal
         page(p).emplace_back(IR::Entity::Goto(label_return, PUSH_RETURN_ADDRESS));
         page(p).back().setSourceLocation(x.filename(), x.position().start.line);
 
-        const Page proc_page = createNewCodePage(/* temp= */ true);
+        const Page proc_page = createNewCodePage({ .temp = true });
         CallType call_type = CallType::Classic;
         std::optional<uint16_t> call_arg = std::nullopt;
 
@@ -978,7 +981,7 @@ namespace Ark::internal
 
             case CallType::SymbolByIndex:
             {
-                const Page temp_page = createNewCodePage(/* temp= */ true);
+                const Page temp_page = createNewCodePage({ .temp = true });
                 compileExpression(node, temp_page, false, false, true);
                 assert(page(temp_page).size() == 1 && page(temp_page).back().inst() == LOAD_FAST_BY_INDEX);
                 page(p).emplace_back(CALL_SYMBOL_BY_INDEX, page(temp_page).back().primaryArg(), args_count);

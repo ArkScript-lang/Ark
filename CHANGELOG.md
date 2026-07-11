@@ -14,6 +14,7 @@
 ### Changed
 - fix a bug related to recursive closures: once a closure was referenced in its own scope, we couldn't convert it to string or compare it against another closure/itself
 - bytecode reader: the length of code segments is counted in instructions, not bytes
+- the compiler can track the origin of an IR block, in preparation for inlining
 
 ### Removed
 

@@ -1,4 +1,4 @@
-page_0
+page_#anonymous
 	LOAD_CONST_STORE 0, 0
 	INCREMENT_BY_INDEX 0, 4
 	SET_VAL 0
