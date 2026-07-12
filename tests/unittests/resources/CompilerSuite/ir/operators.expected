@@ -1,4 +1,4 @@
-page_#anonymous
+global
 	PUSH_RETURN_ADDRESS L0
 	LOAD_CONST 0
 	LOAD_CONST 1

@@ -1,4 +1,4 @@
-page_#anonymous
+global
 	LOAD_FAST 1
 	STORE 0
 	LOAD_FAST_BY_INDEX 0

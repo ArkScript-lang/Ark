@@ -1,4 +1,4 @@
-page_#anonymous
+global
 	LOAD_CONST_STORE 0, 0
 	PUSH_RETURN_ADDRESS L1
 	LOAD_CONST 1
@@ -13,7 +13,7 @@ page_#anonymous
 	POP 0
 	HALT 0
 
-page_1 (#anonymous)
+page_1 (#anonymous (0 arguments) function)
 	STORE 1
 	PUSH_RETURN_ADDRESS L0
 	LOAD_FAST_BY_INDEX 0
@@ -27,7 +27,7 @@ page_1 (#anonymous)
 	RET 0
 	HALT 0
 
-page_2 (#anonymous)
+page_2 (#anonymous (0 arguments) function)
 	CALL_BUILTIN_WITHOUT_RETURN_ADDRESS 9, 1
 .L2:
 	RET 0

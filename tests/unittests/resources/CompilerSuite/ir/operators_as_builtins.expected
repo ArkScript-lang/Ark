@@ -1,4 +1,4 @@
-page_#anonymous
+global
 	PUSH_RETURN_ADDRESS L0
 	BUILTIN 90
 	BUILTIN 91

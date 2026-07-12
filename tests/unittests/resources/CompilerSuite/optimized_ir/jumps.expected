@@ -1,4 +1,4 @@
-page_#anonymous
+global
 	LOAD_CONST_STORE 0, 0
 	LOAD_CONST_STORE 1, 2
 	CREATE_SCOPE 0
@@ -116,7 +116,7 @@ page_#anonymous
 	POP_SCOPE 0
 	HALT 0
 
-page_1 (#anonymous)
+page_1 (#anonymous (0 arguments) function)
 	STORE 1
 	LOAD_FAST_BY_INDEX 0
 	RET 0

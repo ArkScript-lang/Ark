@@ -23,8 +23,9 @@ repos:
           "--suppressions-list=cppcheck-suppressions.txt",
           "--check-level=exhaustive",
           "--force",
-          "-I include",
-          "-j", "8"
+          "-Iinclude",
+          "-j", "8",
+          "--cppcheck-build-dir=cache-cppcheck"
         ]
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: 'v3.2.0'

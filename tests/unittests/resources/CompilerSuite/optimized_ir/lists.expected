@@ -1,4 +1,4 @@
-page_#anonymous
+global
 	LOAD_CONST_LOAD_CONST 0, 1
 	LOAD_CONST_LOAD_CONST 2, 3
 	STORE_LIST 4, 0
@@ -27,7 +27,7 @@ page_#anonymous
 	APPEND_IN_PLACE_SYM_INDEX 1, 1
 	HALT 0
 
-page_1 (#anonymous)
+page_1 (#anonymous (0 arguments) function)
 	STORE_HEAD 0, 4
 	STORE_TAIL 0, 5
 	STORE_FROM 0, 6

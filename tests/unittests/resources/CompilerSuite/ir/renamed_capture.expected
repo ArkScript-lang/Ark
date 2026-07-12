@@ -1,4 +1,4 @@
-page_#anonymous
+global
 	LOAD_CONST 0
 	STORE 0
 	RENAME_NEXT_CAPTURE 2
@@ -12,7 +12,7 @@ page_#anonymous
 	POP 0
 	HALT 0
 
-page_1 (b:child)
+page_1 (b:child (0 arguments) simple closure)
 	BUILTIN 2
 	RET 0
 	HALT 0

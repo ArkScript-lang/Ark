@@ -38,6 +38,8 @@ namespace Ark::internal::IR
     constexpr uint16_t MaxValueForSmallNumber = 0x0800;
     static_assert(MaxValueForSmallNumber + MaxValueForSmallNumber - 1 == MaxValueForDualArg);
 
+    constexpr std::string AnonymousBlockName = "#anonymous";
+
     class Entity
     {
     public:
@@ -75,32 +77,61 @@ namespace Ark::internal::IR
 
         void setSourceLocation(const std::string& filename, std::size_t line);
 
-        [[nodiscard]] bool hasValidSourceLocation() const { return !m_source_file.empty(); }
+        void setOriginalSymbolId(std::optional<uint16_t> id);
 
-        [[nodiscard]] const std::string& filename() const { return m_source_file; }
+        [[nodiscard]] bool hasValidSourceLocation() const { return !m_metadata.source_file.empty(); }
 
-        [[nodiscard]] std::size_t sourceLine() const { return m_source_line; }
+        [[nodiscard]] const std::string& filename() const { return m_metadata.source_file; }
+
+        [[nodiscard]] std::size_t sourceLine() const { return m_metadata.source_line; }
+
+        [[nodiscard]] std::optional<uint16_t> originalSymbolId() const { return m_metadata.symbol_id; }
 
     private:
         Kind m_kind;
         label_t m_label { 0 };
+
         Instruction m_inst { NOP };
         uint16_t m_primary_arg { 0 };
         uint16_t m_secondary_arg { 0 };
         uint16_t m_tertiary_arg { 0 };
-        std::string m_source_file;
-        std::size_t m_source_line { 0 };
+
+        struct
+        {
+            std::string source_file;
+            std::size_t source_line { 0 };
+            std::optional<uint16_t> symbol_id;  ///< Used for LOAD_SYMBOL_BY_INDEX to know the original symbol id and deoptimize when necessary
+        } m_metadata;
     };
 
     struct Block
     {
         using vec_t = std::vector<Entity>;
-        std::optional<std::string> name;
+
+        struct Metadata
+        {
+            std::optional<std::string> name;
+            std::size_t argument_count { 0 };
+            bool is_closure { false };
+            bool is_recursive { false };
+            bool is_simple { false };  ///< Calls only builtin and operators, no user functions/C++ functions
+        } metadata;
         vec_t data;
 
-        std::string debugName() const
+        [[nodiscard]] std::string debugName() const
         {
-            return name.value_or("#anonymous");
+            return metadata.name.value_or(AnonymousBlockName);
+        }
+
+        [[nodiscard]] std::size_t instructionCount() const
+        {
+            const auto length = std::ranges::count_if(data, [](const auto& a) {
+                return a.kind() != IR::Kind::Label;
+            });
+
+            if (length <= 0)
+                return 0;
+            return static_cast<std::size_t>(length);
         }
     };
 }

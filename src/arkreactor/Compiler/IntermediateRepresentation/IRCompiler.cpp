@@ -72,9 +72,28 @@ namespace Ark::internal
         {
             if (index == 0)
                 // global scope
-                fmt::println(stream, "page_{}", block.debugName());
+                fmt::println(stream, "global");
             else
-                fmt::println(stream, "page_{} ({})", index, block.debugName());
+            {
+                std::string flags;
+                if (block.metadata.is_recursive)
+                    flags += " recursive";
+                if (block.metadata.is_simple)
+                    flags += " simple";
+                if (block.metadata.is_closure)
+                    flags += " closure";
+                else
+                    flags += " function";
+
+                fmt::println(
+                    stream,
+                    "page_{} ({} ({} argument{}){})",
+                    index,
+                    block.debugName(),
+                    block.metadata.argument_count,
+                    block.metadata.argument_count == 1 ? "" : "s",
+                    flags);
+            }
 
             for (const auto& entity : block.data)
             {
@@ -121,22 +140,20 @@ namespace Ark::internal
         // push the different code segments
         for (std::size_t i = 0, end = m_ir.size(); i < end; ++i)
         {
-            IR::Block::vec_t& page = m_ir[i].data;
+            IR::Block& page = m_ir[i];
             // just in case we got too far, always add a HALT to be sure the
             // VM won't do anything crazy
-            page.emplace_back(HALT);
+            page.data.emplace_back(HALT);
 
             // push number of elements
-            const auto page_size = std::ranges::count_if(page, [](const auto& a) {
-                return a.kind() != IR::Kind::Label;
-            });
+            const std::size_t page_size = page.instructionCount();
             if (std::cmp_greater(page_size, MaxValue16Bits))
             {
                 std::string message;
                 if (i == 0)
                     message = fmt::format("Global scope exceeds the maximum number of instructions ({})", MaxValue16Bits);
-                else if (m_ir[i].name.has_value())
-                    message = fmt::format("Function {} exceeds the maximum number of instructions ({})", m_ir[i].name.value(), MaxValue16Bits);
+                else if (page.metadata.name.has_value())
+                    message = fmt::format("Function {} exceeds the maximum number of instructions ({})", page.metadata.name.value(), MaxValue16Bits);
                 else
                     message = fmt::format("Anonymous function at page {} exceeds the maximum number of instructions ({})", i, MaxValue16Bits);
 
@@ -149,7 +166,7 @@ namespace Ark::internal
             // register labels position
             uint16_t pos = 0;
             std::unordered_map<IR::label_t, uint16_t> label_to_position;
-            for (auto& inst : page)
+            for (const auto& inst : page.data)
             {
                 switch (inst.kind())
                 {
@@ -162,7 +179,7 @@ namespace Ark::internal
                 }
             }
 
-            for (auto& inst : page)
+            for (const auto& inst : page.data)
             {
                 switch (inst.kind())
                 {

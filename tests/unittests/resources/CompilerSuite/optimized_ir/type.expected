@@ -1,4 +1,4 @@
-page_#anonymous
+global
 	LOAD_CONST_STORE 0, 0
 	CHECK_TYPE_OF_BY_INDEX 0, 1
 	POP_JUMP_IF_TRUE L0
@@ -27,7 +27,7 @@ page_#anonymous
 	POP 0
 	HALT 0
 
-page_1 (#anonymous)
+page_1 (#anonymous (0 arguments) function)
 	CHECK_TYPE_OF 0, 1
 	POP_JUMP_IF_TRUE L6
 	JUMP L7

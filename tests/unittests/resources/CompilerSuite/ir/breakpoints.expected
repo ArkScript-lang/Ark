@@ -1,4 +1,4 @@
-page_#anonymous
+global
 	BUILTIN 1
 	BREAKPOINT 1
 	LOAD_CONST 0
@@ -48,7 +48,7 @@ page_#anonymous
 	POP 0
 	HALT 0
 
-page_1 (foo)
+page_1 (foo (3 arguments) simple function)
 	STORE 1
 	STORE 2
 	STORE 3
@@ -92,7 +92,7 @@ page_1 (foo)
 	RET 0
 	HALT 0
 
-page_2 (bar)
+page_2 (bar (0 arguments) simple function)
 	BUILTIN 2
 	RET 0
 	HALT 0

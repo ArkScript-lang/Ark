@@ -94,7 +94,7 @@ namespace Ark::internal
 
         [[nodiscard]] bool match(const std::vector<Instruction>& expected_insts, std::span<const IR::Entity> entities) const;
         [[nodiscard]] bool canBeOptimizedSafely(std::span<const IR::Entity> entities, std::size_t window_size) const;
-        std::optional<EntityWithOffset> replaceWithRules(std::span<const IR::Entity> entities, const std::size_t position_in_block);
+        std::optional<EntityWithOffset> replaceWithRules(std::span<const IR::Entity> entities, std::size_t position_in_block);
 
         [[nodiscard]] bool isPositiveNumberInlinable(uint16_t id) const;
         [[nodiscard]] bool isSmallerNumberInlinable(uint16_t id) const;

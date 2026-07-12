@@ -25,6 +25,9 @@ else ()
     set(ARK_BUILD_DATE "2026-01-02T17:56:00Z")
 endif ()
 
+# needed so that cppcheck has a cache folder, when launched through pre-commit
+file(MAKE_DIRECTORY cache-cppcheck)
+
 option(ARK_BUILD_EXE "Build a standalone arkscript executable" Off)
 option(ARK_ENABLE_SYSTEM "Enable sys:exec" On)  # enable use of (sys:exec "command here")
 option(ARK_STATIC "Build ArkScript statically" Off)
