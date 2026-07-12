@@ -16,8 +16,20 @@
 #include <Ark/Compiler/ValTableElem.hpp>
 #include <Ark/Compiler/IntermediateRepresentation/Entity.hpp>
 
+#include <utility>
+#include <vector>
+#include <string>
+
 namespace Ark::internal
 {
+    struct BlockInfo
+    {
+        long constant_id;
+        std::size_t addr;
+        std::string name;
+        std::optional<std::size_t> symbol_id;
+    };
+
     class ARK_API IRInliner final : public Pass
     {
     public:
@@ -48,6 +60,13 @@ namespace Ark::internal
         std::vector<IR::Block> m_ir;
         std::vector<std::string> m_symbols;
         std::vector<ValTableElem> m_values;
+        std::vector<BlockInfo> m_funcs;
+
+        enum class CallKind
+        {
+            Symbol,
+            Constant
+        };
 
         /**
          * @brief Check if a block can be inlined in another one
@@ -57,6 +76,14 @@ namespace Ark::internal
          * @return true if the candidate can be inlined
          */
         [[nodiscard]] static bool canBeInlined(const IR::Block& candidate, const IR::Block& source) noexcept;
+
+        [[nodiscard]] std::optional<BlockInfo> blockToInlineInCall(CallKind kind, const std::vector<IR::Block>& pages, std::optional<uint16_t> maybe_id, const IR::Block& current) const noexcept;
+
+        void inlineBlock(const IR::Block& inlinee, IR::Block& destination);
+
+        void extractPagesMetadata(const std::vector<IR::Block>& pages);
+
+        [[nodiscard]] std::optional<BlockInfo> findBlockBy(CallKind kind, uint16_t id) const noexcept;
     };
 }
 

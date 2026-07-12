@@ -43,38 +43,133 @@ namespace Ark::internal::IR
     class Entity
     {
     public:
+        /**
+         * @brief Create a new IR Entity
+         *
+         * @param kind kind of entity (label, jump, instruction...)
+         */
         explicit Entity(Kind kind);
 
+        /**
+         * @brief Create a new IR Entity
+         *
+         * @param inst instruction
+         * @param arg optional argument, default to 0
+         */
         explicit Entity(Instruction inst, uint16_t arg = 0);
 
+        /**
+         * @brief Create a new IR Entity
+         *
+         * @param inst instruction that takes two arguments
+         * @param primary_arg first argument on 12 bits
+         * @param secondary_arg second argument on 12 bits
+         */
         Entity(Instruction inst, uint16_t primary_arg, uint16_t secondary_arg);
 
+        /**
+         * @brief Create a new IR Entity
+         *
+         * @param inst instruction that takes three arguments
+         * @param inst2 first argument on 8 bits
+         * @param inst3 second argument on 8 bits
+         * @param inst4 third argument on 8 bits
+         */
         Entity(Instruction inst, uint8_t inst2, uint8_t inst3, uint8_t inst4);
 
         void replaceInstruction(Instruction replacement);
 
+        /**
+         * @brief Create a new Label IR Entity
+         *
+         * @param value value for the label
+         * @return Entity
+         */
         static Entity Label(label_t value);
 
+        /**
+         * @brief Create a new Goto IR Entity
+         *
+         * @param label label the goto relates to
+         * @param inst jump instruction to use, default to JUMP
+         * @return Entity
+         */
         static Entity Goto(const Entity& label, Instruction inst = Instruction::JUMP);
 
+        /**
+         * @brief Create a new Goto IR Entity
+         *
+         * @param label label the goto relates to
+         * @param inst jump instruction to use
+         * @param primary_arg argument for the jump instruction
+         * @return Entity
+         */
         static Entity GotoWithArg(const Entity& label, Instruction inst, uint16_t primary_arg);
 
+        /**
+         * @brief Create a new Goto IR Entity
+         *
+         * @param label label the goto relates to
+         * @param cond true to use POP_JUMP_IF_TRUE, false to use POP_JUMP_IF_FALSE
+         * @return Entity
+         */
         static Entity GotoIf(const Entity& label, bool cond);
 
+        /**
+         * @brief Return the bytecode representation of the IR Entity if it's an Opcode
+         *
+         * @return Word
+         */
         [[nodiscard]] Word bytecode() const;
 
+        /**
+         * @brief Return the label of the IR Entity
+         *
+         * @return label_t
+         */
         [[nodiscard]] label_t label() const { return m_label; }
 
+        /**
+         * @brief Return the kind of IR Entity
+         * @see Kind
+         * @return Kind
+         */
         [[nodiscard]] Kind kind() const { return m_kind; }
 
+        /**
+         * @brief Return the underlying instruction of the IR Entity
+         *
+         * @return Instruction
+         */
         [[nodiscard]] Instruction inst() const { return m_inst; }
 
+        /**
+         * @brief Return the primary argument of the IR Entity (can be 0 if the argument isn't used)
+         * @details The argument is on 16 bits for standard instructions ; for super instructions, only the first 12 bits are used
+         * @return uint16_t
+         */
         [[nodiscard]] uint16_t primaryArg() const { return m_primary_arg; }
 
+        /**
+         * @brief Return the second argument of the IR Entity
+         * @details The argument is for super instructions, where only the first 12 bits are used
+         * @return uint16_t
+         */
         [[nodiscard]] uint16_t secondaryArg() const { return m_secondary_arg; }
 
+        /**
+         * @brief Return the third argument of the IR Entity
+         * @details The argument is for special super instructions, where only the first 8 bits are used (for all arguments)
+         * @return uint16_t
+         */
         [[nodiscard]] uint16_t tertiaryArg() const { return m_tertiary_arg; }
 
+        /**
+         * @brief Set the source location for an IR Entity, which is used to generate the file loc table
+         *
+         * @param filename
+         * @param line
+         */
         void setSourceLocation(const std::string& filename, std::size_t line);
 
         void setOriginalSymbolId(std::optional<uint16_t> id);
@@ -85,6 +180,11 @@ namespace Ark::internal::IR
 
         [[nodiscard]] std::size_t sourceLine() const { return m_metadata.source_line; }
 
+        /**
+         * @brief Return the original symbol id an IR Entity refers to (only populated for LOAD_FAST_BY_INDEX, CALL_SYMBOL_BY_INDEX, and CALL_SYMBOL)
+         *
+         * @return std::optional<uint16_t>
+         */
         [[nodiscard]] std::optional<uint16_t> originalSymbolId() const { return m_metadata.symbol_id; }
 
     private:
@@ -100,10 +200,13 @@ namespace Ark::internal::IR
         {
             std::string source_file;
             std::size_t source_line { 0 };
-            std::optional<uint16_t> symbol_id;  ///< Used for LOAD_SYMBOL_BY_INDEX to know the original symbol id and deoptimize when necessary
+            std::optional<uint16_t> symbol_id;  ///< Used by a few instructions to know the original symbol id and deoptimize when necessary
         } m_metadata;
     };
 
+    /**
+     * @brief Block of IR entities, with attached metadata
+     */
     struct Block
     {
         using vec_t = std::vector<Entity>;
@@ -112,6 +215,7 @@ namespace Ark::internal::IR
         {
             std::optional<std::string> name;
             std::size_t argument_count { 0 };
+            std::size_t addr { 0 };
             bool is_closure { false };
             bool is_recursive { false };
             bool is_simple { false };  ///< Calls only builtin and operators, no user functions/C++ functions

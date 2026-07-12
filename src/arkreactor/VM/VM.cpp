@@ -397,16 +397,21 @@ namespace Ark
         return m_exit_code;
     }
 
-    int VM::safeRun(ExecutionContext& context, const std::size_t untilFrameCount, const bool fail_with_exception)
+    int VM::safeRun(ExecutionContext& context, const std::size_t untilFrameCount, const bool fail_with_exception [[maybe_unused]])
     {
         m_running = true;
 
+#define WITH_TRY
+
+#ifdef WITH_TRY
         try
         {
+#endif
             if (m_state.m_features & FeatureVMDebugger)
                 unsafeRun<true>(context, untilFrameCount);
             else
                 unsafeRun<false>(context, untilFrameCount);
+#ifdef WITH_TRY
         }
         catch (const Error& e)
         {
@@ -435,13 +440,15 @@ namespace Ark
             if (fail_with_exception)
                 throw;
 
-#ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
+#    ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
             throw;
-#endif
+#    endif
             fmt::println("Unknown error");
             backtrace(context);
             m_exit_code = 1;
         }
+#endif
+#undef WITH_TRY
 
         return m_exit_code;
     }
