@@ -332,10 +332,11 @@ namespace Ark::internal
             if (can_use_ref)
             {
                 const std::optional<std::size_t> maybe_local_idx = m_locals_locator.lookupLastScopeByName(name);
+                const uint16_t symbol_id = addSymbol(x);
                 if (maybe_local_idx.has_value())
-                    page(p).emplace_back(LOAD_FAST_BY_INDEX, static_cast<uint16_t>(maybe_local_idx.value()));
+                    page(p).emplace_back(LOAD_FAST_BY_INDEX, static_cast<uint16_t>(maybe_local_idx.value())).setOriginalSymbolId(symbol_id);
                 else
-                    page(p).emplace_back(LOAD_FAST, addSymbol(x));
+                    page(p).emplace_back(LOAD_FAST, symbol_id);
             }
             else
                 page(p).emplace_back(LOAD_SYMBOL, addSymbol(x));
@@ -552,7 +553,9 @@ namespace Ark::internal
             page_name = m_opened_vars.top().name;
 
         // create new page for function body
-        const auto function_body_page = createNewCodePage({ .name = page_name });
+        const Page function_body_page = createNewCodePage(
+            { .closure = is_closure,
+              .name = page_name });
         // save page_id into the constants table as PageAddr and load the const
         page(p).emplace_back(is_closure ? MAKE_CLOSURE : LOAD_CONST, addValue(function_body_page.index, x));
 
@@ -579,7 +582,7 @@ namespace Ark::internal
         // (let name (fun (e) (map lst (fun (e) (name e)))))
         // Otherwise, `name` would have been optimised to a CALL_CURRENT_PAGE, which would have returned the wrong page.
         if (x.isAnonymousFunction())
-            m_opened_vars.emplace("#anonymous", arg_count);
+            m_opened_vars.emplace(IR::AnonymousBlockName, arg_count);
         // push body of the function
         compileExpression(x.list()[2], function_body_page, false, true, true);
         if (x.isAnonymousFunction())
@@ -589,12 +592,34 @@ namespace Ark::internal
         page(function_body_page).emplace_back(RET);
         m_locals_locator.deleteScope();
 
+        // needed for the IRInliner
+        setFunctionMetadata(function_body_page, arg_count);
+
         // if the computed function is unused, pop it
         if (is_result_unused)
         {
             warning("Unused declared function", x);
             page(p).emplace_back(POP);
         }
+    }
+
+    void ASTLowerer::setFunctionMetadata(const Page p, const std::size_t arg_count)
+    {
+        bool is_recursive = false;
+        bool is_simple = true;
+
+        for (const IR::Entity& e : page(p))
+        {
+            if (e.inst() == TAIL_CALL_SELF || e.inst() == CALL_CURRENT_PAGE)
+                is_recursive = true;
+            if (e.inst() == APPLY || e.inst() == CALL || e.inst() == CALL_SYMBOL || e.inst() == CALL_SYMBOL_BY_INDEX ||
+                e.inst() == MAKE_CLOSURE)
+                is_simple = false;
+        }
+
+        block(p).metadata.argument_count = arg_count;
+        block(p).metadata.is_recursive = is_recursive;
+        block(p).metadata.is_simple = is_simple;
     }
 
     void ASTLowerer::compileLetMutSet(const Keyword n, Node& x, const Page p, const bool is_result_unused)
@@ -669,7 +694,7 @@ namespace Ark::internal
 
         // reset the scope at the end of the loop so that indices are still valid
         // otherwise, (while true { (let a 5) (print a) (let b 6) (print b) })
-        // would print 5, 6, then only 6 as we emit LOAD_SYMBOL_FROM_INDEX 0 and b is the last in the scope
+        // would print 5, 6, then only 6 as we emit LOAD_FAST_BY_INDEX 0 and b is the last in the scope
         // loop, jump to the condition
         page(p).emplace_back(IR::Entity::Goto(label_loop, RESET_SCOPE_JUMP));
 
@@ -984,7 +1009,7 @@ namespace Ark::internal
                 const Page temp_page = createNewCodePage({ .temp = true });
                 compileExpression(node, temp_page, false, false, true);
                 assert(page(temp_page).size() == 1 && page(temp_page).back().inst() == LOAD_FAST_BY_INDEX);
-                page(p).emplace_back(CALL_SYMBOL_BY_INDEX, page(temp_page).back().primaryArg(), args_count);
+                page(p).emplace_back(CALL_SYMBOL_BY_INDEX, page(temp_page).back().primaryArg(), args_count).setOriginalSymbolId(page(temp_page).back().originalSymbolId());
                 m_temp_pages.pop_back();
                 break;
             }

@@ -41,6 +41,7 @@ include/Ark/Constants.hpp
 .cache/
 build/
 build_emscripten/
+cache-cppcheck/
 ninja/
 cmake-build-*/
 out/

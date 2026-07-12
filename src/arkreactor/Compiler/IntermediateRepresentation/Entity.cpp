@@ -74,9 +74,14 @@ namespace Ark::internal::IR
         return Word(0, 0);
     }
 
-    void Entity::setSourceLocation(const std::string& filename, std::size_t line)
+    void Entity::setSourceLocation(const std::string& filename, const std::size_t line)
     {
-        m_source_file = filename;
-        m_source_line = line;
+        m_metadata.source_file = filename;
+        m_metadata.source_line = line;
+    }
+
+    void Entity::setOriginalSymbolId(const std::optional<uint16_t> id)
+    {
+        m_metadata.symbol_id = id;
     }
 }

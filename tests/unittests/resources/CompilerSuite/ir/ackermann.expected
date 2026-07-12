@@ -1,4 +1,4 @@
-page_#anonymous
+global
 	LOAD_CONST 0
 	STORE 0
 	PUSH_RETURN_ADDRESS L5
@@ -13,7 +13,7 @@ page_#anonymous
 	POP 0
 	HALT 0
 
-page_1 (ackermann)
+page_1 (ackermann (2 arguments) recursive simple function)
 	STORE 1
 	STORE 2
 	LOAD_FAST_BY_INDEX 0

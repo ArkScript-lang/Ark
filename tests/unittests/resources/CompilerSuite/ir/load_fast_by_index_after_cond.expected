@@ -1,4 +1,4 @@
-page_#anonymous
+global
 	LOAD_CONST 0
 	STORE 0
 	PUSH_RETURN_ADDRESS L3
@@ -13,7 +13,7 @@ page_#anonymous
 	POP 0
 	HALT 0
 
-page_1 (foo)
+page_1 (foo (1 argument) simple function)
 	STORE 1
 	LOAD_CONST 1
 	STORE 2

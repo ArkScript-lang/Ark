@@ -34,6 +34,13 @@ namespace Ark
 
 namespace Ark::internal
 {
+    struct PageCreationData
+    {
+        bool temp { false };
+        bool closure { false };
+        std::optional<std::string> name { std::nullopt };
+    };
+
     /**
      * @brief The ArkScript AST to IR compiler
      *
@@ -123,17 +130,16 @@ namespace Ark::internal
             InvalidNodeInTailCallNoReturnValue
         };
 
-        struct PageCreationData
-        {
-            bool temp = false;
-            std::optional<std::string> name = std::nullopt;
-        };
-
-        Page createNewCodePage(PageCreationData&& args = PageCreationData { .temp = false, .name = std::nullopt }) noexcept
+        Page createNewCodePage(PageCreationData&& args = PageCreationData {}) noexcept
         {
             if (!args.temp)
             {
-                m_code_pages.emplace_back(args.name);
+                m_code_pages.emplace_back(
+                    IR::Block::Metadata {
+                        .name = args.name,
+                        .argument_count = 0,
+                        .is_closure = args.closure },
+                    IR::Block::vec_t {});
                 return Page { .index = m_start_page_at_offset + m_code_pages.size() - 1u, .is_temp = false };
             }
 
@@ -141,8 +147,15 @@ namespace Ark::internal
             return Page { .index = m_temp_pages.size() - 1u, .is_temp = true };
         }
 
+        IR::Block& block(const Page page) noexcept
+        {
+            if (!page.is_temp)
+                return m_code_pages[page.index - m_start_page_at_offset];
+            return m_temp_pages[page.index];
+        }
+
         /**
-         * @brief helper functions to get a temp or finalized code page
+         * @brief helper functions to get a temp or finalised code page
          *
          * @param page page descriptor
          * @return std::vector<IR::Entity>&
@@ -270,6 +283,7 @@ namespace Ark::internal
         void compileApplyInstruction(Node& x, Page p, bool is_result_unused);
         void compileIf(Node& x, Page p, bool is_result_unused, bool is_terminal, bool can_use_ref);
         void compileFunction(Node& x, Page p, bool is_result_unused);
+        void setFunctionMetadata(Page p, std::size_t arg_count);
         void compileLetMutSet(Keyword n, Node& x, Page p, bool is_result_unused);
         void compileWhile(Node& x, Page p);
         void compilePluginImport(const Node& x, Page p);
