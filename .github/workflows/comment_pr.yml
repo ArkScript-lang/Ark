@@ -1,0 +1,58 @@
+name: Comment on the pull request
+
+# read-write repo token
+# access to secrets
+on:
+  workflow_run:
+    workflows: [ "Static analysis", "Testing ArkScript" ]
+    types:
+      - completed
+
+permissions:
+  actions: read
+  pull-requests: write
+
+jobs:
+  elevated:
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: 'Download artifact'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: pr
+          path: ${{ runner.temp }}/pr # do not extract in the workspace dir that may contain executable scripts
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract PR data
+        run: |
+          echo "NR<<EOF" >> $GITHUB_ENV
+          cat "${{ runner.temp }}/pr/NR" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+          echo "COMMENT<<EOF" >> $GITHUB_ENV
+          cat "${{ runner.temp }}/pr/comment" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+          echo "SLUG<<EOF" >> $GITHUB_ENV
+          cat "${{ runner.temp }}/pr/slug" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Find Comment
+        uses: peter-evans/find-comment@fec22f13a3d7a949297e4b5f6b9f99a423eabba1 # v3.1.0
+        id: fc
+        with:
+          issue-number: ${{ env.NR }}
+          comment-author: 'github-actions[bot]'
+          body-includes: ${{ env.SLUG }}
+
+      - name: Create or update comment
+        uses: peter-evans/create-or-update-comment@cf911f109bd9a26f1d626a8c3276384ddec0e552 # v4.0.0
+        with:
+          comment-id: ${{ steps.fc.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: ${{ env.COMMENT }}
+          edit-mode: replace
