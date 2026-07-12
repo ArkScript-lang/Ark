@@ -588,12 +588,12 @@ namespace Ark::internal
         if (x.isAnonymousFunction())
             m_opened_vars.pop();
 
+        // needed for the IRInliner ; the scope has to be dropped AFTER we set the metadata, as we need it
+        setFunctionMetadata(function_body_page, arg_count);
+
         // return last value on the stack
         page(function_body_page).emplace_back(RET);
         m_locals_locator.deleteScope();
-
-        // needed for the IRInliner
-        setFunctionMetadata(function_body_page, arg_count);
 
         // if the computed function is unused, pop it
         if (is_result_unused)
@@ -1001,7 +1001,7 @@ namespace Ark::internal
 
             case CallType::Symbol:
                 assert(call_arg.has_value() && "Expected a value for call_arg with CallType::Symbol");
-                page(p).emplace_back(CALL_SYMBOL, call_arg.value(), args_count);
+                page(p).emplace_back(CALL_SYMBOL, call_arg.value(), args_count).setOriginalSymbolId(call_arg.value());
                 break;
 
             case CallType::SymbolByIndex:

@@ -19,7 +19,7 @@
 namespace Ark::internal
 {
     /**
-     * @brief Enumeration to keep track of the type of a Compiler Value
+     * @brief Enumeration to keep track of the type of Compiler Value
      *
      */
     enum class ValTableElemType

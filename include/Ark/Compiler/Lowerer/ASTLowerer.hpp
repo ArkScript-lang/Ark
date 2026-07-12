@@ -134,13 +134,15 @@ namespace Ark::internal
         {
             if (!args.temp)
             {
+                const std::size_t new_page_addr = m_start_page_at_offset + m_code_pages.size();
                 m_code_pages.emplace_back(
                     IR::Block::Metadata {
                         .name = args.name,
                         .argument_count = 0,
+                        .addr = new_page_addr,
                         .is_closure = args.closure },
                     IR::Block::vec_t {});
-                return Page { .index = m_start_page_at_offset + m_code_pages.size() - 1u, .is_temp = false };
+                return Page { .index = new_page_addr, .is_temp = false };
             }
 
             m_temp_pages.emplace_back();

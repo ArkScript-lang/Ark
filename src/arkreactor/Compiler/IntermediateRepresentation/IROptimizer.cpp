@@ -22,6 +22,9 @@ namespace Ark::internal
     IROptimizer::IROptimizer(const unsigned debug) :
         Pass("IROptimizer", debug)
     {
+        // TODO: we could add rules to optimize (<math> <const> <const>) to have a precomputed value instead
+        // TODO: same for (<cmp> <const> <const>)
+        // TODO: optimize for LOAD x, STORE a, LOAD a?
         m_ruleset = {
             Rule { { LOAD_CONST, LOAD_CONST }, LOAD_CONST_LOAD_CONST },
             Rule { { LOAD_CONST, STORE }, LOAD_CONST_STORE },
@@ -247,13 +250,8 @@ namespace Ark::internal
             {
                 for (const auto& three : math_ops)
                     m_ruleset.emplace_back(Rule { { one, two, three }, fuseMathOps3 });
-            }
-        }
-
-        for (const auto& one : math_ops)
-        {
-            for (const auto& two : math_ops)
                 m_ruleset.emplace_back(Rule { { one, two }, fuseMathOps2 });
+            }
         }
 
         m_logger.debug("Loaded {} rules", m_ruleset.size());
