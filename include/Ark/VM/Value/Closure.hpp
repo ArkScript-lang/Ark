@@ -13,6 +13,7 @@
 
 #include <memory>
 #include <string>
+#include <cstdint>
 
 #include <Ark/Utils/Platform.hpp>
 
