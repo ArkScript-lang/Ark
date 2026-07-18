@@ -248,6 +248,7 @@ namespace Ark::internal::IR
             bool is_closure { false };
             bool is_recursive { false };
             bool is_simple { false };  ///< Calls only builtin and operators, no user functions/C++ functions
+            bool is_mutating_args { false };
         } metadata;
         vec_t data;
 
@@ -263,6 +264,9 @@ namespace Ark::internal::IR
                 flags += "recursive";
             if (metadata.is_simple)
                 flags += std::string(flags.empty() ? "" : " ") + "simple";
+            if (metadata.is_mutating_args)
+                flags += std::string(flags.empty() ? "" : " ") + "mutating";
+
             if (metadata.is_closure)
                 flags += std::string(flags.empty() ? "" : " ") + "closure";
             else

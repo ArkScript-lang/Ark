@@ -556,6 +556,7 @@ namespace Ark::internal
         const Page function_body_page = createNewCodePage(
             { .closure = is_closure,
               .name = page_name });
+        bool mutate_at_least_one_arg = false;
         // save page_id into the constants table as PageAddr and load the const
         page(p).emplace_back(is_closure ? MAKE_CLOSURE : LOAD_CONST, addValue(function_body_page.index, x));
 
@@ -568,6 +569,8 @@ namespace Ark::internal
                 page(function_body_page).emplace_back(STORE, addSymbol(node));
                 m_locals_locator.addLocal(node.string());
                 arg_count++;
+
+                mutate_at_least_one_arg = node.nodeType() == NodeType::MutArg || mutate_at_least_one_arg;
             }
             else if (node.nodeType() == NodeType::RefArg)
             {
@@ -589,7 +592,7 @@ namespace Ark::internal
             m_opened_vars.pop();
 
         // needed for the IRInliner ; the scope has to be dropped AFTER we set the metadata, as we need it
-        setFunctionMetadata(function_body_page, arg_count);
+        setFunctionMetadata(function_body_page, arg_count, mutate_at_least_one_arg);
 
         // return last value on the stack
         page(function_body_page).emplace_back(RET);
@@ -603,7 +606,7 @@ namespace Ark::internal
         }
     }
 
-    void ASTLowerer::setFunctionMetadata(const Page p, const std::size_t arg_count)
+    void ASTLowerer::setFunctionMetadata(const Page p, const std::size_t arg_count, const bool mutates_args)
     {
         bool is_recursive = false;
         bool is_simple = true;
@@ -620,6 +623,7 @@ namespace Ark::internal
         block(p).metadata.argument_count = arg_count;
         block(p).metadata.is_recursive = is_recursive;
         block(p).metadata.is_simple = is_simple;
+        block(p).metadata.is_mutating_args = mutates_args;
     }
 
     void ASTLowerer::compileLetMutSet(const Keyword n, Node& x, const Page p, const bool is_result_unused)

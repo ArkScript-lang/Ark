@@ -290,7 +290,7 @@ namespace Ark::internal
         void compileApplyInstruction(Node& x, Page p, bool is_result_unused);
         void compileIf(Node& x, Page p, bool is_result_unused, bool is_terminal, bool can_use_ref);
         void compileFunction(Node& x, Page p, bool is_result_unused);
-        void setFunctionMetadata(Page p, std::size_t arg_count);
+        void setFunctionMetadata(Page p, std::size_t arg_count, bool mutates_args);
         void compileLetMutSet(Keyword n, Node& x, Page p, bool is_result_unused);
         void compileWhile(Node& x, Page p);
         void compilePluginImport(const Node& x, Page p);

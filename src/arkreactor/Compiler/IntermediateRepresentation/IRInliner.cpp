@@ -6,7 +6,8 @@
 namespace Ark::internal
 {
     IRInliner::IRInliner(const unsigned debug) :
-        Pass("IRInliner", debug)
+        Pass("IRInliner", debug),
+        m_current_label(0)
     {}
 
     void IRInliner::process(const std::vector<IR::Block>& pages, const std::vector<std::string>& symbols, const std::vector<ValTableElem>& values, const IR::label_t last_label)
@@ -94,6 +95,7 @@ namespace Ark::internal
 
         if (candidate.metadata.is_closure ||
             candidate.metadata.is_recursive ||
+            candidate.metadata.is_mutating_args ||
             candidate.metadata.name.value_or(IR::AnonymousBlockName) == IR::AnonymousBlockName ||
             std::cmp_greater_equal(candidate_inst_count + source_inst_count, MaxValue16Bits))
             return false;
