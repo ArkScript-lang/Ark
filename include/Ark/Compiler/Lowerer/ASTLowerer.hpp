@@ -98,6 +98,11 @@ namespace Ark::internal
          */
         [[nodiscard]] const std::vector<ValTableElem>& values() const noexcept;
 
+        [[nodiscard]] IR::label_t lastLabel() const noexcept
+        {
+            return m_current_label;
+        }
+
     private:
         struct Page
         {
