@@ -75,24 +75,14 @@ namespace Ark::internal
                 fmt::println(stream, "global");
             else
             {
-                std::string flags;
-                if (block.metadata.is_recursive)
-                    flags += " recursive";
-                if (block.metadata.is_simple)
-                    flags += " simple";
-                if (block.metadata.is_closure)
-                    flags += " closure";
-                else
-                    flags += " function";
-
                 fmt::println(
                     stream,
-                    "page_{} ({} ({} argument{}){})",
+                    "page_{} ({} ({} argument{}) {})",
                     index,
                     block.debugName(),
                     block.metadata.argument_count,
                     block.metadata.argument_count == 1 ? "" : "s",
-                    flags);
+                    block.metadataRepr());
             }
 
             for (const auto& entity : block.data)

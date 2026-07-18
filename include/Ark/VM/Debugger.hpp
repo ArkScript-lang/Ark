@@ -172,7 +172,10 @@ namespace Ark::internal
         void showContext(const VM& vm, const ExecutionContext& context) const;
         void showStack(VM& vm, const ExecutionContext& context, std::size_t count) const;
         void showLocals(VM& vm, ExecutionContext& context, std::size_t count) const;
+        void showScopes(VM& vm, ExecutionContext& context, std::size_t count) const;
         void showPreviousInstructions(const VM& vm, std::size_t count) const;
+
+        void showLocals(const ScopeView& scope, VM& vm, std::optional<std::size_t> limit = std::nullopt) const;
 
         std::optional<std::string> prompt(std::size_t ip, std::size_t pp, VM& vm, ExecutionContext& context);
 

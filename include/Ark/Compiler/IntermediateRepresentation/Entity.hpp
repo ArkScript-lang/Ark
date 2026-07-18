@@ -227,6 +227,20 @@ namespace Ark::internal::IR
             return metadata.name.value_or(AnonymousBlockName);
         }
 
+        [[nodiscard]] std::string metadataRepr() const
+        {
+            std::string flags;
+            if (metadata.is_recursive)
+                flags += "recursive";
+            if (metadata.is_simple)
+                flags += std::string(flags.empty() ? "" : " ") + "simple";
+            if (metadata.is_closure)
+                flags += std::string(flags.empty() ? "" : " ") + "closure";
+            else
+                flags += std::string(flags.empty() ? "" : " ") + "function";
+            return flags;
+        }
+
         [[nodiscard]] std::size_t instructionCount() const
         {
             const auto length = std::ranges::count_if(data, [](const auto& a) {
