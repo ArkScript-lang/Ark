@@ -27,6 +27,11 @@ namespace Ark::internal::IR
         m_inst = replacement;
     }
 
+    void Entity::replaceLabel(const label_t replacement)
+    {
+        m_label = replacement;
+    }
+
     Entity Entity::Label(const label_t value)
     {
         auto entity = Entity(Kind::Label);

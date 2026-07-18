@@ -79,6 +79,8 @@ namespace Ark::internal::IR
 
         void replaceInstruction(Instruction replacement);
 
+        void replaceLabel(label_t replacement);
+
         /**
          * @brief Create a new Label IR Entity
          *
@@ -121,6 +123,33 @@ namespace Ark::internal::IR
          * @return Word
          */
         [[nodiscard]] Word bytecode() const;
+
+        /**
+         * @brief Check if the Entity has a label attached
+         *
+         * @return bool
+         */
+        [[nodiscard]] bool hasLabel() const
+        {
+            switch (m_kind)
+            {
+                case Kind::Label:
+                    [[fallthrough]];
+                case Kind::Goto:
+                    [[fallthrough]];
+                case Kind::GotoWithArg:
+                    return true;
+
+                case Kind::Opcode:
+                    [[fallthrough]];
+                case Kind::Opcode2Args:
+                    [[fallthrough]];
+                case Kind::Opcode3Args:
+                    return false;
+            }
+
+            return false;
+        }
 
         /**
          * @brief Return the label of the IR Entity

@@ -9,11 +9,12 @@ namespace Ark::internal
         Pass("IRInliner", debug)
     {}
 
-    void IRInliner::process(const std::vector<IR::Block>& pages, const std::vector<std::string>& symbols, const std::vector<ValTableElem>& values)
+    void IRInliner::process(const std::vector<IR::Block>& pages, const std::vector<std::string>& symbols, const std::vector<ValTableElem>& values, const IR::label_t last_label)
     {
         m_logger.traceStart("process");
         m_symbols = symbols;
         m_values = values;
+        m_current_label = last_label + 1;
 
         extractPagesMetadata(pages);
 
@@ -35,8 +36,10 @@ namespace Ark::internal
 
             // We only have to deal with CALL_SYMBOL, CALL_SYMBOL_BY_INDEX, which deal with symbols,
             // and CALL which can deal with constant ids (eg `((fun (a) (print a)) 5)`)
-            for (const auto& entity : block.data)
+            for (std::size_t i = 0, end = block.data.size(); i < end; ++i)
             {
+                const auto& entity = block.data[i];
+
                 std::optional<uint16_t> maybe_id;
                 CallKind kind = CallKind::Symbol;
 
@@ -53,18 +56,22 @@ namespace Ark::internal
                 {
                     const IR::Block& inlinee = pages[maybe_block->addr];
 
-                    if (new_block.data[new_block.data.size() - 1 - inlinee.metadata.argument_count].inst() == PUSH_RETURN_ADDRESS)
-                        new_block.data.erase(new_block.data.end() - static_cast<long>(1 + inlinee.metadata.argument_count));
+                    // retrieve the return label of the call instruction, to know which PUSH_RETURN_ADDRESS instruction we'll have to remove
+                    if (i + 1 < end)
+                    {
+                        assert(block.data[i + 1].kind() == IR::Kind::Label && "Expected a label right after the CALL instruction! The AST lowerer messed up somewhere");
 
-//                    new_block.data.emplace_back(CREATE_SCOPE);
+                        const IR::label_t return_label = block.data[i + 1].label();
+                        const std::size_t removed = std::erase_if(new_block.data, [return_label](const IR::Entity& e) -> bool {
+                            return e.kind() == IR::Kind::Goto && e.inst() == PUSH_RETURN_ADDRESS && e.label() == return_label;
+                        });
+
+                        if (removed == 0)
+                            throw std::runtime_error(fmt::format("No PUSH_RETURN_ADDRESS L{} instruction removed, even though one was expected", return_label));
+                    }
+
                     inlineBlock(inlinee, new_block);
-//                    new_block.data.emplace_back(POP_SCOPE);
                 }
-                // TODO: find a better way to not fuck up/repair the indices
-                else if (entity.inst() == LOAD_FAST_BY_INDEX)
-                    new_block.data.emplace_back(LOAD_FAST, entity.originalSymbolId().value());
-                else if (entity.inst() == CALL_SYMBOL_BY_INDEX)
-                    new_block.data.emplace_back(CALL_SYMBOL, entity.originalSymbolId().value(), entity.secondaryArg());
                 else
                     new_block.data.emplace_back(entity);
             }
@@ -112,22 +119,50 @@ namespace Ark::internal
 
     void IRInliner::inlineBlock(const IR::Block& inlinee, IR::Block& destination)
     {
-        m_logger.debug("Inlining call to {} inside {} @ {}", inlinee.debugName(), destination.debugName(), destination.metadata.addr);
+        if (destination.metadata.addr == 0)
+            m_logger.debug("Inlining call to '{}' ({}) inside global scope", inlinee.debugName(), inlinee.metadataRepr());
+        else
+            m_logger.debug("Inlining call to '{}' ({}) inside '{}' @ {}", inlinee.debugName(), inlinee.metadataRepr(), destination.debugName(), destination.metadata.addr);
 
         // TODO: do a better inlining job
-        // this can currently fuck up symbol indices (LOAD_FAST_BY_ID), overwrite variables from the parents, and maybe more
+        // this can currently fuck up symbol indices (LOAD_FAST_BY_ID), overwrite variables from the parents, and maybe more -> fixed if we put a scope around
+        destination.data.emplace_back(CREATE_SCOPE);
+
+        // We need to create new, unique labels for the inlined code.
+        // When we meet a label, we'll register it, and replace it with a new label
+        // in the inlined code. That way, if we find it again later in the code,
+        // we can use the correct value.
+        std::unordered_map<IR::label_t, IR::label_t> old_to_new_label;
+
+        // TODO: special inlining for call_builtin (when we only do that in a function, like the iroptimizer does with call builtin without ret addr)
+        // TODO: decide if we want to keep create_scope, (inlinee), pop_scope
         for (const IR::Entity& entity : inlinee.data)
         {
             if (entity.inst() == RET)
                 break;
 
-            if (entity.inst() == LOAD_FAST_BY_INDEX)
+            if (entity.hasLabel())
+            {
+                IR::Entity labelled_entity = entity;
+                if (auto it = old_to_new_label.find(entity.label()); it != old_to_new_label.end())
+                    labelled_entity.replaceLabel(it->second);
+                else
+                {
+                    labelled_entity.replaceLabel(m_current_label);
+                    old_to_new_label[entity.label()] = m_current_label++;
+                }
+
+                destination.data.emplace_back(labelled_entity);
+            }
+            else if (entity.inst() == LOAD_FAST_BY_INDEX)
                 destination.data.emplace_back(LOAD_FAST, entity.originalSymbolId().value());
             else if (entity.inst() == CALL_SYMBOL_BY_INDEX)
                 destination.data.emplace_back(CALL_SYMBOL, entity.originalSymbolId().value(), entity.secondaryArg());
             else
                 destination.data.emplace_back(entity);
         }
+
+        destination.data.emplace_back(POP_SCOPE);
     }
 
     void IRInliner::extractPagesMetadata(const std::vector<IR::Block>& pages)
