@@ -84,8 +84,21 @@ namespace Ark::internal
         // If the name wasn't qualified, in the current prefixed namespace, look up for it but by qualifying the name
         else if (!starts_with_prefix)
         {
-            const auto it = std::ranges::find(m_vars, fullyQualifiedName(name), &Declaration::name);
-            const auto it_original = std::ranges::find(m_vars, fullyQualifiedName(name), &Declaration::original_name);
+            const auto fqn = fullyQualifiedName(name);
+
+            auto it = m_vars.end();
+            auto it_original = m_vars.end();
+            for (auto j = m_vars.begin(), end = m_vars.end(); j != end; ++j)
+            {
+                if (j->name == fqn)
+                    it = j;
+                if (j->original_name == fqn)
+                    it_original = j;
+
+                if (it != end && it_original != end)
+                    break;
+            }
+
             if ((m_is_glob || hasSymbol(name) || (m_with_prefix && origin_namespace == m_namespace)) && it != m_vars.end())
                 return *it;
             if (!m_symbols.empty() && it_original != m_vars.end())
@@ -100,7 +113,7 @@ namespace Ark::internal
                 if (auto maybe_decl = scope->get(name, origin_namespace, extensive_lookup); maybe_decl.has_value())
                 {
                     // prioritize non-hidden declarations
-                    if ((decl.has_value() && decl.value().name.ends_with(HiddenSymbolSuffix)) || !decl.has_value())
+                    if ((decl.has_value() && decl->name.ends_with(HiddenSymbolSuffix)) || !decl.has_value())
                         decl = maybe_decl;
                 }
             }
