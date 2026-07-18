@@ -134,7 +134,9 @@ namespace Ark::internal
 
     void Debugger::registerInstruction(const uint32_t word) noexcept
     {
-        m_previous_insts.push_back(word);
+        // We don't want to register instructions from code entered in the debugger!
+        if (!m_running)
+            m_previous_insts.push_back(word);
     }
 
     std::optional<Debugger::Command::Args_t> Debugger::Command::getArgs(const std::string& line, std::ostream& os) const
@@ -229,6 +231,15 @@ namespace Ark::internal
                 [this](const std::string& line, const CommandArgs& args) {
                     if (const auto arg = args.me.argAsCount(line, 0, m_os))
                         showLocals(*args.vm_ptr, *args.ctx_ptr, arg.value());
+                    return false;
+                }),
+            Command(
+                StartsWith("scopes"),
+                { { "n", "5" } },
+                "show the last n scopes",
+                [this](const std::string& line, const CommandArgs& args) {
+                    if (const auto arg = args.me.argAsCount(line, 0, m_os))
+                        showScopes(*args.vm_ptr, *args.ctx_ptr, arg.value());
                     return false;
                 }),
             Command(
@@ -330,32 +341,69 @@ namespace Ark::internal
         if (limit > 0 && count > 0)
         {
             fmt::println(m_os, "scope size: {}", limit);
-            fmt::println(m_os, "index |  id |      name      |    type   | value");
-            std::size_t i = 0;
-
-            do
-            {
-                if (limit <= i)
-                    break;
-
-                auto& [id, value] = context.locals[context.locals.size() - 2].atPosReverse(i);
-                const auto color = m_colorize ? fmt::fg(i % 2 == 0 ? fmt::color::forest_green : fmt::color::cornflower_blue) : fmt::text_style();
-
-                fmt::println(
-                    m_os,
-                    "{:>5} | {:3} | {:14} | {:>9} | {}",
-                    fmt::styled(limit - i - 1, color),
-                    fmt::styled(id, color),
-                    fmt::styled(vm.m_state.m_symbols[id], color),
-                    fmt::styled(std::to_string(value.valueType()), color),
-                    fmt::styled(value.toString(vm, /* show_as_code= */ true), color));
-                ++i;
-            } while (i < count);
+            showLocals(context.locals[context.locals.size() - 2], vm, count);
         }
         else
             fmt::println(m_os, "Current scope is empty");
 
         fmt::println(m_os, "");
+    }
+
+    void Debugger::showScopes(VM& vm, ExecutionContext& context, const std::size_t count) const
+    {
+        if (count == 0)
+            fmt::println(m_os, "Nothing to show, count must be > 0");
+        else
+        {
+            const std::size_t scopes_count = context.locals.size() - 1;
+            fmt::println(m_os, "There are {} scope{}\n", scopes_count, scopes_count == 1 ? "" : "s");
+
+            std::size_t i = 0;
+
+            do
+            {
+                if (scopes_count <= i)
+                    break;
+
+                // `i` is in [0, scopes_count[, so scopes_count - max(i) == 0, we can safely subtract 1
+                const std::size_t idx = scopes_count - i - 1;
+                const auto& scope = context.locals[idx];
+
+                fmt::println(m_os, "Scope {}, size: {}", idx, scope.size());
+                if (scope.size() > 0)
+                    showLocals(scope, vm);
+                fmt::println("");
+
+                ++i;
+            } while (i < count);
+        }
+
+        fmt::println(m_os, "");
+    }
+
+    void Debugger::showLocals(const ScopeView& scope, VM& vm, std::optional<std::size_t> limit) const
+    {
+        fmt::println(m_os, "index |  id |      name      |    type   | value");
+        std::size_t i = 0;
+
+        do
+        {
+            if (scope.size() <= i)
+                break;
+
+            auto& [id, value] = scope.atPosReverse(i);
+            const auto color = m_colorize ? fmt::fg(i % 2 == 0 ? fmt::color::forest_green : fmt::color::cornflower_blue) : fmt::text_style();
+
+            fmt::println(
+                m_os,
+                "{:>5} | {:3} | {:14} | {:>9} | {}",
+                fmt::styled(scope.size() - i - 1, color),
+                fmt::styled(id, color),
+                fmt::styled(vm.m_state.m_symbols[id], color),
+                fmt::styled(std::to_string(value.valueType()), color),
+                fmt::styled(value.toString(vm, /* show_as_code= */ true), color));
+            ++i;
+        } while (!limit.has_value() || i < limit.value());
     }
 
     void Debugger::showPreviousInstructions(const VM& vm, const std::size_t count) const
