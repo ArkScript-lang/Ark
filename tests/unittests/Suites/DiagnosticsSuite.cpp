@@ -97,7 +97,7 @@ ut::suite<"Diagnostics"> diagnostics_suite = [] {
             std::stringstream stream;
 
             should("compile without error warnings/" + data.stem) = [&] {
-                expect(mut(state).doFile(data.path, features | Ark::FeatureASTOptimizer, &stream));
+                expect(mut(state).doFile(data.path, features | Ark::FeatureASTOptimiser, &stream));
             };
 
             should("run " + data.stem) = [&] {

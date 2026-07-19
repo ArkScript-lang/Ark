@@ -67,11 +67,14 @@ namespace Ark
             m_lowerer.process(m_computed_ast);
             m_ir = m_lowerer.intermediateRepresentation();
 
-            if ((m_features & FeatureIROptimizer) != 0)
+            if ((m_features & FeatureIRInliner) != 0)
             {
-                m_ir_inliner.process(m_ir, m_lowerer.symbols(), m_lowerer.values());
+                m_ir_inliner.process(m_ir, m_lowerer.symbols(), m_lowerer.values(), m_lowerer.lastLabel());
                 m_ir = m_ir_inliner.intermediateRepresentation();
+            }
 
+            if ((m_features & FeatureIROptimiser) != 0)
+            {
                 m_ir_optimizer.process(m_ir, m_lowerer.symbols(), m_lowerer.values());
                 m_ir = m_ir_optimizer.intermediateRepresentation();
             }
@@ -212,7 +215,7 @@ namespace Ark
                 m_computed_ast = m_name_resolver.ast();
             }
 
-            if ((m_features & FeatureASTOptimizer) != 0)
+            if ((m_features & FeatureASTOptimiser) != 0)
             {
                 m_ast_optimizer.process(m_computed_ast);
                 m_computed_ast = m_ast_optimizer.ast();
