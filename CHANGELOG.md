@@ -12,6 +12,7 @@
     - sys:version, has the version of the ArkScript VM
 - IR inliner, running after the AST lowerer, before the IR optimiser
 - new debugger command `scopes`, printing the last `n` scopes (default: 5)
+- new CLI toggle `-f(no-)irinliner` to toggle the IR inliner pass (default: On)
 
 ### Changed
 - fix a bug related to recursive closures: once a closure was referenced in its own scope, we couldn't convert it to string or compare it against another closure/itself
