@@ -14,7 +14,7 @@ ut::suite<"Optimizer"> optimizer_suite = [] {
         iterTestFiles(
             "OptimizerSuite",
             [](TestData&& data) {
-                JsonCompiler compiler(false, { lib_path }, Ark::FeatureASTOptimizer);
+                JsonCompiler compiler(false, { lib_path }, Ark::FeatureASTOptimiser);
 
                 std::string json;
                 should("parse " + data.stem) = [&] {

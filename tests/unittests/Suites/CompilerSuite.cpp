@@ -77,7 +77,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
     };
 
     "IR generation"_test = [] {
-        constexpr uint16_t features = Ark::FeatureImportSolver | Ark::FeatureMacroProcessor | Ark::FeatureASTOptimizer | Ark::FeatureNameResolver | Ark::FeatureTestFailOnException;
+        constexpr uint16_t features = Ark::FeatureImportSolver | Ark::FeatureMacroProcessor | Ark::FeatureASTOptimiser | Ark::FeatureNameResolver | Ark::FeatureTestFailOnException;
 
         iterTestFiles(
             "CompilerSuite/ir",

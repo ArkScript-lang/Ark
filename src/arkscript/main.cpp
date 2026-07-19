@@ -57,7 +57,7 @@ int main(int argc, char** argv)
     // Generic arguments
     std::vector<std::string> script_args;
 
-    uint16_t passes = Ark::DefaultFeatures | Ark::FeatureASTOptimizer;
+    uint16_t passes = Ark::DefaultFeatures | Ark::FeatureASTOptimiser;
 
     // clang-format off
     auto debug_flag = joinable(repeatable(option("-d", "--debug").call([&]{ debug++; })
@@ -74,12 +74,12 @@ int main(int argc, char** argv)
         | option("-fno-macroprocessor").call([&] { passes &= ~Ark::FeatureMacroProcessor; })
     ).doc("Toggle on and off the macro processor pass");
     auto optimizer_pass_flag = (
-        option("-foptimizer").call([&] { passes |= Ark::FeatureASTOptimizer; })
-        | option("-fno-optimizer").call([&] { passes &= ~Ark::FeatureASTOptimizer; })
+        option("-foptimizer").call([&] { passes |= Ark::FeatureASTOptimiser; })
+        | option("-fno-optimizer").call([&] { passes &= ~Ark::FeatureASTOptimiser; })
     ).doc("Toggle on and off the optimizer pass");
     auto ir_optimizer_pass_flag = (
-        option("-firoptimizer").call([&] { passes |= Ark::FeatureIROptimizer; })
-        | option("-fno-iroptimizer").call([&] { passes &= ~Ark::FeatureIROptimizer; })
+        option("-firoptimizer").call([&] { passes |= Ark::FeatureIROptimiser; })
+        | option("-fno-iroptimizer").call([&] { passes &= ~Ark::FeatureIROptimiser; })
     ).doc("Toggle on and off the IR optimizer pass");
     auto vm_debugger_flag = (
         option("-fdebugger").call([&] { passes |= Ark::FeatureVMDebugger; })
