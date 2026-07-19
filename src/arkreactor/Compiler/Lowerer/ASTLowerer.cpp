@@ -591,7 +591,7 @@ namespace Ark::internal
         // (let name (fun (e) (map lst (fun (e) (name e)))))
         // Otherwise, `name` would have been optimised to a CALL_CURRENT_PAGE, which would have returned the wrong page.
         if (x.isAnonymousFunction())
-            m_opened_vars.emplace(IR::AnonymousBlockName, arg_count);
+            m_opened_vars.emplace(std::string(IR::AnonymousBlockName), arg_count);
         // push body of the function
         compileExpression(x.list()[2], function_body_page, false, true, true);
         if (x.isAnonymousFunction())

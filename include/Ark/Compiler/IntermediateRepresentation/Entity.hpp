@@ -39,7 +39,7 @@ namespace Ark::internal::IR
     constexpr uint16_t MaxValueForSmallNumber = 0x0800;
     static_assert(MaxValueForSmallNumber + MaxValueForSmallNumber - 1 == MaxValueForDualArg);
 
-    constexpr std::string AnonymousBlockName = "#anonymous";
+    constexpr std::string_view AnonymousBlockName = "#anonymous";
 
     class Entity
     {
@@ -255,7 +255,7 @@ namespace Ark::internal::IR
 
         [[nodiscard]] std::string debugName() const
         {
-            return metadata.name.value_or(AnonymousBlockName);
+            return metadata.name.value_or(std::string(AnonymousBlockName));
         }
 
         [[nodiscard]] std::string metadataRepr() const
