@@ -75,9 +75,10 @@ namespace Ark::internal
          *
          * @param candidate block to inline
          * @param source where the inlining will take place
+         * @param argc argument count in source to candidate
          * @return true if the candidate can be inlined
          */
-        [[nodiscard]] static bool canBeInlined(const IR::Block& candidate, const IR::Block& source) noexcept;
+        [[nodiscard]] static bool canBeInlined(const IR::Block& candidate, const IR::Block& source, std::size_t argc) noexcept;
 
         /**
          * @brief See if a block can be inlined in the current call site
@@ -86,9 +87,10 @@ namespace Ark::internal
          * @param pages
          * @param maybe_id optional identifier of a block (constant id or symbol id)
          * @param current current block where inlining could take place
+         * @param argc argument count in source to candidate
          * @return std::optional<BlockInfo> candidate to inlining
          */
-        [[nodiscard]] std::optional<BlockInfo> blockToInlineInCall(CallKind kind, const std::vector<IR::Block>& pages, std::optional<uint16_t> maybe_id, const IR::Block& current) const noexcept;
+        [[nodiscard]] std::optional<BlockInfo> blockToInlineInCall(CallKind kind, const std::vector<IR::Block>& pages, std::optional<uint16_t> maybe_id, const IR::Block& current, std::size_t argc) const noexcept;
 
         /**
          * @brief Check if an IR block represents a builtin proxy, and return its CALL instruction if it is
