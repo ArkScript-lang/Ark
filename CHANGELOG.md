@@ -19,6 +19,7 @@
 - the compiler can track the origin of an IR block, in preparation for inlining
 - `POP_SCOPE` can take an argument to have a mode: by default, `0`, only pop the current scope ; if `1`, materialise the top of the stack if it's a reference
 - the debugger does not trace the instructions of the code being run inside it (only instructions from the script are traced)
+- the AST lowerer checks for `(breakpoint)` at the end of `begin` nodes to determine if a node is unused or terminal
 
 ### Removed
 

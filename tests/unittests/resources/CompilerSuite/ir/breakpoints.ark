@@ -17,3 +17,8 @@
 
 (let bar (fun () ()))
 (bar (breakpoint true))
+
+(let abs (fun (_x) {
+  (if (< _x 0) (* -1 _x) _x)
+  (breakpoint) }))
+(abs 5)

@@ -275,15 +275,21 @@ namespace Ark::internal
 
                     case Keyword::Begin:
                     {
+                        const bool ends_on_breakpoint = isBreakpoint(x.list().back());
+
                         for (std::size_t i = 1, size = x.list().size(); i < size; ++i)
+                        {
+                            // All the nodes in a 'begin' (except for the last one) are producing a result that we want to drop.
+                            const bool unused = is_result_unused || (ends_on_breakpoint ? i + 2 != size : i + 1 != size);
+
                             compileExpression(
                                 x.list()[i],
                                 p,
-                                // All the nodes in a 'begin' (except for the last one) are producing a result that we want to drop.
-                                /* is_result_unused= */ (i != size - 1) || is_result_unused,
+                                /* is_result_unused= */ unused,
                                 // If the 'begin' is a terminal node, only its last node is terminal.
-                                /* is_terminal= */ is_terminal && (i == size - 1),
+                                /* is_terminal= */ is_terminal && (ends_on_breakpoint ? i + 2 == size : i + 1 == size),
                                 /* can_use_ref= */ can_use_ref);
+                        }
                         break;
                     }
 
