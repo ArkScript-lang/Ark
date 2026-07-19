@@ -46,6 +46,13 @@ global
 	CALL_SYMBOL_BY_INDEX 0, 0
 .L9:
 	POP 0
+	LOAD_CONST 10
+	STORE 6
+	PUSH_RETURN_ADDRESS L12
+	LOAD_CONST 1
+	CALL_SYMBOL_BY_INDEX 0, 1
+.L12:
+	POP 0
 	HALT 0
 
 page_1 (foo (3 arguments) simple function)
@@ -94,5 +101,22 @@ page_1 (foo (3 arguments) simple function)
 
 page_2 (bar (0 arguments) simple function)
 	BUILTIN 2
+	RET 0
+	HALT 0
+
+page_3 (abs (1 argument) simple function)
+	STORE 7
+	LOAD_FAST_BY_INDEX 0
+	LOAD_CONST 3
+	LT 0
+	POP_JUMP_IF_TRUE L10
+	LOAD_FAST_BY_INDEX 0
+	JUMP L11
+.L10:
+	LOAD_CONST 11
+	LOAD_FAST_BY_INDEX 0
+	MUL 0
+.L11:
+	BREAKPOINT 0
 	RET 0
 	HALT 0

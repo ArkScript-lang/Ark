@@ -14,16 +14,9 @@ dbg[pp:0,ip:3]:004: b))
 dbg[pp:0,ip:3]:005> (prn c)
 11
 dbg[pp:0,ip:3]:006> trace
-HALT
-POP
-CALL_SYMBOL prn, 1
-LOAD_FAST_BY_INDEX (0)
-PUSH_RETURN_ADDRESS (0x7)
-HALT
-STORE ?
-ADD
-LOAD_FAST b
-LOAD_FAST a
+BREAKPOINT
+LOAD_CONST_STORE 6 (Number), b
+LOAD_CONST_STORE 5 (Number), a
 dbg[pp:0,ip:3]:006> c
 dbg: continue
 ark: after first breakpoint, a=5, b=6
@@ -40,16 +33,16 @@ In file tests/unittests/resources/DebuggerSuite/basic.ark:7
 dbg[pp:1,ip:5]:000> (prn x y z)
 567
 dbg[pp:1,ip:5]:001> trace
-HALT
-POP
-CALL_SYMBOL prn, 3
-LOAD_FAST z
-LOAD_FAST y
-LOAD_FAST x
-PUSH_RETURN_ADDRESS (0x5)
 BREAKPOINT
 BUILTIN true
 STORE x
+STORE y
+STORE z
+CALL_SYMBOL_BY_INDEX 0, 3
+LOAD_CONST 7 (Number)
+LOAD_FAST_BY_INDEX (1)
+LOAD_FAST_BY_INDEX (2)
+PUSH_RETURN_ADDRESS (0x12)
 dbg[pp:1,ip:5]:001> help
 Available commands:
   help -- display this message
@@ -57,6 +50,7 @@ Available commands:
   q, quit -- quit the debugger, stopping the script execution
   stack <n=5> -- show the last n values on the stack
   locals <n=5> -- show the last n values on the locals' stack
+  scopes <n=5> -- show the last n scopes
   ptr -- show the values of the VM pointers
   trace <n=10> -- show the last n executed instructions
 dbg[pp:1,ip:5]:001> continue

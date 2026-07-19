@@ -76,8 +76,10 @@ ut::suite<"Compiler"> compiler_suite = [] {
         };
     };
 
+    constexpr uint16_t featuresNoOpti = Ark::FeatureImportSolver | Ark::FeatureMacroProcessor | Ark::FeatureASTOptimiser | Ark::FeatureNameResolver | Ark::FeatureTestFailOnException;
+
     "IR generation"_test = [] {
-        constexpr uint16_t features = Ark::FeatureImportSolver | Ark::FeatureMacroProcessor | Ark::FeatureASTOptimiser | Ark::FeatureNameResolver | Ark::FeatureTestFailOnException;
+        constexpr uint16_t features = featuresNoOpti;
 
         iterTestFiles(
             "CompilerSuite/ir",
@@ -101,7 +103,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
     };
 
     "IR generation and optimization"_test = [] {
-        constexpr uint16_t features = Ark::DefaultFeatures | Ark::FeatureTestFailOnException;
+        constexpr uint16_t features = featuresNoOpti | Ark::FeatureIROptimiser;
 
         iterTestFiles(
             "CompilerSuite/optimized_ir",
@@ -122,5 +124,7 @@ ut::suite<"Compiler"> compiler_suite = [] {
                         updateExpectedFile(data, ir);
                 };
             });
+
+        // todo: ir inliner
     };
 };
