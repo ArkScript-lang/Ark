@@ -119,6 +119,69 @@ namespace Ark::internal
         return std::nullopt;
     }
 
+    std::optional<IR::Entity> IRInliner::isBuiltinProxy(const IR::Block& block)
+    {
+        /*
+         Expected instructions to be a builtin proxy:
+            STORE...
+            PUSH_RETURN_ADDRESS
+            LOAD_FAST_BY_INDEX...
+            CALL_BUILTIN
+            <label>
+            RET
+         */
+        if (block.data.size() < 6 || (block.data.size() - 4) % 2 != 0)
+            return std::nullopt;
+
+        Instruction expected = STORE;
+        std::size_t store_count = 0;
+        std::size_t load_count = 0;
+        IR::label_t label = 0;
+        std::optional<IR::Entity> call_builtin;
+
+        for (const auto& entity : block.data)
+        {
+            const Instruction inst = entity.inst();
+            const bool is_label = entity.kind() == IR::Kind::Label;
+
+            if (expected != inst)
+            {
+                if (expected == STORE)
+                    expected = PUSH_RETURN_ADDRESS;
+                else if (expected == PUSH_RETURN_ADDRESS)
+                    expected = LOAD_FAST_BY_INDEX;
+                else if (expected == LOAD_FAST_BY_INDEX)
+                    expected = CALL_BUILTIN;
+                else if (expected == CALL_BUILTIN)
+                    expected = NOP;
+                else if (expected == NOP)
+                    expected = RET;
+            }
+
+            if (expected == inst)
+            {
+                if (expected == STORE)
+                    ++store_count;
+                else if (expected == LOAD_FAST_BY_INDEX)
+                    ++load_count;
+                else if (expected == CALL_BUILTIN)
+                {
+                    call_builtin = entity;
+                    if (entity.secondaryArg() != store_count)
+                        return std::nullopt;
+                }
+                else if (expected == PUSH_RETURN_ADDRESS)
+                    label = entity.label();
+            }
+            else if (is_label && label != entity.label())
+                return std::nullopt;
+        }
+
+        if (store_count == load_count)
+            return call_builtin;
+        return std::nullopt;
+    }
+
     void IRInliner::inlineBlock(const IR::Block& inlinee, IR::Block& destination)
     {
         if (destination.metadata.addr == 0)
@@ -126,8 +189,17 @@ namespace Ark::internal
         else
             m_logger.debug("Inlining call to '{}' ({}) inside '{}' @ {}", inlinee.debugName(), inlinee.metadataRepr(), destination.debugName(), destination.metadata.addr);
 
+        if (auto inst = isBuiltinProxy(inlinee); inst.has_value())
+        {
+            m_logger.debug("  -> builtin proxy with args ({}, {})", inst->primaryArg(), inst->secondaryArg());
+            destination.data.emplace_back(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, inst->primaryArg(), inst->secondaryArg());
+            return;
+        }
+
         // TODO: do a better inlining job
-        // this can currently fuck up symbol indices (LOAD_FAST_BY_ID), overwrite variables from the parents, and maybe more -> fixed if we put a scope around
+        //       this can currently fuck up symbol indices (LOAD_FAST_BY_ID), overwrite variables from the parents, and maybe more
+        //       -> fixed if we put a scope around
+        // TODO: decide if we want to keep create_scope, (inlinee), pop_scope
         destination.data.emplace_back(CREATE_SCOPE);
 
         // We need to create new, unique labels for the inlined code.
@@ -136,8 +208,6 @@ namespace Ark::internal
         // we can use the correct value.
         std::unordered_map<IR::label_t, IR::label_t> old_to_new_label;
 
-        // TODO: special inlining for call_builtin (when we only do that in a function, like the iroptimizer does with call builtin without ret addr)
-        // TODO: decide if we want to keep create_scope, (inlinee), pop_scope
         for (const IR::Entity& entity : inlinee.data)
         {
             if (entity.inst() == RET)

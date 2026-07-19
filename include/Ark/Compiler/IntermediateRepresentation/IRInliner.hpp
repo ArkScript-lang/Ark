@@ -79,12 +79,47 @@ namespace Ark::internal
          */
         [[nodiscard]] static bool canBeInlined(const IR::Block& candidate, const IR::Block& source) noexcept;
 
+        /**
+         * @brief See if a block can be inlined in the current call site
+         *
+         * @param kind kind of call instruction being used (by symbol or constant)
+         * @param pages
+         * @param maybe_id optional identifier of a block (constant id or symbol id)
+         * @param current current block where inlining could take place
+         * @return std::optional<BlockInfo> candidate to inlining
+         */
         [[nodiscard]] std::optional<BlockInfo> blockToInlineInCall(CallKind kind, const std::vector<IR::Block>& pages, std::optional<uint16_t> maybe_id, const IR::Block& current) const noexcept;
 
+        /**
+         * @brief Check if an IR block represents a builtin proxy, and return its CALL instruction if it is
+         *
+         * @param block IR block
+         * @return std::optional<IR::Entity>
+         */
+        [[nodiscard]] static std::optional<IR::Entity> isBuiltinProxy(const IR::Block& block);
+
+        /**
+         * @brief Perform the inlining
+         *
+         * @param inlinee IR block to inline
+         * @param destination new IR block to write instructions to
+         */
         void inlineBlock(const IR::Block& inlinee, IR::Block& destination);
 
+        /**
+         * @brief Extract metadata from the IR entities pages, to have a name, constant id, and potentially symbol id per page
+         *
+         * @param pages pages of IR entities
+         */
         void extractPagesMetadata(const std::vector<IR::Block>& pages);
 
+        /**
+         * @brief Search for a block by one of its IDs
+         *
+         * @param kind kind of call instruction being used (by symbol or constant)
+         * @param id
+         * @return std::optional<BlockInfo>
+         */
         [[nodiscard]] std::optional<BlockInfo> findBlockBy(CallKind kind, uint16_t id) const noexcept;
     };
 }
