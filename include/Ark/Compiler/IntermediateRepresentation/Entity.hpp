@@ -15,6 +15,7 @@
 #include <vector>
 #include <string>
 #include <optional>
+#include <algorithm>
 
 #include <Ark/Compiler/IntermediateRepresentation/Word.hpp>
 #include <Ark/Compiler/Instructions.hpp>
