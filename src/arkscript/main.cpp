@@ -77,6 +77,10 @@ int main(int argc, char** argv)
         option("-foptimizer").call([&] { passes |= Ark::FeatureASTOptimiser; })
         | option("-fno-optimizer").call([&] { passes &= ~Ark::FeatureASTOptimiser; })
     ).doc("Toggle on and off the optimizer pass");
+    auto ir_inliner_pass_flag = (
+        option("-firinliner").call([&] { passes |= Ark::FeatureIRInliner; })
+        | option("-fno-irinliner").call([&] { passes &= ~Ark::FeatureIRInliner; })
+    ).doc("Toggle on and off the IR inliner pass");
     auto ir_optimizer_pass_flag = (
         option("-firoptimizer").call([&] { passes |= Ark::FeatureIROptimiser; })
         | option("-fno-iroptimizer").call([&] { passes &= ~Ark::FeatureIROptimiser; })
@@ -93,7 +97,9 @@ int main(int argc, char** argv)
         // cppcheck-suppress constStatement
         debug_flag, lib_dir_flag, import_solver_pass_flag, macro_proc_pass_flag,
         // cppcheck-suppress constStatement
-        optimizer_pass_flag, ir_optimizer_pass_flag, vm_debugger_flag, ir_dump,
+        optimizer_pass_flag, ir_inliner_pass_flag, ir_optimizer_pass_flag,
+        // cppcheck-suppress constStatement
+        vm_debugger_flag, ir_dump,
         no_cache
     );
 
