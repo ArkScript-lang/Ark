@@ -10,11 +10,15 @@
     - list:intersection
     - list:difference
     - sys:version, has the version of the ArkScript VM
+- IR inliner, running after the AST lowerer, before the IR optimiser
+- new debugger command `scopes`, printing the last `n` scopes (default: 5)
 
 ### Changed
 - fix a bug related to recursive closures: once a closure was referenced in its own scope, we couldn't convert it to string or compare it against another closure/itself
 - bytecode reader: the length of code segments is counted in instructions, not bytes
 - the compiler can track the origin of an IR block, in preparation for inlining
+- `POP_SCOPE` can take an argument to have a mode: by default, `0`, only pop the current scope ; if `1`, materialise the top of the stack if it's a reference
+- the debugger does not trace the instructions of the code being run inside it (only instructions from the script are traced)
 
 ### Removed
 

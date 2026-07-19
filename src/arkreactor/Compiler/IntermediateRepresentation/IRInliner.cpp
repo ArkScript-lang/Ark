@@ -234,7 +234,7 @@ namespace Ark::internal
                 destination.data.emplace_back(entity);
         }
 
-        destination.data.emplace_back(POP_SCOPE);
+        destination.data.emplace_back(POP_SCOPE, 1);
     }
 
     void IRInliner::extractPagesMetadata(const std::vector<IR::Block>& pages)

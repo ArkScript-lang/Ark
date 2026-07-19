@@ -1153,6 +1153,11 @@ namespace Ark
 
                 TARGET(POP_SCOPE)
                 {
+                    if (arg == 1)
+                    {
+                        if (Value* ts = peek(context); ts->valueType() == ValueType::Reference)
+                            *ts = *ts->reference();
+                    }
                     context.locals.pop_back();
                     DISPATCH();
                 }
