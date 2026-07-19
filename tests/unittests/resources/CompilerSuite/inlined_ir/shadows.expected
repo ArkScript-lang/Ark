@@ -1,0 +1,211 @@
+global
+	LOAD_CONST 0
+	STORE 0
+	PUSH_RETURN_ADDRESS L5
+	CALL_SYMBOL_BY_INDEX 0, 0
+.L5:
+	POP 0
+	LOAD_CONST 6
+	STORE 4
+	LOAD_CONST 8
+	STORE 7
+	LOAD_CONST 11
+	STORE 9
+	PUSH_RETURN_ADDRESS L14
+	LOAD_FAST_BY_INDEX 2
+	CALL_SYMBOL_BY_INDEX 1, 1
+.L14:
+	STORE 13
+	LOAD_CONST 18
+	STORE 14
+	PUSH_RETURN_ADDRESS L17
+	PUSH_RETURN_ADDRESS L18
+	LOAD_FAST_BY_INDEX 1
+	CALL_SYMBOL_BY_INDEX 2, 1
+.L18:
+	CALL_SYMBOL_BY_INDEX 0, 1
+.L17:
+	STORE 15
+	PUSH_RETURN_ADDRESS L19
+	PUSH_RETURN_ADDRESS L20
+	LOAD_CONST 22
+	LOAD_FAST_BY_INDEX 0
+	LOAD_FAST_BY_INDEX 0
+	LOAD_CONST 21
+	EQ 0
+	POP_JUMP_IF_TRUE L21
+	LOAD_CONST 4
+	JUMP L22
+.L21:
+	LOAD_CONST 5
+.L22:
+	CALL_BUILTIN 30, 3
+.L20:
+	CALL_BUILTIN 9, 1
+.L19:
+	POP 0
+	HALT 0
+
+page_1 (weird:test (0 arguments) function, scoped)
+	LOAD_CONST 1
+	STORE 1
+	PUSH_RETURN_ADDRESS L0
+	LOAD_CONST 2
+	CALL_SYMBOL_BY_INDEX 0, 1
+.L0:
+	STORE 3
+	PUSH_RETURN_ADDRESS L1
+	PUSH_RETURN_ADDRESS L2
+	LOAD_CONST 3
+	LOAD_FAST_BY_INDEX 0
+	LOAD_FAST_BY_INDEX 0
+	LOAD_CONST 2
+	EQ 0
+	POP_JUMP_IF_TRUE L3
+	LOAD_CONST 4
+	JUMP L4
+.L3:
+	LOAD_CONST 5
+.L4:
+	CALL_BUILTIN 30, 3
+.L2:
+	CALL_BUILTIN 9, 1
+.L1:
+	RET 0
+	HALT 0
+
+page_2 (g (1 argument) simple function, scoped)
+	STORE 2
+	LOAD_FAST_BY_INDEX 0
+	RET 0
+	HALT 0
+
+page_3 (lambda:_zero (1 argument) simple function, scoped)
+	STORE 5
+	LOAD_CONST 7
+	RET 0
+	HALT 0
+
+page_4 (#anonymous (1 argument) simple function, scoped)
+	STORE 6
+	LOAD_FAST_BY_INDEX 0
+	RET 0
+	HALT 0
+
+page_5 (lambda:_succ (1 argument) function, scoped)
+	STORE 8
+	CAPTURE 8
+	MAKE_CLOSURE 9
+	RET 0
+	HALT 0
+
+page_6 (#anonymous (1 argument) closure, scoped)
+	STORE 5
+	CAPTURE 8
+	CAPTURE 5
+	MAKE_CLOSURE 10
+	RET 0
+	HALT 0
+
+page_7 (#anonymous (1 argument) closure, scoped)
+	STORE 6
+	PUSH_RETURN_ADDRESS L6
+	PUSH_RETURN_ADDRESS L7
+	PUSH_RETURN_ADDRESS L8
+	LOAD_FAST 5
+	CALL_SYMBOL 8, 1
+.L8:
+	LOAD_FAST 6
+	CALL 1
+.L7:
+	CALL_SYMBOL 5, 1
+.L6:
+	RET 0
+	HALT 0
+
+page_8 (lambda:_pred (1 argument) function, scoped)
+	STORE 8
+	CAPTURE 8
+	MAKE_CLOSURE 12
+	RET 0
+	HALT 0
+
+page_9 (#anonymous (1 argument) closure, scoped)
+	STORE 5
+	CAPTURE 8
+	CAPTURE 5
+	MAKE_CLOSURE 13
+	RET 0
+	HALT 0
+
+page_10 (#anonymous (1 argument) closure, scoped)
+	STORE 6
+	PUSH_RETURN_ADDRESS L9
+	PUSH_RETURN_ADDRESS L10
+	PUSH_RETURN_ADDRESS L11
+	CAPTURE 5
+	MAKE_CLOSURE 14
+	CALL_SYMBOL 8, 1
+.L11:
+	CAPTURE 6
+	MAKE_CLOSURE 16
+	CALL 1
+.L10:
+	LOAD_CONST 17
+	CALL 1
+.L9:
+	RET 0
+	HALT 0
+
+page_11 (#anonymous (1 argument) closure, scoped)
+	STORE 1
+	CAPTURE 1
+	CAPTURE 5
+	MAKE_CLOSURE 15
+	RET 0
+	HALT 0
+
+page_12 (#anonymous (1 argument) closure, scoped)
+	STORE 10
+	PUSH_RETURN_ADDRESS L12
+	PUSH_RETURN_ADDRESS L13
+	LOAD_FAST 5
+	CALL_SYMBOL 1, 1
+.L13:
+	CALL_SYMBOL 10, 1
+.L12:
+	RET 0
+	HALT 0
+
+page_13 (#anonymous (1 argument) simple closure, scoped)
+	STORE 11
+	LOAD_FAST 6
+	RET 0
+	HALT 0
+
+page_14 (#anonymous (1 argument) simple function, scoped)
+	STORE 12
+	LOAD_FAST_BY_INDEX 0
+	RET 0
+	HALT 0
+
+page_15 (lambda:read_church (1 argument) function, scoped)
+	STORE 8
+	PUSH_RETURN_ADDRESS L15
+	PUSH_RETURN_ADDRESS L16
+	LOAD_CONST 19
+	CALL_SYMBOL_BY_INDEX 0, 1
+.L16:
+	LOAD_CONST 21
+	CALL 1
+.L15:
+	RET 0
+	HALT 0
+
+page_16 (#anonymous (1 argument) simple function, scoped)
+	STORE 6
+	LOAD_FAST_BY_INDEX 0
+	LOAD_CONST 20
+	ADD 0
+	RET 0
+	HALT 0

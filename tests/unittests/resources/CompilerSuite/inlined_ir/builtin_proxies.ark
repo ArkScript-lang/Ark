@@ -1,0 +1,7 @@
+(let ord (fun (_str) (builtin__string:ord _str)))
+(let chr (fun (_str) (builtin__string:chr _str)))
+(let findAfter (fun (_L _x _idx) (builtin__list:find _L _x _idx)))
+
+(print (ord "a"))
+(print (chr 65))
+(print (findAfter [0 1 2 3 4 5 6 7 8 9] 8 5))

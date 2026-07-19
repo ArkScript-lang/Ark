@@ -124,6 +124,30 @@ ut::suite<"Compiler"> compiler_suite = [] {
                         updateExpectedFile(data, ir);
                 };
             });
+    };
+
+    "IR generation and inlining"_test = [] {
+        constexpr uint16_t features = featuresNoOpti | Ark::FeatureIRInliner;
+
+        iterTestFiles(
+            "CompilerSuite/inlined_ir",
+            [](TestData&& data) {
+                Ark::Welder welder(0, { lib_path }, features);
+
+                should("compile without error inlined_ir/" + data.stem) = [&] {
+                    expect(mut(welder).computeASTFromFile(data.path));
+                    expect(mut(welder).generateBytecode());
+                };
+
+                should("output expected inlined IR for " + data.stem) = [&] {
+                    std::string ir = welder.textualIR();
+
+                    Ark::Utils::ltrim(Ark::Utils::rtrim(ir));
+                    expectOrDiff(data.expected, ir);
+                    if (shouldWriteNewDiffsTofile() && data.expected != ir)
+                        updateExpectedFile(data, ir);
+                };
+            });
 
         // todo: ir inliner
     };

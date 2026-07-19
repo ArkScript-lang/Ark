@@ -1,0 +1,6 @@
+(let test (fun () {
+  (let g (fun (b) b))
+  (let res (g 2))
+  (print (format "(g 2) = {} = 2 ? {}" res (if (= res 2) "OK" "FAIL"))) }))
+
+(test)

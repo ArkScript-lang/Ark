@@ -1,0 +1,16 @@
+(let _zero (fun (f) (fun (x) x)))
+(let _succ (fun (n)
+  (fun (f &n)
+    (fun (x &n &f)
+      (f ((n f) x))))))
+(let _pred (fun (n)
+  (fun (f &n)
+    (fun (x &n &f)
+      (((n (fun (g &f) (fun (h &g &f) (h (g f))))) (fun (u &x) x)) (fun (a) a))))))
+(let _one (_succ _zero))
+
+(let read_church (fun (n)
+  ((n (fun (x) (+ x 1))) 0)))
+
+(let res (read_church (_pred _one)))
+(print (format "(_pred _one) = {} = 0 ? {}" res (if (= res 0) "OK" "FAIL")))
