@@ -81,7 +81,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (create-human (3 arguments) function)
+page_1 (create-human (3 arguments) mutating function)
 	STORE 1
 	STORE 2
 	STORE 3

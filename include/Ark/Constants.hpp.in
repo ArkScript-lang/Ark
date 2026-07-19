@@ -74,6 +74,7 @@ namespace Ark
     constexpr uint16_t DefaultFeatures =
         FeatureImportSolver
         | FeatureMacroProcessor
+        | FeatureIRInliner
         | FeatureIROptimiser
         | FeatureNameResolver;
 

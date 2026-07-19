@@ -17,7 +17,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (foo (2 arguments) simple function)
+page_1 (foo (2 arguments) simple mutating function)
 	STORE_REF 1
 	STORE 2
 	LOAD_FAST_BY_INDEX 1
