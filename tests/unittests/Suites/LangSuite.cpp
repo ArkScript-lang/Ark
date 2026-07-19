@@ -37,27 +37,30 @@ void testResource(Ark::State& state, const bool is_res, const std::string& path,
 ut::suite<"Lang"> lang_suite = [] {
     using namespace ut;
 
+    constexpr uint16_t features_no_inline = Ark::FeatureImportSolver | Ark::FeatureMacroProcessor | Ark::FeatureIROptimiser | Ark::FeatureNameResolver;
+    constexpr uint16_t features_inline = Ark::FeatureIRInliner | Ark::FeatureImportSolver | Ark::FeatureMacroProcessor | Ark::FeatureIROptimiser | Ark::FeatureNameResolver;
+
     "run arkscript unittests"_test = [] {
         "without IR inliner"_test = [] {
             Ark::State state({ lib_path, unittests_path });
-            testResource(state, /* is_res= */ true, "LangSuite/unittests.ark", Ark::DefaultFeatures & ~Ark::FeatureIRInliner);
+            testResource(state, /* is_res= */ true, "LangSuite/unittests.ark", features_no_inline);
         };
 
         "with IR inliner"_test = [] {
             Ark::State state({ lib_path, unittests_path });
-            testResource(state, /* is_res= */ true, "LangSuite/unittests.ark", Ark::DefaultFeatures);
+            testResource(state, /* is_res= */ true, "LangSuite/unittests.ark", features_inline);
         };
     };
 
     "run arkscript stdlib unittests"_test = [] {
         "without IR inliner"_test = [] {
             Ark::State state({ lib_path });
-            testResource(state, /* is_res= */ false, ARK_TESTS_ROOT "lib/std/tests/all.ark", Ark::DefaultFeatures & ~Ark::FeatureIRInliner);
+            testResource(state, /* is_res= */ false, ARK_TESTS_ROOT "lib/std/tests/all.ark", features_no_inline);
         };
 
         "with IR inliner"_test = [] {
             Ark::State state({ lib_path });
-            testResource(state, /* is_res= */ false, ARK_TESTS_ROOT "lib/std/tests/all.ark", Ark::DefaultFeatures);
+            testResource(state, /* is_res= */ false, ARK_TESTS_ROOT "lib/std/tests/all.ark", features_inline);
         };
     };
 };

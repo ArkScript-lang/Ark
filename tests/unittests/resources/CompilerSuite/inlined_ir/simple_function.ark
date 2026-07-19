@@ -1,0 +1,18 @@
+(let ord (fun (_str) 70))
+(let in_range (fun (val a b) (and (>= val a) (<= val b))))
+
+(let toLower (fun (text) {
+  (mut _index 0)
+  (mut _e "")
+  (mut _output "")
+
+  (while (< _index (len text)) {
+    (set _e (@ text _index))
+
+    (if (in_range (ord _e) 65 90)
+      (set _e "t"))
+    (set _output (+ _output _e))
+    (set _index (+ _index 1)) })
+  _output }))
+
+(print (toLower "T"))
