@@ -185,13 +185,20 @@ namespace Ark::internal
     void IRInliner::inlineBlock(const IR::Block& inlinee, IR::Block& destination)
     {
         if (destination.metadata.addr == 0)
-            m_logger.debug("Inlining call to '{}' ({}) inside global scope", inlinee.debugName(), inlinee.metadataRepr());
+            m_logger.info("Inlining call to '{}' ({}) inside global scope", inlinee.debugName(), inlinee.metadataRepr());
         else
-            m_logger.debug("Inlining call to '{}' ({}) inside '{}' @ {}", inlinee.debugName(), inlinee.metadataRepr(), destination.debugName(), destination.metadata.addr);
+            m_logger.info(
+                "Inlining call to '{}' ({} from '{}') inside '{}' @ {}, from '{}'",
+                inlinee.debugName(),
+                inlinee.metadataRepr(),
+                inlinee.data.front().filename(),
+                destination.debugName(),
+                destination.metadata.addr,
+                destination.data.front().filename());
 
         if (auto inst = isBuiltinProxy(inlinee); inst.has_value())
         {
-            m_logger.debug("  -> builtin proxy with args ({}, {})", inst->primaryArg(), inst->secondaryArg());
+            m_logger.info("  -> builtin proxy with args ({}, {})", inst->primaryArg(), inst->secondaryArg());
             destination.data.emplace_back(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, inst->primaryArg(), inst->secondaryArg());
             return;
         }
