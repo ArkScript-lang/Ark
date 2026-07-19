@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <limits>
 
 namespace Ark::internal
 {
@@ -42,18 +43,23 @@ namespace Ark::internal
                 const auto& entity = block.data[i];
 
                 std::optional<uint16_t> maybe_id;
+                std::size_t argc = std::numeric_limits<std::size_t>::max();
                 CallKind kind = CallKind::Symbol;
 
                 if (entity.inst() == CALL_SYMBOL || entity.inst() == CALL_SYMBOL_BY_INDEX)
+                {
                     maybe_id = entity.originalSymbolId();
+                    argc = entity.secondaryArg();
+                }
                 else if (entity.inst() == CALL)
                 {
                     // TODO: find the function being called, check if it's a constant, then if we know it
                     maybe_id = {};
+                    argc = entity.primaryArg();
                     kind = CallKind::Constant;
                 }
 
-                if (const auto maybe_block = blockToInlineInCall(kind, pages, maybe_id, block); maybe_block.has_value())
+                if (const auto maybe_block = blockToInlineInCall(kind, pages, maybe_id, block, argc); maybe_block.has_value())
                 {
                     const IR::Block& inlinee = pages[maybe_block->addr];
 
@@ -88,7 +94,7 @@ namespace Ark::internal
         return m_ir;
     }
 
-    bool IRInliner::canBeInlined(const IR::Block& candidate, const IR::Block& source) noexcept
+    bool IRInliner::canBeInlined(const IR::Block& candidate, const IR::Block& source, const std::size_t argc) noexcept
     {
         const std::size_t candidate_inst_count = candidate.instructionCount(),
                           source_inst_count = source.instructionCount();
@@ -96,6 +102,7 @@ namespace Ark::internal
         if (candidate.metadata.is_closure ||
             candidate.metadata.is_recursive ||
             candidate.metadata.is_mutating_args ||
+            candidate.metadata.argument_count != argc ||
             candidate.metadata.name.value_or(std::string(IR::AnonymousBlockName)) == IR::AnonymousBlockName ||
             std::cmp_greater_equal(candidate_inst_count + source_inst_count, MaxValue16Bits))
             return false;
@@ -103,7 +110,12 @@ namespace Ark::internal
         return candidate.metadata.is_simple && candidate_inst_count < 24;
     }
 
-    std::optional<BlockInfo> IRInliner::blockToInlineInCall(const CallKind kind, const std::vector<IR::Block>& pages, const std::optional<uint16_t> maybe_id, const IR::Block& current) const noexcept
+    std::optional<BlockInfo> IRInliner::blockToInlineInCall(
+        const CallKind kind,
+        const std::vector<IR::Block>& pages,
+        const std::optional<uint16_t> maybe_id,
+        const IR::Block& current,
+        const std::size_t argc) const noexcept
     {
         if (!maybe_id.has_value())
             return std::nullopt;
@@ -114,7 +126,7 @@ namespace Ark::internal
             return std::nullopt;
 
         const std::size_t block_addr = maybe_block->addr;
-        if (canBeInlined(pages[block_addr], current))
+        if (canBeInlined(pages[block_addr], current, argc))
             return maybe_block;
         return std::nullopt;
     }

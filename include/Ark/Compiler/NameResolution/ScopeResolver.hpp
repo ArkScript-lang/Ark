@@ -119,7 +119,7 @@ namespace Ark::internal
     private:
         std::vector<std::unique_ptr<StaticScope>> m_scopes;
 
-        std::string currentNamespace() const;
+        [[nodiscard]] std::string currentNamespace() const;
     };
 }
 
