@@ -171,6 +171,7 @@ namespace Ark::internal
         // @role Reset the current scope so that it is empty, and jump to a given location
         RESET_SCOPE_JUMP = 0x25,
 
+        // @args mode: if 1: materialise the top of the stack if it's a reference, else: just destroy the scope
         // @role Destroy the last local scope
         POP_SCOPE = 0x26,
 
