@@ -1,0 +1,56 @@
+global
+	LOAD_CONST 0
+	STORE 0
+	PUSH_RETURN_ADDRESS L0
+	LOAD_CONST 2
+	CALL 0
+.L0:
+	POP 0
+	HALT 0
+
+page_1 (h (0 arguments) simple function, 3 instructions)
+	LOAD_CONST 1
+	RET 0
+	HALT 0
+
+page_2 (#anonymous (0 arguments) function, 14 instructions)
+	LOAD_CONST 3
+	STORE 0
+	PUSH_RETURN_ADDRESS L1
+	LOAD_CONST 5
+	CALL 0
+.L1:
+	POP 0
+	PUSH_RETURN_ADDRESS L4
+	LOAD_CONST 6
+	LOAD_FAST_BY_INDEX 0
+	CALL 1
+.L4:
+	RET 0
+	HALT 0
+
+page_3 (h (0 arguments) simple function, 3 instructions)
+	LOAD_CONST 4
+	RET 0
+	HALT 0
+
+page_4 (#anonymous (0 arguments) function, 8 instructions)
+	PUSH_RETURN_ADDRESS L2
+	PUSH_RETURN_ADDRESS L3
+	CALL_SYMBOL 0, 0
+.L3:
+	CALL_BUILTIN 9, 1
+.L2:
+	RET 0
+	HALT 0
+
+page_5 (#anonymous (1 argument) function, 9 instructions)
+	STORE 0
+	PUSH_RETURN_ADDRESS L5
+	PUSH_RETURN_ADDRESS L6
+	CALL_SYMBOL_BY_INDEX 0, 0
+.L6:
+	CALL_BUILTIN 9, 1
+.L5:
+	RET 0
+	HALT 0

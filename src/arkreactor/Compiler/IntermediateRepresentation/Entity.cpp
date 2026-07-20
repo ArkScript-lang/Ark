@@ -85,8 +85,8 @@ namespace Ark::internal::IR
         m_metadata.source_line = line;
     }
 
-    void Entity::setOriginalSymbolId(const std::optional<uint16_t> id)
+    void Entity::setRelatedResourceId(const std::optional<uint16_t> id)
     {
-        m_metadata.symbol_id = id;
+        m_metadata.related_res_id = id;
     }
 }

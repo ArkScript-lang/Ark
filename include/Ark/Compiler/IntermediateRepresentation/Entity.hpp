@@ -202,7 +202,7 @@ namespace Ark::internal::IR
          */
         void setSourceLocation(const std::string& filename, std::size_t line);
 
-        void setOriginalSymbolId(std::optional<uint16_t> id);
+        void setRelatedResourceId(std::optional<uint16_t> id);
 
         [[nodiscard]] bool hasValidSourceLocation() const { return !m_metadata.source_file.empty(); }
 
@@ -211,11 +211,11 @@ namespace Ark::internal::IR
         [[nodiscard]] std::size_t sourceLine() const { return m_metadata.source_line; }
 
         /**
-         * @brief Return the original symbol id an IR Entity refers to (only populated for LOAD_FAST_BY_INDEX, CALL_SYMBOL_BY_INDEX, and CALL_SYMBOL)
+         * @brief Return the related constant/symbol id an IR Entity refers to (only populated for LOAD_FAST_BY_INDEX, CALL_SYMBOL_BY_INDEX, CALL_SYMBOL, and CALL)
          *
          * @return std::optional<uint16_t>
          */
-        [[nodiscard]] std::optional<uint16_t> originalSymbolId() const { return m_metadata.symbol_id; }
+        [[nodiscard]] std::optional<uint16_t> relatedResourceId() const { return m_metadata.related_res_id; }
 
     private:
         Kind m_kind;
@@ -230,7 +230,7 @@ namespace Ark::internal::IR
         {
             std::string source_file;
             std::size_t source_line { 0 };
-            std::optional<uint16_t> symbol_id;  ///< Used by a few instructions to know the original symbol id and deoptimize when necessary
+            std::optional<uint16_t> related_res_id;  ///< Used by a few instructions to know the original symbol/constant id and deoptimize when necessary
         } m_metadata;
     };
 

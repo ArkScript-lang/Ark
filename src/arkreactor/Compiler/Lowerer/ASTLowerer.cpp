@@ -340,7 +340,7 @@ namespace Ark::internal
                 const std::optional<std::size_t> maybe_local_idx = m_locals_locator.lookupLastScopeByName(name);
                 const uint16_t symbol_id = addSymbol(x);
                 if (maybe_local_idx.has_value())
-                    page(p).emplace_back(LOAD_FAST_BY_INDEX, static_cast<uint16_t>(maybe_local_idx.value())).setOriginalSymbolId(symbol_id);
+                    page(p).emplace_back(LOAD_FAST_BY_INDEX, static_cast<uint16_t>(maybe_local_idx.value())).setRelatedResourceId(symbol_id);
                 else
                     page(p).emplace_back(LOAD_FAST, symbol_id);
             }
@@ -988,6 +988,8 @@ namespace Ark::internal
                     call_arg = arg;
                     page(proc_page).clear();
                 }
+                else if (inst == LOAD_CONST)
+                    call_arg = arg;
             }
         }
 
@@ -1002,7 +1004,7 @@ namespace Ark::internal
         switch (call_type)
         {
             case CallType::Classic:
-                page(p).emplace_back(CALL, args_count);
+                page(p).emplace_back(CALL, args_count).setRelatedResourceId(call_arg);
                 break;
 
             case CallType::SelfNotRecursive:
@@ -1011,7 +1013,7 @@ namespace Ark::internal
 
             case CallType::Symbol:
                 assert(call_arg.has_value() && "Expected a value for call_arg with CallType::Symbol");
-                page(p).emplace_back(CALL_SYMBOL, call_arg.value(), args_count).setOriginalSymbolId(call_arg.value());
+                page(p).emplace_back(CALL_SYMBOL, call_arg.value(), args_count).setRelatedResourceId(call_arg.value());
                 break;
 
             case CallType::SymbolByIndex:
@@ -1019,7 +1021,7 @@ namespace Ark::internal
                 const Page temp_page = createNewCodePage({ .temp = true });
                 compileExpression(node, temp_page, false, false, true);
                 assert(page(temp_page).size() == 1 && page(temp_page).back().inst() == LOAD_FAST_BY_INDEX);
-                page(p).emplace_back(CALL_SYMBOL_BY_INDEX, page(temp_page).back().primaryArg(), args_count).setOriginalSymbolId(page(temp_page).back().originalSymbolId());
+                page(p).emplace_back(CALL_SYMBOL_BY_INDEX, page(temp_page).back().primaryArg(), args_count).setRelatedResourceId(page(temp_page).back().relatedResourceId());
                 m_temp_pages.pop_back();
                 break;
             }
