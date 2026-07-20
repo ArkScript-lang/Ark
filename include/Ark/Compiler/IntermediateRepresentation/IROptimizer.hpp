@@ -93,7 +93,7 @@ namespace Ark::internal
         std::vector<ValTableElem> m_values;
 
         [[nodiscard]] bool match(const std::vector<Instruction>& expected_insts, std::span<const IR::Entity> entities) const;
-        [[nodiscard]] bool canBeOptimizedSafely(std::span<const IR::Entity> entities, std::size_t window_size) const;
+        [[nodiscard]] static bool canBeOptimisedSafely(std::span<const IR::Entity> entities, std::size_t window_size, std::size_t position_in_block);
         std::optional<EntityWithOffset> replaceWithRules(std::span<const IR::Entity> entities, std::size_t position_in_block);
 
         [[nodiscard]] bool isPositiveNumberInlinable(uint16_t id) const;
