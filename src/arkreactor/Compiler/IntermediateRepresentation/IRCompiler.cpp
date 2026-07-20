@@ -77,12 +77,13 @@ namespace Ark::internal
             {
                 fmt::println(
                     stream,
-                    "page_{} ({} ({} argument{}) {})",
+                    "page_{} ({} ({} argument{}) {}, {} instructions)",
                     index,
                     block.debugName(),
                     block.metadata.argument_count,
                     block.metadata.argument_count == 1 ? "" : "s",
-                    block.metadataRepr());
+                    block.metadataRepr(),
+                    block.data.size());
             }
 
             for (const auto& entity : block.data)

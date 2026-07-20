@@ -81,7 +81,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (create-human (3 arguments) mutating function)
+page_1 (create-human (3 arguments) mutating function, 12 instructions)
 	STORE 1
 	STORE 2
 	STORE 3
@@ -95,7 +95,7 @@ page_1 (create-human (3 arguments) mutating function)
 	RET 0
 	HALT 0
 
-page_2 (set-age (1 argument) simple function)
+page_2 (set-age (1 argument) simple function, 6 instructions)
 	STORE 5
 	LOAD_FAST_BY_INDEX 0
 	SET_VAL 2
@@ -103,19 +103,19 @@ page_2 (set-age (1 argument) simple function)
 	RET 0
 	HALT 0
 
-page_3 (#anonymous (0 arguments) simple closure)
+page_3 (#anonymous (0 arguments) simple closure, 3 instructions)
 	BUILTIN 2
 	RET 0
 	HALT 0
 
-page_4 (countdown-from (1 argument) function)
+page_4 (countdown-from (1 argument) function, 5 instructions)
 	STORE 9
 	CAPTURE 9
 	MAKE_CLOSURE 15
 	RET 0
 	HALT 0
 
-page_5 (#anonymous (0 arguments) simple closure)
+page_5 (#anonymous (0 arguments) simple closure, 7 instructions)
 	LOAD_FAST 9
 	LOAD_CONST 16
 	SUB 0

@@ -46,7 +46,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (weird:test (0 arguments) function, scoped)
+page_1 (weird:test (0 arguments) function, 26 instructions)
 	LOAD_CONST 1
 	STORE 1
 	PUSH_RETURN_ADDRESS L0
@@ -74,32 +74,32 @@ page_1 (weird:test (0 arguments) function, scoped)
 	RET 0
 	HALT 0
 
-page_2 (g (1 argument) simple function, scoped)
+page_2 (g (1 argument) simple function, 4 instructions)
 	STORE 2
 	LOAD_FAST_BY_INDEX 0
 	RET 0
 	HALT 0
 
-page_3 (lambda:_zero (1 argument) simple function, scoped)
+page_3 (lambda:_zero (1 argument) simple function, 4 instructions)
 	STORE 5
 	LOAD_CONST 7
 	RET 0
 	HALT 0
 
-page_4 (#anonymous (1 argument) simple function, scoped)
+page_4 (#anonymous (1 argument) simple function, 4 instructions)
 	STORE 6
 	LOAD_FAST_BY_INDEX 0
 	RET 0
 	HALT 0
 
-page_5 (lambda:_succ (1 argument) function, scoped)
+page_5 (lambda:_succ (1 argument) function, 5 instructions)
 	STORE 8
 	CAPTURE 8
 	MAKE_CLOSURE 9
 	RET 0
 	HALT 0
 
-page_6 (#anonymous (1 argument) closure, scoped)
+page_6 (#anonymous (1 argument) closure, 6 instructions)
 	STORE 5
 	CAPTURE 8
 	CAPTURE 5
@@ -107,7 +107,7 @@ page_6 (#anonymous (1 argument) closure, scoped)
 	RET 0
 	HALT 0
 
-page_7 (#anonymous (1 argument) closure, scoped)
+page_7 (#anonymous (1 argument) closure, 14 instructions)
 	STORE 6
 	PUSH_RETURN_ADDRESS L6
 	PUSH_RETURN_ADDRESS L7
@@ -123,14 +123,14 @@ page_7 (#anonymous (1 argument) closure, scoped)
 	RET 0
 	HALT 0
 
-page_8 (lambda:_pred (1 argument) function, scoped)
+page_8 (lambda:_pred (1 argument) function, 5 instructions)
 	STORE 8
 	CAPTURE 8
 	MAKE_CLOSURE 12
 	RET 0
 	HALT 0
 
-page_9 (#anonymous (1 argument) closure, scoped)
+page_9 (#anonymous (1 argument) closure, 6 instructions)
 	STORE 5
 	CAPTURE 8
 	CAPTURE 5
@@ -138,7 +138,7 @@ page_9 (#anonymous (1 argument) closure, scoped)
 	RET 0
 	HALT 0
 
-page_10 (#anonymous (1 argument) closure, scoped)
+page_10 (#anonymous (1 argument) closure, 17 instructions)
 	STORE 6
 	PUSH_RETURN_ADDRESS L9
 	PUSH_RETURN_ADDRESS L10
@@ -157,7 +157,7 @@ page_10 (#anonymous (1 argument) closure, scoped)
 	RET 0
 	HALT 0
 
-page_11 (#anonymous (1 argument) closure, scoped)
+page_11 (#anonymous (1 argument) closure, 6 instructions)
 	STORE 1
 	CAPTURE 1
 	CAPTURE 5
@@ -165,7 +165,7 @@ page_11 (#anonymous (1 argument) closure, scoped)
 	RET 0
 	HALT 0
 
-page_12 (#anonymous (1 argument) closure, scoped)
+page_12 (#anonymous (1 argument) closure, 10 instructions)
 	STORE 10
 	PUSH_RETURN_ADDRESS L12
 	PUSH_RETURN_ADDRESS L13
@@ -177,19 +177,19 @@ page_12 (#anonymous (1 argument) closure, scoped)
 	RET 0
 	HALT 0
 
-page_13 (#anonymous (1 argument) simple closure, scoped)
+page_13 (#anonymous (1 argument) simple closure, 4 instructions)
 	STORE 11
 	LOAD_FAST 6
 	RET 0
 	HALT 0
 
-page_14 (#anonymous (1 argument) simple function, scoped)
+page_14 (#anonymous (1 argument) simple function, 4 instructions)
 	STORE 12
 	LOAD_FAST_BY_INDEX 0
 	RET 0
 	HALT 0
 
-page_15 (lambda:read_church (1 argument) function, scoped)
+page_15 (lambda:read_church (1 argument) function, 11 instructions)
 	STORE 8
 	PUSH_RETURN_ADDRESS L15
 	PUSH_RETURN_ADDRESS L16
@@ -202,7 +202,7 @@ page_15 (lambda:read_church (1 argument) function, scoped)
 	RET 0
 	HALT 0
 
-page_16 (#anonymous (1 argument) simple function, scoped)
+page_16 (#anonymous (1 argument) simple function, 6 instructions)
 	STORE 6
 	LOAD_FAST_BY_INDEX 0
 	LOAD_CONST 20

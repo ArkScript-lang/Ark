@@ -25,7 +25,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (f (2 arguments) recursive simple function)
+page_1 (f (2 arguments) recursive simple function, 9 instructions)
 	STORE 1
 	STORE 2
 	LOAD_SYMBOL 1
@@ -36,7 +36,7 @@ page_1 (f (2 arguments) recursive simple function)
 	RET 0
 	HALT 0
 
-page_2 (g (2 arguments) recursive simple function)
+page_2 (g (2 arguments) recursive simple function, 9 instructions)
 	STORE 1
 	STORE 2
 	LOAD_SYMBOL 1
@@ -47,7 +47,7 @@ page_2 (g (2 arguments) recursive simple function)
 	RET 0
 	HALT 0
 
-page_3 (h (2 arguments) recursive simple function)
+page_3 (h (2 arguments) recursive simple function, 12 instructions)
 	STORE 1
 	STORE 2
 	LOAD_CONST 5
