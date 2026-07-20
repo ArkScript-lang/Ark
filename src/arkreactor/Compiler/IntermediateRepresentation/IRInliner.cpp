@@ -201,6 +201,7 @@ namespace Ark::internal
 
     void IRInliner::inlineBlock(const IR::Block& inlinee, IR::Block& destination)
     {
+        // todo: redo the filename lookup
         if (destination.metadata.addr == 0)
             m_logger.info("Inlining call to '{}' ({}) inside global scope", inlinee.debugName(), inlinee.metadataRepr());
         else
@@ -216,13 +217,13 @@ namespace Ark::internal
         if (auto inst = isBuiltinProxy(inlinee); inst.has_value())
         {
             m_logger.info("  -> builtin proxy with args ({}, {})", inst->primaryArg(), inst->secondaryArg());
-            destination.data.emplace_back(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, inst->primaryArg(), inst->secondaryArg());
+            destination.data
+                .emplace_back(CALL_BUILTIN_WITHOUT_RETURN_ADDRESS, inst->primaryArg(), inst->secondaryArg())
+                .setSourceLocation(inst->filename(), inst->sourceLine());
             return;
         }
 
         // TODO: do a better inlining job
-        //       this can currently fuck up symbol indices (LOAD_FAST_BY_ID), overwrite variables from the parents, and maybe more
-        //       -> fixed if we put a scope around
         // TODO: decide if we want to keep create_scope, (inlinee), pop_scope
         destination.data.emplace_back(CREATE_SCOPE);
 
@@ -251,9 +252,13 @@ namespace Ark::internal
                 destination.data.emplace_back(labelled_entity);
             }
             else if (entity.inst() == LOAD_FAST_BY_INDEX)
-                destination.data.emplace_back(LOAD_FAST, entity.originalSymbolId().value());
+                destination.data
+                    .emplace_back(LOAD_FAST, entity.originalSymbolId().value())
+                    .setSourceLocation(entity.filename(), entity.sourceLine());
             else if (entity.inst() == CALL_SYMBOL_BY_INDEX)
-                destination.data.emplace_back(CALL_SYMBOL, entity.originalSymbolId().value(), entity.secondaryArg());
+                destination.data
+                    .emplace_back(CALL_SYMBOL, entity.originalSymbolId().value(), entity.secondaryArg())
+                    .setSourceLocation(entity.filename(), entity.sourceLine());
             else
                 destination.data.emplace_back(entity);
         }
@@ -296,9 +301,6 @@ namespace Ark::internal
             }
         }
 
-        // todo: count how many times a symbol is STORE-d/STORE_REF-d
-        //       because we don't want to inline something that has been defined multiple times, we could mess up!
-        //       the IR does not have enough data to do that correctly.
         for (const IR::Block& page : pages)
         {
             for (const IR::Entity& entity : page.data)

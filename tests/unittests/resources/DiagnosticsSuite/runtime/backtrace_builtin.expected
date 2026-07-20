@@ -14,8 +14,3 @@ In file /lib/std/List.ark:206
       | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   207 |
   208 | # @brief Check if a List is sorted
-
-[   2] In function `list:sort' (/lib/std/List.ark:206)
-[   1] In global scope (tests/unittests/resources/DiagnosticsSuite/runtime/backtrace_builtin.ark:3)
-
-Current scope variables values:
