@@ -25,7 +25,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (abs (1 argument) simple function, scoped)
+page_1 (abs (1 argument) simple function, 14 instructions)
 	STORE 1
 	LOAD_FAST_BY_INDEX 0
 	LOAD_CONST 1
@@ -41,7 +41,7 @@ page_1 (abs (1 argument) simple function, scoped)
 	RET 0
 	HALT 0
 
-page_2 (gcd (2 arguments) recursive simple function, scoped)
+page_2 (gcd (2 arguments) recursive simple function, 17 instructions)
 	STORE 3
 	STORE 4
 	LOAD_CONST 1
@@ -60,7 +60,7 @@ page_2 (gcd (2 arguments) recursive simple function, scoped)
 	RET 0
 	HALT 0
 
-page_3 (lcm (2 arguments) function, scoped)
+page_3 (lcm (2 arguments) function, 28 instructions)
 	STORE 3
 	STORE 4
 	LOAD_FAST_BY_INDEX 0

@@ -15,13 +15,13 @@ global
 	POP 0
 	HALT 0
 
-page_1 (ord (1 argument) simple function, scoped)
+page_1 (ord (1 argument) simple function, 4 instructions)
 	STORE 1
 	LOAD_CONST 1
 	RET 0
 	HALT 0
 
-page_2 (in_range (3 arguments) simple function, scoped)
+page_2 (in_range (3 arguments) simple function, 13 instructions)
 	STORE 3
 	STORE 4
 	STORE 5
@@ -36,7 +36,7 @@ page_2 (in_range (3 arguments) simple function, scoped)
 	RET 0
 	HALT 0
 
-page_3 (toLower (1 argument) function, scoped)
+page_3 (toLower (1 argument) function, 60 instructions)
 	STORE 7
 	LOAD_CONST 4
 	STORE 8

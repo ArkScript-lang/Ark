@@ -13,7 +13,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (ackermann (2 arguments) recursive simple function)
+page_1 (ackermann (2 arguments) recursive simple function, 37 instructions)
 	STORE 1
 	STORE 2
 	LOAD_FAST_BY_INDEX 0

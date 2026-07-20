@@ -55,7 +55,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (foo (3 arguments) simple function)
+page_1 (foo (3 arguments) simple function, 42 instructions)
 	STORE 1
 	STORE 2
 	STORE 3
@@ -99,12 +99,12 @@ page_1 (foo (3 arguments) simple function)
 	RET 0
 	HALT 0
 
-page_2 (bar (0 arguments) simple function)
+page_2 (bar (0 arguments) simple function, 3 instructions)
 	BUILTIN 2
 	RET 0
 	HALT 0
 
-page_3 (abs (1 argument) simple function)
+page_3 (abs (1 argument) simple function, 15 instructions)
 	STORE 7
 	LOAD_FAST_BY_INDEX 0
 	LOAD_CONST 3

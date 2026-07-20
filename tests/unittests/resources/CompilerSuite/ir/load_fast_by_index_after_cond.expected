@@ -13,7 +13,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (foo (1 argument) simple function)
+page_1 (foo (1 argument) simple function, 19 instructions)
 	STORE 1
 	LOAD_CONST 1
 	STORE 2

@@ -40,7 +40,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (ord (1 argument) simple function, scoped)
+page_1 (ord (1 argument) simple function, 7 instructions)
 	STORE 1
 	PUSH_RETURN_ADDRESS L0
 	LOAD_FAST_BY_INDEX 0
@@ -49,7 +49,7 @@ page_1 (ord (1 argument) simple function, scoped)
 	RET 0
 	HALT 0
 
-page_2 (chr (1 argument) simple function, scoped)
+page_2 (chr (1 argument) simple function, 7 instructions)
 	STORE 1
 	PUSH_RETURN_ADDRESS L1
 	LOAD_FAST_BY_INDEX 0
@@ -58,7 +58,7 @@ page_2 (chr (1 argument) simple function, scoped)
 	RET 0
 	HALT 0
 
-page_3 (findAfter (3 arguments) simple function, scoped)
+page_3 (findAfter (3 arguments) simple function, 11 instructions)
 	STORE 4
 	STORE 5
 	STORE 6
