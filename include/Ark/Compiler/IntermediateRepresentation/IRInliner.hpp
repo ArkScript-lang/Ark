@@ -30,6 +30,13 @@ namespace Ark::internal
         std::optional<std::size_t> symbol_id;
     };
 
+    struct SymbolData
+    {
+        std::string name;
+        std::size_t declarations_count;
+        std::size_t use_count;
+    };
+
     class ARK_API IRInliner final : public Pass
     {
     public:
@@ -62,6 +69,7 @@ namespace Ark::internal
         std::vector<std::string> m_symbols;
         std::vector<ValTableElem> m_values;
         std::vector<BlockInfo> m_funcs;
+        std::unordered_map<long, SymbolData> m_symbols_data;
         IR::label_t m_current_label;
 
         enum class CallKind

@@ -125,6 +125,11 @@ namespace Ark::internal
         if (!maybe_block.has_value())
             return std::nullopt;
 
+        // If we are trying to inline a function call that seems to have multiple declarations,
+        // abort. We can't be sure that we are inlining the correct version at the moment.
+        if (kind == CallKind::Symbol && m_symbols_data.contains(id) && m_symbols_data.at(id).declarations_count != 1)
+            return std::nullopt;
+
         const std::size_t block_addr = maybe_block->addr;
         if (canBeInlined(pages[block_addr], current, argc))
             return maybe_block;
@@ -272,6 +277,15 @@ namespace Ark::internal
                     return name == sym;
                 });
 
+                if (it_sym != m_symbols.end())
+                {
+                    m_symbols_data[std::distance(m_symbols.begin(), it_sym)] = SymbolData {
+                        .name = name,
+                        .declarations_count = 0,
+                        .use_count = 0
+                    };
+                }
+
                 m_funcs.emplace_back(BlockInfo {
                     .constant_id = static_cast<long>(std::distance(m_values.begin(), it_val)),
                     .addr = i,
@@ -279,6 +293,47 @@ namespace Ark::internal
                     .symbol_id = it_sym == m_symbols.end()
                         ? std::nullopt
                         : std::make_optional(std::distance(m_symbols.begin(), it_sym)) });
+            }
+        }
+
+        // todo: count how many times a symbol is STORE-d/STORE_REF-d
+        //       because we don't want to inline something that has been defined multiple times, we could mess up!
+        //       the IR does not have enough data to do that correctly.
+        for (const IR::Block& page : pages)
+        {
+            for (const IR::Entity& entity : page.data)
+            {
+                switch (entity.inst())
+                {
+                    // use, primary, id
+                    case CALL_SYMBOL: [[fallthrough]];
+                    case LOAD_FAST: [[fallthrough]];
+                    case LOAD_SYMBOL:
+                        if (auto it = m_symbols_data.find(entity.primaryArg()); it != m_symbols_data.end())
+                            it->second.use_count++;
+                        break;
+
+                    // use, attached symbol id
+                    case CALL_SYMBOL_BY_INDEX: [[fallthrough]];
+                    case LOAD_FAST_BY_INDEX:
+                        if (auto maybe_id = entity.originalSymbolId(); maybe_id.has_value())
+                        {
+                            if (auto it = m_symbols_data.find(maybe_id.value()); it != m_symbols_data.end())
+                                it->second.use_count++;
+                        }
+                        break;
+
+                    // declaration, primary, id
+                    case STORE: [[fallthrough]];
+                    case STORE_REF: [[fallthrough]];
+                    case SET_VAL:
+                        if (auto it = m_symbols_data.find(entity.primaryArg()); it != m_symbols_data.end())
+                            it->second.declarations_count++;
+                        break;
+
+                    default:
+                        break;
+                }
             }
         }
     }
