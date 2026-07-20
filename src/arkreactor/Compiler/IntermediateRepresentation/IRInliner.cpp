@@ -20,9 +20,8 @@ namespace Ark::internal
 
         extractPagesMetadata(pages);
 
-        // TODO: we'll need to move some page index if a page is removed!
         // TODO: some pages could be removed if they are inlined everywhere!
-        // TODO: should we start from the end to inline as much as we can? or do we want to inline the user code first, then the stdlib?
+        // TODO: we'll need to move some page index if a page is removed!
         for (const auto& block : pages)
         {
             IR::Block new_block {
@@ -48,13 +47,12 @@ namespace Ark::internal
 
                 if (entity.inst() == CALL_SYMBOL || entity.inst() == CALL_SYMBOL_BY_INDEX)
                 {
-                    maybe_id = entity.originalSymbolId();
+                    maybe_id = entity.relatedResourceId();
                     argc = entity.secondaryArg();
                 }
                 else if (entity.inst() == CALL)
                 {
-                    // TODO: find the function being called, check if it's a constant, then if we know it
-                    maybe_id = {};
+                    maybe_id = entity.relatedResourceId();
                     argc = entity.primaryArg();
                     kind = CallKind::Constant;
                 }
@@ -223,7 +221,7 @@ namespace Ark::internal
             return;
         }
 
-        // TODO: do a better inlining job
+        // TODO: do a better inlining job (we have load ..., create scope, store ..., load ...)
         // TODO: decide if we want to keep create_scope, (inlinee), pop_scope
         destination.data.emplace_back(CREATE_SCOPE);
 
@@ -253,11 +251,11 @@ namespace Ark::internal
             }
             else if (entity.inst() == LOAD_FAST_BY_INDEX)
                 destination.data
-                    .emplace_back(LOAD_FAST, entity.originalSymbolId().value())
+                    .emplace_back(LOAD_FAST, entity.relatedResourceId().value())
                     .setSourceLocation(entity.filename(), entity.sourceLine());
             else if (entity.inst() == CALL_SYMBOL_BY_INDEX)
                 destination.data
-                    .emplace_back(CALL_SYMBOL, entity.originalSymbolId().value(), entity.secondaryArg())
+                    .emplace_back(CALL_SYMBOL, entity.relatedResourceId().value(), entity.secondaryArg())
                     .setSourceLocation(entity.filename(), entity.sourceLine());
             else
                 destination.data.emplace_back(entity);
@@ -318,7 +316,7 @@ namespace Ark::internal
                     // use, attached symbol id
                     case CALL_SYMBOL_BY_INDEX: [[fallthrough]];
                     case LOAD_FAST_BY_INDEX:
-                        if (auto maybe_id = entity.originalSymbolId(); maybe_id.has_value())
+                        if (auto maybe_id = entity.relatedResourceId(); maybe_id.has_value())
                         {
                             if (auto it = m_symbols_data.find(maybe_id.value()); it != m_symbols_data.end())
                                 it->second.use_count++;

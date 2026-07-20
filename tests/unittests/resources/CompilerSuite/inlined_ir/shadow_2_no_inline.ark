@@ -1,0 +1,5 @@
+(let h (fun () 1))
+((fun () {
+  (let h (fun () 2))
+  ((fun () (print (h))))
+  ((fun (h) (print (h))) h) }))
