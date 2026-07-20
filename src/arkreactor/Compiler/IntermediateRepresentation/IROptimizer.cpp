@@ -318,12 +318,17 @@ namespace Ark::internal
         return true;
     }
 
-    bool IROptimizer::canBeOptimizedSafely(std::span<const IR::Entity> entities, std::size_t window_size) const
+    bool IROptimizer::canBeOptimisedSafely(std::span<const IR::Entity> entities, const std::size_t window_size, const std::size_t position_in_block)
     {
-        // check that we can actually safely apply the optimization on the given instructions
+        // check that we can actually safely apply the optimisation on the given instructions
         return std::ranges::none_of(
             entities | std::ranges::views::take(window_size),
-            [](const IR::Entity& entity) {
+            [position_in_block, window_size](const IR::Entity& entity) {
+                // We need to check that we aren't optimising code using labels that could be beyond the
+                // 12 bits limits (0-4095), otherwise when translating a label to its position,
+                // we'll get the wrong value and force a wrong jump!
+                if (entity.hasLabel() && position_in_block > IR::MaxValueForDualArg + window_size)
+                    return true;
                 return entity.primaryArg() > IR::MaxValueForDualArg;
             });
     }
@@ -335,8 +340,8 @@ namespace Ark::internal
             if (match(expected, entities) && condition(entities, position_in_block))
             {
                 const std::size_t window_size = expected.size();
-                if (!canBeOptimizedSafely(entities, window_size))
-                    return std::nullopt;  // no need to try other optimizations, they won't be applied either
+                if (!canBeOptimisedSafely(entities, window_size, position_in_block))
+                    return std::nullopt;  // no need to try other optimisations, they won't be applied either
 
                 auto output = createReplacement(entities);
 
