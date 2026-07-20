@@ -1,12 +1,14 @@
 ptr
 stack
 locals
+scopes
 c
 stack
 locals 1
 locals 2
 locals 3
 locals
+scopes 2
 c
 stack
 locals
