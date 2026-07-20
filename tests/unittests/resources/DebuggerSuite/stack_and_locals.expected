@@ -18,6 +18,14 @@ index |  id |      name      |    type   | value
     1 |   0 | f              |  Function | Function@1
     0 |   4 | prn            |     CProc | CProcedure
 
+dbg[pp:0,ip:2]:000> scopes
+There are 1 scope
+
+Scope 0, size: 2
+index |  id |      name      |    type   | value
+    1 |   0 | f              |  Function | Function@1
+    0 |   4 | prn            |     CProc | CProcedure
+
 dbg[pp:0,ip:2]:000> c
 dbg: continue
 
@@ -59,6 +67,19 @@ index |  id |      name      |    type   | value
     2 |   3 | x              |    Number | 1
     1 |   2 | a              |    Number | 1
     0 |   1 | b              |    Number | 2
+
+dbg[pp:1,ip:4]:000> scopes 2
+There are 2 scopes
+
+Scope 1, size: 3
+index |  id |      name      |    type   | value
+    2 |   3 | x              |    Number | 1
+    1 |   2 | a              |    Number | 1
+    0 |   1 | b              |    Number | 2
+Scope 0, size: 2
+index |  id |      name      |    type   | value
+    1 |   0 | f              |  Function | Function@1
+    0 |   4 | prn            |     CProc | CProcedure
 
 dbg[pp:1,ip:4]:000> c
 dbg: continue
