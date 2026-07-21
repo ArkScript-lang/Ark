@@ -13,7 +13,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (#anonymous (0 arguments) function, 12 instructions)
+page_1 (foo (1 argument) simple function, 12 instructions)
 	STORE 1
 	PUSH_RETURN_ADDRESS L0
 	LOAD_FAST_BY_INDEX 0
@@ -27,7 +27,7 @@ page_1 (#anonymous (0 arguments) function, 12 instructions)
 	RET 0
 	HALT 0
 
-page_2 (#anonymous (0 arguments) function, 4 instructions)
+page_2 (bar (1 argument) simple function, 4 instructions)
 	CALL_BUILTIN_WITHOUT_RETURN_ADDRESS 9, 1
 .L2:
 	RET 0

@@ -27,7 +27,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (#anonymous (0 arguments) function, 22 instructions)
+page_1 (foo (0 arguments) simple function, 22 instructions)
 	CHECK_TYPE_OF 0, 1
 	POP_JUMP_IF_TRUE L6
 	JUMP L7

@@ -11,7 +11,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (#anonymous (0 arguments) function, 20 instructions)
+page_1 (fact (1 argument) simple function, 20 instructions)
 	STORE 1
 	LOAD_CONST_STORE 1, 2
 	LOAD_CONST_STORE 2, 3
