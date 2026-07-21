@@ -26,7 +26,7 @@ global
 	APPEND_IN_PLACE_SYM_INDEX 1, 1
 	HALT 0
 
-page_1 (#anonymous (0 arguments) function, 30 instructions)
+page_1 (foo (0 arguments) simple function, 30 instructions)
 	STORE_HEAD 0, 3
 	STORE_TAIL 0, 4
 	STORE_FROM 0, 5

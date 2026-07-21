@@ -249,6 +249,7 @@ namespace Ark::internal
             for (const auto& two : math_ops)
             {
                 for (const auto& three : math_ops)
+                    // cppcheck-suppress useStlAlgorithm
                     m_ruleset.emplace_back(Rule { { one, two, three }, fuseMathOps3 });
                 m_ruleset.emplace_back(Rule { { one, two }, fuseMathOps2 });
             }
@@ -265,7 +266,15 @@ namespace Ark::internal
 
         for (const auto& block : pages)
         {
-            m_ir.emplace_back();
+            m_ir.emplace_back(IR::Block {
+                .metadata = {
+                    .name = block.metadata.name,
+                    .argument_count = block.metadata.argument_count,
+                    .addr = block.metadata.addr,
+                    .is_closure = block.metadata.is_closure,
+                    .is_recursive = block.metadata.is_recursive,
+                    .is_simple = block.metadata.is_simple },
+                .data = {} });
             std::vector<IR::Entity>& current_block = m_ir.back().data;
 
             std::size_t i = 0;

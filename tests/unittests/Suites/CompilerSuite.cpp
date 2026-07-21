@@ -102,20 +102,20 @@ ut::suite<"Compiler"> compiler_suite = [] {
             });
     };
 
-    "IR generation and optimization"_test = [] {
+    "IR generation and optimisation"_test = [] {
         constexpr uint16_t features = featuresNoOpti | Ark::FeatureIROptimiser;
 
         iterTestFiles(
-            "CompilerSuite/optimized_ir",
+            "CompilerSuite/optimised_ir",
             [](TestData&& data) {
                 Ark::Welder welder(0, { lib_path }, features);
 
-                should("compile without error optimized_ir/" + data.stem) = [&] {
+                should("compile without error optimised_ir/" + data.stem) = [&] {
                     expect(mut(welder).computeASTFromFile(data.path));
                     expect(mut(welder).generateBytecode());
                 };
 
-                should("output expected optimized IR for " + data.stem) = [&] {
+                should("output expected optimised IR for " + data.stem) = [&] {
                     std::string ir = welder.textualIR();
 
                     Ark::Utils::ltrim(Ark::Utils::rtrim(ir));
@@ -148,7 +148,29 @@ ut::suite<"Compiler"> compiler_suite = [] {
                         updateExpectedFile(data, ir);
                 };
             });
+    };
 
-        // todo: ir inliner
+    "IR generation, inlining and optimisation"_test = [] {
+        constexpr uint16_t features = featuresNoOpti | Ark::FeatureIRInliner | Ark::FeatureASTOptimiser;
+
+        iterTestFiles(
+            "CompilerSuite/inlined_optimised_ir",
+            [](TestData&& data) {
+                Ark::Welder welder(0, { lib_path }, features);
+
+                should("compile without error inlined_optimised_ir/" + data.stem) = [&] {
+                    expect(mut(welder).computeASTFromFile(data.path));
+                    expect(mut(welder).generateBytecode());
+                };
+
+                should("output expected inlined IR for " + data.stem) = [&] {
+                    std::string ir = welder.textualIR();
+
+                    Ark::Utils::ltrim(Ark::Utils::rtrim(ir));
+                    expectOrDiff(data.expected, ir);
+                    if (shouldWriteNewDiffsTofile() && data.expected != ir)
+                        updateExpectedFile(data, ir);
+                };
+            });
     };
 };

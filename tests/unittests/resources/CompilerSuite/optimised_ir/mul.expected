@@ -11,7 +11,7 @@ global
 	POP 0
 	HALT 0
 
-page_1 (#anonymous (0 arguments) function, 9 instructions)
+page_1 (foo (0 arguments) simple function, 9 instructions)
 	MUL_BY 0, 2055
 	STORE 2
 	MUL_BY 0, 2055
