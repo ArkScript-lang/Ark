@@ -24,16 +24,7 @@ namespace Ark::internal
         // TODO: we'll need to move some page index if a page is removed!
         for (const auto& block : pages)
         {
-            IR::Block new_block {
-                .metadata = {
-                    .name = block.metadata.name,
-                    .argument_count = block.metadata.argument_count,
-                    .addr = block.metadata.addr,
-                    .is_closure = block.metadata.is_closure,
-                    .is_recursive = block.metadata.is_recursive,
-                    .is_simple = block.metadata.is_simple },
-                .data = {}
-            };
+            IR::Block new_block = IR::Block::InitWithMetadata(block);
 
             // We only have to deal with CALL_SYMBOL, CALL_SYMBOL_BY_INDEX, which deal with symbols,
             // and CALL which can deal with constant ids (eg `((fun (a) (print a)) 5)`)

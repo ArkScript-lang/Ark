@@ -253,6 +253,20 @@ namespace Ark::internal::IR
         } metadata;
         vec_t data;
 
+        /**
+         * @brief Create a new empty IR::Block with the same metadata as the source block
+         *
+         * @param source source block
+         * @return Block
+         */
+        static Block InitWithMetadata(const Block& source)
+        {
+            return Block {
+                .metadata = source.metadata,
+                .data = {}
+            };
+        }
+
         [[nodiscard]] std::string debugName() const
         {
             return metadata.name.value_or(std::string(AnonymousBlockName));

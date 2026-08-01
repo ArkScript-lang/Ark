@@ -50,7 +50,7 @@ global
 	STORE 10
 	HALT 0
 
-page_1 (create-human (3 arguments) function, 11 instructions)
+page_1 (create-human (3 arguments) mutating function, 11 instructions)
 	STORE 1
 	STORE 2
 	STORE 3
