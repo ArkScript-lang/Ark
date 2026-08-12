@@ -298,7 +298,7 @@ Huge thanks to those people for their donations to support the project:
 
 ## Cool graphs
 
-[![Star History Chart](https://api.star-history.com/svg?repos=arkscript-lang/ark&type=Date)](https://star-history.com/#arkscript-lang/ark&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=arkscript-lang/ark&type=Date)](https://star-history.dera.page/#arkscript-lang/ark&Date)
 
 ## Credits
 
