@@ -8,6 +8,8 @@ set(ARK_VERSION_MINOR 7)
 set(ARK_VERSION_PATCH 2)
 set(ARK_VERSION_PRERELEASE 0)
 
+set(ARK_VERSION_STR "${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}")
+
 # determine whether this is a standalone project or included by other projects
 if (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     execute_process(
@@ -206,7 +208,8 @@ if (NOT ARK_EMSCRIPTEN)
                 DESTINATION ${CMAKE_INSTALL_LIBDIR}/Ark/std
                 FILES_MATCHING PATTERN "*.ark"
                 PATTERN "std/tests" EXCLUDE
-                PATTERN "std/.github" EXCLUDE)
+                PATTERN "std/.github" EXCLUDE
+                PATTERN "scripts" EXCLUDE)
     endif ()
 endif ()
 
@@ -375,3 +378,6 @@ if (ARK_SANITIZERS AND NOT ARK_STATIC)
     add_address_sanitizer()
     add_undefined_sanitizer()
 endif ()
+
+include(cmake/packaging.cmake)
+include(CPack)

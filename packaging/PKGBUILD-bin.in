@@ -1,0 +1,24 @@
+# Maintainer: Lexy Plateau <contact@arkscript-lang.dev>
+
+pkgname=@CPACK_PACKAGE_NAME@-bin
+pkgver=@CPACK_PACKAGE_VERSION@
+pkgrel=1
+pkgdesc="@CPACK_PACKAGE_DESCRIPTION_SUMMARY@"
+arch=('x86_64')
+url="https://arkscript-lang.dev"
+license=('MPL2')
+depends=("gcc-libs")
+provides=('@CPACK_PACKAGE_NAME@')
+source=("$pkgname-v$pkgver.tar.gz"::"https://github.com/ArkScript-lang/Ark/releases/download/v$pkgver/linux-gcc-14.zip)
+sha256sums=('SKIP')
+
+package() {
+    cd $srcdir
+    mkdir -p $pkgdir/usr/bin
+    mkdir -p $pkgdir/usr/lib/Ark/std
+
+    install -m644 $srcdir/lib/std/*.ark $pkgdir/usr/lib/Ark/std
+    install -m644 $srcdir/lib/*.arkm $pkgdir/usr/lib/Ark
+    install -m755 $srcdir/arkscript $pkgdir/usr/bin
+    install -m755 $srcdir/libArkReactor.so $pkgdir/usr/lib
+}

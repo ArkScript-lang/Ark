@@ -1,0 +1,31 @@
+# Maintainer: Lexy Plateau <contact@arkscript-lang.dev>
+
+pkgname=@CPACK_PACKAGE_NAME@
+pkgver=@CPACK_PACKAGE_VERSION@
+pkgrel=1
+pkgdesc="@CPACK_PACKAGE_DESCRIPTION_SUMMARY@"
+arch=('x86_64')
+url="https://arkscript-lang.dev"
+license=('MPL2')
+depends=('gcc-libs')
+makedepends=('cmake' 'git')
+provides=('@CPACK_PACKAGE_NAME@')
+source=("$pkgname-v$pkgver.tar.gz"::"https://github.com/ArkScript-lang/Ark/archive/refs/tags/v$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+    cd "$srcdir/$pkgname-$pkgver"
+    cmake -B build \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DARK_BUILD_EXE=On \
+        -DARK_UNITY_BUILD=On \
+        -DARK_BUILD_MODULES=On \
+        -DARK_MOD_ALL=On \
+        -DARK_MOD_DRAFT=Off
+    cmake --build build
+}
+
+package() {
+    cd "$srcdir/$pkgname-$pkgver"
+    DESTDIR="$pkgdir" cmake --install build
+}
