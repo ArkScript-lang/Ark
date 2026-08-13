@@ -132,7 +132,7 @@ jobs:
           ls packages
 
       - name: Upload artifact
-        if: startsWith(matrix.config.name, 'DEB')
+        if: startsWith(matrix.config.generator, 'DEB')
         uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.config.generator }}
@@ -140,7 +140,7 @@ jobs:
           retention-days: 1
 
       - name: Upload artifact
-        if: startsWith(matrix.config.name, 'RPM')
+        if: startsWith(matrix.config.generator, 'RPM')
         uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.config.generator }}
@@ -208,16 +208,17 @@ jobs:
             (cd ${i} && zip -r ../${name}.zip ./)
           done
           
-          ls DEB
-          echo "----------"
-          ls RPM
+          mv ubuntu-gcc-14.zip linux-gcc-14.zip
+          mv ubuntu-clang-16.zip linux-clang-16.zip
+          mv ark-windows-installer/arkscript.exe windows-installer.exe
+          mv DEB/arkscript-${{ env.RELEASE_VERSION }}.* .
 
       - name: Extract release notes
         id: extract-release-notes
         uses: ffurrer2/extract-release-notes@cae32133495112d23e3569ad04fef240ba4e7bc8 # v2.3.0
 
       - name: Create release
-        uses: softprops/action-gh-release@5be0e66d93ac7ed76da52eca8bb058f665c3a5fe # v2.4.2
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -227,76 +228,14 @@ jobs:
           draft: true
           prerelease: false
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
-
-      - name: Upload artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ubuntu-gcc-14.zip
-          asset_name: linux-gcc-14.zip
-          asset_content_type: application/zip
-
-      - name: Upload artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ubuntu-clang-16.zip
-          asset_name: linux-clang-16.zip
-          asset_content_type: application/zip
-
-      - name: Upload artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./windows-msvc-22.zip
-          asset_name: windows-msvc-22.zip
-          asset_content_type: application/zip
-
-      - name: Upload artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./ark-windows-installer/arkscript.exe
-          asset_name: windows-installer.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
-
-      - name: Upload artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./macos-clang-16.zip
-          asset_name: macos-clang-16.zip
-          asset_content_type: application/zip
-
-      - name: Upload artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./DEB/DEB
-          asset_name: arkscript-${{ env.RELEASE_VERSION }}.deb
-          asset_content_type: vnd.debian.binary-package
-
-      - name: Upload artifact
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./RPM/RPM
-          asset_name: arkscript-${{ env.RELEASE_VERSION }}.rpm
-          asset_content_type: vnd.debian.binary-package
+          files: |
+            linux-gcc-14.zip
+            linux-clang-16.zip
+            windows-msvc-22.zip
+            windows-installer.exe
+            macos-clang-16.zip
+            arkscript-${{ env.RELEASE_VERSION }}.deb
+            arkscript-${{ env.RELEASE_VERSION }}.rpm
 
   publish-to-aur:
     runs-on: ubuntu-latest

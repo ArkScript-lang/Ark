@@ -92,24 +92,6 @@ runs:
         cd sqlite_lib
         lib /DEF:sqlite3.def /OUT:sqlite3.lib /MACHINE:x64
 
-    - run: |
-        ToggleModules=$([[ '${{ inputs.with_deps }}' == 'true' ]] && echo 'On' || echo 'Off')
-        cat > cmake_args << EOF
-          -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-          -DARK_SANITIZERS=${{ inputs.sanitizers }}
-          -DARK_COVERAGE=${{ inputs.coverage }}
-          -DARK_BUILD_EXE=On
-          -DARK_TESTS=On
-          -DARK_BUILD_MODULES=$ToggleModules -DARK_MOD_ALL=$ToggleModules -DARK_MOD_DRAFT=$ToggleModules
-          -DARK_UNITY_BUILD=${{ inputs.unity }}
-          -DARK_STATIC=${{ inputs.static }}
-          -DARK_DISTRIBUTE=${{ inputs.distribute }}
-        EOF
-        echo "CMAKE_ARGS<<EOF" >> $GITHUB_ENV
-        # we echo cat to have everything on a single line
-        echo "$(cat cmake_args)" >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-
     - name: CMake Ark
       if: ${{ !startsWith(inputs.os_name, 'windows') }}
       shell: bash
@@ -117,10 +99,19 @@ runs:
         if [[ '${{ startsWith(inputs.os_name, 'macos') }}' == 'true' ]]; then
           export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/
         fi
+        ToggleModules=$([[ '${{ inputs.with_deps }}' == 'true' ]] && echo 'On' || echo 'Off')
         cmake -Bbuild \
          -DCMAKE_C_COMPILER=${{ steps.compilers.outputs.cc }} \
          -DCMAKE_CXX_COMPILER=${{ steps.compilers.outputs.cxx }} \
-         ${{ env.CMAKE_ARGS }}
+         -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+         -DARK_SANITIZERS=${{ inputs.sanitizers }} \
+         -DARK_COVERAGE=${{ inputs.coverage }} \
+         -DARK_BUILD_EXE=On \
+         -DARK_TESTS=On \
+         -DARK_BUILD_MODULES=$ToggleModules -DARK_MOD_ALL=$ToggleModules -DARK_MOD_DRAFT=$ToggleModules \
+         -DARK_UNITY_BUILD=${{ inputs.unity }} \
+         -DARK_STATIC=${{ inputs.static }} \
+         -DARK_DISTRIBUTE=${{ inputs.distribute }}
         cmake --build build --config $BUILD_TYPE -j $(nproc)
 
     - name: Configure CMake Ark
@@ -137,5 +128,16 @@ runs:
         else
           generator="Visual Studio 00 Unknown"
         fi
-        cmake -Bbuild -G "$generator" -T v143 ${{ env.CMAKE_ARGS }} $additional_args
+        ToggleModules=$([[ '${{ inputs.with_deps }}' == 'true' ]] && echo 'On' || echo 'Off')
+        cmake -Bbuild -G "$generator" -T v143 \
+          -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
+          -DARK_SANITIZERS=${{ inputs.sanitizers }} \
+          -DARK_COVERAGE=${{ inputs.coverage }} \
+          -DARK_BUILD_EXE=On \
+          -DARK_TESTS=On \
+          -DARK_BUILD_MODULES=$ToggleModules -DARK_MOD_ALL=$ToggleModules -DARK_MOD_DRAFT=$ToggleModules \
+          -DARK_UNITY_BUILD=${{ inputs.unity }} \
+          -DARK_STATIC=${{ inputs.static }} \
+          -DARK_DISTRIBUTE=${{ inputs.distribute }} \
+          $additional_args
         cmake --build build --config $BUILD_TYPE -j $(nproc)
