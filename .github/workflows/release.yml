@@ -10,7 +10,7 @@ env:
   SQLITE_VERSION: 3390100  # 3.39.1
 
 jobs:
-  build:
+  build-native:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.name }}
 
@@ -89,9 +89,67 @@ jobs:
           path: artifact
           retention-days: 1
 
+  build-packages:
+    runs-on: ubuntu-24.04
+    name: ${{ matrix.config.name }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+            name: "Ubuntu Clang 16 - deb",
+            generator: "DEB"
+          }
+          - {
+            name: "Ubuntu Clang 16 - rpm",
+            generator: "RPM"
+          }
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          submodules: recursive
+
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Setup compilers, dependencies, project and build
+        uses: ./.github/workflows/setup-compilers
+        with:
+          os_name: ubuntu-24.04
+          compiler: clang
+          compiler_version: 16
+          sanitizers: 'Off'
+          with_deps: false
+          distribute: 'On'
+
+      - name: Build package
+        shell: bash
+        run: |
+          cd build
+          cpack -G ${{ matrix.config.generator }}
+          ls packages
+
+      - name: Upload artifact
+        if: startsWith(matrix.config.name, 'DEB')
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ matrix.config.generator }}
+          path: build/packages/arkscript-${{ env.RELEASE_VERSION }}.deb
+          retention-days: 1
+
+      - name: Upload artifact
+        if: startsWith(matrix.config.name, 'RPM')
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ matrix.config.generator }}
+          path: build/packages/arkscript-${{ env.RELEASE_VERSION }}.rpm
+          retention-days: 1
+
   release:
     runs-on: ubuntu-latest
-    needs: [ build ]
+    needs: [ build-native, build-packages ]
 
     steps:
       - name: Checkout
@@ -130,6 +188,18 @@ jobs:
           name: arkscript.exe
           path: ark-windows-installer
 
+      - name: Download artifact debian package
+        uses: actions/download-artifact@v6
+        with:
+          name: DEB
+          path: DEB
+
+      - name: Download artifact rpm package
+        uses: actions/download-artifact@v6
+        with:
+          name: RPM
+          path: RPM
+
       - name: Make ZIPs
         shell: bash
         run: |
@@ -137,6 +207,10 @@ jobs:
             name=`echo $i | cut -c 5-`
             (cd ${i} && zip -r ../${name}.zip ./)
           done
+          
+          ls DEB
+          echo "----------"
+          ls RPM
 
       - name: Extract release notes
         id: extract-release-notes
@@ -203,3 +277,60 @@ jobs:
           asset_path: ./macos-clang-16.zip
           asset_name: macos-clang-16.zip
           asset_content_type: application/zip
+
+      - name: Upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./DEB/DEB
+          asset_name: arkscript-${{ env.RELEASE_VERSION }}.deb
+          asset_content_type: vnd.debian.binary-package
+
+      - name: Upload artifact
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./RPM/RPM
+          asset_name: arkscript-${{ env.RELEASE_VERSION }}.rpm
+          asset_content_type: vnd.debian.binary-package
+
+  publish-to-aur:
+    runs-on: ubuntu-latest
+    needs: [ release ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Generate PKGBUILD
+        run: |
+          cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On
+
+      - name: Publish arkscript-bin AUR package
+        uses: KSXGitHub/github-actions-deploy-aur@084b0d9b15415bf9cdb65d44dad1efe37a354050
+        with:
+          pkgname: arkscript-bin
+          pkgbuild: ./build/packages/PKGBUILD-bin
+          updpkgsums: true
+          test: true
+          commit_username: ${{ secrets.AUR_USERNAME }}
+          commit_email: ${{ secrets.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: Update arkscript-bin AUR package
+          ssh_keyscan_types: rsa,ecdsa,ed25519
+
+      - name: Publish arkscript-src AUR package
+        uses: KSXGitHub/github-actions-deploy-aur@084b0d9b15415bf9cdb65d44dad1efe37a354050
+        with:
+          pkgname: arkscript-src
+          pkgbuild: ./build/packages/PKGBUILD-src
+          updpkgsums: true
+          test: true
+          commit_username: ${{ secrets.AUR_USERNAME }}
+          commit_email: ${{ secrets.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: Update arkscript-src AUR package
+          ssh_keyscan_types: rsa,ecdsa,ed25519
