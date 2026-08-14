@@ -87,6 +87,12 @@ namespace Ark
     constexpr std::size_t VMOverflowBufferSize = 256;                                          ///< Additional number of elements the stack can tolerate
     constexpr std::size_t VMStackSizeWithOverflowBuffer = VMStackSize + VMOverflowBufferSize;  ///< Exceeding VMStackSize, even if we are below VMStackSizeWithOverflowBuffer, means we stack overflowed
     constexpr std::size_t ScopeStackSize = 8192;
+
+#if defined(_WIN32) || defined(_WIN64)
+    constexpr std::string_view DefaultLibFolder { "" };
+#else
+    constexpr std::string_view DefaultLibFolder { "@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@/Ark" };
+#endif
 }
 
 #endif

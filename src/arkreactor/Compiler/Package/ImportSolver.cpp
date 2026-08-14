@@ -190,10 +190,12 @@ namespace Ark::internal
 
     std::optional<std::filesystem::path> testExtensions(const std::filesystem::path& folder, const std::string& package_path)
     {
-        if (auto code_path = folder / (package_path + ".ark"); std::filesystem::exists(code_path))
-            return code_path;
-        if (auto module_path = folder / (package_path + ".arkm"); std::filesystem::exists(module_path))
-            return module_path;
+        for (const char* const& ext : { ".ark", ".arkm" })
+        {
+            auto code_path = folder / (package_path + ext);
+            if (std::filesystem::exists(code_path) && std::filesystem::is_regular_file(code_path))
+                return code_path;
+        }
         return {};
     }
 
