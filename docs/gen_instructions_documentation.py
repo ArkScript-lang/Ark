@@ -2,8 +2,8 @@
 import re
 
 
-def valid(line: str) -> bool:
-    return not line.startswith("enum Instruction") and not line.strip() == "{" and line.strip()
+def valid(text: str) -> bool:
+    return text.strip() != ""
 
 
 def get_comment_blob(group, blob: str):
@@ -18,7 +18,7 @@ def get_comment_blob(group, blob: str):
 def get_doc(group):
     # the instruction is always the last element
     inst_line = group[-1]
-    inst, value = inst_line.replace(",", "").split(" = ")
+    inst, value = inst_line.replace(",", "").replace("X(", "").replace(")", "").split(" ")
 
     return {
         "args": get_comment_blob(group, "args"),
@@ -28,18 +28,17 @@ def get_doc(group):
     }
 
 
-with open("include/Ark/Compiler/Instructions.hpp") as f:
+with open("include/Ark/Compiler/Instructions.x") as f:
     content = f.read()
-    start = content.index("enum Instruction")
-    end = content.index("};")
+    start = content.index("// @")
 
-    docs = content[start:end].split("\n")
+    docs = content[start:].split("\n")
     docs = [s.strip() for s in docs if valid(s)]
 
 groups = []
 current = []
 for line in docs:
-    if re.match("[A-Z0-9_]+ = 0x[0-9a-f]{2},?", line) is not None:
+    if re.match("X\\([A-Z0-9_]+, 0x[0-9a-f]{2}\\)", line) is not None:
         current.append(line)
         groups.append(current)
         current = []

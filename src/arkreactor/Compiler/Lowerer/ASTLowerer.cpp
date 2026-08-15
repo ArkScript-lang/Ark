@@ -74,7 +74,7 @@ namespace Ark::internal
     {
         const auto it = std::ranges::find(Language::operators, name);
         if (it != Language::operators.end())
-            return static_cast<Instruction>(std::distance(Language::operators.begin(), it) + FIRST_OPERATOR);
+            return static_cast<Instruction>(std::distance(Language::operators.begin(), it) + FirstOperator);
         return std::nullopt;
     }
 
@@ -838,8 +838,7 @@ namespace Ark::internal
     {
         constexpr std::size_t start_index = 1;
         const Node& node = x.constList()[0];
-        const auto op_name = Language::operators[static_cast<std::size_t>(op - FIRST_OPERATOR)];
-
+        const auto op_name = Language::operators[static_cast<std::size_t>(op - FirstOperator)];
 
         // push arguments on current page
         std::size_t exp_count = 0;
