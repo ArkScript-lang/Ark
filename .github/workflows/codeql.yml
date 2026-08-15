@@ -3,6 +3,27 @@ name: "CodeQL"
 on:
   push:
     branches: [ "dev" ]
+    paths-ignore:
+      - '.github/workflows/benchmarks.yml'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/codspeed.yml'
+      - '.github/workflows/docker.yml'
+      - '.github/workflows/label.yml'
+      - '.github/workflows/release.yml'
+      - '.github/workflows/static_analysis.yml'
+      - '.github/workflows/validate-links.yml'
+      - '.vscode/*.*'
+      - '.run/*.*'
+      - 'examples/*.ark'
+      - '.github/images/*.*'
+      - '*.md'
+      - 'docs/*.*'
+      - 'Dockerfile'
+      - '.dockerignore'
+      - 'LICENCE'
+      - 'packaging'
+      - 'tools'
+      - '.gitignore'
   pull_request:
     branches: [ "dev" ]
   schedule:

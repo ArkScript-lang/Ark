@@ -3,6 +3,22 @@ name: Validate Links
 on:
   push:
     branches: [ dev ]
+    paths-ignore:
+      - '.github/workflows/benchmarks.yml'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/codeql.yml'
+      - '.github/workflows/codspeed.yml'
+      - '.github/workflows/docker.yml'
+      - '.github/workflows/label.yml'
+      - '.github/workflows/release.yml'
+      - '.github/workflows/static_analysis.yml'
+      - '.vscode/*.*'
+      - '.run/*.*'
+      - '.github/images/*.*'
+      - '.dockerignore'
+      - 'packaging'
+      - 'tools'
+      - '.gitignore'
   pull_request:
     branches: [ dev ]
   schedule:

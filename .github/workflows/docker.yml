@@ -4,6 +4,25 @@ on:
   push:
     branches: [ dev ]
     tags: [ '*' ]
+    paths-ignore:
+      - '.github/workflows/benchmarks.yml'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/codeql.yml'
+      - '.github/workflows/codspeed.yml'
+      - '.github/workflows/label.yml'
+      - '.github/workflows/release.yml'
+      - '.github/workflows/static_analysis.yml'
+      - '.github/workflows/validate-links.yml'
+      - '.vscode/*.*'
+      - '.run/*.*'
+      - 'examples/*.ark'
+      - '.github/images/*.*'
+      - '*.md'
+      - 'docs/*.*'
+      - 'LICENCE'
+      - 'packaging'
+      - 'tools'
+      - '.gitignore'
 
 jobs:
   build:
