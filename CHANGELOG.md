@@ -1,5 +1,17 @@
 # Change Log
 
+## [Unreleased changes] - 2026-MM-DD
+### Breaking changes
+
+### Deprecated
+
+### Added
+- sha256 sums of release artefacts in the releases
+
+### Changed
+
+### Removed
+
 ## [4.7.2] - 2026-08-13
 ### Added
 - stdlib:
