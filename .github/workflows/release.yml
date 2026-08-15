@@ -207,11 +207,21 @@ jobs:
             name=`echo $i | cut -c 5-`
             (cd ${i} && zip -r ../${name}.zip ./)
           done
-          
-          mv ubuntu-gcc-14.zip linux-gcc-14.zip
-          mv ubuntu-clang-16.zip linux-clang-16.zip
-          mv ark-windows-installer/arkscript.exe windows-installer.exe
-          mv DEB/arkscript-${{ env.RELEASE_VERSION }}.* .
+
+          mkdir -p artifacts
+          mkdir -p sha
+
+          mv ubuntu-gcc-14.zip artifacts/linux-gcc-14.zip
+          mv ubuntu-clang-16.zip artifacts/linux-clang-16.zip
+          mv ark-windows-installer/arkscript.exe artifacts/windows-installer.exe
+          mv windows-msvc-22.zip artifacts
+          mv macos-clang-16.zip artifacts
+          mv DEB/arkscript-${{ env.RELEASE_VERSION }}.* artifacts
+          mv RPM/arkscript-${{ env.RELEASE_VERSION }}.* artifacts
+
+          for f in artifacts/*; do
+            sha256sum "$f" > "sha/$f.sha256"
+          done
 
       - name: Extract release notes
         id: extract-release-notes
@@ -229,13 +239,8 @@ jobs:
           prerelease: false
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
           files: |
-            linux-gcc-14.zip
-            linux-clang-16.zip
-            windows-msvc-22.zip
-            windows-installer.exe
-            macos-clang-16.zip
-            arkscript-${{ env.RELEASE_VERSION }}.deb
-            arkscript-${{ env.RELEASE_VERSION }}.rpm
+            artifacts/*
+            sha/*
 
   publish-to-aur:
     runs-on: ubuntu-latest
@@ -243,10 +248,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          submodules: recursive
 
       - name: Generate PKGBUILD
         run: |
-          cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On
+          cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On -DARK_DISTRIBUTE=On
 
       - name: Publish arkscript-bin AUR package
         uses: KSXGitHub/github-actions-deploy-aur@084b0d9b15415bf9cdb65d44dad1efe37a354050
