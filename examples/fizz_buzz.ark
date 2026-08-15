@@ -1,7 +1,7 @@
-(import std.Range)
+(import std.List)
 
-(let r (range:range 0 100))
-(range:forEach
+(let r (list:range 0 100 1))
+(list:forEach
   r
   (fun (e)
     (if (= 0 (mod e 15))

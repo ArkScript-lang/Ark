@@ -1,4 +1,4 @@
-(import std.Range :range)
+(import std.List :range)
 (import std.List)
 (import std.Math)
 
@@ -7,11 +7,11 @@
     (fact (- n 1) (* acc n))
     acc) }))
 
-(let r (range 1 18))
+(let r (range 1 18 1))
 (let p
   (list:sum
     (list:map
-      (list:reverse (r.asList))
+      (list:reverse r)
       (fun (n)
         (/ 1 (fact n 1)) ))))
 

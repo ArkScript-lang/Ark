@@ -12,6 +12,7 @@
 ### Changed
 
 ### Removed
+- removed `std.Range` which had been deprecated in 4.6.0
 
 ## [4.7.2] - 2026-08-13
 ### Added

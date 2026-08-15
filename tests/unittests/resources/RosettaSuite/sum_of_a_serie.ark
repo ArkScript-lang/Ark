@@ -1,7 +1,7 @@
-(import std.Range :range :map)
+(import std.List :range :map)
 (import std.List :sum)
 
-(let r (range 1 1000))
+(let r (range 1 1000 1))
 (let sol (sum (map r (fun (x) (/ 1 (* x x))))))
 
 (import std.Math :abs)

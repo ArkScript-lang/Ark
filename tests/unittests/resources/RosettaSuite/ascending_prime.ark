@@ -1,7 +1,6 @@
 (import std.Math :sqrt :prime?)
 (import std.List)
 (import std.String)
-(import std.Range)
 
 (let ascending (fun (n f) {
   (mut nums (list:iota 1 9))
@@ -13,8 +12,8 @@
     (if (f val)
       (append! matched val))
 
-    (mut r (range:range (+ 1 (mod val 10)) 10))
-    (set r (range:map r (fun (k) (+ k (* 10 val)))))
+    (mut r (list:range (+ 1 (mod val 10)) 10 1))
+    (set r (list:map r (fun (k) (+ k (* 10 val)))))
     (concat! nums r)
 
     (set i (+ 1 i)) })

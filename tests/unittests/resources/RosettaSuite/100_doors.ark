@@ -1,8 +1,8 @@
-(import std.Range :range :forEach)
+(import std.List :range :forEach)
 (import std.List)
 
 (mut doors (list:fill 100 false))
-(let r (range 0 100))
+(let r (range 0 100 1))
 
 (forEach r
   (fun (i) {
