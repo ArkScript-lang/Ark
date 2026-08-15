@@ -5,8 +5,8 @@ project(ark CXX C)
 # ArkScript version (have to manually update it)
 set(ARK_VERSION_MAJOR 4)
 set(ARK_VERSION_MINOR 7)
-set(ARK_VERSION_PATCH 2)
-set(ARK_VERSION_PRERELEASE 0)
+set(ARK_VERSION_PATCH 3)
+set(ARK_VERSION_PRERELEASE 1)
 
 set(ARK_VERSION_STR "${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${ARK_VERSION_PATCH}")
 
@@ -220,8 +220,10 @@ endif ()
 
 if (ARK_BUILD_MODULES AND NOT ARK_STATIC)
     get_directory_property(old_dir_compile_options COMPILE_OPTIONS)
+
     add_compile_options(-w)
     add_subdirectory(${ark_SOURCE_DIR}/lib/modules)
+
     set_directory_properties(PROPERTIES COMPILE_OPTIONS "${old_dir_compile_options}")
 endif ()
 
@@ -231,147 +233,21 @@ if (ARK_TESTS OR ARK_BUILD_EXE)
 endif ()
 
 if (ARK_EMSCRIPTEN)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/public")
-
-    # ArkScript lib needs to know if we are building an exe to enable/disable specific code for embedding
-    target_compile_definitions(ArkReactor PRIVATE ARK_BUILD_EXE=1)
-
-    add_executable(ArkEmscripten ${ark_SOURCE_DIR}/src/arkemscripten/main.cpp)
-    target_link_libraries(ArkEmscripten PUBLIC ArkReactor)
-    target_compile_features(ArkEmscripten PRIVATE cxx_std_20)
-
-    if (ARK_JS_ONLY)
-        message(STATUS "Setting compilation target to native JavaScript")
-        set(CMAKE_EXECUTABLE_SUFFIX ".js")
-        set_target_properties(ArkReactor PROPERTIES LINK_FLAGS "-s WASM=0 -s NO_DISABLE_EXCEPTION_CATCHING")
-        set_target_properties(ArkEmscripten PROPERTIES LINK_FLAGS "-s WASM=0 -s NO_DISABLE_EXCEPTION_CATCHING -s EXPORTED_FUNCTIONS='[_main]' -s EXPORTED_RUNTIME_METHODS=['run'] -lembind")
-    else ()
-        message(STATUS "Setting compilation target to WASM")
-        set(CMAKE_EXECUTABLE_SUFFIX ".wasm.js")
-        set_target_properties(ArkReactor PROPERTIES LINK_FLAGS "-s WASM=1 -s NO_DISABLE_EXCEPTION_CATCHING")
-        set_target_properties(ArkEmscripten PROPERTIES LINK_FLAGS "-s WASM=1 -s NO_DISABLE_EXCEPTION_CATCHING -s EXPORTED_FUNCTIONS='[_main]' -s EXPORTED_RUNTIME_METHODS=['run'] -lembind")
-    endif ()
+    add_subdirectory(${ark_SOURCE_DIR}/src/arkemscripten)
 endif ()
 
 if (ARK_TESTS)
-    add_subdirectory(${ark_SOURCE_DIR}/tests/unittests/TestModule)
-
-    file(GLOB_RECURSE SOURCES
-            ${ark_SOURCE_DIR}/tests/unittests/*.cpp
-            ${ark_SOURCE_DIR}/tests/unittests/Suites/*.cpp
-            ${ark_SOURCE_DIR}/src/arkscript/Formatter.cpp
-            ${ark_SOURCE_DIR}/src/arkscript/JsonCompiler.cpp
-            ${ark_SOURCE_DIR}/src/arkscript/REPL/Utils.cpp)
-    if (NOT ARK_STATIC)
-        list(APPEND SOURCES ${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc)
-    endif ()
-    add_executable(unittests ${SOURCES})
-    target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/tests/unittests)
-    target_include_directories(unittests PUBLIC ${ark_SOURCE_DIR}/include)
-    target_include_directories(unittests SYSTEM PUBLIC ${ark_SOURCE_DIR}/thirdparties/dtl/dtl)
-
     set(BOOST_UT_DISABLE_MODULE On)
     add_subdirectory(${ark_SOURCE_DIR}/thirdparties/ut)
-    target_link_libraries(unittests PUBLIC ArkReactor ut replxx)
-
-    target_compile_features(unittests PRIVATE cxx_std_20)
-    target_compile_definitions(unittests PRIVATE ARK_TESTS_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
-
-    if (ARK_UNITY_BUILD)
-        set_target_properties(unittests PROPERTIES UNITY_BUILD ON UNITY_BUILD_MODE BATCH UNITY_BUILD_BATCH_SIZE 16)
-    endif ()
-    set_target_properties(unittests PROPERTIES
-            VS_DEBUGGER_WORKING_DIRECTORY "${ark_SOURCE_DIR}"
-            VS_DEBUGGER_COMMAND "$<TARGET_FILE:unittests>"
-            BUILD_WITH_INSTALL_RPATH ON
-            INSTALL_RPATH_USE_LINK_PATH ON)
-    set_target_rpath(unittests)
-
-    if (ARK_COVERAGE AND CMAKE_COMPILER_IS_CLANG)
-        target_compile_options(unittests PRIVATE -coverage -fcoverage-mapping -fprofile-instr-generate)
-        target_link_options(unittests PRIVATE -coverage -fcoverage-mapping -fprofile-instr-generate)
-        target_compile_options(ArkReactor PRIVATE -coverage -fcoverage-mapping -fprofile-instr-generate)
-        target_link_options(ArkReactor PRIVATE -coverage -fcoverage-mapping -fprofile-instr-generate)
-
-        # find required tools
-        find_program(LCOV lcov REQUIRED)
-        find_program(GENHTML genhtml REQUIRED)
-
-        # add coverage target
-        add_custom_target(coverage
-                # gather data
-                COMMAND ${LCOV} --directory . --capture
-                --rc derive_function_end_line=0
-                --ignore-errors inconsistent
-                --filter range
-                --exclude 'tests/*'
-                --exclude 'thirdparties/*'
-                --exclude '/usr/*'
-                --exclude 'build/*'
-                --gcov-tool ${ark_SOURCE_DIR}/tests/llvm-gcov.sh
-                --output-file coverage.info
-                # generate report
-                COMMAND ${GENHTML}
-                --demangle-cpp
-                --rc derive_function_end_line=0
-                -o coverage coverage.info
-                WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-    endif ()
+    add_subdirectory(${ark_SOURCE_DIR}/tests/unittests)
 endif ()
 
 if (ARK_BENCHMARKS)
-    set(BENCHMARK_ENABLE_GTEST_TESTS Off)
-    set(BENCHMARK_ENABLE_TESTING Off)
-
-    if (ARK_BENCHMARKS_CODSPEED)
-        set(BENCHMARK_DOWNLOAD_DEPENDENCIES ON)
-        CPMAddPackage(
-                URI "gh:CodSpeedHQ/codspeed-cpp#5324618a1a14e0aa9a99dcfb467b9c2a57957e19@1.1.1"
-                SOURCE_SUBDIR google_benchmark)
-    else ()
-        CPMAddPackage("gh:google/benchmark@1.8.3")
-    endif ()
-
-    add_executable(bench tests/benchmarks/main.cpp)
-    target_link_libraries(bench PUBLIC ArkReactor benchmark::benchmark)
-    target_compile_features(bench PRIVATE cxx_std_20)
-    target_compile_definitions(bench PRIVATE ARK_TESTS_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
-    enable_lto(bench)
+    add_subdirectory(${ark_SOURCE_DIR}/tests/benchmarks)
 endif ()
 
 if (ARK_BUILD_EXE)
-    # ArkScript lib needs to know if we are building an exe to enable/disable specific code for embedding
-    target_compile_definitions(ArkReactor PRIVATE ARK_BUILD_EXE=1)
-
-    # additional files needed for the exe (repl, command line and stuff)
-    file(GLOB_RECURSE EXE_SOURCES ${ark_SOURCE_DIR}/src/arkscript/*.cpp)
-    if (NOT ARK_STATIC)
-        list(APPEND EXE_SOURCES "${ark_SOURCE_DIR}/thirdparties/fmt/src/format.cc")
-    endif ()
-    add_executable(arkscript ${EXE_SOURCES})
-
-    target_include_directories(arkscript SYSTEM PUBLIC "${ark_SOURCE_DIR}/thirdparties/clipp/include")
-    target_link_libraries(arkscript PUBLIC ArkReactor replxx clipp)
-    target_compile_features(arkscript PRIVATE cxx_std_20)
-
-    if (ARK_UNITY_BUILD)
-        set_target_properties(arkscript PROPERTIES
-                UNITY_BUILD ON
-                UNITY_BUILD_MODE BATCH
-                UNITY_BUILD_BATCH_SIZE 16)
-    endif ()
-    set_target_properties(arkscript PROPERTIES
-            VS_DEBUGGER_WORKING_DIRECTORY "${ark_SOURCE_DIR}"
-            VS_DEBUGGER_COMMAND "$<TARGET_FILE:arkscript>"
-            BUILD_WITH_INSTALL_RPATH ON
-            INSTALL_RPATH_USE_LINK_PATH ON)
-    set_target_rpath(arkscript)
-
-    enable_lto(arkscript)
-
-    # Installs the arkscript executable.
-    install(TARGETS arkscript
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    add_subdirectory(${ark_SOURCE_DIR}/src/arkscript)
 endif ()
 
 if (ARK_SANITIZERS AND NOT ARK_STATIC)
