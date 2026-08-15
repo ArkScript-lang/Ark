@@ -136,7 +136,11 @@ namespace Ark::internal
     {
         // We don't want to register instructions from code entered in the debugger!
         if (!m_running)
+        {
             m_previous_insts.push_back(word);
+            if (m_previous_insts.size() > 4096)
+                m_previous_insts.pop_front();
+        }
     }
 
     std::optional<Debugger::Command::Args_t> Debugger::Command::getArgs(const std::string& line, std::ostream& os) const
@@ -349,6 +353,7 @@ namespace Ark::internal
         fmt::println(m_os, "");
     }
 
+    // cppcheck-suppress constParameterReference
     void Debugger::showScopes(VM& vm, ExecutionContext& context, const std::size_t count) const
     {
         if (count == 0)

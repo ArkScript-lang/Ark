@@ -264,7 +264,7 @@ namespace Ark
 
         ValueType call_type;
         PageAddr_t page_addr = 0;
-        Value* maybe_value_ptr = nullptr;
+        const Value* maybe_value_ptr = nullptr;
 
         if (function_ptr == nullptr && or_address == 0)
             maybe_value_ptr = peekAndResolveAsPtr(context, argc);

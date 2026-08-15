@@ -11,6 +11,7 @@
 #ifndef ARK_VM_DEBUGGER_HPP
 #define ARK_VM_DEBUGGER_HPP
 
+#include <deque>
 #include <utility>
 #include <vector>
 #include <memory>
@@ -158,7 +159,7 @@ namespace Ark::internal
         bool m_running { false };
         bool m_quit_vm { false };
 
-        std::vector<uint32_t> m_previous_insts;
+        std::deque<uint32_t> m_previous_insts;
 
         std::ostream& m_os;
         bool m_colorize;
