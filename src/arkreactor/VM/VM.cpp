@@ -278,6 +278,7 @@ namespace Ark
         }
 
         if (ctx == nullptr)
+            // cppcheck-suppress mismatchingContainers
             ctx = m_execution_contexts.emplace_back(std::make_unique<ExecutionContext>()).get();
 
         assert(!ctx->primary && "The new context shouldn't be marked as primary!");
@@ -469,22 +470,22 @@ namespace Ark
 #    define GOTO_HALT() break
 #endif
 
-#define FETCH_NEXT_INSTRUCTION()                                                                          \
-    do                                                                                                    \
-    {                                                                                                     \
-        inst = m_state.inst(context.pp, context.ip);                                                      \
-        padding = m_state.inst(context.pp, context.ip + 1);                                               \
-        arg = static_cast<uint16_t>((m_state.inst(context.pp, context.ip + 2) << 8) +                     \
-                                    m_state.inst(context.pp, context.ip + 3));                            \
-        context.ip += 4;                                                                                  \
-        context.inst_exec_counter = (context.inst_exec_counter + 1) % VMOverflowBufferSize;               \
-        if constexpr (WithDebugger)                                                                       \
-        {                                                                                                 \
-            if (!m_debugger) initDebugger(context);                                                       \
-            m_debugger->registerInstruction(static_cast<uint32_t>((inst << 24) | (padding << 16) | arg)); \
-        }                                                                                                 \
-        if (context.inst_exec_counter < 2 && context.sp >= VMStackSize)                                   \
-            stackOverflowError(context);                                                                  \
+#define FETCH_NEXT_INSTRUCTION()                                                             \
+    do                                                                                       \
+    {                                                                                        \
+        inst = m_state.inst(context.pp, context.ip);                                         \
+        padding = m_state.inst(context.pp, context.ip + 1);                                  \
+        arg = static_cast<uint16_t>((m_state.inst(context.pp, context.ip + 2) << 8) +        \
+                                    m_state.inst(context.pp, context.ip + 3));               \
+        context.ip += 4;                                                                     \
+        context.inst_exec_counter = (context.inst_exec_counter + 1) % VMOverflowBufferSize;  \
+        if constexpr (WithDebugger)                                                          \
+        {                                                                                    \
+            if (!m_debugger) initDebugger(context);                                          \
+            m_debugger->registerInstruction(inst, padding, arg, context.ip - 4, context.pp); \
+        }                                                                                    \
+        if (context.inst_exec_counter < 2 && context.sp >= VMStackSize)                      \
+            stackOverflowError(context);                                                     \
     } while (false)
 #define DISPATCH()            \
     FETCH_NEXT_INSTRUCTION(); \

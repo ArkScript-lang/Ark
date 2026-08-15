@@ -14,9 +14,10 @@ dbg[pp:0,ip:3]:004: b))
 dbg[pp:0,ip:3]:005> (prn c)
 11
 dbg[pp:0,ip:3]:006> trace
-BREAKPOINT
-LOAD_CONST_STORE 6 (Number), b
-LOAD_CONST_STORE 5 (Number), a
+ PP, IP
+  0,  8 BREAKPOINT
+  0,  4 LOAD_CONST_STORE 6 (Number), b
+  0,  0 LOAD_CONST_STORE 5 (Number), a
 dbg[pp:0,ip:3]:006> c
 dbg: continue
 ark: after first breakpoint, a=5, b=6
@@ -33,16 +34,17 @@ In file tests/unittests/resources/DebuggerSuite/basic.ark:7
 dbg[pp:1,ip:5]:000> (prn x y z)
 567
 dbg[pp:1,ip:5]:001> trace
-BREAKPOINT
-BUILTIN true
-STORE x
-STORE y
-STORE z
-CALL_SYMBOL_BY_INDEX 0, 3
-LOAD_CONST 7 (Number)
-LOAD_FAST_BY_INDEX (1)
-LOAD_FAST_BY_INDEX (2)
-PUSH_RETURN_ADDRESS (0x12)
+ PP, IP
+  1, 16 BREAKPOINT
+  1, 12 BUILTIN true
+  1,  8 STORE x
+  1,  4 STORE y
+  1,  0 STORE z
+  0, 68 CALL_SYMBOL_BY_INDEX 0, 3
+  0, 64 LOAD_CONST 7 (Number)
+  0, 60 LOAD_FAST_BY_INDEX (1)
+  0, 56 LOAD_FAST_BY_INDEX (2)
+  0, 52 PUSH_RETURN_ADDRESS (0x12)
 dbg[pp:1,ip:5]:001> help
 Available commands:
   help -- display this message

@@ -6,9 +6,10 @@ In file tests/unittests/resources/DebuggerSuite/parsing.ark:3
     4 |
 
 dbg[pp:0,ip:3]:000> trace
-BREAKPOINT
-LOAD_CONST_STORE 6 (Number), b
-LOAD_CONST_STORE 5 (Number), a
+ PP, IP
+  0,  8 BREAKPOINT
+  0,  4 LOAD_CONST_STORE 6 (Number), b
+  0,  0 LOAD_CONST_STORE 5 (Number), a
 dbg[pp:0,ip:3]:000> trace 0
 dbg[pp:0,ip:3]:000> trace 1 2
 Too many arguments provided to trace, expected 1, got 2

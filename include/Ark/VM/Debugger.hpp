@@ -48,6 +48,15 @@ namespace Ark::internal
         std::vector<Value> constants;
     };
 
+    struct TracedInstruction
+    {
+        uint8_t inst;
+        uint8_t padding;
+        uint16_t arg;
+        std::size_t ip;
+        std::size_t pp;
+    };
+
     class Debugger
     {
     public:
@@ -95,7 +104,7 @@ namespace Ark::internal
          */
         void run(VM& vm, ExecutionContext& context, bool from_breakpoint);
 
-        void registerInstruction(uint32_t word) noexcept;
+        void registerInstruction(uint8_t inst, uint8_t padding, uint16_t arg, std::size_t ip, std::size_t pp) noexcept;
 
         [[nodiscard]] ARK_ALWAYS_INLINE bool isRunning() const noexcept
         {
@@ -159,7 +168,7 @@ namespace Ark::internal
         bool m_running { false };
         bool m_quit_vm { false };
 
-        std::deque<uint32_t> m_previous_insts;
+        std::deque<TracedInstruction> m_previous_insts;
 
         std::ostream& m_os;
         bool m_colorize;

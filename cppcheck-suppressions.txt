@@ -3,3 +3,4 @@ missingIncludeSystem
 unusedFunction
 unusedStructMember
 checkersReport
+*:include/Ark/Compiler/Instructions.x

@@ -7,6 +7,7 @@
 
 ### Added
 - sha256 sums of release artefacts in the releases
+- the debugger now display the instruction and page pointers in the traces
 
 ### Changed
 

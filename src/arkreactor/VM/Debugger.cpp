@@ -132,12 +132,12 @@ namespace Ark::internal
         m_running = false;
     }
 
-    void Debugger::registerInstruction(const uint32_t word) noexcept
+    void Debugger::registerInstruction(const uint8_t inst, const uint8_t padding, const uint16_t arg, const std::size_t ip, const std::size_t pp) noexcept
     {
         // We don't want to register instructions from code entered in the debugger!
         if (!m_running)
         {
-            m_previous_insts.push_back(word);
+            m_previous_insts.emplace_back(TracedInstruction { .inst = inst, .padding = padding, .arg = arg, .ip = ip, .pp = pp });
             if (m_previous_insts.size() > 4096)
                 m_previous_insts.pop_front();
         }
@@ -419,14 +419,16 @@ namespace Ark::internal
         const auto syms = bcr.symbols();
         const auto vals = bcr.values(syms);
 
+        if (count > 0 && !m_previous_insts.empty())
+            fmt::println(m_os, " PP, IP");
+
         for (std::size_t i = 0; i < count; ++i)
         {
             if (i >= m_previous_insts.size())
                 break;
 
-            const uint8_t inst = (m_previous_insts[m_previous_insts.size() - 1 - i] >> 24) & 0xff;
-            const uint8_t padding = (m_previous_insts[m_previous_insts.size() - 1 - i] >> 16) & 0xff;
-            const uint16_t arg = m_previous_insts[m_previous_insts.size() - 1 - i] & 0xffff;
+            const auto& [inst, padding, arg, ip, pp] = m_previous_insts[m_previous_insts.size() - 1 - i];
+            fmt::print(m_os, "{:>3},{:>3} ", pp, ip);
             bcr.printInstruction(m_os, inst, padding, arg, syms, vals, m_colorize);
         }
     }
