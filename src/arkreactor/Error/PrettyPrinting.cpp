@@ -81,8 +81,10 @@ namespace Ark::Diagnostics
         const std::optional<std::string>& maybe_content) :
         m_should_colorize(colorize)
     {
-        const std::string code = filename == ARK_NO_NAME_FILE ? maybe_content.value_or("") : Utils::readFile(filename);
-        m_source = Utils::splitString(code, '\n');
+        if (filename == ARK_NO_NAME_FILE || std::filesystem::is_directory(filename))
+            m_source = Utils::splitString(maybe_content.value_or(""), '\n');
+        else
+            m_source = Utils::splitString(Utils::readFile(filename), '\n');
 
         m_window = Window(target_line, end_target_line.value_or(target_line), m_source.size());
         m_current_line = m_window.start;

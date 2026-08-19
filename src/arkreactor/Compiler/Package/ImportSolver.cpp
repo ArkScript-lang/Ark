@@ -212,12 +212,14 @@ namespace Ark::internal
                 return maybe_path.value();
         }
 
+        const bool is_source_file = !is_directory(file);
+
         // fallback, we couldn't find the file
         throw CodeError(
             fmt::format("While processing file {}, couldn't import {}: file not found",
-                        file.filename().string(), import_.toPackageString()),
+                        is_source_file ? file.filename().string() : ARK_NO_NAME_FILE, import_.toPackageString()),
             CodeErrorContext(
-                file.generic_string(),
+                is_source_file ? file.generic_string() : ARK_NO_NAME_FILE,
                 FileSpan { .start = FilePos { .line = import_.line, .column = import_.col }, .end = std::nullopt }));
     }
 }

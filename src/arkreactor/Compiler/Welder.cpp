@@ -17,7 +17,8 @@
 namespace Ark
 {
     Welder::Welder(const unsigned debug, const std::vector<std::filesystem::path>& lib_env, const uint16_t features) :
-        m_lib_env(lib_env), m_features(features),
+        m_lib_env(lib_env),
+        m_features(features),
         m_computed_ast(internal::NodeType::Unused),
         m_parser(debug),
         m_import_solver(debug, lib_env),
@@ -46,14 +47,13 @@ namespace Ark
 
     bool Welder::computeASTFromString(const std::string& code)
     {
-        m_root_file = std::filesystem::current_path();  // No filename given, take the current working directory
-
+        m_root_file = std::nullopt;
         return computeAST(ARK_NO_NAME_FILE, code);
     }
 
     bool Welder::computeASTFromStringWithKnownSymbols(const std::string& code, const std::vector<std::string>& symbols)
     {
-        m_root_file = std::filesystem::current_path();  // No filename given, take the current working directory
+        m_root_file = std::nullopt;
 
         for (const std::string& sym : symbols)
             m_name_resolver.addDefinedSymbol(sym, /* is_mutable= */ true);
@@ -174,8 +174,8 @@ namespace Ark
 
     void Welder::dumpIRToFile() const
     {
-        std::filesystem::path path = m_root_file;
-        if (is_directory(m_root_file))
+        std::filesystem::path path = m_root_file.value_or(std::filesystem::current_path());
+        if (is_directory(path))
             path = path / ARK_CACHE_DIRNAME / "output.ark.ir";
         else
         {
@@ -198,7 +198,7 @@ namespace Ark
 
             if ((m_features & FeatureImportSolver) != 0)
             {
-                m_import_solver.setup(m_root_file, m_parser.imports());
+                m_import_solver.setup(m_root_file.value_or(std::filesystem::current_path()), m_parser.imports());
                 m_import_solver.process(m_computed_ast);
                 m_computed_ast = m_import_solver.ast();
             }
@@ -228,7 +228,7 @@ namespace Ark
             if ((m_features & FeatureTestFailOnException) > 0)
                 throw;
 
-            if (filename != ARK_NO_NAME_FILE)
+            if (filename != ARK_NO_NAME_FILE && Utils::fileExists(filename) && std::filesystem::is_regular_file(filename))
                 Diagnostics::generate(e);
             else
                 Diagnostics::generateWithCode(e, code);

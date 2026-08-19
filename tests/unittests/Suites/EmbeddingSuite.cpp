@@ -356,6 +356,33 @@ ut::suite<"Embedding"> embedding_suite = [] {
         };
     };
 
+    "[try to import unknown package in embedded code]"_test = [] {
+        Ark::State state({ ARK_TESTS_ROOT "lib" });
+        constexpr uint16_t features = Ark::DefaultFeatures | Ark::FeatureTestFailOnException;
+        const std::string code = "(import foo)";
+        const std::string expected = R"(    1 | (import foo)
+      | ^~~~~~~~~~~
+        While processing file FILE, couldn't import foo: file not found)";
+
+        should("compile the string with an error") = [&] {
+            try
+            {
+                const bool ok = mut(state).doString(code, features);
+                expect(!ok) << fatal;  // we shouldn't be here, the compilation has to fail
+            }
+            catch (const Ark::CodeError& e)
+            {
+                std::stringstream stream;
+                Ark::Diagnostics::generateWithCode(e, code, stream, /* colorize= */ false);
+                std::string diag = stream.str();
+                diag.erase(std::ranges::remove(diag, '\r').begin(), diag.end());
+                Ark::Utils::rtrim(diag);
+
+                expectOrDiff(expected, diag);
+            }
+        };
+    };
+
     "[set and retrieve sys:args in embedded code]"_test = [] {
         Ark::State state({ ARK_TESTS_ROOT "lib" });
         state.setArgs({ "foo", "bar", "--eggs" });

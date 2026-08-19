@@ -8,6 +8,7 @@
 ### Added
 - sha256 sums of release artefacts in the releases
 - the debugger now display the instruction and page pointers in the traces
+- checking that we can properly create error messages when code is run from a string
 
 ### Changed
 

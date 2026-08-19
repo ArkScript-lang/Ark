@@ -115,7 +115,7 @@ namespace Ark
         std::vector<std::filesystem::path> m_lib_env;
         uint16_t m_features;
 
-        std::filesystem::path m_root_file;
+        std::optional<std::filesystem::path> m_root_file;
         std::vector<std::string> m_imports;
         std::vector<internal::IR::Block> m_ir;
         bytecode_t m_bytecode;
