@@ -242,6 +242,18 @@ jobs:
             artifacts/*
             sha/*
 
+  update-docs:
+    runs-on: ubuntu-24.04
+    name: "Create new homebrew-tap"
+    needs: [ release ]
+
+    steps:
+      - name: Create repository dispatch event
+        env:
+          GITHUB_TOKEN: ${{ secrets.HOMEBREW_PUSH_COMMIT_GITHUB_TOKEN }}
+        run: |
+          gh api repos/ArkScript-lang/homebrew-tap/dispatches --raw-field event_type=my_update_tap
+
   publish-to-aur:
     runs-on: ubuntu-latest
     needs: [ release ]
