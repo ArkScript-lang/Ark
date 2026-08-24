@@ -28,6 +28,18 @@ namespace Ark
 
     int Repl::run()
     {
+        fmt::println(R"(
+         █▓█▓                                                        █▓█
+       █▓▓█          █▓█                                              █▓█▒
+      █▒█            █▒▒█                                               █▒█
+     █▒▒▒           █▒██▒█                                               ▓▓
+     ▓▒▓           █▒█  █▒█         █▓▓███████▓█       ██     █▓██       ▓▒█
+     █▒▓          █▒█    █▒█        ▓▒▓       ▓▒█      ▓▓    █▒█         ▓▒▓
+      ▓▒█        █▒█      █▒█       ▓▒▒▒▓▓▓▓▓▓▓▓█      ▓▓  █▓▒▓          ▓▒▓
+      █▓▓       █▒█   ████▒▒▒█      ▓▒▒▓▓▓▓▓▒▓         ▓▓ █▒▓▓▓         █▒█
+        █▓█    █▒▒▓██████████▒█     ▓▒▓     █▒█        ▓▒▓▓█  █▓█      █▓█
+         █▓██ █▓▓▓           █▓█    █▓█      █▓███     █▓█     █▓██  ███
+)");
         fmt::println("ArkScript REPL -- Version {} [LICENSE: Mozilla Public License 2.0] -- Built on {}", ARK_FULL_VERSION, ARK_BUILD_DATE);
         fmt::println(R"(Type "quit" to quit. Try "help" for more information)");
         cuiSetup();
