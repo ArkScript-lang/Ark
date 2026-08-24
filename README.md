@@ -25,7 +25,7 @@
 [![Coverage](https://img.shields.io/coverallsCoverage/github/ArkScript-lang/Ark?style=for-the-badge)](https://coveralls.io/github/ArkScript-lang/Ark?branch=dev)
 [![CodSpeed Badge](https://img.shields.io/endpoint?style=for-the-badge&url=https://codspeed.io/badge.json)](https://codspeed.io/ArkScript-lang/Ark)
 
-<img align="right" src=".github/images/ArkTransparent-by-mazz.png" width=200px alt="ArkScript log by Mazz">
+<img align="right" src=".github/images/logo-2026-rectangle-256x85.png" width=200px alt="ArkScript logo by Mazz">
 
 * [📚 Documentation](https://arkscript-lang.dev/docs/guides/contributing/)
 * [🛝 Playground](https://playground.arkscript-lang.dev/), try the language online now!
@@ -296,10 +296,6 @@ Huge thanks to those people for their donations to support the project:
 * [AKPINAR Dylan](https://github.com/DylanAkp)
 * [Ryan C. Gordon](https://icculus.org) through his [2022 Microgrant](https://web.archive.org/web/20220608150846/https://twitter.com/icculus/status/1534552918317318144)
 
-## Cool graphs
-
-[![Star History Chart](https://api.star-history.com/svg?repos=arkscript-lang/ark&type=Date)](https://star-history.com/#arkscript-lang/ark&Date)
-
 ## Credits
 
 This project was inspired by [game programing patterns](http://gameprogrammingpatterns.com/bytecode.html) and [anthay/Lisp90](https://github.com/anthay/Lisp90)
@@ -312,4 +308,4 @@ Copyright © 2019-2026 Lexy Plateau. All rights reserved.
 
 I (Lexy Plateau) am working pretty much alone on this project, and I try to do my best to leave it as bug free and as performant as possible. However, this is a side project for which I'm currently **not paid** to work on, thus I can't fix every bug or address every feature request in a timely manner.
 
-Please reach out either by email (lexplt.dev@gmail.com) or via a [discussion](https://github.com/orgs/ArkScript-lang/discussions) before using the language in a company project, so that we can set up a support contract. If you don't want to set up a contract, your issues and support requests won't be prioritised (and possibly left unanswered).
+Please reach out either by email (lexy@elranet.eu) or via a [discussion](https://github.com/orgs/ArkScript-lang/discussions) before using the language in a company project, so that we can set up a support contract. If you don't want to set up a contract, your issues and support requests won't be prioritised (and possibly left unanswered).

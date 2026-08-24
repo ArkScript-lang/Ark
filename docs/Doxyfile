@@ -6,7 +6,7 @@
 PROJECT_NAME           = ArkScript
 PROJECT_NUMBER         =
 PROJECT_BRIEF          = "A small, lisp-inspired, functional scripting language"
-PROJECT_LOGO           = ../.github/images/ArkTransparent-small.png
+PROJECT_LOGO           = ../.github/images/logo-2026-rectangle-256x85.png
 OUTPUT_DIRECTORY       = ../../hugo-website/static/
 CREATE_SUBDIRS         = YES
 ABBREVIATE_BRIEF       =
