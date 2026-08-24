@@ -32,13 +32,20 @@ repos:
     hooks:
       - id: conventional-pre-commit
         stages: [ commit-msg ]
-        args: [ ]
-      # build: Changes that affect the build system or external dependencies (example scopes: gulp, broccoli, npm)
-      # ci: Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)
-      # docs: Documentation only changes
-      # feat: A new feature
-      # fix: A bug fix
-      # perf: A code change that improves performance
-      # refactor: A code change that neither fixes a bug nor adds a feature
-      # style: Changes that do not affect the meaning of the code (white-space, formatting, missing semicolons, etc)
-      # test: Adding missing tests or correcting existing tests
+        args: [
+          "--force-scope",
+          "build",  # Changes that affect the build system or external dependencies
+          "chore",
+          "ci",  # Changes to our CI configuration files and scripts
+          "docs",  # Documentation only changes
+          "feat",  # A new feature
+          "fix",  # A bug fix
+          "perf",  # A code change that improves performance
+          "refactor",  # A code change that neither fixes a bug nor adds a feature
+          "revert",
+          "style",  # Changes that do not affect the meaning of the code (white-space, formatting, missing semicolons, etc)
+          "test",  # Adding missing tests or correcting existing tests
+          "release",  # Release a new version
+          "asset",  # Modify project assets
+          "config"  # Changes that affect project config or tooling (scripts, git config, pre-commit...)
+        ]
