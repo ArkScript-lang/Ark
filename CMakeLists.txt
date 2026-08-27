@@ -27,6 +27,11 @@ else ()
     set(ARK_BUILD_DATE "2026-01-02T17:56:00Z")
 endif ()
 
+if (CMAKE_SOURCE_DIR STREQUAL ${PROJECT_SOURCE_DIR})
+    set(CMAKE_CXX_STANDARD 20)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif ()
+
 # needed so that cppcheck has a cache folder, when launched through pre-commit
 file(MAKE_DIRECTORY cache-cppcheck)
 
@@ -83,7 +88,7 @@ file(GLOB_RECURSE SOURCE_FILES
 
 if (NOT ARK_EMSCRIPTEN AND NOT ARK_STATIC)
     add_library(ArkReactor SHARED ${SOURCE_FILES})
-    # enable_lto(ArkReactor)
+    enable_lto(ArkReactor)
     set_target_properties(ArkReactor PROPERTIES
             INSTALL_NAME_DIR "@rpath"
             LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_BINDIR})
@@ -336,7 +341,7 @@ if (ARK_BENCHMARKS)
     target_link_libraries(bench PUBLIC ArkReactor benchmark::benchmark)
     target_compile_features(bench PRIVATE cxx_std_20)
     target_compile_definitions(bench PRIVATE ARK_TESTS_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/")
-    # enable_lto(bench)
+    enable_lto(bench)
 endif ()
 
 if (ARK_BUILD_EXE)
@@ -367,7 +372,7 @@ if (ARK_BUILD_EXE)
             INSTALL_RPATH_USE_LINK_PATH ON)
     set_target_rpath(arkscript)
 
-    # enable_lto(arkscript)
+    enable_lto(arkscript)
 
     # Installs the arkscript executable.
     install(TARGETS arkscript
