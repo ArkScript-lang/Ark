@@ -9,6 +9,7 @@
 - sha256 sums of release artefacts in the releases
 - the debugger now display the instruction and page pointers in the traces
 - checking that we can properly create error messages when code is run from a string
+- add support for raw strings: `r"string..."`, backslashes do not have to be escaped in them
 
 ### Changed
 

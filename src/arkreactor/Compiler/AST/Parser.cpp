@@ -840,14 +840,16 @@ namespace Ark::internal
 
     std::optional<Node> Parser::string(const FilePosition filepos)
     {
-        std::string res;
-        if (accept(IsChar('"')))
+        if (const bool is_normal_string = accept(IsChar('"')); is_normal_string || (accept(IsChar('r')) && accept(IsChar('"'))))
         {
+            const bool is_raw_string = !is_normal_string;
+
+            std::string res;
             while (true)
             {
                 const auto pos = getCursor();
 
-                if (accept(IsChar('\\')))
+                if (!is_raw_string && accept(IsChar('\\')))
                 {
                     if (m_mode != ParserMode::Interpret)
                         res += '\\';
@@ -960,16 +962,20 @@ namespace Ark::internal
                         error("Unknown escape sequence", pos);
                     }
                 }
+                else if (is_raw_string)
+                    accept(IsNot(IsChar('"')), &res);
                 else
                     accept(IsNot(IsEither(IsChar('\\'), IsChar('"'))), &res);
 
                 if (accept(IsChar('"')))
                     break;
                 if (isEOF())
-                    expectSuffixOrError('"', "after string");
+                    expectSuffixOrError('"', fmt::format("after {}string", is_raw_string ? "raw " : ""));
             }
 
-            return positioned(Node(NodeType::String, res), filepos);
+            Node str_node = Node(NodeType::String, res);
+            str_node.setRawString(is_raw_string);
+            return positioned(str_node, filepos);
         }
         return std::nullopt;
     }

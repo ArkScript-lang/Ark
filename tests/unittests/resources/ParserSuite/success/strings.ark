@@ -1,2 +1,6 @@
 (print "abc" "123\"test")
 (print "\\ 123aéoÒ")
+(print r"abcd")
+(print r"\a\b\c\d")
+(print r"\\")
+(print r"")

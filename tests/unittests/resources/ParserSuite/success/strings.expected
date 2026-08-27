@@ -1,2 +1,6 @@
 ( Symbol:print String:abc String:123"test )
 ( Symbol:print String:\ 123aéoÒ )
+( Symbol:print RawString:abcd )
+( Symbol:print RawString:\a\b\c\d )
+( Symbol:print RawString:\\ )
+( Symbol:print RawString: )

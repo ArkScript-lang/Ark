@@ -1,0 +1,6 @@
+(print a "test")
+(print var "test")
+(print r"")
+(print r "")
+(print r"hello world")
+(print r"hello world\a\b\c")

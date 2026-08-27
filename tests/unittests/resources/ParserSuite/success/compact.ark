@@ -3,3 +3,5 @@
 (* 0c)
 (print 1"hello"d)
 (concat[1][2])
+(print a"123")
+(print var"test")

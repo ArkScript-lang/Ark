@@ -9,7 +9,7 @@
 namespace Ark::internal
 {
     Node::Node(const NodeType node_type, const std::string& value) :
-        m_type(node_type), m_value(value), m_pos()
+        m_value(value), m_type(node_type), m_pos()
     {}
 
     Node::Node(const NodeType node_type) :
@@ -20,19 +20,19 @@ namespace Ark::internal
     }
 
     Node::Node(double value) :
-        m_type(NodeType::Number), m_value(value), m_pos()
+        m_value(value), m_type(NodeType::Number), m_pos()
     {}
 
     Node::Node(const long value) :
-        m_type(NodeType::Number), m_value(static_cast<double>(value)), m_pos()
+        m_value(static_cast<double>(value)), m_type(NodeType::Number), m_pos()
     {}
 
     Node::Node(Keyword value) :
-        m_type(NodeType::Keyword), m_value(value), m_pos()
+        m_value(value), m_type(NodeType::Keyword), m_pos()
     {}
 
     Node::Node(const Namespace& namespace_) :
-        m_type(NodeType::Namespace), m_value(namespace_), m_pos()
+        m_value(namespace_), m_type(NodeType::Namespace), m_pos()
     {}
 
     const std::string& Node::string() const noexcept
@@ -156,6 +156,16 @@ namespace Ark::internal
         return m_is_anonymous_function;
     }
 
+    void Node::setRawString(const bool is_raw_string)
+    {
+        m_is_raw_string = is_raw_string;
+    }
+
+    bool Node::isRawString() const noexcept
+    {
+        return m_is_raw_string;
+    }
+
     FileSpan Node::position() const noexcept
     {
         return m_pos;
@@ -202,7 +212,7 @@ namespace Ark::internal
                 break;
 
             case NodeType::String:
-                data += "\"" + string() + "\"";
+                data += (m_is_raw_string ? "r\"" : "\"") + string() + "\"";
                 break;
 
             case NodeType::Number:
@@ -321,7 +331,10 @@ namespace Ark::internal
                 break;
 
             case NodeType::String:
-                os << "String:" << string();
+                if (m_is_raw_string)
+                    os << "RawString:" << string();
+                else
+                    os << "String:" << string();
                 break;
 
             case NodeType::Number:
@@ -367,30 +380,6 @@ namespace Ark::internal
         return os;
     }
 
-    const Node& getTrueNode()
-    {
-        static const Node TrueNode(NodeType::Symbol, "true");
-        return TrueNode;
-    }
-
-    const Node& getFalseNode()
-    {
-        static const Node FalseNode(NodeType::Symbol, "false");
-        return FalseNode;
-    }
-
-    const Node& getNilNode()
-    {
-        static const Node NilNode(NodeType::Symbol, "nil");
-        return NilNode;
-    }
-
-    const Node& getListNode()
-    {
-        static const Node ListNode(NodeType::Symbol, "list");
-        return ListNode;
-    }
-
     bool operator==(const Node& A, const Node& B)
     {
         if (A.m_type != B.m_type)  // should have the same types
@@ -418,5 +407,29 @@ namespace Ark::internal
             default:
                 return false;
         }
+    }
+
+    const Node& getTrueNode()
+    {
+        static const Node TrueNode(NodeType::Symbol, "true");
+        return TrueNode;
+    }
+
+    const Node& getFalseNode()
+    {
+        static const Node FalseNode(NodeType::Symbol, "false");
+        return FalseNode;
+    }
+
+    const Node& getNilNode()
+    {
+        static const Node NilNode(NodeType::Symbol, "nil");
+        return NilNode;
+    }
+
+    const Node& getListNode()
+    {
+        static const Node ListNode(NodeType::Symbol, "list");
+        return ListNode;
     }
 }
