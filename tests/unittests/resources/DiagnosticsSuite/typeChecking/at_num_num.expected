@@ -14,6 +14,13 @@ Arguments
   → `src' (expected String), got 1 (Number)
   → `idx' (expected Number) ✓
 
+Alternative 3:
+Signature
+  ↳ (@ src key)
+Arguments
+  → `src' (expected Dict), got 1 (Number)
+  → `key' (expected any) ✓
+
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/at_num_num.ark:1
     1 | (@ 1 2)
       | ^~~~~~

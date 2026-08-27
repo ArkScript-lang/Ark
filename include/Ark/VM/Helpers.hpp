@@ -73,41 +73,48 @@ namespace Ark::helper
 
     inline ARK_ALWAYS_INLINE Value at(Value& container, Value& index, VM& vm)
     {
-        if (index.valueType() != ValueType::Number)
-            throw types::TypeCheckingError(
-                "@",
-                { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
-                    types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
-                { container, index });
-
-        const auto num = static_cast<long>(index.number());
-
-        if (container.valueType() == ValueType::List)
+        if (container.valueType() != ValueType::Dict)
         {
-            const auto i = static_cast<std::size_t>(num < 0 ? static_cast<long>(container.list().size()) + num : num);
-            if (i < container.list().size())
-                return container.list()[i];
+            if (index.valueType() != ValueType::Number)
+                throw types::TypeCheckingError(
+                    "@",
+                    { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
+                        types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } },
+                        types::Contract { { types::Typedef("src", ValueType::Dict), types::Typedef("key", ValueType::Any) } } } },
+                    { container, index });
+
+            const auto num = static_cast<long>(index.number());
+
+            if (container.valueType() == ValueType::List)
+            {
+                const auto i = static_cast<std::size_t>(num < 0 ? static_cast<long>(container.list().size()) + num : num);
+                if (i < container.list().size())
+                    return container.list()[i];
+                else
+                    VM::throwVMError(
+                        ErrorKind::Index,
+                        fmt::format("{} out of range {} (length {})", num, container.toString(vm), container.list().size()));
+            }
+            else if (container.valueType() == ValueType::String)
+            {
+                const auto i = static_cast<std::size_t>(num < 0 ? static_cast<long>(container.string().size()) + num : num);
+                if (i < container.string().size())
+                    return Value(std::string(1, container.string()[i]));
+                else
+                    VM::throwVMError(
+                        ErrorKind::Index,
+                        fmt::format("{} out of range \"{}\" (length {})", num, container.string(), container.string().size()));
+            }
             else
-                VM::throwVMError(
-                    ErrorKind::Index,
-                    fmt::format("{} out of range {} (length {})", num, container.toString(vm), container.list().size()));
-        }
-        else if (container.valueType() == ValueType::String)
-        {
-            const auto i = static_cast<std::size_t>(num < 0 ? static_cast<long>(container.string().size()) + num : num);
-            if (i < container.string().size())
-                return Value(std::string(1, container.string()[i]));
-            else
-                VM::throwVMError(
-                    ErrorKind::Index,
-                    fmt::format("{} out of range \"{}\" (length {})", num, container.string(), container.string().size()));
+                throw types::TypeCheckingError(
+                    "@",
+                    { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
+                        types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } },
+                        types::Contract { { types::Typedef("src", ValueType::Dict), types::Typedef("key", ValueType::Any) } } } },
+                    { container, index });
         }
         else
-            throw types::TypeCheckingError(
-                "@",
-                { { types::Contract { { types::Typedef("src", ValueType::List), types::Typedef("idx", ValueType::Number) } },
-                    types::Contract { { types::Typedef("src", ValueType::String), types::Typedef("idx", ValueType::Number) } } } },
-                { container, index });
+            return container.dictRef().get(index);
     }
 
     inline ARK_ALWAYS_INLINE Value atAt(const Value* x, const Value* y, Value& list)

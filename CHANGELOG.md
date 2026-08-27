@@ -10,8 +10,11 @@
 - the debugger now display the instruction and page pointers in the traces
 - checking that we can properly create error messages when code is run from a string
 - add support for raw strings: `r"string..."`, backslashes do not have to be escaped in them
+- stdlib:
+  - new draft module `re`, using `google/re2` as the regex engine
 
 ### Changed
+- `@` can be used with dictionaries: `(@ dict key)` will behave the same as `(dict:get dict key)`
 
 ### Removed
 - removed `std.Range` which had been deprecated in 4.6.0
