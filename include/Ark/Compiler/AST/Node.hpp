@@ -196,6 +196,19 @@ namespace Ark::internal
         [[nodiscard]] bool isAnonymousFunction() const noexcept;
 
         /**
+         * @brief Set the m_is_raw_string flag on the node
+         * @param is_raw_string true to mark the node as a raw string
+         */
+        void setRawString(bool is_raw_string);
+
+        /**
+         * @brief Check if a node is a raw string
+         * @return true if the node is a raw string
+         * @return false
+         */
+        [[nodiscard]] bool isRawString() const noexcept;
+
+        /**
          * @brief Get the span of the node (start and end)
          *
          * @return const FileSpan
@@ -239,16 +252,19 @@ namespace Ark::internal
         friend class Parser;
 
     private:
-        NodeType m_type { NodeType::Unused };
         Value m_value;
+        // 5 bits is more than enough, we can have 32 different nodes types
+        NodeType m_type : 5 = NodeType::Unused;
+        bool m_alt_syntax : 1 = false;            ///< Used to tell if a node uses the alternative syntax (if available), eg (begin) / {}, (list) / []
+        bool m_is_anonymous_function : 1 = true;  ///< Function nodes are marked as anonymous/non-anonymous by the ASTLowerer, to enable some optimisations
+        bool m_is_raw_string : 1 = false;         ///< Strings are by default not raw ; raw strings have all their backslashes escaped
+
         std::optional<std::string> m_unqualified_name { std::nullopt };  ///< Used by Capture nodes, to have the FQN in the value, and the captured name here
         // position of the node in the original code, useful when it comes to parser errors
         FileSpan m_pos;
         std::string m_filename;
         std::string m_comment;
-        std::string m_after_comment;          ///< Comment after node
-        bool m_alt_syntax = false;            ///< Used to tell if a node uses the alternative syntax (if available), eg (begin) / {}, (list) / []
-        bool m_is_anonymous_function = true;  ///< Function nodes are marked as anonymous/non-anonymous by the ASTLowerer, to enable some optimisations
+        std::string m_after_comment;  ///< Comment after node
     };
 
     const Node& getTrueNode();

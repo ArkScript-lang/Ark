@@ -3,3 +3,5 @@
 ( Symbol:* Number:0 Symbol:c )
 ( Symbol:print Number:1 String:hello Symbol:d )
 ( Symbol:concat ( Symbol:list Number:1 ) ( Symbol:list Number:2 ) )
+( Symbol:print Symbol:a String:123 )
+( Symbol:print Symbol:var String:test )

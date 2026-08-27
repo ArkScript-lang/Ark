@@ -238,7 +238,7 @@ std::string Formatter::format(const Node& node, std::size_t indent, bool after_n
             result += std::string(keywords[static_cast<std::size_t>(node.keyword())]);
             break;
         case NodeType::String:
-            result += fmt::format("\"{}\"", node.string());
+            result += fmt::format("{}\"{}\"", node.isRawString() ? "r" : "", node.string());
             break;
         case NodeType::Number:
             result += fmt::format("{}", node.number());
