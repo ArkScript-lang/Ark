@@ -17,3 +17,15 @@
 * (print (len (dict "a" 1 "b" 2 "c" 3)))  # 3
 * =end
 #--
+
+--#
+* @name @
+# @brief Get a value from a given dictionary using a key, or nil if it doesn't exist
+# @param _D dictionary
+# @param _key key to get
+# =begin
+# (let data (dict "key" "value"))
+# (print (@ data "key"))  # value
+# =end
+* =end
+#--
