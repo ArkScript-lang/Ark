@@ -20,12 +20,25 @@
 
 --#
 * @name @
-# @brief Get a value from a given dictionary using a key, or nil if it doesn't exist
-# @param _D dictionary
-# @param _key key to get
-# =begin
-# (let data (dict "key" "value"))
-# (print (@ data "key"))  # value
-# =end
+* @brief Get a value from a given dictionary using a key, or nil if it doesn't exist
+* @param _D dictionary
+* @param _key key to get
+* =begin
+* (let data (dict "key" "value"))
+* (print (@ data "key"))  # value
+* =end
+#--
+
+--#
+* @name @=
+* @details The dictionary is modified in place
+* @param _D dictionary
+* @param _key key to add (or replace)
+* @param _value value for the given key
+* =begin
+* (let data (dict "key" "value"))
+* (@= data "hello" "world")
+* (@= data "key" "hole")  # key:value will be replaced by key:hole
+* (print data)  # {key: hole, hello: world}
 * =end
 #--

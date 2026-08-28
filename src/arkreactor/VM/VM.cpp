@@ -893,11 +893,14 @@ namespace Ark
                 TARGET(SET_AT_INDEX)
                 {
                     {
-                        Value* list = popAndResolveAsPtr(context);
-                        Value number = *popAndResolveAsPtr(context);
-                        Value new_value = *popAndResolveAsPtr(context);
+                        Value* container = popAndResolveAsPtr(context);
+                        const Value key = *popAndResolveAsPtr(context);
+                        const Value new_value = *popAndResolveAsPtr(context);
+                        const bool is_dict = container->valueType() == ValueType::Dict;
 
-                        if (!list->isIndexable() || number.valueType() != ValueType::Number || (list->valueType() == ValueType::String && new_value.valueType() != ValueType::String))
+                        if ((!container->isIndexable() && !is_dict) ||
+                            (!is_dict && key.valueType() != ValueType::Number) ||
+                            (container->valueType() == ValueType::String && new_value.valueType() != ValueType::String))
                             throw types::TypeCheckingError(
                                 "@=",
                                 { { types::Contract {
@@ -907,28 +910,40 @@ namespace Ark
                                   { types::Contract {
                                       { types::Typedef("string", ValueType::String),
                                         types::Typedef("index", ValueType::Number),
-                                        types::Typedef("char", ValueType::String) } } } },
-                                { *list, number, new_value });
+                                        types::Typedef("char", ValueType::String) } } },
+                                  { types::Contract {
+                                      { types::Typedef("dict", ValueType::Dict),
+                                        types::Typedef("key", ValueType::Any),
+                                        types::Typedef("new_value", ValueType::Any) } } } },
+                                { *container, key, new_value });
 
-                        const std::size_t size = list->valueType() == ValueType::List ? list->list().size() : list->stringRef().size();
-                        long idx = static_cast<long>(number.number());
-                        idx = idx < 0 ? static_cast<long>(size) + idx : idx;
-                        if (std::cmp_greater_equal(idx, size) || idx < 0)
-                            throwVMError(
-                                ErrorKind::Index,
-                                fmt::format("@= index ({}) out of range (indexable size: {})", idx, size));
-
-                        if (list->valueType() == ValueType::List)
+                        if (is_dict)
                         {
-                            list->list()[static_cast<std::size_t>(idx)] = new_value;
-                            if (arg)
-                                push(new_value, context);
+                            container->dictRef().set(key, new_value);
+                            push(new_value, context);
                         }
                         else
                         {
-                            list->stringRef()[static_cast<std::size_t>(idx)] = new_value.string()[0];
-                            if (arg)
-                                push(Value(std::string(1, new_value.string()[0])), context);
+                            const std::size_t size = container->valueType() == ValueType::List ? container->list().size() : container->stringRef().size();
+                            long idx = static_cast<long>(key.number());
+                            idx = idx < 0 ? static_cast<long>(size) + idx : idx;
+                            if (std::cmp_greater_equal(idx, size) || idx < 0)
+                                throwVMError(
+                                    ErrorKind::Index,
+                                    fmt::format("@= index ({}) out of range (indexable size: {})", idx, size));
+
+                            if (container->valueType() == ValueType::List)
+                            {
+                                container->list()[static_cast<std::size_t>(idx)] = new_value;
+                                if (arg)
+                                    push(new_value, context);
+                            }
+                            else
+                            {
+                                container->stringRef()[static_cast<std::size_t>(idx)] = new_value.string()[0];
+                                if (arg)
+                                    push(Value(std::string(1, new_value.string()[0])), context);
+                            }
                         }
                     }
                     DISPATCH();

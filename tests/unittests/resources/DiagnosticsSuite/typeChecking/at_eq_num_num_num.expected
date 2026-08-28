@@ -16,6 +16,14 @@ Arguments
   → `index' (expected Number) ✓
   → `char' (expected String), got 3 (Number)
 
+Alternative 3:
+Signature
+  ↳ (@= dict key new_value)
+Arguments
+  → `dict' (expected Dict), got 1 (Number)
+  → `key' (expected any) ✓
+  → `new_value' (expected any) ✓
+
 In file tests/unittests/resources/DiagnosticsSuite/typeChecking/at_eq_num_num_num.ark:1
     1 | (@= 1 2 3)
       | ^~~~~~~~~

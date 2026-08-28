@@ -15,6 +15,7 @@
 
 ### Changed
 - `@` can be used with dictionaries: `(@ dict key)` will behave the same as `(dict:get dict key)`
+- `@=` can be used with dictionaries: `(@= dict key new_value)` will behave the same as `(dict:add dict key new_value)`
 
 ### Removed
 - removed `std.Range` which had been deprecated in 4.6.0
