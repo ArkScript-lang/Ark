@@ -920,7 +920,8 @@ namespace Ark
                         if (is_dict)
                         {
                             container->dictRef().set(key, new_value);
-                            push(new_value, context);
+                            if (arg)
+                                push(new_value, context);
                         }
                         else
                         {

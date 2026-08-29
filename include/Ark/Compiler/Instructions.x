@@ -94,19 +94,19 @@ X(PLUGIN, 0x17)
 X(LIST, 0x18)
 
 // @args number of elements
-// @role Append N elements to a list (TS). Elements are stored in TS(1)..TS(N). Follows the function calling convention
+// @role Append N elements to a list (TS). Elements are stored in `TS(1)..TS(N)`. Follows the function calling convention
 X(APPEND, 0x19)
 
 // @args number of elements
-// @role Concatenate N lists to a list (TS). Lists to concat to TS are stored in TS(1)..TS(N). Follows the function calling convention
+// @role Concatenate N lists to a list (TS). Lists to concat to TS are stored in `TS(1)..TS(N)`. Follows the function calling convention
 X(CONCAT, 0x1a)
 
 // @args number of elements
-// @role Append N elements to a reference to a list (TS), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
+// @role Append N elements to a reference to a list (TS), the list is being mutated in-place, no new object created. Elements are stored in `TS(1)..TS(N)`. Follows the function calling convention
 X(APPEND_IN_PLACE, 0x1b)
 
 // @args number of elements
-// @role Concatenate N lists to a reference to a list (TS), the list is being mutated in-place, no new object created. Lists to concat to TS are stored in TS(1)..TS(N). Follows the function calling convention
+// @role Concatenate N lists to a reference to a list (TS), the list is being mutated in-place, no new object created. Lists to concat to TS are stored in `TS(1)..TS(N)`. Follows the function calling convention
 X(CONCAT_IN_PLACE, 0x1c)
 
 // @role Remove an element from a list (TS), given an index (TS1). Push a new list without the removed element to the stack
@@ -116,18 +116,20 @@ X(POP_LIST, 0x1d)
 X(POP_LIST_IN_PLACE, 0x1e)
 
 // @role Modify a reference to a list or string (TS) by replacing the element at TS1 (must be a number) by the value in TS2. The object is mutated in-place, no new object created
+// @args push: `1` if the new value has to be pushed to the stack, `0` otherwise
 X(SET_AT_INDEX, 0x1f)
 
-// @role Modify a reference to a list (TS) by replacing TS[TS2][TS1] by the value in TS3. TS[TS2] can be a string (if it is, TS3 must be a string). The object is mutated in-place, no new object created
+// @role Modify a reference to a list (TS) by replacing `TS[TS2][TS1]` by the value in TS3. `TS[TS2]` can be a string (if it is, TS3 must be a string). The object is mutated in-place, no new object created
+// @args push: `1` if the new value has to be pushed to the stack, `0` otherwise
 X(SET_AT_2_INDEX, 0x20)
 
 // @role Remove the top of the stack
 X(POP, 0x21)
 
-// @role Pop the top of the stack, if it's false, jump to an address
+// @role Pop the top of the stack, if it's `false`, jump to an address
 X(SHORTCIRCUIT_AND, 0x22)
 
-// @role Pop the top of the stack, if it's true, jump to an address
+// @role Pop the top of the stack, if it's `true`, jump to an address
 X(SHORTCIRCUIT_OR, 0x23)
 
 // @role Create a new local scope
@@ -143,7 +145,7 @@ X(POP_SCOPE, 0x26)
 // @role Pop a List from the stack and a function, and call the function with the given list as arguments
 X(APPLY, 0x27)
 
-// @role Pop the top of the stack, if it's true, trigger the debugger
+// @role Pop the top of the stack, if it's `true`, trigger the debugger
 X(BREAKPOINT, 0x28)
 
 // @role Push `TS1 + TS`
@@ -176,10 +178,10 @@ X(NEQ, 0x31)
 // @role Push `TS1 == TS`
 X(EQ, 0x32)
 
-// @role Push `len(TS)`, TS must be a list
+// @role Push `len(TS)`, TS must be a list, dict, or string
 X(LEN, 0x33)
 
-// @role Push `empty?(TS)`, TS must be a list or string
+// @role Push `empty?(TS)`, TS must be a list, dict, string or nil
 X(IS_EMPTY, 0x34)
 
 // @role Push `tail(TS)`, all the elements of TS except the first one. TS must be a list or string
@@ -372,31 +374,31 @@ X(GET_FIELD_FROM_SYMBOL, 0x65)
 X(GET_FIELD_FROM_SYMBOL_INDEX, 0x66)
 
 // @args symbol id, symbol id2
-// @role Push symbol[symbol2]
+// @role Push `symbol[symbol2]`
 X(AT_SYM_SYM, 0x67)
 
 // @args symbol index, symbol index2
-// @role Push symbol[symbol2]
+// @role Push `symbol[symbol2]`
 X(AT_SYM_INDEX_SYM_INDEX, 0x68)
 
 // @args symbol index, constant id
-// @role Push symbol[constant]
+// @role Push `symbol[constant]`
 X(AT_SYM_INDEX_CONST, 0x69)
 
 // @args symbol id, constant id
-// @role Check that the type of symbol is the given constant, push true if so, false otherwise
+// @role Check that the type of symbol is the given constant, push `true` if so, `false` otherwise
 X(CHECK_TYPE_OF, 0x6a)
 
 // @args symbol index, constant id
-// @role Check that the type of symbol is the given constant, push true if so, false otherwise
+// @role Check that the type of symbol is the given constant, push `true` if so, `false` otherwise
 X(CHECK_TYPE_OF_BY_INDEX, 0x6b)
 
 // @args symbol id, number of elements
-// @role Append N elements to a reference to a list (symbol id), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
+// @role Append `N` elements to a reference to a list (symbol id), the list is being mutated in-place, no new object created. Elements are stored in `TS(1)..TS(N)`. Follows the function calling convention
 X(APPEND_IN_PLACE_SYM, 0x6c)
 
 // @args symbol index, number of elements
-// @role Append N elements to a reference to a list (symbol index), the list is being mutated in-place, no new object created. Elements are stored in TS(1)..TS(N). Follows the function calling convention
+// @role Append N elements to a reference to a list (symbol index), the list is being mutated in-place, no new object created. Elements are stored in `TS(1)..TS(N)`. Follows the function calling convention
 X(APPEND_IN_PLACE_SYM_INDEX, 0x6d)
 
 // @args symbol index, symbol id
@@ -404,7 +406,7 @@ X(APPEND_IN_PLACE_SYM_INDEX, 0x6d)
 X(STORE_LEN, 0x6e)
 
 // @args symbol id, absolute address to jump to
-// @role Compute the length of a symbol (list or string), and pop TS to compare it, then jump if false
+// @role Compute the length of a symbol (list or string), and pop TS to compare it, then jump if `false`
 X(LT_LEN_SYM_JUMP_IF_FALSE, 0x6f)
 
 // @args symbol id, offset number
@@ -420,5 +422,5 @@ X(MUL_BY_INDEX, 0x71)
 X(MUL_SET_VAL, 0x72)
 
 // @args op1, op2, op3
-// @role Pop 3 or 4 values from the stack, and apply the ops sequentially (only ADD, SUB, MUL, and DIV are supported). Push the result to the stack. Only op3 may be NOP.
+// @role Pop 3 or 4 values from the stack, and apply the ops sequentially (only ADD, SUB, MUL, and DIV are supported). Push the result to the stack. Only `op3` may be `NOP`.
 X(FUSED_MATH, 0x73)
