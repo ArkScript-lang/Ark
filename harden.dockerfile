@@ -38,9 +38,12 @@ RUN cmake -H. -Bbuild \
     -DCMAKE_CXX_COMPILER=clang++ \
     -DARK_BUILD_EXE=On \
     -DARK_ENABLE_SYSTEM=Off \
+    -DARK_UNITY_BUILD=On \
+    -DARK_BUILD_MODULES=On \
+    -DARK_REQUESTED_MODULES='re,hash,console,' \
     -DARK_COMMIT="$(cat rev)" \
     -DARK_BUILD_DATE="$(date +%Y-%m-%dT%H:%M:%SZ)" \
-    && cmake --build build --target arkscript -- -j $(nproc)
+    && cmake --build build -- -j $(nproc)
 
 FROM alpine:3.23 AS organizer
 

@@ -212,7 +212,9 @@ if (NOT ARK_EMSCRIPTEN)
     if (NOT ARK_NO_STDLIB)
         install(DIRECTORY ${ark_SOURCE_DIR}/lib/std/
                 DESTINATION ${CMAKE_INSTALL_LIBDIR}/Ark/std
-                FILES_MATCHING PATTERN "*.ark"
+                FILES_MATCHING
+                PATTERN "*.ark"
+                PATTERN "*.arkm"
                 PATTERN "std/tests" EXCLUDE
                 PATTERN "std/.github" EXCLUDE
                 PATTERN "scripts" EXCLUDE)

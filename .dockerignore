@@ -3,7 +3,8 @@
 !.git
 !cmake
 !include
-!lib
+!lib/modules
+!lib/std/*.ark
 !src
 !thirdparties
 !.gitmodules

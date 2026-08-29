@@ -178,6 +178,7 @@ Different CMake switches are available to customise the build:
 * `-DARK_ENABLE_SYSTEM` to enable `sys:exec` (execute shell commands without restrictions), defaults to On
 * `-DARK_NO_STDLIB` to avoid the installation of the ArkScript standard library
 * `-DARK_BUILD_MODULES` to trigger the modules build
+  * `-DARK_REQUESTED_MODULES='module,...,module,'` to specify the list of modules to build. Use `'*'` to build them all. A comma must be present at the end of the list and between every module
 * `-DARK_SANITIZERS` to enable ASAN and UBSAN
 * `-DARK_TESTS` to build the unit tests (separate target named `unittests`)
   * `-DARK_COVERAGE` to enable coverage analysis ; only works in conjunction with `-DARK_TESTS`, enables the `coverage` target: `cmake --build build --target coverage`
