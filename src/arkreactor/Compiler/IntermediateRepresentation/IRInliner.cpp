@@ -1,5 +1,7 @@
 #include <Ark/Compiler/IntermediateRepresentation/IRInliner.hpp>
 
+#include <Ark/Constants.hpp>
+
 #include <algorithm>
 #include <cassert>
 #include <limits>
@@ -95,8 +97,7 @@ namespace Ark::internal
             candidate.metadata.name.value_or(std::string(IR::AnonymousBlockName)) == IR::AnonymousBlockName ||
             std::cmp_greater_equal(candidate_inst_count + source_inst_count, MaxValue16Bits))
             return false;
-        // TODO: create a proper constant and make this less arbitrary?
-        return candidate.metadata.is_simple && candidate_inst_count < 24;
+        return candidate.metadata.is_simple && candidate_inst_count < InstCountForInlining;
     }
 
     std::optional<BlockInfo> IRInliner::blockToInlineInCall(
