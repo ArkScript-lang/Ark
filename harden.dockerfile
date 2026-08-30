@@ -22,7 +22,7 @@ RUN git submodule update --init --recursive \
 FROM alpine:3.23 AS builder
 
 # Install cmake
-RUN apk --no-cache add cmake clang make
+RUN apk --no-cache add cmake clang make linux-headers
 
 # Build
 COPY include include
