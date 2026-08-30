@@ -1,3 +1,3 @@
-(import hash)
+(import std.hash)
 
 (assert (= "5d41402abc4b2a76b9719d911017c592" (hash:md5 "hello")) "md5 'hello'")
