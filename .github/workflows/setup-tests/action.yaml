@@ -41,6 +41,7 @@ runs:
 
     - shell: bash
       run: |
+        mv build/lib/std/*.arkm lib/std/
         mv build/lib/*.arkm lib/
         chmod u+x build/arkscript
         cp -r artifact/tests/unittests/* tests/unittests/
