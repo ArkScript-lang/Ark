@@ -108,7 +108,7 @@ runs:
          -DARK_COVERAGE=${{ inputs.coverage }} \
          -DARK_BUILD_EXE=On \
          -DARK_TESTS=On \
-         -DARK_BUILD_MODULES=$ToggleModules -DARK_MOD_ALL=$ToggleModules -DARK_MOD_DRAFT=$ToggleModules \
+         -DARK_BUILD_MODULES=$ToggleModules -DARK_REQUESTED_MODULES='*' \
          -DARK_UNITY_BUILD=${{ inputs.unity }} \
          -DARK_STATIC=${{ inputs.static }} \
          -DARK_DISTRIBUTE=${{ inputs.distribute }}
@@ -135,7 +135,7 @@ runs:
           -DARK_COVERAGE=${{ inputs.coverage }} \
           -DARK_BUILD_EXE=On \
           -DARK_TESTS=On \
-          -DARK_BUILD_MODULES=$ToggleModules -DARK_MOD_ALL=$ToggleModules -DARK_MOD_DRAFT=$ToggleModules \
+          -DARK_BUILD_MODULES=$ToggleModules -DARK_REQUESTED_MODULES='*' \
           -DARK_UNITY_BUILD=${{ inputs.unity }} \
           -DARK_STATIC=${{ inputs.static }} \
           -DARK_DISTRIBUTE=${{ inputs.distribute }} \

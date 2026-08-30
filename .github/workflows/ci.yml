@@ -412,7 +412,7 @@ jobs:
             cp build/$BUILD_TYPE/ArkReactor.dll artifact
           fi
           # Generic
-          cp lib/*.arkm artifact/lib
+          cp lib/std/*.arkm artifact/lib/std
           cp lib/std/*.ark artifact/lib/std
           cp tests/unittests/*.arkm artifact/lib
 
@@ -671,7 +671,7 @@ jobs:
       - name: Update LLVM compilers
         shell: bash
         run: |
-          mv build/lib/*.arkm lib/
+          mv build/lib/std/*.arkm lib/std/
           chmod u+x build/arkscript
           sudo apt-get update --fix-missing
           sudo apt-get install -y clang-16 lld-16 libc++-16-dev libc++abi-16-dev clang-tools-16
