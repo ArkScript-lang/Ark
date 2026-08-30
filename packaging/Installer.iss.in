@@ -23,14 +23,13 @@ ArchitecturesInstallIn64BitMode=x64
 [Dirs]
 Name: "{app}\bin"
 Name: "{app}\lib"
-Name: "{app}\modules"
 
 [Files]
 Source: "build/Release/arkscript.exe"; DestDir: "{app}\bin"
 Source: "build/Release/ArkReactor.dll"; DestDir: "{app}\bin"
 Source: "lib/std/*.ark"; DestDir: "{app}\lib"
 Source: "lib/std/LICENSE"; DestDir: "{app}\lib"
-Source: "lib/*.arkm"; DestDir: "{app}\modules"
+Source: "lib/std/*.arkm"; DestDir: "{app}\lib"
 Source: "LICENCE"; DestDir: "{app}"
 Source: "README.md"; DestDir: "{app}"; Flags: isreadme
 
@@ -39,7 +38,7 @@ Name: "{group}\ArkScript"; Filename: "{app}\bin\arkscript.exe"
 
 [Registry]
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: expandsz; ValueName: "PATH"; ValueData: "{olddata};{app}\bin"; Check: NeedsAddPath('{app}\bin')
-Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "ARKSCRIPT_PATH"; ValueData: "{app};{app}/lib;{app}/modules"; Flags: preservestringtype
+Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "ARKSCRIPT_PATH"; ValueData: "{app};{app}/lib"; Flags: preservestringtype
 
 [Code]
 function NeedsAddPath(Param: string): boolean;

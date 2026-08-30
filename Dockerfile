@@ -27,7 +27,6 @@ RUN apk --no-cache add cmake clang make libc-dev linux-headers
 # Build
 COPY include include
 COPY src src
-COPY Installer.iss.in .
 COPY CMakeLists.txt .
 COPY cmake cmake
 COPY --from=submodule-initializor /out .

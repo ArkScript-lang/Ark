@@ -18,7 +18,7 @@ tools/*_hash.py
 
 # Generated files
 include/Ark/Constants.hpp
-/Installer.iss
+/packaging/Installer.iss
 
 # Fuzzing
 /fuzzing/

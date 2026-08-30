@@ -67,10 +67,6 @@ message(STATUS "ArkScript version ${ARK_VERSION_MAJOR}.${ARK_VERSION_MINOR}.${AR
 # Configure files
 #####################################################
 
-## installer.iss
-configure_file(
-        ${ark_SOURCE_DIR}/Installer.iss.in
-        ${ark_SOURCE_DIR}/Installer.iss)
 ## Ark/Constants.hpp
 configure_file(
         ${ark_SOURCE_DIR}/include/Ark/Constants.hpp.in
@@ -390,4 +386,8 @@ endif ()
 if (ARK_DISTRIBUTE)
     include(cmake/packaging.cmake)
     include(CPack)
+
+    configure_file(
+            ${ark_SOURCE_DIR}/packaging/Installer.iss.in
+            ${ark_SOURCE_DIR}/packaging/Installer.iss)
 endif ()

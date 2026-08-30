@@ -9,5 +9,5 @@
 !thirdparties
 !.gitmodules
 !CMakeLists.txt
-!Installer.iss.in
+!packaging
 !harden_docker.sh
