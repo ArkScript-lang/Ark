@@ -87,6 +87,7 @@ namespace Ark
     constexpr std::size_t VMOverflowBufferSize = 256;                                          ///< Additional number of elements the stack can tolerate
     constexpr std::size_t VMStackSizeWithOverflowBuffer = VMStackSize + VMOverflowBufferSize;  ///< Exceeding VMStackSize, even if we are below VMStackSizeWithOverflowBuffer, means we stack overflowed
     constexpr std::size_t ScopeStackSize = 8192;
+    constexpr std::size_t InstCountForInlining = 24;
 
 #if defined(_WIN32) || defined(_WIN64)
     constexpr std::string_view DefaultLibFolder { "" };
