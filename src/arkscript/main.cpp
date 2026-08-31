@@ -337,7 +337,7 @@ int main(int argc, char** argv)
                 formatter.run();
                 if (format_dry_run)
                     fmt::println("{}", formatter.output());
-                if (formatter.codeModified())
+                if (formatter.codeModified() && format_check)
                     return 1;
             }
         }
