@@ -35,8 +35,9 @@ namespace Ark::internal
          * @brief Construct a new Macro Processor object
          *
          * @param debug the debug level
+         * @param stats_collector optional statistics collector
          */
-        explicit MacroProcessor(unsigned debug) noexcept;
+        explicit MacroProcessor(unsigned debug, Statistics* stats_collector = nullptr) noexcept;
 
         /**
          * @brief Send the complete AST and work on it

@@ -4,3 +4,4 @@ unusedFunction
 unusedStructMember
 checkersReport
 *:include/Ark/Compiler/Instructions.x
+*:include/Ark/Compiler/Statistics.x

@@ -19,6 +19,7 @@ namespace Ark
     State::State(const std::vector<std::filesystem::path>& libenv) noexcept :
         m_debug_level(0),
         m_features(0),
+        m_gather_stats(false),
         m_libenv(libenv),
         m_filename(ARK_NO_NAME_FILE),
         m_max_page_size(0)
@@ -71,16 +72,30 @@ namespace Ark
             welder.registerSymbol(key);
 
         if (!welder.computeASTFromFile(file))
+        {
+            if (m_gather_stats)
+                fmt::println("{}", welder.m_stats.asJson());
             return false;
+        }
         if (!welder.generateBytecode())
+        {
+            if (m_gather_stats)
+                fmt::println("{}", welder.m_stats.asJson());
             return false;
+        }
 
         const std::string destination = output.empty() ? (file.substr(0, file.find_last_of('.')) + ".arkc") : output;
         if ((m_features & DisableCache) == 0 && !welder.saveBytecodeToFile(destination))
             return false;
         if (!feed(welder.bytecode()))
+        {
+            if (m_gather_stats)
+                fmt::println("{}", welder.m_stats.asJson());
             return false;
+        }
 
+        if (m_gather_stats)
+            fmt::println("{}", welder.m_stats.asJson());
         return true;
     }
 
@@ -138,9 +153,20 @@ namespace Ark
             welder.registerSymbol(p.first);
 
         if (!welder.computeASTFromString(code))
+        {
+            if (m_gather_stats)
+                fmt::println("{}", welder.m_stats.asJson());
             return false;
+        }
         if (!welder.generateBytecode())
+        {
+            if (m_gather_stats)
+                fmt::println("{}", welder.m_stats.asJson());
             return false;
+        }
+
+        if (m_gather_stats)
+            fmt::println("{}", welder.m_stats.asJson());
         return feed(welder.bytecode());
     }
 
@@ -167,6 +193,11 @@ namespace Ark
     void State::setLibDirs(const std::vector<std::filesystem::path>& libenv) noexcept
     {
         m_libenv = libenv;
+    }
+
+    void State::gatherStats(const bool toggle) noexcept
+    {
+        m_gather_stats = toggle;
     }
 
     void State::configure(const BytecodeReader& bcr)

@@ -16,6 +16,7 @@
 #include <filesystem>
 
 #include <Ark/Compiler/Common.hpp>
+#include <Ark/Compiler/Statistics.hpp>
 #include <Ark/Compiler/AST/Node.hpp>
 #include <Ark/Compiler/AST/Parser.hpp>
 #include <Ark/Compiler/Lowerer/ASTLowerer.hpp>
@@ -111,6 +112,8 @@ namespace Ark
         [[nodiscard]] std::string textualIR() const noexcept;
         [[nodiscard]] const bytecode_t& bytecode() const noexcept;
 
+        friend class Ark::State;
+
     private:
         std::vector<std::filesystem::path> m_lib_env;
         uint16_t m_features;
@@ -120,6 +123,7 @@ namespace Ark
         std::vector<internal::IR::Block> m_ir;
         bytecode_t m_bytecode;
         internal::Node m_computed_ast;
+        internal::Statistics m_stats;
 
         internal::Parser m_parser;
         internal::ImportSolver m_import_solver;

@@ -204,22 +204,27 @@ DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        arkscript -h
-        arkscript -v
-        arkscript --dev-info
-        arkscript -e <expression>
+        arkscript -h 
+        arkscript -v 
+        arkscript --dev-info 
+        arkscript -e <expression> 
         arkscript [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
                   [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
-                  [-f(iroptimizer|no-iroptimizer)] [-fdebugger] [-fdump-ir] [-fno-cache] ((-c
-                  <file>) | <file>)
+                  [-f(irinliner|no-irinliner)] [-f(iroptimizer|no-iroptimizer)] [-fdebugger]
+                  [-fdump-ir] [-fno-cache] -c <file> [--stats] 
 
-        arkscript -f <file> [--(dry-run|check)]
-        arkscript [-d] [-L <lib_dir>] --ast <file>
-        arkscript -bcr <file> -on
-        arkscript -bcr <file> -a [-s <start> <end>]
-        arkscript -bcr <file> -st [-s <start> <end>]
-        arkscript -bcr <file> -vt [-s <start> <end>]
-        arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>]
+        arkscript [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
+                  [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
+                  [-f(irinliner|no-irinliner)] [-f(iroptimizer|no-iroptimizer)] [-fdebugger]
+                  [-fdump-ir] [-fno-cache] <file> 
+
+        arkscript -f <file> [--(dry-run|check)] 
+        arkscript [-d] [-L <lib_dir>] --ast <file> 
+        arkscript -bcr <file> -on 
+        arkscript -bcr <file> -a [-s <start> <end>] 
+        arkscript -bcr <file> -st [-s <start> <end>] 
+        arkscript -bcr <file> -vt [-s <start> <end>] 
+        arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>] 
 
 OPTIONS
         -h, --help                  Display this message
@@ -238,6 +243,7 @@ OPTIONS
                                     Toggle on and off the macro processor pass
 
         -f(optimizer|no-optimizer)  Toggle on and off the optimizer pass
+        -f(irinliner|no-irinliner)  Toggle on and off the IR inliner pass
         -f(iroptimizer|no-iroptimizer)
                                     Toggle on and off the IR optimizer pass
 
@@ -246,6 +252,7 @@ OPTIONS
         -fno-cache                  Disable the bytecode cache creation
         -c, --compile               Compile the given program to bytecode, but do not run
         <file>                      If file is -, it reads code from stdin
+        --stats                     Gather stats about each compiler pass and print them to stdout
         -f, --format                Format the given source file in place
         --dry-run                   Do not modify the file, only print out the changes
         --check                     Check if a file formating is correctly, without modifying it.
@@ -270,10 +277,10 @@ OPTIONS
         -s, --slice                 Select a slice of instructions in the bytecode
 
 VERSION
-        4.2.0-94e546d6
+        4.7.2-28c5a9e6
 
 BUILD DATE
-        2026-02-21T20:42:38Z
+        2026-09-04T18:22:01Z
 
 LICENSE
         Mozilla Public License 2.0

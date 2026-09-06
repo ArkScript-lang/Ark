@@ -4,8 +4,8 @@
 
 namespace Ark::internal
 {
-    Optimizer::Optimizer(const unsigned debug) noexcept :
-        Pass("Optimizer", debug), m_ast()
+    Optimizer::Optimizer(const unsigned debug, Statistics* stats_collector) noexcept :
+        Pass("Optimizer", debug, stats_collector), m_ast()
     {}
 
     void Optimizer::process(const Node& ast)
@@ -16,11 +16,15 @@ namespace Ark::internal
         m_ast = ast;
 
         m_logger.traceStart("process");
+        m_logger.traceStart("countAndPruneDeadCode");
         countAndPruneDeadCode(m_ast);
+        addStat("ASTOptimizer.countAndPruneDeadCode", m_logger.traceEnd());
 
+        m_logger.traceStart("pruneUnusedGlobalVariables");
         // logic: remove piece of code with only 1 reference, if they aren't function calls
         pruneUnusedGlobalVariables(m_ast);
-        m_logger.traceEnd();
+        addStat("ASTOptimizer.pruneUnusedGlobalVariables", m_logger.traceEnd());
+        addStat("ASTOptimizer.process", m_logger.traceEnd());
 
         m_logger.debug("AST after name pruning nodes");
         if (m_logger.shouldDebug())
@@ -59,7 +63,10 @@ namespace Ark::internal
                 {
                     // replace the node by an Unused, it is either a (while cond block) or (if cond then)
                     if (node.constList().size() == 3)
+                    {
                         node = Node(NodeType::Unused);
+                        statIncrementCount(Stats::ASTOptimizerPrunedNodes);
+                    }
                     else  // it is a (if cond then else)
                     {
                         const auto back = node.constList().back();
@@ -70,8 +77,8 @@ namespace Ark::internal
                 else if (keyword == Keyword::If && condition.nodeType() == NodeType::Symbol && condition.string() == "true")
                     node = body;
 
-                // do not try to iterate on the child nodes as they do not exist anymore,
-                // we performed some optimization that squashed them.
+                // do not try to iterate on the child nodes as they do not exist any more,
+                // we performed some optimisation that squashed them.
                 if (!node.isListLike())
                     return;
             }
@@ -95,14 +102,9 @@ namespace Ark::internal
 
                 // eliminate nested begin blocks
                 if (kw == Keyword::Begin)
-                {
                     pruneUnusedGlobalVariables(child);
-                    // skip let/ mut detection
-                    continue;
-                }
-
                 // check if it's a let/mut declaration and perform removal
-                if (kw == Keyword::Let || kw == Keyword::Mut)
+                else if (kw == Keyword::Let || kw == Keyword::Mut)
                 {
                     const std::string name = child.constList()[1].string();
                     // a variable was only declared and never used
@@ -111,6 +113,7 @@ namespace Ark::internal
                         m_logger.debug("Removing unused variable '{}'", name);
                         // erase the node by turning it to an Unused node
                         child = Node(NodeType::Unused);
+                        statIncrementCount(Stats::ASTOptimizerPrunedNodes);
                     }
                     else if (child.comment().find("@deprecated") != std::string::npos)
                     {
@@ -135,6 +138,7 @@ namespace Ark::internal
                                 : "value",
                             name,
                             advice.empty() ? "" : " " + advice);
+                        statIncrementCount(Stats::Deprecations);
                     }
                 }
             }

@@ -8,8 +8,8 @@
 
 namespace Ark::internal
 {
-    IRInliner::IRInliner(const unsigned debug) :
-        Pass("IRInliner", debug),
+    IRInliner::IRInliner(const unsigned debug, Statistics* stats_collector) :
+        Pass("IRInliner", debug, stats_collector),
         m_current_label(0)
     {}
 
@@ -20,7 +20,9 @@ namespace Ark::internal
         m_values = values;
         m_current_label = last_label + 1;
 
+        m_logger.traceStart("extractPagesMetadata");
         extractPagesMetadata(pages);
+        addStat("IRInliner.extractPagesMetadata", m_logger.traceEnd());
 
         // TODO: some pages could be removed if they are inlined everywhere!
         // TODO: we'll need to move some page index if a page is removed!
@@ -69,6 +71,7 @@ namespace Ark::internal
                     }
 
                     inlineBlock(inlinee, new_block);
+                    statIncrementCount(Stats::InlinedCalls);
                 }
                 else
                     new_block.data.emplace_back(entity);
@@ -77,7 +80,7 @@ namespace Ark::internal
             m_ir.emplace_back(new_block);
         }
 
-        m_logger.traceEnd();
+        addStat("IRInliner.process", m_logger.traceEnd());
     }
 
     const std::vector<IR::Block>& IRInliner::intermediateRepresentation() const noexcept

@@ -30,8 +30,9 @@ namespace Ark::internal
          * @brief Create a new IRCompiler
          *
          * @param debug debug level
+         * @param stats_collector optional statistics collector
          */
-        explicit IRCompiler(unsigned debug);
+        explicit IRCompiler(unsigned debug, Statistics* stats_collector = nullptr);
 
         /**
          * @brief Turn a given IR into bytecode

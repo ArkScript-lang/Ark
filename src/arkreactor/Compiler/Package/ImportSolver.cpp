@@ -10,8 +10,11 @@
 
 namespace Ark::internal
 {
-    ImportSolver::ImportSolver(const unsigned debug, const std::vector<std::filesystem::path>& libenv) :
-        Pass("ImportSolver", debug), m_debug_level(debug), m_libenv(libenv), m_ast()
+    ImportSolver::ImportSolver(const unsigned debug, const std::vector<std::filesystem::path>& libenv, Statistics* stats_collector) :
+        Pass("ImportSolver", debug, stats_collector),
+        m_debug_level(debug),
+        m_libenv(libenv),
+        m_ast()
     {}
 
     ImportSolver& ImportSolver::setup(const std::filesystem::path& root, const std::vector<Import>& origin_imports)
@@ -59,9 +62,9 @@ namespace Ark::internal
 
         m_logger.traceStart("findAndReplaceImports");
         m_ast = findAndReplaceImports(origin_ast).first;
-        m_logger.traceEnd();
+        addStat("ImportSolver.findAndReplaceImports", m_logger.traceEnd());
 
-        m_logger.traceEnd();
+        addStat("ImportSolver.process", m_logger.traceEnd());
     }
 
     std::pair<Node, bool> ImportSolver::findAndReplaceImports(const Node& ast)
@@ -85,6 +88,8 @@ namespace Ark::internal
                 // if it wasn't imported already, register it
                 if (std::ranges::find(m_imported, package) == m_imported.end())
                 {
+                    statIncrementCount(Stats::ProcessedImports);
+
                     m_imported.push_back(package);
                     // modules are already handled, we can safely replace the node
                     x = m_packages[package].ast;
@@ -176,7 +181,7 @@ namespace Ark::internal
             false
         };
 
-        m_logger.traceEnd();
+        addStat(fmt::format("ImportSolver.parseImport({})", import.toPackageString()), m_logger.traceEnd());
 
         auto imports = parser.imports();
         std::vector<ImportWithSource> output;

@@ -35,8 +35,9 @@ namespace Ark::internal
          * @brief Create a new IROptimizer
          *
          * @param debug debug level
+         * @param stats_collector optional statistics collector
          */
-        explicit IROptimizer(unsigned debug);
+        explicit IROptimizer(unsigned debug, Statistics* stats_collector = nullptr);
 
         /**
          * @brief Turn a given IR into bytecode

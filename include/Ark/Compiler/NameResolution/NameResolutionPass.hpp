@@ -27,18 +27,22 @@ namespace Ark::internal
     public:
         /**
          * @brief Create a NameResolutionPass
+         *
          * @param debug debug level
+         * @param stats_collector optional statistics collector
          */
-        explicit NameResolutionPass(unsigned debug);
+        explicit NameResolutionPass(unsigned debug, Statistics* stats_collector = nullptr);
 
         /**
          * @brief Start visiting the given AST, checking for mutability violation and unbound variables
+         *
          * @param ast AST to analyze
          */
         void process(const Node& ast);
 
         /**
          * @brief Unused overload that return the input AST (untouched as this pass only generates errors)
+         *
          * @return const Node& ast
          */
         [[nodiscard]] const Node& ast() const noexcept;
@@ -61,6 +65,7 @@ namespace Ark::internal
 
         /**
          * @brief Recursively visit nodes
+         *
          * @param node node to visit
          * @param register_declarations whether or not the visit should register declarations
          */

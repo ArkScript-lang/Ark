@@ -21,15 +21,15 @@ namespace Ark
         m_features(features),
         m_computed_ast(internal::NodeType::Unused),
         m_parser(debug),
-        m_import_solver(debug, lib_env),
-        m_macro_processor(debug),
-        m_ast_optimizer(debug),
-        m_name_resolver(debug),
+        m_import_solver(debug, lib_env, &m_stats),
+        m_macro_processor(debug, &m_stats),
+        m_ast_optimizer(debug, &m_stats),
+        m_name_resolver(debug, &m_stats),
         m_logger("Welder", debug),
-        m_lowerer(debug),
-        m_ir_inliner(debug),
-        m_ir_optimizer(debug),
-        m_ir_compiler(debug)
+        m_lowerer(debug, &m_stats),
+        m_ir_inliner(debug, &m_stats),
+        m_ir_optimizer(debug, &m_stats),
+        m_ir_compiler(debug, &m_stats)
     {}
 
     void Welder::registerSymbol(const std::string& name)
@@ -193,8 +193,10 @@ namespace Ark
     {
         try
         {
+            const auto t = std::chrono::high_resolution_clock::now();
             m_parser.process(filename, code);
             m_computed_ast = m_parser.ast();
+            m_stats.time(fmt::format("Parser.process({})", filename), std::chrono::high_resolution_clock::now() - t);
 
             if ((m_features & FeatureImportSolver) != 0)
             {

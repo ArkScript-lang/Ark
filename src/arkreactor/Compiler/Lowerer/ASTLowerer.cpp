@@ -25,8 +25,8 @@ namespace Ark::internal
         Builtin
     };
 
-    ASTLowerer::ASTLowerer(const unsigned debug) :
-        Pass("ASTLowerer", debug)
+    ASTLowerer::ASTLowerer(const unsigned debug, Statistics* stats_collector) :
+        Pass("ASTLowerer", debug, stats_collector)
     {}
 
     void ASTLowerer::addToTables(const std::vector<std::string>& symbols, const std::vector<ValTableElem>& constants)
@@ -52,7 +52,7 @@ namespace Ark::internal
             /* is_result_unused= */ true,
             /* is_terminal= */ false,
             /* can_use_ref= */ true);
-        m_logger.traceEnd();
+        addStat("ASTLowerer.process", m_logger.traceEnd());
     }
 
     const std::vector<IR::Block>& ASTLowerer::intermediateRepresentation() const noexcept
@@ -211,6 +211,8 @@ namespace Ark::internal
 
     void ASTLowerer::compileExpression(Node& x, const Page p, const bool is_result_unused, const bool is_terminal, const bool can_use_ref)
     {
+        statIncrementCount(Stats::ExpressionsCompiled);
+
         // register symbols
         if (x.nodeType() == NodeType::Symbol)
             compileSymbol(x, p, is_result_unused, /* can_use_ref= */ can_use_ref);

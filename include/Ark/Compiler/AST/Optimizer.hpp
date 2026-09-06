@@ -32,8 +32,9 @@ namespace Ark::internal
          * @brief Construct a new Optimizer
          *
          * @param debug level of debug
+         * @param stats_collector optional statistics collector
          */
-        explicit Optimizer(unsigned debug) noexcept;
+        explicit Optimizer(unsigned debug, Statistics* stats_collector = nullptr) noexcept;
 
         /**
          * @brief Send the AST to the optimizer, then run the different optimization strategies on it

@@ -17,8 +17,8 @@ namespace Ark::internal
 {
     using namespace literals;
 
-    IRCompiler::IRCompiler(const unsigned debug) :
-        Pass("IRCompiler", debug)
+    IRCompiler::IRCompiler(const unsigned debug, Statistics* stats_collector) :
+        Pass("IRCompiler", debug, stats_collector)
     {}
 
     void IRCompiler::process(const std::vector<IR::Block>& pages, const std::vector<std::string>& symbols, const std::vector<ValTableElem>& values)
@@ -62,7 +62,7 @@ namespace Ark::internal
         picosha2::hash256(m_bytecode.begin() + bytecode::HeaderSize, m_bytecode.end(), hash_out);
         m_bytecode.insert(m_bytecode.begin() + bytecode::HeaderSize, hash_out.begin(), hash_out.end());
 
-        m_logger.traceEnd();
+        addStat("IRCompiler.process", m_logger.traceEnd());
     }
 
     void IRCompiler::dumpToStream(std::ostream& stream) const

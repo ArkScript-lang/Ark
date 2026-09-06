@@ -19,8 +19,8 @@ namespace Ark::internal
         return IR::Entity(FUSED_MATH, e[0].inst(), e[1].inst(), NOP);
     }
 
-    IROptimizer::IROptimizer(const unsigned debug) :
-        Pass("IROptimizer", debug)
+    IROptimizer::IROptimizer(const unsigned debug, Statistics* stats_collector) :
+        Pass("IROptimizer", debug, stats_collector)
     {
         // TODO: we could add rules to optimize (<math> <const> <const>) to have a precomputed value instead
         // TODO: same for (<cmp> <const> <const>)
@@ -285,6 +285,7 @@ namespace Ark::internal
                     auto [entity, offset] = maybe_compacted.value();
                     current_block.emplace_back(entity);
                     i += offset;
+                    statIncrementCount(Stats::OptimisedInstructions);
                 }
                 else
                 {
@@ -294,7 +295,7 @@ namespace Ark::internal
             }
         }
 
-        m_logger.traceEnd();
+        addStat("IROptimizer.process", m_logger.traceEnd());
     }
 
     const std::vector<IR::Block>& IROptimizer::intermediateRepresentation() const noexcept

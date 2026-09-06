@@ -12,8 +12,7 @@
 
 #include <Ark/Utils/Platform.hpp>
 #include <Ark/Utils/Logger.hpp>
-
-#include <ostream>
+#include <Ark/Compiler/Statistics.hpp>
 
 namespace Ark::internal
 {
@@ -28,8 +27,9 @@ namespace Ark::internal
          *
          * @param name the pass name, used for logging
          * @param debug_level debug level
+         * @param stats_collector optional statistics collector
          */
-        Pass(std::string name, unsigned debug_level);
+        Pass(std::string name, unsigned debug_level, Statistics* stats_collector = nullptr);
 
         virtual ~Pass() = default;
 
@@ -42,6 +42,33 @@ namespace Ark::internal
 
     protected:
         Logger m_logger;
+
+        /**
+         * @brief Register an event with the number of times it happened
+         *
+         * @param name
+         * @param quantity
+         */
+        void addStat(Stats name, long quantity) const;
+
+        /**
+         * @brief Increase the number of times an event happened by `delta`
+         *
+         * @param name
+         * @param delta default: 1
+         */
+        void statIncrementCount(Stats name, long delta = 1) const;
+
+        /**
+         * @brief Register an event with the time it took
+         *
+         * @param name
+         * @param quantity
+         */
+        void addStat(const std::string& name, std::chrono::nanoseconds quantity) const;
+
+    private:
+        Statistics* m_stats { nullptr };
     };
 }
 

@@ -38,6 +38,7 @@ namespace Ark::internal
     public:
         /**
          * @brief Constructs a new Parser object
+         *
          * @param debug debug level
          * @param mode how the parser should behave regarding certain nodes and errors
          */
@@ -45,6 +46,7 @@ namespace Ark::internal
 
         /**
          * @brief Parse the given code
+         *
          * @param filename can be left empty, used for error generation
          * @param code content of the file
          */

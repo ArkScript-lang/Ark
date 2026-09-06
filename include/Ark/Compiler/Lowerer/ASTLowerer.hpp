@@ -52,8 +52,9 @@ namespace Ark::internal
          * @brief Construct a new ASTLowerer object
          *
          * @param debug the debug level
+         * @param stats_collector optional statistics collector
          */
-        explicit ASTLowerer(unsigned debug);
+        explicit ASTLowerer(unsigned debug, Statistics* stats_collector = nullptr);
 
         /**
          * @brief Pre-fill tables (used by the debugger)
