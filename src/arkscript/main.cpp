@@ -51,6 +51,7 @@ int main(int argc, char** argv)
     // Eval / Run / AST dump
     std::string file, eval_expression;
     std::string libdir;
+    bool output_stats = false;
     // Formatting
     bool format_dry_run = false;
     bool format_check = false;
@@ -116,6 +117,7 @@ int main(int argc, char** argv)
             , (
                 required("-c", "--compile").set(selected, mode::compile).doc("Compile the given program to bytecode, but do not run")
                 & value("file", file).doc("If file is -, it reads code from stdin")
+                , option("--stats").set(output_stats, true).doc("Gather stats about each compiler pass and print them to stdout")
             )
             | value("file", file).set(selected, mode::run)
         )
@@ -248,6 +250,7 @@ int main(int argc, char** argv)
             {
                 Ark::State state(lib_paths);
                 state.setDebug(debug);
+                state.gatherStats(output_stats);
 
                 if (!state.doFile(file, passes))
                     return ArkErrorExitCode;

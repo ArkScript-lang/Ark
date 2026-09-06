@@ -6,8 +6,8 @@
 
 namespace Ark::internal
 {
-    NameResolutionPass::NameResolutionPass(const unsigned debug) :
-        Pass("NameResolution", debug)
+    NameResolutionPass::NameResolutionPass(const unsigned debug, Statistics* stats_collector) :
+        Pass("NameResolution", debug, stats_collector)
     {
         for (const auto& builtin : Builtins::builtins)
             m_language_symbols.emplace(builtin.first);
@@ -31,7 +31,7 @@ namespace Ark::internal
         m_ast = ast;
         visit(m_ast, /* register_declarations= */ true);
 
-        m_logger.traceEnd();
+        addStat("NameResolution.visit", m_logger.traceEnd());
 
         m_logger.debug("AST after name resolution");
         if (m_logger.shouldDebug())
@@ -39,7 +39,7 @@ namespace Ark::internal
 
         m_logger.traceStart("checkForUndefinedSymbol");
         checkForUndefinedSymbol();
-        m_logger.traceEnd();
+        addStat("NameResolution.checkForUndefinedSymbol", m_logger.traceEnd());
     }
 
     const Node& NameResolutionPass::ast() const noexcept
@@ -77,6 +77,7 @@ namespace Ark::internal
                         // in case of field, no need to check if we can fully qualify names
                         child.setString(m_scope_resolver.getFullyQualifiedNameInNearestScope(old_name));
                         addSymbolNode(child, old_name);
+                        statIncrementCount(Stats::FullyQualifiedNames);
                     }
                     else
                         addSymbolNode(child);
@@ -338,6 +339,7 @@ namespace Ark::internal
         }
 
         symbol.setString(fqn);
+        statIncrementCount(Stats::FullyQualifiedNames);
         return fqn;
     }
 

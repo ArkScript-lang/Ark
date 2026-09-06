@@ -116,6 +116,13 @@ namespace Ark
         void setLibDirs(const std::vector<std::filesystem::path>& libenv) noexcept;
 
         /**
+         * @brief Toggle compiler statistics gathering
+         *
+         * @param toggle
+         */
+        void gatherStats(bool toggle) noexcept;
+
+        /**
          * @brief Reset State (all member variables related to execution)
          *
          */
@@ -161,6 +168,7 @@ namespace Ark
 
         unsigned m_debug_level;
         uint16_t m_features;
+        bool m_gather_stats;
 
         bytecode_t m_bytecode;
         std::vector<std::filesystem::path> m_libenv;

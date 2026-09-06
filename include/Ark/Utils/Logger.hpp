@@ -112,7 +112,7 @@ namespace Ark::internal
             m_active_traces.push_back(trace_name);
         }
 
-        inline void traceEnd()
+        inline std::chrono::nanoseconds traceEnd()
         {
             std::string trace_name = m_active_traces.back();
             m_active_traces.pop_back();
@@ -120,6 +120,8 @@ namespace Ark::internal
             const auto time = std::chrono::high_resolution_clock::now();
             const std::chrono::duration<double, std::milli> ms_double = time - m_trace_starts[trace_name];
             trace("{} took {:.3f}ms", trace_name, ms_double.count());
+
+            return time - m_trace_starts[trace_name];
         }
 
         /**

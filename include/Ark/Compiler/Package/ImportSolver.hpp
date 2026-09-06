@@ -30,13 +30,16 @@ namespace Ark::internal
     public:
         /**
          * @brief Create a new ImportSolver
+         *
          * @param debug debug level
          * @param libenv list of paths to the standard library
+         * @param stats_collector optional statistics collector
          */
-        ImportSolver(unsigned debug, const std::vector<std::filesystem::path>& libenv);
+        ImportSolver(unsigned debug, const std::vector<std::filesystem::path>& libenv, Statistics* stats_collector = nullptr);
 
         /**
          * @brief Configure the ImportSolver
+         *
          * @param root path to the root file that imports all others
          * @param origin_imports the first imports to go through
          * @return ImportSolver& *this

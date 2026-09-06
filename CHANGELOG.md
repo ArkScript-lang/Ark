@@ -12,6 +12,8 @@
 - add support for raw strings: `r"string..."`, backslashes do not have to be escaped in them
 - stdlib:
   - new draft module `re`, using `google/re2` as the regex engine
+- cli:
+  - new flag `--stats` when compiling code, outputting a JSON of compilation stats
 
 ### Changed
 - `@` can be used with dictionaries: `(@ dict key)` will behave the same as `(dict:get dict key)`

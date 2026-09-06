@@ -17,8 +17,9 @@
 
 namespace Ark::internal
 {
-    MacroProcessor::MacroProcessor(const unsigned debug) noexcept :
-        Pass("MacroProcessor", debug), m_genned_sym(0)
+    MacroProcessor::MacroProcessor(const unsigned debug, Statistics* stats_collector) noexcept :
+        Pass("MacroProcessor", debug, stats_collector),
+        m_genned_sym(0)
     {
         // create executors pipeline
         m_conditional_executor = std::make_shared<ConditionalExecutor>(this);
@@ -36,7 +37,7 @@ namespace Ark::internal
         m_ast = ast;
         processNode(m_ast, 0);
 
-        m_logger.traceEnd();
+        addStat("MacroProcessor.process", m_logger.traceEnd());
         m_logger.debug("AST after processing macros");
         if (m_logger.shouldDebug())
             m_ast.debugPrint(std::cout) << '\n';

@@ -44,8 +44,9 @@ namespace Ark::internal
          * @brief Create a new IRInliner
          *
          * @param debug debug level
+         * @param stats_collector optional statistics collector
          */
-        explicit IRInliner(unsigned debug);
+        explicit IRInliner(unsigned debug, Statistics* stats_collector = nullptr);
 
         /**
          * @brief Attempt to inline IR blocks to avoid function calls when possible

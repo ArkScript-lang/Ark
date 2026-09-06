@@ -1,0 +1,7 @@
+X(ASTOptimizerPrunedNodes)
+X(Deprecations)
+X(InlinedCalls)
+X(OptimisedInstructions)
+X(ExpressionsCompiled)
+X(FullyQualifiedNames)
+X(ProcessedImports)
