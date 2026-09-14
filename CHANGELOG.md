@@ -10,6 +10,7 @@
 - the debugger now display the instruction and page pointers in the traces
 - checking that we can properly create error messages when code is run from a string
 - add support for raw strings: `r"string..."`, backslashes do not have to be escaped in them
+  - quotes (`"`) can be used in raw strings, but they **have to be escaped**: `r"hello\"world\"` will produce `hello"world"`
 - stdlib:
   - new draft module `re`, using `google/re2` as the regex engine
 - cli:

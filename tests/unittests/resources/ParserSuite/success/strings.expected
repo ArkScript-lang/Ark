@@ -2,5 +2,6 @@
 ( Symbol:print String:\ 123aéoÒ )
 ( Symbol:print RawString:abcd )
 ( Symbol:print RawString:\a\b\c\d )
-( Symbol:print RawString:\\ )
+( Symbol:print RawString:\\a )
+( Symbol:print RawString:hello"world" )
 ( Symbol:print RawString: )

@@ -963,7 +963,17 @@ namespace Ark::internal
                     }
                 }
                 else if (is_raw_string)
-                    accept(IsNot(IsChar('"')), &res);
+                {
+                    if (accept(IsChar('\\')))
+                    {
+                        if (accept(IsChar('"')))
+                            res += '"';
+                        else
+                            res += '\\';
+                    }
+                    else
+                        accept(IsNot(IsChar('"')), &res);
+                }
                 else
                     accept(IsNot(IsEither(IsChar('\\'), IsChar('"'))), &res);
 

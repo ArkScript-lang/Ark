@@ -2,5 +2,6 @@
 (print "\\ 123aéoÒ")
 (print r"abcd")
 (print r"\a\b\c\d")
-(print r"\\")
+(print r"\\a")
+(print r"hello\"world\"")
 (print r"")
