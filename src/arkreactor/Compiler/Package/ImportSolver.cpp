@@ -13,8 +13,7 @@ namespace Ark::internal
     ImportSolver::ImportSolver(const unsigned debug, const std::vector<std::filesystem::path>& libenv, Statistics* stats_collector) :
         Pass("ImportSolver", debug, stats_collector),
         m_debug_level(debug),
-        m_libenv(libenv),
-        m_ast()
+        m_libenv(libenv)
     {}
 
     ImportSolver& ImportSolver::setup(const std::filesystem::path& root, const std::vector<Import>& origin_imports)
@@ -23,7 +22,7 @@ namespace Ark::internal
         m_root = is_directory(root) ? root : root.parent_path();
 
         for (const auto& origin_import : std::ranges::reverse_view(origin_imports))
-            m_imports.push({ root, origin_import });
+            m_imports.push({ root, "", origin_import });
 
         return *this;
     }
@@ -34,8 +33,8 @@ namespace Ark::internal
 
         while (!m_imports.empty())
         {
-            ImportWithSource source = m_imports.top();
-            m_logger.debug("Importing {}", source.import.toPackageString());
+            const ImportWithSource source = m_imports.top();
+            m_logger.debug("Importing {} from '{}' (in package '{}')", source.import.toPackageString(), source.file.string(), source.package);
 
             // Remove the top element to process the other imports
             // It needs to be removed first because we might be adding
@@ -43,8 +42,12 @@ namespace Ark::internal
             m_imports.pop();
             const auto package = source.import.toPackageString();
 
+            // register that the current file is importing another one, with its attributes (glob, prefix, symbols...)
+            m_package_to_imports[source.package].push_back(source.import);
+
             if (m_packages.contains(package))
             {
+                // todo: actually don't do that, we need to keep a source -> vec<import> that's accurate
                 // merge the definition, so that we can generate valid Full Qualified Names in the name & scope resolver
                 m_packages[package].import.with_prefix |= source.import.with_prefix;
                 m_packages[package].import.is_glob |= source.import.is_glob;
@@ -53,21 +56,60 @@ namespace Ark::internal
             }
             else
             {
-                // NOTE: since the "file" (=root) argument doesn't change between all calls, we could get rid of it
-                std::vector<ImportWithSource> temp = parseImport(source.file, source.import);
+                std::vector<ImportWithSource> temp = parseImport(source);
                 for (auto& additional_import : std::ranges::reverse_view(temp))
                     m_imports.push(additional_import);
             }
         }
 
+        m_logger.traceStart("discoverAllPackages");
+        discoverAllPackages();
+        addStat("ImportSolver.discoverAllPackages", m_logger.traceEnd());
+
         m_logger.traceStart("findAndReplaceImports");
-        m_ast = findAndReplaceImports(origin_ast).first;
+        m_ast = findAndReplaceImports(origin_ast, /* current_namespace_package= */ "").first;
         addStat("ImportSolver.findAndReplaceImports", m_logger.traceEnd());
 
         addStat("ImportSolver.process", m_logger.traceEnd());
     }
 
-    std::pair<Node, bool> ImportSolver::findAndReplaceImports(const Node& ast)
+    void ImportSolver::discoverAllPackages()
+    {
+        for (const std::string& package : std::ranges::views::keys(m_package_to_imports))
+        {
+            std::vector<Import> import_list = m_package_to_imports[package];
+            for (std::size_t i = 0; i < import_list.size(); ++i)
+            {
+                // if we try to add ourselves to the current import list, we'll end up in an infinite loop
+                if (import_list[i].toPackageString() == package)
+                    continue;
+
+                // todo: this might fail on unknown imports?
+                std::vector<Import> indirect_imports = m_package_to_imports[import_list[i].toPackageString()];
+                std::erase_if(indirect_imports, [&import_list](const Import& import) -> bool {
+                    return std::ranges::find(import_list, import) != import_list.end();
+                });
+                for (const Import& import : indirect_imports)
+                    import_list.emplace_back(import);
+            }
+
+            m_package_to_imports[package] = import_list;
+        }
+    }
+
+    std::string ImportSolver::importNodeToPackage(const Node& node)
+    {
+        // compute the package string: foo.bar.egg
+        return std::accumulate(
+            std::next(node.constList().begin()),
+            node.constList().end(),
+            node.constList()[0].string(),
+            [](const std::string& acc, const Node& elem) -> std::string {
+                return acc + "." + elem.string();
+            });
+    }
+
+    std::pair<Node, bool> ImportSolver::findAndReplaceImports(const Node& ast, const std::string& current_namespace_package)
     {
         Node x = ast;
         if (x.nodeType() == NodeType::List)
@@ -75,15 +117,7 @@ namespace Ark::internal
             if (x.constList().size() >= 2 && x.constList()[0].nodeType() == NodeType::Keyword &&
                 x.constList()[0].keyword() == Keyword::Import)
             {
-                // compute the package string: foo.bar.egg
-                const auto import_node = x.constList()[1].constList();
-                const std::string package = std::accumulate(
-                    std::next(import_node.begin()),
-                    import_node.end(),
-                    import_node[0].string(),
-                    [](const std::string& acc, const Node& elem) -> std::string {
-                        return acc + "." + elem.string();
-                    });
+                const std::string package = importNodeToPackage(x.constList()[1]);
 
                 // if it wasn't imported already, register it
                 if (std::ranges::find(m_imported, package) == m_imported.end())
@@ -111,7 +145,8 @@ namespace Ark::internal
                             .is_glob = import.is_glob,
                             .with_prefix = import.with_prefix,
                             .symbols = import.symbols,
-                            .ast = std::make_shared<Node>(findAndReplaceImports(x).first) });
+                            .imports = m_package_to_imports[package],
+                            .ast = std::make_shared<Node>(findAndReplaceImports(x, /* current_namespace_package= */ package).first) });
 
                         x.arkNamespace().ast->setPositionFrom(ast);
                     }
@@ -127,7 +162,7 @@ namespace Ark::internal
             {
                 for (std::size_t i = 0; i < x.constList().size(); ++i)
                 {
-                    auto [node, is_import] = findAndReplaceImports(x.constList()[i]);
+                    auto [node, is_import] = findAndReplaceImports(x.constList()[i], current_namespace_package);
                     x.list()[i] = node;
                 }
             }
@@ -141,11 +176,18 @@ namespace Ark::internal
         return m_ast;
     }
 
-    std::vector<ImportSolver::ImportWithSource> ImportSolver::parseImport(const std::filesystem::path& source, const Import& import)
+    const std::vector<Import>& ImportSolver::rootImportList()
     {
-        m_logger.traceStart(fmt::format("parseImport {}", source.string()));
+        // even if we don't have registered any import for the root package, operator[] will create the key "",
+        // and we'll be able to return an empty import list, as expected
+        return m_package_to_imports[""];
+    }
 
-        const auto path = findFile(source, import);
+    std::vector<ImportSolver::ImportWithSource> ImportSolver::parseImport(const ImportWithSource& source)
+    {
+        m_logger.traceStart(fmt::format("parseImport {}", source.file.string()));
+
+        const auto path = findFile(source.file, source.import);
         if (path.extension() == ".arkm")  // Nothing to import in case of modules
         {
             // Creating an import node that will stay there when visiting the AST and
@@ -155,7 +197,7 @@ namespace Ark::internal
 
             auto package_node = Node(NodeType::List);
             std::ranges::transform(
-                import.package,
+                source.import.package,
                 std::back_inserter(package_node.list()), [](const std::string& stem) {
                     return Node(NodeType::String, stem);
                 });
@@ -163,9 +205,9 @@ namespace Ark::internal
             // empty symbols list
             module_node.push_back(Node(NodeType::List));
 
-            m_packages[import.toPackageString()] = Package {
+            m_packages[source.import.toPackageString()] = Package {
                 module_node,
-                import,
+                source.import,
                 true
             };
 
@@ -175,20 +217,21 @@ namespace Ark::internal
         Parser parser(m_debug_level);
         const std::string code = Utils::readFile(path.generic_string());
         parser.process(path.string(), code);
-        m_packages[import.toPackageString()] = Package {
+        const std::vector<Import>& imports = parser.imports();
+
+        m_packages[source.import.toPackageString()] = Package {
             parser.ast(),
-            import,
+            source.import,
             false
         };
 
-        addStat(fmt::format("ImportSolver.parseImport({})", import.toPackageString()), m_logger.traceEnd());
+        addStat(fmt::format("ImportSolver.parseImport({})", source.import.toPackageString()), m_logger.traceEnd());
 
-        auto imports = parser.imports();
         std::vector<ImportWithSource> output;
         std::ranges::transform(
             imports,
-            std::back_inserter(output), [&path](const Import& i) {
-                return ImportWithSource { path, i };
+            std::back_inserter(output), [&path, &source](const Import& i) {
+                return ImportWithSource { path, source.import.toPackageString(), i };
             });
         return output;
     }
