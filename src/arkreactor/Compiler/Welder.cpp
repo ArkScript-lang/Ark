@@ -213,6 +213,8 @@ namespace Ark
 
             if ((m_features & FeatureNameResolver) != 0)
             {
+                if ((m_features & FeatureImportSolver) != 0)
+                    m_name_resolver.setup(m_import_solver.rootImportList());
                 m_name_resolver.process(m_computed_ast);
                 m_computed_ast = m_name_resolver.ast();
             }

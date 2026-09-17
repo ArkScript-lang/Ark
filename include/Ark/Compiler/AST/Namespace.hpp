@@ -5,6 +5,8 @@
 #include <vector>
 #include <memory>
 
+#include <Ark/Compiler/AST/Import.hpp>
+
 namespace Ark::internal
 {
     class Node;
@@ -12,9 +14,14 @@ namespace Ark::internal
     struct Namespace
     {
         std::string name;
+
+        // todo: not really important to keep?
         bool is_glob;                      // (import package:*)
         bool with_prefix;                  // (import package)
         std::vector<std::string> symbols;  // (import package :a :b)
+
+        std::vector<Import> imports;
+
         std::shared_ptr<Node> ast;
     };
 

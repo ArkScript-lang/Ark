@@ -34,9 +34,16 @@ namespace Ark::internal
         explicit NameResolutionPass(unsigned debug, Statistics* stats_collector = nullptr);
 
         /**
+         * @brief Configure the NameResolutionPass with the import list of the root package
+         *
+         * @param root_import_list
+         */
+        void setup(const std::vector<Import>& root_import_list);
+
+        /**
          * @brief Start visiting the given AST, checking for mutability violation and unbound variables
          *
-         * @param ast AST to analyze
+         * @param ast AST to analyse
          */
         void process(const Node& ast);
 

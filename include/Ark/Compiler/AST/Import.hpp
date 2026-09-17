@@ -88,6 +88,15 @@ namespace Ark::internal
             return with_prefix && symbols.empty();
         }
     };
+
+    [[nodiscard]] inline bool operator==(const Import& lhs, const Import& rhs)
+    {
+        return lhs.prefix == rhs.prefix &&
+            lhs.package == rhs.package &&
+            lhs.with_prefix == rhs.with_prefix &&
+            lhs.is_glob == rhs.is_glob &&
+            lhs.symbols == rhs.symbols;
+    }
 }
 
 #endif

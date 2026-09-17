@@ -187,7 +187,7 @@ namespace Ark::internal
             // must be in a list node. Then depth - 1 is safe as depth is at least 1.
             // Using a decreased value of depth ensures that macros are stored in the correct scope,
             // and not deleted when the namespace traversal ends.
-            processNode(namespace_ast, depth - 1, /* is_processing_namespace= */ true);
+            processNode(namespace_ast, depth > 0 ? depth - 1 : 0, /* is_processing_namespace= */ true);
         }
     }
 

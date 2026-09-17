@@ -4,6 +4,9 @@
 #include <Ark/Utils/Utils.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
+// todo: remove
+#include <fmt/ranges.h>
+
 namespace Ark::internal
 {
     NameResolutionPass::NameResolutionPass(const unsigned debug, Statistics* stats_collector) :
@@ -22,6 +25,21 @@ namespace Ark::internal
         m_language_symbols.emplace(Language::SysProgramName);
         m_language_symbols.emplace(Language::SysVersion);
         m_language_symbols.emplace(Language::Apply);
+    }
+
+    void NameResolutionPass::setup(const std::vector<Import>& root_import_list)
+    {
+        // todo: configure the m_scope_resolver with the root import list
+        m_logger.info("Configuring NameResolutionPass. Root is importing:");
+        for (const Import& import : root_import_list)
+        {
+            if (import.is_glob)
+                m_logger.info("  - {} :*", import.toPackageString());
+            else if (import.with_prefix)
+                m_logger.info("  - {}", import.toPackageString());
+            else
+                m_logger.info("  - {} :{}", import.toPackageString(), fmt::join(import.symbols, " :"));
+        }
     }
 
     void NameResolutionPass::process(const Node& ast)

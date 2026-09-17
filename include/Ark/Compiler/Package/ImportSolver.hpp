@@ -50,10 +50,13 @@ namespace Ark::internal
 
         [[nodiscard]] const Node& ast() const noexcept;
 
+        [[nodiscard]] const std::vector<Import>& rootImportList();
+
     private:
         struct ImportWithSource
         {
             std::filesystem::path file;
+            std::string package;
             Import import;
         };
 
@@ -64,23 +67,28 @@ namespace Ark::internal
         std::stack<ImportWithSource> m_imports;
         std::unordered_map<std::string, Package> m_packages;  ///< Package name to package AST & data mapping
         std::vector<std::string> m_imported;                  ///< List of imports, in the order they were found and parsed
+        std::unordered_map<std::string, std::vector<Import>> m_package_to_imports;
+
+        void discoverAllPackages();
+
+        [[nodiscard]] static std::string importNodeToPackage(const Node& node);
 
         /**
          * @brief Visits the AST, looking for import nodes to replace with their parsed module version
          * @param ast
+         * @param current_namespace_package
          * @return
          */
-        std::pair<Node, bool> findAndReplaceImports(const Node& ast);
+        std::pair<Node, bool> findAndReplaceImports(const Node& ast, const std::string& current_namespace_package);
 
         /**
          * @brief Parse a given file and returns a list of its imports.
          *        The AST is parsed and stored in m_modules[import.prefix]
          *
-         * @param source path to the file containing the import
-         * @param import current import directive
+         * @param source details about the import
          * @return std::vector<ImportWithSource> imports found in the processed file
          */
-        std::vector<ImportWithSource> parseImport(const std::filesystem::path& source, const Import& import);
+        std::vector<ImportWithSource> parseImport(const ImportWithSource& source);
 
         /**
          * @brief Search for an import file, using the root file path
