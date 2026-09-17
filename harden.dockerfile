@@ -1,8 +1,8 @@
-FROM alpine:3.23 AS permissions-giver
+FROM alpine:3.24 AS permissions-giver
 
 WORKDIR /out
 
-FROM alpine:3.23 AS submodule-initializor
+FROM alpine:3.24 AS submodule-initializor
 
 # Install git
 RUN apk --no-cache add git
@@ -19,10 +19,10 @@ RUN git submodule update --init --recursive \
     && rm -rf `find . -type d -name ".git"` \
     && rm .gitmodules
 
-FROM alpine:3.23 AS builder
+FROM alpine:3.24 AS builder
 
 # Install cmake
-RUN apk --no-cache add cmake clang make linux-headers
+RUN apk add --no-cache --update cmake clang build-base make linux-headers
 
 # Build
 COPY include include
@@ -44,7 +44,7 @@ RUN cmake -H. -Bbuild \
     -DARK_BUILD_DATE="$(date +%Y-%m-%dT%H:%M:%SZ)" \
     && cmake --build build -- -j $(nproc)
 
-FROM alpine:3.23 AS organizer
+FROM alpine:3.24 AS organizer
 
 # Files needed to run Ark
 WORKDIR /out/ark
@@ -52,7 +52,7 @@ COPY --from=builder build build
 COPY --from=builder include include
 COPY --from=builder lib lib
 
-FROM alpine:3.23 AS runner
+FROM alpine:3.24 AS runner
 
 # Install cmake
 RUN apk --no-cache add cmake

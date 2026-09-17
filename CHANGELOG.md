@@ -20,6 +20,7 @@
 - `@` can be used with dictionaries: `(@ dict key)` will behave the same as `(dict:get dict key)`
 - `@=` can be used with dictionaries: `(@= dict key new_value)` will behave the same as `(dict:add dict key new_value)`
 - ArkScript's formatter always returns exit code 0 when in **dry run**
+- upgrade docker images to alpine 3.24 (from 3.23)
 
 ### Removed
 - removed `std.Range` which had been deprecated in 4.6.0
