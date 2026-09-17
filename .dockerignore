@@ -9,5 +9,4 @@
 !thirdparties
 !.gitmodules
 !CMakeLists.txt
-!packaging
-!harden_docker.sh
+!packaging/harden_docker.sh

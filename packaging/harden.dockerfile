@@ -64,7 +64,7 @@ RUN cmake --install build --strip --config Release
 ENV LD_LIBRARY_PATH=/usr/local/lib64
 ENV ARKSCRIPT_PATH=/usr/local/lib/Ark
 
-COPY harden_docker.sh /usr/sbin/harden.sh
+COPY packaging/harden_docker.sh /usr/sbin/harden.sh
 RUN chmod u+x /usr/sbin/harden.sh
 RUN /usr/sbin/harden.sh
 
