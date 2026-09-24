@@ -4,7 +4,7 @@ on:
   pull_request:
 
 permissions:
-  pull-requests: write  # Required for commenting on pull requests
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -49,24 +49,18 @@ jobs:
           echo "$content" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Find Comment
-        uses: peter-evans/find-comment@fec22f13a3d7a949297e4b5f6b9f99a423eabba1 # v3.1.0
-        id: fc
+      - name: Save PR identifiers
+        run: |
+          mkdir -p ./pr
+          echo ${{ github.event.number }} > ./pr/NR
+          echo "Static analysis report" > ./pr/slug
+
+          echo "## Static analysis report" > ./pr/comment
+          echo "${{ env.LIZARD_REPORT }}" >> ./pr/comment
+          echo -e "\n---\n" >> ./pr/comment
+          echo "${{ env.CPPCHECK_REPORT }}" >> ./pr/comment
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          issue-number: ${{ github.event.pull_request.number }}
-          comment-author: 'github-actions[bot]'
-          body-includes: Static analysis report
-
-      - name: Create or update comment
-        uses: peter-evans/create-or-update-comment@cf911f109bd9a26f1d626a8c3276384ddec0e552 # v4.0.0
-        with:
-          comment-id: ${{ steps.fc.outputs.comment-id }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
-            ## Static analysis report
-            ${{ env.LIZARD_REPORT }}
-
-            ---
-
-            ${{ env.CPPCHECK_REPORT }}
-          edit-mode: replace
+          name: pr
+          path: pr/
