@@ -1,10 +1,6 @@
 # Change Log
 
-## [Unreleased changes] - 2026-MM-DD
-### Breaking changes
-
-### Deprecated
-
+## [4.8.0] - 2026-10-11
 ### Added
 - sha256 sums of release artefacts in the releases
 - the debugger now display the instruction and page pointers in the traces
@@ -21,6 +17,8 @@
 - `@=` can be used with dictionaries: `(@= dict key new_value)` will behave the same as `(dict:add dict key new_value)`
 - ArkScript's formatter always returns exit code 0 when in **dry run**
 - upgrade docker images to alpine 3.24 (from 3.23)
+- stdlib:
+  - math:countDigits can work with any base, higher or equal to 2
 
 ### Removed
 - removed `std.Range` which had been deprecated in 4.6.0

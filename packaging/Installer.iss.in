@@ -10,7 +10,7 @@ UninstallDisplayIcon={app}\MyProg.exe
 DisableDirPage=no
 Compression=lzma2
 SolidCompression=yes
-LicenseFile=LICENCE
+LicenseFile=../LICENCE
 ChangesEnvironment=yes
 ; "ArchitecturesAllowed=x64" specifies that Setup cannot run on
 ; anything but x64.
@@ -25,13 +25,13 @@ Name: "{app}\bin"
 Name: "{app}\lib"
 
 [Files]
-Source: "build/Release/arkscript.exe"; DestDir: "{app}\bin"
-Source: "build/Release/ArkReactor.dll"; DestDir: "{app}\bin"
-Source: "lib/std/*.ark"; DestDir: "{app}\lib"
-Source: "lib/std/LICENSE"; DestDir: "{app}\lib"
-Source: "lib/std/*.arkm"; DestDir: "{app}\lib"
-Source: "LICENCE"; DestDir: "{app}"
-Source: "README.md"; DestDir: "{app}"; Flags: isreadme
+Source: "../build/Release/arkscript.exe"; DestDir: "{app}\bin"
+Source: "../build/Release/ArkReactor.dll"; DestDir: "{app}\bin"
+Source: "../lib/std/*.ark"; DestDir: "{app}\lib"
+Source: "../lib/std/LICENSE"; DestDir: "{app}\lib"
+Source: "../lib/std/*.arkm"; DestDir: "{app}\lib"
+Source: "../LICENCE"; DestDir: "{app}"
+Source: "../README.md"; DestDir: "{app}"; Flags: isreadme
 
 [Icons]
 Name: "{group}\ArkScript"; Filename: "{app}\bin\arkscript.exe"

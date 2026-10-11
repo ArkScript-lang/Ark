@@ -112,9 +112,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-
       - name: Setup compilers, dependencies, project and build
         uses: ./.github/workflows/setup-compilers
         with:
@@ -137,7 +134,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.config.generator }}
-          path: build/packages/arkscript-${{ env.RELEASE_VERSION }}.deb
+          path: build/packages/arkscript-${{ github.ref_name }}.deb
           retention-days: 1
 
       - name: Upload artifact
@@ -145,7 +142,7 @@ jobs:
         uses: actions/upload-artifact@v5
         with:
           name: ${{ matrix.config.generator }}
-          path: build/packages/arkscript-${{ env.RELEASE_VERSION }}.rpm
+          path: build/packages/arkscript-${{ github.ref_name }}.rpm
           retention-days: 1
 
   release:
@@ -155,9 +152,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
-      - name: Set env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       - name: Download artifact Linux GCC 14
         uses: actions/download-artifact@v6
@@ -217,11 +211,12 @@ jobs:
           mv ark-windows-installer/arkscript.exe artifacts/windows-installer.exe
           mv windows-msvc-22.zip artifacts
           mv macos-clang-16.zip artifacts
-          mv DEB/arkscript-${{ env.RELEASE_VERSION }}.* artifacts
-          mv RPM/arkscript-${{ env.RELEASE_VERSION }}.* artifacts
+          mv DEB/arkscript-${{ github.ref_name }}.* artifacts
+          mv RPM/arkscript-${{ github.ref_name }}.* artifacts
 
           for f in artifacts/*; do
-            sha256sum "$f" > "sha/$f.sha256"
+            output_f=$(basename "$f")
+            sha256sum "$f" > "sha/${output_f}.sha256"
           done
 
       - name: Extract release notes
@@ -234,8 +229,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ArkScript ${{ env.RELEASE_VERSION }}
-          tag_name: ${{ env.RELEASE_VERSION }}
+          name: ArkScript ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
           draft: true
           prerelease: false
           body: ${{ steps.extract-release-notes.outputs.release_notes }}
