@@ -33,7 +33,6 @@ repos:
       - id: conventional-pre-commit
         stages: [ commit-msg ]
         args: [
-          "--force-scope",
           "build",  # Changes that affect the build system or external dependencies
           "chore",
           "ci",  # Changes to our CI configuration files and scripts

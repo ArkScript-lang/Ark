@@ -1,5 +1,16 @@
 # Change Log
 
+## [Unreleased changes] - 20XX-MM-DD
+### Breaking changes
+
+### Deprecations
+
+### Added
+
+### Changed
+
+### Removed
+
 ## [4.8.0] - 2026-10-11
 ### Added
 - sha256 sums of release artefacts in the releases
