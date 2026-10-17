@@ -156,7 +156,7 @@ jobs:
       matrix:
         os:
           - ubuntu-24.04
-          - macos-14
+          - macos-15
         static:
           - On
           - Off
@@ -201,7 +201,7 @@ jobs:
       matrix:
         os:
           - ubuntu-24.04
-          - macos-14
+          - macos-15
 
     steps:
       - uses: actions/checkout@v5
@@ -378,7 +378,7 @@ jobs:
             artifact: "windows-msvc-25"
           }
           - {
-            os: macos-14, name: "MacOS Clang 16",
+            os: macos-15, name: "MacOS Clang 16",
             artifact: "macos-clang-16",
             compiler: clang, compiler_version: 16, sanitizers: "On"
           }
@@ -494,7 +494,7 @@ jobs:
           - { os: ubuntu-24.04,  name: "Ubuntu GCC 14",   artifact: "ubuntu-gcc-14", compiler_version: 14, }
           - { os: windows-2022, name: "Windows VS 2022", artifact: "windows-msvc-22", compiler_version: 22, }
           - { os: windows-2025, name: "Windows VS 2025", artifact: "windows-msvc-25", compiler_version: 26, }
-          - { os: macos-14,   name: "MacOS Clang 16",  artifact: "macos-clang-16", compiler_version: 16, }
+          - { os: macos-15,   name: "MacOS Clang 16",  artifact: "macos-clang-16", compiler_version: 16, }
 
     steps:
       - uses: actions/checkout@v5
