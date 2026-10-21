@@ -1,4 +1,10 @@
 --#
+* @section
+* @brief Macros can generate code from code, creating new syntax to write code and solve problems. A collection of macros is provided in ArkScript to simplify some code.
+* @require 4.0.0 This library can only be used with ArkScript 4.x.y, as the macro syntax changed.
+#--
+
+--#
 * @name $undef
 * @brief Delete a given macro in the nearest scope
 * @param name macro name

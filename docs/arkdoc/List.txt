@@ -1,4 +1,9 @@
 --#
+* @section
+* @brief Lists in ArkScript are heterogeneous, mutable sequences.
+#--
+
+--#
 * @name len
 * @brief Return the length of a list
 * @param a list
