@@ -31,13 +31,17 @@
 * [🛝 Playground](https://playground.arkscript-lang.dev/), try the language online now!
 * [🗣️ Discussions](https://github.com/orgs/ArkScript-lang/discussions): to receive help with the language, discuss new features and ideas
 
-**Note**: the project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark)
+> [!NOTE]
+> The project is referred as "Ark" and as "ArkScript". The official public name is "ArkScript" since "Ark" is already being used by [another language](https://github.com/ark-lang/ark).
+
+> [!IMPORTANT]
+> This project does **not** make use of AI or LLM, in any way, shape or form, and never will.
+> Contributors are held to the same standard. Partial use of AI will not be accepted.
 
 ## Key features
 
 ArkScript is
 
-* **small**: the core fit under 8000 lines of code ; also small in terms of keywords (only 9)
 * **a scripting language**: very easy to embed it in your projects. Registering your own functions in the language is made easy
 * **portable**: a unique bytecode which can be run everywhere the virtual machine is
 * **a functional language**: every parameter is passed by value, everything is immutable unless specified
@@ -190,10 +194,10 @@ Different CMake switches are available to customise the build:
 git clone --depth=50 --branch=dev https://github.com/ArkScript-lang/Ark.git
 cd Ark
 git submodule update --init --recursive
-# building Ark
+# building ArkScript
 cmake . -Bbuild -DCMAKE_BUILD_TYPE=Release -DARK_BUILD_EXE=On
 cmake --build build --config Release
-# installing Ark (might need administrative privileges)
+# installing ArkScript (might need administrative privileges)
 cmake --install build --config Release
 ```
 
@@ -204,27 +208,27 @@ DESCRIPTION
         ArkScript programming language
 
 SYNOPSIS
-        arkscript -h 
-        arkscript -v 
-        arkscript --dev-info 
-        arkscript -e <expression> 
+        arkscript -h
+        arkscript -v
+        arkscript --dev-info
+        arkscript -e <expression>
         arkscript [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
                   [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
                   [-f(irinliner|no-irinliner)] [-f(iroptimizer|no-iroptimizer)] [-fdebugger]
-                  [-fdump-ir] [-fno-cache] -c <file> [--stats] 
+                  [-fdump-ir] [-fno-cache] -c <file> [--stats]
 
         arkscript [-d] [-L <lib_dir>] [-f(importsolver|no-importsolver)]
                   [-f(macroprocessor|no-macroprocessor)] [-f(optimizer|no-optimizer)]
                   [-f(irinliner|no-irinliner)] [-f(iroptimizer|no-iroptimizer)] [-fdebugger]
-                  [-fdump-ir] [-fno-cache] <file> 
+                  [-fdump-ir] [-fno-cache] <file>
 
-        arkscript -f <file> [--(dry-run|check)] 
-        arkscript [-d] [-L <lib_dir>] --ast <file> 
-        arkscript -bcr <file> -on 
-        arkscript -bcr <file> -a [-s <start> <end>] 
-        arkscript -bcr <file> -st [-s <start> <end>] 
-        arkscript -bcr <file> -vt [-s <start> <end>] 
-        arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>] 
+        arkscript -f <file> [--(dry-run|check)]
+        arkscript [-d] [-L <lib_dir>] --ast <file>
+        arkscript -bcr <file> -on
+        arkscript -bcr <file> -a [-s <start> <end>]
+        arkscript -bcr <file> -st [-s <start> <end>]
+        arkscript -bcr <file> -vt [-s <start> <end>]
+        arkscript -bcr <file> [-cs] [-p <page>] [-s <start> <end>]
 
 OPTIONS
         -h, --help                  Display this message
@@ -316,4 +320,12 @@ Copyright © 2019-2026 Lexy Plateau. All rights reserved.
 
 I (Lexy Plateau) am working pretty much alone on this project, and I try to do my best to leave it as bug free and as performant as possible. However, this is a side project for which I'm currently **not paid** to work on, thus I can't fix every bug or address every feature request in a timely manner.
 
-Please reach out either by email (lexy@elranet.eu) or via a [discussion](https://github.com/orgs/ArkScript-lang/discussions) before using the language in a company project, so that we can set up a support contract. If you don't want to set up a contract, your issues and support requests won't be prioritised (and possibly left unanswered).
+Please reach out either by email (&lt;my name&gt;@elranet.eu) or via a [discussion](https://github.com/orgs/ArkScript-lang/discussions) before using the language in a company project, so that we can set up a support contract. If you don't want to set up a contract, your issues and support requests won't be prioritised (and possibly left unanswered).
+
+---
+
+[![No AI Badge](https://noailist.org/images/badge.png)](https://noailist.org/)
+![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)
+![Open Source Love svg2](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)
+![lgbtq+ friendly](https://pride-badges.pony.workers.dev/static/v1?label=lgbtq%2B%20friendly&stripeWidth=6&stripeColors=E40303,FF8C00,FFED00,008026,24408E,732982)
+![trans right](https://pride-badges.pony.workers.dev/static/v1?label=trans%20rights&stripeWidth=6&stripeColors=5BCEFA,F5A9B8,FFFFFF,F5A9B8,5BCEFA)
