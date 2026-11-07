@@ -4,19 +4,7 @@
 
 namespace Ark::internal::Builtins
 {
-    /**
-     * @name slice
-     * @brief Slice a list or string given a start, an end, and an optional step size
-     * @param container list or string
-     * @param start number, included
-     * @param end number, excluded
-     * @param step number, default 1
-     * =begin
-     * (let d (dict "key" "value" 5 12))
-     * (print d)  # {key: value, 5: 12}
-     * =end
-     * @author https://github.com/SuperFola
-     */
+    // Documented under docs/arkdoc/List.txt and String.txt
     // cppcheck-suppress constParameterReference
     Value slice(std::vector<Value>& n, VM* vm [[maybe_unused]])
     {

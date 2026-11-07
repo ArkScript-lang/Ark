@@ -1,4 +1,10 @@
 --#
+* @section
+* @brief Strings represent words, phrases, or just any text you need. They support UTF8 and are very cool.
+* @details The following functions are builtins, working on strings, available **without** any import.
+#--
+
+--#
 * @name +
 * @brief Add two or more strings together
 * @param a string
@@ -31,7 +37,7 @@
 
 --#
 * @name head
-* @brief Return the first character of a string, or emtpy string if empty
+* @brief Return the first character of a string, or empty string if empty
 * @param a string
 * =begin
 * (print (head "abc"))  # a
@@ -41,7 +47,7 @@
 
 --#
 * @name tail
-* @brief Return the tail of a string, or emtpy string if it has one or less character
+* @brief Return the tail of a string, or empty string if it has one or less character
 * @param a string
 * =begin
 * (print (tail "abc"))  # bc
@@ -98,4 +104,34 @@
 * (@= str -2 "g")
 * (print str)  # "xyzgf"
 * =end
+#--
+
+--#
+* @name slice
+* @brief Slice a list or string given a start, an end, and an optional step size
+* =details-begin
+* `slice` is **experimental** and is only available as `builtin__slice` currently.
+* `list:slice` uses `builtin__slice` under the hood, but `string:slice` does not, and acts
+* a bit differently regarding its `end` parameter (taking it as a size instead).
+* =details-end
+* @param container list or string
+* @param start number, included
+* @param end number, excluded
+* @param step number, default 1
+* =begin
+* (print (slice "abc" nil nil))  # "abc"
+* (print (slice "abc" nil 1))  # "a"
+* (print (slice "abc" nil 2))  # "ab"
+* (print (slice "abc" nil 3))  # "abc"
+* (print (slice "abc" nil 10))  # "abc"
+* (print (slice "abcdef" 1 -1))  # "bcde"
+* (print (slice "abcdef" 1 -1 30))  # "b"
+* (print (slice "abcdef" 1 -1 -1))  # "edcb"
+* (print (slice "abcdef" 1 -1 -30))  # "e"
+* (print (slice "abcdef" nil nil 2))  # "ace"
+* (print (slice "abcdef" nil nil -2))  # "fdb"
+* (print (slice "abcdef" 1 nil 2))  # "bdf"
+* (print (slice "abcdef" 1 nil -2))  # "fdb"
+* =end
+* @author https://github.com/SuperFola
 #--
