@@ -1,0 +1,8 @@
+# @brief Sort a List and return a new one
+# @details The original list is not modified
+# @param list the list to sort
+# =begin
+# (list:sort [4 2 3])  # [1 2 4]
+# =end
+# @author https://github.com/SuperFola
+(let sort (fun (_L) (builtin__list:sort _L)))

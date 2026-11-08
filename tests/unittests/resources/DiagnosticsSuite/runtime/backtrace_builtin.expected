@@ -6,11 +6,10 @@ Signature
 Arguments
   → `list' (expected List), got "live" (String)
 
-In file /lib/std/List.ark:206
-  203 | # (list:sort [4 2 3])  # [1 2 4]
-  204 | # =end
-  205 | # @author https://github.com/SuperFola
-  206 | (let sort (fun (_L) (builtin__list:sort _L)))
+In file tests/unittests/resources/DiagnosticsSuite/runtime/fakestd/List.ark:8
+    5 | # (list:sort [4 2 3])  # [1 2 4]
+    6 | # =end
+    7 | # @author https://github.com/SuperFola
+    8 | (let sort (fun (_L) (builtin__list:sort _L)))
       | ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  207 |
-  208 | # @brief Check if a List is sorted
+    9 |
