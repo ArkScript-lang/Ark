@@ -34,13 +34,13 @@ namespace Ark::internal
         while (!m_imports.empty())
         {
             const ImportWithSource source = m_imports.top();
-            m_logger.debug("Importing {} from '{}' (in package '{}')", source.import.toPackageString(), source.file.string(), source.package);
+            m_logger.debug("Importing {} from '{}' (in package '{}')", source.import.package, source.file.string(), source.package);
 
             // Remove the top element to process the other imports
             // It needs to be removed first because we might be adding
             // other imports later and don't want to pop THEM
             m_imports.pop();
-            const auto package = source.import.toPackageString();
+            const auto package = source.import.package;
 
             // register that the current file is importing another one, with its attributes (glob, prefix, symbols...)
             m_package_to_imports[source.package].push_back(source.import);
@@ -79,11 +79,11 @@ namespace Ark::internal
             for (std::size_t i = 0; i < import_list.size(); ++i)
             {
                 // if we try to add ourselves to the current import list, we'll end up in an infinite loop
-                if (import_list[i].toPackageString() == package)
+                if (import_list[i].package == package)
                     continue;
 
                 // todo: this might fail on unknown imports?
-                std::vector<Import> indirect_imports = m_package_to_imports[import_list[i].toPackageString()];
+                std::vector<Import> indirect_imports = m_package_to_imports[import_list[i].package];
                 std::erase_if(indirect_imports, [&import_list](const Import& import) -> bool {
                     return std::ranges::find(import_list, import) != import_list.end();
                 });
@@ -130,8 +130,7 @@ namespace Ark::internal
 
                         x = Node(Namespace {
                             .name = import.prefix,
-                            .is_glob = import.is_glob,
-                            .with_prefix = import.with_prefix,
+                            .package = package,
                             .symbols = import.symbols,
                             .imports = m_package_to_imports[package],
                             .ast = std::make_shared<Node>(findAndReplaceImports(x).first) });
@@ -185,7 +184,7 @@ namespace Ark::internal
 
             auto package_node = Node(NodeType::List);
             std::ranges::transform(
-                source.import.package,
+                source.import.segments,
                 std::back_inserter(package_node.list()), [](const std::string& stem) {
                     return Node(NodeType::String, stem);
                 });
@@ -193,7 +192,7 @@ namespace Ark::internal
             // empty symbols list
             module_node.push_back(Node(NodeType::List));
 
-            m_packages[source.import.toPackageString()] = Package {
+            m_packages[source.import.package] = Package {
                 module_node,
                 source.import,
                 true
@@ -207,19 +206,19 @@ namespace Ark::internal
         parser.process(path.string(), code);
         const std::vector<Import>& imports = parser.imports();
 
-        m_packages[source.import.toPackageString()] = Package {
+        m_packages[source.import.package] = Package {
             parser.ast(),
             source.import,
             false
         };
 
-        addStat(fmt::format("ImportSolver.parseImport({})", source.import.toPackageString()), m_logger.traceEnd());
+        addStat(fmt::format("ImportSolver.parseImport({})", source.import.package), m_logger.traceEnd());
 
         std::vector<ImportWithSource> output;
         std::ranges::transform(
             imports,
             std::back_inserter(output), [&path, &source](const Import& i) {
-                return ImportWithSource { path, source.import.toPackageString(), i };
+                return ImportWithSource { path, source.import.package, i };
             });
         return output;
     }
@@ -253,7 +252,7 @@ namespace Ark::internal
         // fallback, we couldn't find the file
         throw CodeError(
             fmt::format("While processing file {}, couldn't import {}: file not found",
-                        is_source_file ? file.filename().string() : ARK_NO_NAME_FILE, import_.toPackageString()),
+                        is_source_file ? file.filename().string() : ARK_NO_NAME_FILE, import_.package),
             CodeErrorContext(
                 is_source_file ? file.generic_string() : ARK_NO_NAME_FILE,
                 FileSpan { .start = FilePos { .line = import_.line, .column = import_.col }, .end = std::nullopt }));

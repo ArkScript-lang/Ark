@@ -24,11 +24,19 @@ namespace Ark::internal
 
         /**
          * @brief Package with all the segments
+         * @details Example: `(import foo.bar)` => `foo.bar`
+         *      `(import foo.bar.egg:*)` => `foo.bar.egg`
+         *      `(import foo :a :b :c)` => `foo`
+         */
+        std::string package;
+
+        /**
+         * @brief Package with all the segments
          * @details Example: `(import foo.bar)` => `{foo, bar}`
          *      `(import foo.bar.egg:*)` => `{foo, bar, egg}`
          *      `(import foo :a :b :c)` => `{foo}`
          */
-        std::vector<std::string> package;
+        std::vector<std::string> segments;
 
         /**
          * @brief Import with prefix (import package)
@@ -49,29 +57,14 @@ namespace Ark::internal
 
         /**
          *
-         * @return a package string, eg a.b.c
-         */
-        [[nodiscard]] std::string toPackageString() const
-        {
-            return std::accumulate(
-                package.begin() + 1,
-                package.end(),
-                package.front(),
-                [](const std::string& left, const std::string& right) {
-                    return left + "." + right;
-                });
-        }
-
-        /**
-         *
          * @return a package as a path, eg a/b/c
          */
         [[nodiscard]] std::string packageToPath() const
         {
             return std::accumulate(
-                std::next(package.begin()),
-                package.end(),
-                package[0],
+                std::next(segments.begin()),
+                segments.end(),
+                segments[0],
                 [](const std::string& a, const std::string& b) {
                     return a + "/" + b;
                 });

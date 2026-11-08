@@ -26,9 +26,8 @@ namespace Ark::internal
     public:
         /**
          * @brief Create a ScopeResolver
-         * @details Kickstart by create a default global scope
          */
-        ScopeResolver();
+        ScopeResolver() = default;
 
         ScopeResolver(const ScopeResolver&) = delete;
         ScopeResolver& operator=(const ScopeResolver&) = delete;
@@ -47,12 +46,11 @@ namespace Ark::internal
 
         /**
          * @brief Create a new namespace scope
-         * @param name
-         * @param with_prefix
-         * @param is_glob
-         * @param symbols
+         * @param prefix
+         * @param package
+         * @param imports
          */
-        void createNewNamespace(const std::string& name, bool with_prefix, bool is_glob, const std::vector<std::string>& symbols);
+        void createNewNamespace(const std::string& prefix, const std::string& package, const std::vector<Import>& imports);
 
         /**
          * @brief Register a Declaration in the current (last) scope
@@ -118,8 +116,9 @@ namespace Ark::internal
 
     private:
         std::vector<std::unique_ptr<StaticScope>> m_scopes;
+        std::vector<std::unique_ptr<StaticScope>> m_saved_scopes;
 
-        [[nodiscard]] std::string currentNamespace() const;
+        [[nodiscard]] StaticScope* currentNamespace() const;
     };
 }
 

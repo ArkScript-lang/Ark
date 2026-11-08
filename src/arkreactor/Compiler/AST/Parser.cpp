@@ -328,7 +328,8 @@ namespace Ark::internal
             backtrack(pos);
             errorWithNextToken(fmt::format("Import name too long, expected at most 255 characters, got {}", import_data.prefix.size()));
         }
-        import_data.package.push_back(lowercasePrefix(import_data.prefix));
+        import_data.segments.push_back(import_data.prefix);
+        import_data.package = lowercasePrefix(import_data.prefix);
 
         Node packageNode = positioned(Node(NodeType::List), getCursor()).attachNearestCommentBefore(comment);
         packageNode.push_back(Node(NodeType::Symbol, import_data.prefix));
@@ -349,9 +350,10 @@ namespace Ark::internal
                 {
                     packageNode.push_back(positioned(Node(NodeType::Symbol, path), package_pos));
 
+                    import_data.package += "." + path;
+                    import_data.segments.push_back(path);
                     // in the end we will store the last element of the package, which is what we want
                     import_data.prefix = lowercasePrefix(path);
-                    import_data.package.push_back(import_data.prefix);
 
                     if (path.size() > 255)
                     {
@@ -366,7 +368,7 @@ namespace Ark::internal
                 leaf->push_back(positioned(Node(NodeType::Symbol, "*"), item_pos));
 
                 space();
-                expectSuffixOrError(')', fmt::format("in import `{}'", import_data.toPackageString()), context);
+                expectSuffixOrError(')', fmt::format("in import `{}'", import_data.package), context);
 
                 // save the import data structure to know we encounter an import node, and retrieve its data more easily later on
                 import_data.with_prefix = false;
@@ -394,7 +396,7 @@ namespace Ark::internal
                     if (!name(&symbol_name))
                         errorWithNextToken("Expected a valid symbol to import");
                     if (symbol_name == "*")
-                        error(fmt::format("Glob patterns can not be separated from the package, use (import {}:*) instead", import_data.toPackageString()), symbol_pos);
+                        error(fmt::format("Glob patterns can not be separated from the package, use (import {}:*) instead", import_data.package), symbol_pos);
 
                     if (symbol_name.size() >= 2 && symbol_name[symbol_name.size() - 2] == ':' && symbol_name.back() == '*')
                         error("Glob pattern can not follow a symbol to import", FilePosition { .row = symbol_pos.row, .col = symbol_pos.col + symbol_name.size() - 2 });
@@ -425,7 +427,7 @@ namespace Ark::internal
         if (!comment.empty())
             leaf->list().back().attachCommentAfter(comment);
 
-        expectSuffixOrError(')', fmt::format("in import `{}'", import_data.toPackageString()), context);
+        expectSuffixOrError(')', fmt::format("in import `{}'", import_data.package), context);
         return positioned(leaf, filepos);
     }
 

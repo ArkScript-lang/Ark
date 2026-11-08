@@ -4,6 +4,8 @@
 #include <Ark/Utils/Utils.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
+#include <cassert>
+
 // todo: remove
 #include <fmt/ranges.h>
 
@@ -25,25 +27,31 @@ namespace Ark::internal
         m_language_symbols.emplace(Language::SysProgramName);
         m_language_symbols.emplace(Language::SysVersion);
         m_language_symbols.emplace(Language::Apply);
+
+        m_scope_resolver.createNew();
     }
 
     void NameResolutionPass::setup(const std::vector<Import>& root_import_list)
     {
-        // todo: configure the m_scope_resolver with the root import list
         m_logger.info("Configuring NameResolutionPass. Root is importing:");
         for (const Import& import : root_import_list)
         {
             if (import.is_glob)
-                m_logger.info("  - {} :*", import.toPackageString());
+                m_logger.info("  - {} :*", import.package);
             else if (import.with_prefix)
-                m_logger.info("  - {}", import.toPackageString());
+                m_logger.info("  - {}", import.package);
             else
-                m_logger.info("  - {} :{}", import.toPackageString(), fmt::join(import.symbols, " :"));
+                m_logger.info("  - {} :{}", import.package, fmt::join(import.symbols, " :"));
         }
+
+        // the root namespace does NOT have a prefix!
+        m_scope_resolver.createNewNamespace("", "", root_import_list);
     }
 
     void NameResolutionPass::process(const Node& ast)
     {
+        assert(m_scope_resolver.currentScope()->isNamespace() && "The first scope should be a namespace");
+
         m_logger.traceStart("process");
 
         m_ast = ast;
@@ -144,33 +152,40 @@ namespace Ark::internal
 
             case NodeType::Namespace:
             {
-                auto& namespace_ = node.arkNamespace();
-                // no need to guard createNewNamespace with an if (register_declarations), we want to keep the namespace node
-                // (which will get ignored by the compiler, that only uses its AST), so that we can (re)construct the
-                // scopes correctly
-                m_scope_resolver.createNewNamespace(namespace_.name, namespace_.with_prefix, namespace_.is_glob, namespace_.symbols);
-                StaticScope* scope = m_scope_resolver.currentScope();
-
-                visit(*namespace_.ast, /* register_declarations= */ true);
-                // dual visit so that we can handle forward references
-                visit(*namespace_.ast, /* register_declarations= */ false);
-
-                // if we had specific symbols to import, check that those exist
-                if (!namespace_.symbols.empty())
+                // Avoid a double visit of namespaces, eg:
+                //   a(true) -> [b(true) -> [c(true), c(false)], b(false) -> [c(true), c(false)]], a(false) -> [...]
+                // so that we only have to do:
+                //   a(true) -> [b(true) -> [c(true), c(false)], b(false)], a(false)
+                if (register_declarations)
                 {
-                    const auto it = std::ranges::find_if(
-                        namespace_.symbols,
-                        [&scope, &namespace_](const std::string& sym) -> bool {
-                            return !scope->get(sym, namespace_.name, true).has_value();
-                        });
+                    auto& namespace_ = node.arkNamespace();
+                    // we want to keep the namespace node (which will get ignored by the compiler,
+                    // that only uses its AST), so that we can (re)construct the scopes correctly
+                    m_scope_resolver.createNewNamespace(namespace_.name, namespace_.package, namespace_.imports);
+                    // StaticScope* scope = m_scope_resolver.currentScope();
 
-                    if (it != namespace_.symbols.end())
-                        throw CodeError(
-                            fmt::format("ImportError: Can not import symbol {} from {}, as it isn't in the package", *it, namespace_.name),
-                            CodeErrorContext(namespace_.ast->filename(), namespace_.ast->position()));
+                    visit(*namespace_.ast, /* register_declarations= */ true);
+                    // dual visit so that we can handle forward references
+                    visit(*namespace_.ast, /* register_declarations= */ false);
+
+                    // if we had specific symbols to import, check that those exist
+                    // todo: redo this check differently
+                    //if (!namespace_.symbols.empty())
+                    //{
+                    //    const auto it = std::ranges::find_if(
+                    //        namespace_.symbols,
+                    //        [&scope, &namespace_](const std::string& sym) -> bool {
+                    //            return !scope->get(sym, namespace_.name, true).has_value();
+                    //        });
+                    //
+                    //    if (it != namespace_.symbols.end())
+                    //        throw CodeError(
+                    //            fmt::format("ImportError: Can not import symbol {} from {}, as it isn't in the package", *it, namespace_.name),
+                    //            CodeErrorContext(namespace_.ast->filename(), namespace_.ast->position()));
+                    //}
+
+                    m_scope_resolver.saveNamespaceAndRemove();
                 }
-
-                m_scope_resolver.saveNamespaceAndRemove();
                 break;
             }
 
@@ -297,7 +312,7 @@ namespace Ark::internal
         // remove the old name node, to avoid false positive when looking for unbound symbols
         if (!old_name.empty())
         {
-            auto it = std::ranges::find_if(m_symbol_nodes, [&old_name, &symbol](const Node& sym_node) -> bool {
+            const auto it = std::ranges::find_if(m_symbol_nodes, [&old_name, &symbol](const Node& sym_node) -> bool {
                 return sym_node.string() == old_name &&
                     sym_node.position().start == symbol.position().start &&
                     sym_node.filename() == symbol.filename();
@@ -329,6 +344,9 @@ namespace Ark::internal
 
     std::string NameResolutionPass::updateSymbolWithFullyQualifiedName(Node& symbol)
     {
+        if (m_language_symbols.contains(symbol.string()))
+            return symbol.string();
+
         auto [allowed, fqn] = m_scope_resolver.canFullyQualifyName(symbol.string());
 
         if (m_language_symbols.contains(fqn) && symbol.string() != fqn)
