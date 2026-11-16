@@ -1,7 +1,5 @@
 #include <boost/ut.hpp>
 
-#include <filesystem>
-
 #include <Ark/Ark.hpp>
 #include <TestsHelper.hpp>
 
@@ -16,22 +14,27 @@ ut::suite<"Rosetta"> rosetta_suite = [] {
             [](TestData&& data) {
                 Ark::State state({ lib_path });
 
+                bool ok = false;
+
                 should("compile " + data.stem) = [&] {
                     try
                     {
-                        const bool ok = mut(state).doFile(data.path);
-                        expect(ok) << fatal << "compilation failed";
+                        ok = mut(state).doFile(data.path);
+                        expect(ok) << "compilation failed";
                     }
                     catch (const Ark::CodeError&)
                     {
-                        expect(false) << fatal << "encountered an exception while compiling";
+                        expect(false) << "encountered an exception while compiling";
                     }
                 };
 
-                Ark::VM vm(state);
-                should("run " + data.stem + " without errors (exit code 0)") = [&] {
-                    expect(mut(vm).run() == 0);
-                };
+                if (ok)
+                {
+                    Ark::VM vm(state);
+                    should("run " + data.stem + " without errors (exit code 0)") = [&] {
+                        expect(mut(vm).run() == 0);
+                    };
+                }
             });
     };
 };
