@@ -286,6 +286,18 @@ namespace Ark::internal
         return positioned(leaf, filepos);
     }
 
+    std::string& lowercasePrefix(std::string& prefix)
+    {
+        // prefix to lowercase ; usually considered unsafe (https://devblogs.microsoft.com/oldnewthing/20241007-00/?p=110345)
+        // but we are dealing with prefix from filenames, thus we can somewhat assume we are in safe zone
+        std::ranges::transform(
+            prefix, prefix.begin(),
+            [](auto c) {
+                return std::tolower(c);
+            });
+        return prefix;
+    }
+
     std::optional<Node> Parser::import_(const FilePosition filepos)
     {
         std::optional<Node> leaf { NodeType::List };
@@ -316,7 +328,7 @@ namespace Ark::internal
             backtrack(pos);
             errorWithNextToken(fmt::format("Import name too long, expected at most 255 characters, got {}", import_data.prefix.size()));
         }
-        import_data.package.push_back(import_data.prefix);
+        import_data.package.push_back(lowercasePrefix(import_data.prefix));
 
         Node packageNode = positioned(Node(NodeType::List), getCursor()).attachNearestCommentBefore(comment);
         packageNode.push_back(Node(NodeType::Symbol, import_data.prefix));
@@ -337,8 +349,9 @@ namespace Ark::internal
                 {
                     packageNode.push_back(positioned(Node(NodeType::Symbol, path), package_pos));
 
-                    import_data.package.push_back(path);
-                    import_data.prefix = path;  // in the end we will store the last element of the package, which is what we want
+                    // in the end we will store the last element of the package, which is what we want
+                    import_data.prefix = lowercasePrefix(path);
+                    import_data.package.push_back(import_data.prefix);
 
                     if (path.size() > 255)
                     {

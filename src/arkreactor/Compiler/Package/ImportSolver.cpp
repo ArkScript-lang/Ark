@@ -131,17 +131,8 @@ namespace Ark::internal
                     {
                         const auto import = m_packages[package].import;
 
-                        // prefix to lowercase ; usually considered unsafe (https://devblogs.microsoft.com/oldnewthing/20241007-00/?p=110345)
-                        // but we are dealing with prefix from filenames, thus we can somewhat assume we are in safe zone
-                        std::string prefix = import.prefix;
-                        std::ranges::transform(
-                            prefix, prefix.begin(),
-                            [](auto c) {
-                                return std::tolower(c);
-                            });
-
                         x = Node(Namespace {
-                            .name = prefix,
+                            .name = import.prefix,
                             .is_glob = import.is_glob,
                             .with_prefix = import.with_prefix,
                             .symbols = import.symbols,
