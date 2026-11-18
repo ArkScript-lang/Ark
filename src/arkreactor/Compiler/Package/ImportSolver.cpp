@@ -47,17 +47,15 @@ namespace Ark::internal
 
             if (m_packages.contains(package))
             {
-                // todo: actually don't do that, we need to keep a source -> vec<import> that's accurate
-                // merge the definition, so that we can generate valid Full Qualified Names in the name & scope resolver
-                m_packages[package].import.with_prefix |= source.import.with_prefix;
-                m_packages[package].import.is_glob |= source.import.is_glob;
+                // we need to keep track of all the symbols imported for a package,
+                // so that NameResolutionPass can check that all the names exist
                 for (auto&& symbol : source.import.symbols)
                     m_packages[package].import.symbols.push_back(symbol);
             }
             else
             {
                 std::vector<ImportWithSource> temp = parseImport(source);
-                for (auto& additional_import : std::ranges::reverse_view(temp))
+                for (const auto& additional_import : std::ranges::reverse_view(temp))
                     m_imports.push(additional_import);
             }
         }
@@ -67,7 +65,7 @@ namespace Ark::internal
         addStat("ImportSolver.discoverAllPackages", m_logger.traceEnd());
 
         m_logger.traceStart("findAndReplaceImports");
-        m_ast = findAndReplaceImports(origin_ast, /* current_namespace_package= */ "").first;
+        m_ast = findAndReplaceImports(origin_ast).first;
         addStat("ImportSolver.findAndReplaceImports", m_logger.traceEnd());
 
         addStat("ImportSolver.process", m_logger.traceEnd());
@@ -89,8 +87,7 @@ namespace Ark::internal
                 std::erase_if(indirect_imports, [&import_list](const Import& import) -> bool {
                     return std::ranges::find(import_list, import) != import_list.end();
                 });
-                for (const Import& import : indirect_imports)
-                    import_list.emplace_back(import);
+                std::ranges::copy(indirect_imports, std::back_inserter(import_list));
             }
 
             m_package_to_imports[package] = import_list;
@@ -109,7 +106,7 @@ namespace Ark::internal
             });
     }
 
-    std::pair<Node, bool> ImportSolver::findAndReplaceImports(const Node& ast, const std::string& current_namespace_package)
+    std::pair<Node, bool> ImportSolver::findAndReplaceImports(const Node& ast)
     {
         Node x = ast;
         if (x.nodeType() == NodeType::List)
@@ -137,7 +134,7 @@ namespace Ark::internal
                             .with_prefix = import.with_prefix,
                             .symbols = import.symbols,
                             .imports = m_package_to_imports[package],
-                            .ast = std::make_shared<Node>(findAndReplaceImports(x, /* current_namespace_package= */ package).first) });
+                            .ast = std::make_shared<Node>(findAndReplaceImports(x).first) });
 
                         x.arkNamespace().ast->setPositionFrom(ast);
                     }
@@ -153,7 +150,7 @@ namespace Ark::internal
             {
                 for (std::size_t i = 0; i < x.constList().size(); ++i)
                 {
-                    auto [node, is_import] = findAndReplaceImports(x.constList()[i], current_namespace_package);
+                    auto [node, is_import] = findAndReplaceImports(x.constList()[i]);
                     x.list()[i] = node;
                 }
             }

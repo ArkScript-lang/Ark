@@ -76,10 +76,9 @@ namespace Ark::internal
         /**
          * @brief Visits the AST, looking for import nodes to replace with their parsed module version
          * @param ast
-         * @param current_namespace_package
          * @return
          */
-        std::pair<Node, bool> findAndReplaceImports(const Node& ast, const std::string& current_namespace_package);
+        std::pair<Node, bool> findAndReplaceImports(const Node& ast);
 
         /**
          * @brief Parse a given file and returns a list of its imports.
