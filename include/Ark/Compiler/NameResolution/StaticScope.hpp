@@ -88,7 +88,7 @@ namespace Ark::internal
     class ARK_API NamespaceScope final : public StaticScope
     {
     public:
-        NamespaceScope(std::string prefix, std::string package, const std::vector<Import>& imports);
+        NamespaceScope(std::string prefix, const std::string& package, const std::vector<Import>& imports);
 
         NamespaceScope(const NamespaceScope&) = delete;
         NamespaceScope& operator=(const NamespaceScope&) = delete;

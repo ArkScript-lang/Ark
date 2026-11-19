@@ -101,8 +101,6 @@ namespace Ark::internal
         "del"
     };
 
-    constexpr std::string_view HiddenSymbolSuffix = "#hidden";
-
     namespace Language
     {
         constexpr std::string_view AppendInPlace = "append!";

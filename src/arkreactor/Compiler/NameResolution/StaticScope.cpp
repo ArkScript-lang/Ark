@@ -32,7 +32,7 @@ namespace Ark::internal
         return false;
     }
 
-    NamespaceScope::NamespaceScope(std::string prefix, std::string package, const std::vector<Import>& imports) :
+    NamespaceScope::NamespaceScope(std::string prefix, const std::string& package, const std::vector<Import>& imports) :
         StaticScope(),
         m_namespace(std::move(prefix)),
         m_package(package),
@@ -41,17 +41,7 @@ namespace Ark::internal
 
     std::string NamespaceScope::add(const std::string& name, bool is_mutable)
     {
-        // todo: do we need to hide here?
-        // Since we do multiple passes on namespaces, we need to check if the given name is already hidden,
-        // so that we can save the name as it was on the first pass
-        if (name.ends_with(HiddenSymbolSuffix))
-        {
-            std::string std_name = name.substr(0, name.find_first_of('#'));
-            return m_vars.emplace(name, std_name, is_mutable).first->name;
-        }
-
         const std::string fqn = fullyQualifiedName(name);
-        // todo: is original name really 'name'?
         return m_vars.emplace(fqn, name, is_mutable).first->name;
     }
 

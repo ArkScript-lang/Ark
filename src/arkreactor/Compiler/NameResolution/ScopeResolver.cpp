@@ -134,7 +134,7 @@ namespace Ark::internal
         return maybe_name.value_or("");
     }
 
-    std::pair<bool, std::string> ScopeResolver::canFullyQualifyName(const std::string& name)
+    std::pair<std::optional<QualifyingFailReason>, std::string> ScopeResolver::tryFullyQualifyName(const std::string& name)
     {
         // search in current scope and parent static scopes
         // if nothing, look in other scopes that are in the namespace imports (direct + indirect)
@@ -142,12 +142,13 @@ namespace Ark::internal
         const std::string maybe_fqn = getFullyQualifiedNameInNearestScope(name);
 
         if (maybe_fqn.empty())
-            return std::make_pair(false, name);
+            // todo
+            return std::make_pair(QualifyingFailReason::NeedPrefixing, name);
 
         // const std::string prefix = maybe_fqn.substr(0, maybe_fqn.find_first_of(':'));
         // const std::string unprefixed_name = name.substr(name.find_first_of(':') + 1);
 
-        return std::make_pair(true, maybe_fqn);
+        return std::make_pair(std::nullopt, maybe_fqn);
     }
 
     StaticScope* ScopeResolver::currentScope() const

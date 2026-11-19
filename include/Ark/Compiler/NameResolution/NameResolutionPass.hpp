@@ -60,7 +60,7 @@ namespace Ark::internal
          * @param sym
          * @param is_mutable true if the symbol is inside mut/set, false otherwise (let)
          */
-        std::string addDefinedSymbol(const std::string& sym, bool is_mutable);
+        std::string qualifyAndRegisterSymbol(const std::string& sym, bool is_mutable);
 
     private:
         Node m_ast;
@@ -71,28 +71,25 @@ namespace Ark::internal
         ScopeResolver m_scope_resolver;
 
         /**
-         * @brief Recursively visit nodes
+         * @brief Recursively visit nodes and register variable declarations
          *
          * @param node node to visit
-         * @param register_declarations whether or not the visit should register declarations
          */
-        void visit(Node& node, bool register_declarations);
+        void registerDeclarations(Node& node);
 
         /**
+         * @brief Recursively visit nodes and updates symbol names
          *
-         * @param node a list node whose first child is a keyword
-         * @param keyword
-         * @param register_declarations whether or not the visit should register declarations
+         * @param node node to visit and update
          */
-        void visitKeyword(Node& node, Keyword keyword, bool register_declarations);
+        void qualifyNames(Node& node);
 
         /**
          * @brief Register a given node in the symbol table
          *
          * @param symbol
-         * @param old_name old name for symbol, to replace it with the new one if it was renamed
          */
-        void addSymbolNode(const Node& symbol, const std::string& old_name = "");
+        void savedAsKnownSymbol(const Node& symbol);
 
         /**
          * @brief Checking if a symbol may be coming from a plugin
@@ -103,7 +100,7 @@ namespace Ark::internal
          */
         [[nodiscard]] bool mayBeFromPlugin(const std::string& name) const noexcept;
 
-        std::string updateSymbolWithFullyQualifiedName(Node& symbol);
+        std::string tryQualifyAndUpdateSymbol(Node& symbol);
 
         /**
          * @brief Checks for undefined symbols, not present in the defined symbols table

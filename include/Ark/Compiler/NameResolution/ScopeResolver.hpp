@@ -21,6 +21,12 @@
 
 namespace Ark::internal
 {
+    enum class QualifyingFailReason
+    {
+        NotInSymbolList,
+        NeedPrefixing
+    };
+
     class ScopeResolver
     {
     public:
@@ -102,9 +108,9 @@ namespace Ark::internal
          * @brief Checks if a name can be fully qualified (allows only unprefixed names to be resolved by glob namespaces or inside their own namespace)
          *
          * @param name
-         * @return std::pair<bool, std::string> if the name can be fully qualified, first element is true ; second element is the FQN
+         * @return std::pair<std::optional<QualifyingFailReason>, std::string> if the name can be fully qualified, first element is nullopt ; second element is the FQN
          */
-        [[nodiscard]] std::pair<bool, std::string> canFullyQualifyName(const std::string& name);
+        [[nodiscard]] std::pair<std::optional<QualifyingFailReason>, std::string> tryFullyQualifyName(const std::string& name);
 
         /**
          * @brief Return a non-owning raw pointer to the current scope

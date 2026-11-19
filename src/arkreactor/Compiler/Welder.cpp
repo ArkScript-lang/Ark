@@ -34,7 +34,7 @@ namespace Ark
 
     void Welder::registerSymbol(const std::string& name)
     {
-        m_name_resolver.addDefinedSymbol(name, /* is_mutable= */ false);
+        m_name_resolver.qualifyAndRegisterSymbol(name, /* is_mutable= */ false);
     }
 
     bool Welder::computeASTFromFile(const std::string& filename)
@@ -56,7 +56,7 @@ namespace Ark
         m_root_file = std::nullopt;
 
         for (const std::string& sym : symbols)
-            m_name_resolver.addDefinedSymbol(sym, /* is_mutable= */ true);
+            m_name_resolver.qualifyAndRegisterSymbol(sym, /* is_mutable= */ true);
         return computeAST(ARK_NO_NAME_FILE, code);
     }
 

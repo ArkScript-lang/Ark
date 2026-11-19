@@ -4,9 +4,9 @@
 #include <Ark/Utils/Utils.hpp>
 #include <Ark/Builtins/Builtins.hpp>
 
+#include <ranges>
 #include <cassert>
 
-// todo: remove
 #include <fmt/ranges.h>
 
 namespace Ark::internal
@@ -14,8 +14,8 @@ namespace Ark::internal
     NameResolutionPass::NameResolutionPass(const unsigned debug, Statistics* stats_collector) :
         Pass("NameResolution", debug, stats_collector)
     {
-        for (const auto& builtin : Builtins::builtins)
-            m_language_symbols.emplace(builtin.first);
+        for (const auto& key : Builtins::builtins | std::views::keys)
+            m_language_symbols.emplace(key);
         for (auto ope : Language::operators)
             m_language_symbols.emplace(ope);
         for (auto inst : Language::listInstructions)
@@ -55,9 +55,10 @@ namespace Ark::internal
         m_logger.traceStart("process");
 
         m_ast = ast;
-        visit(m_ast, /* register_declarations= */ true);
+        registerDeclarations(m_ast);
+        qualifyNames(m_ast);
 
-        addStat("NameResolution.visit", m_logger.traceEnd());
+        addStat("NameResolution.process", m_logger.traceEnd());
 
         m_logger.debug("AST after name resolution");
         if (m_logger.shouldDebug())
@@ -73,22 +74,184 @@ namespace Ark::internal
         return m_ast;
     }
 
-    std::string NameResolutionPass::addDefinedSymbol(const std::string& sym, const bool is_mutable)
+    std::string NameResolutionPass::qualifyAndRegisterSymbol(const std::string& sym, const bool is_mutable)
     {
         const std::string fully_qualified_name = m_scope_resolver.registerInCurrent(sym, is_mutable);
         m_defined_symbols.emplace(fully_qualified_name);
         return fully_qualified_name;
     }
 
-    void NameResolutionPass::visit(Node& node, const bool register_declarations)
+    void NameResolutionPass::registerDeclarations(Node& node)
+    {
+        if (node.nodeType() == NodeType::List && !node.constList().empty())
+        {
+            if (node.constList()[0].nodeType() == NodeType::Keyword)
+            {
+                const Keyword keyword = node.constList()[0].keyword();
+
+                switch (keyword)
+                {
+                    case Keyword::Set:
+                        [[fallthrough]];
+                    case Keyword::Let:
+                        [[fallthrough]];
+                    case Keyword::Mut:
+                        // first, visit the value, then register the symbol
+                        // this allows us to detect things like (let foo (fun (&foo) ()))
+                        if (node.constList().size() > 2)
+                            registerDeclarations(node.list()[2]);
+                        if (node.constList().size() > 1 && node.constList()[1].nodeType() == NodeType::Symbol)
+                        {
+                            const std::string& name = node.constList()[1].string();
+                            if (m_language_symbols.contains(name))
+                                throw CodeError(
+                                    fmt::format("Can not use a reserved identifier ('{}') as a {} name.", name, keyword == Keyword::Let ? "constant" : "variable"),
+                                    CodeErrorContext(node.filename(), node.constList()[1].position()));
+
+                            // todo: maybe we'll have errors here (in the diag tests) because names aren't fully qualified anymore in this first pass
+
+                            if (m_scope_resolver.isInScope(name) && keyword == Keyword::Let)
+                                throw CodeError(
+                                    fmt::format("MutabilityError: Can not use 'let' to redefine variable `{}'", name),
+                                    CodeErrorContext(node.filename(), node.constList()[1].position()));
+                            if (keyword == Keyword::Set && m_scope_resolver.isRegistered(name) && m_scope_resolver.isImmutable(name).value_or(false))
+                                throw CodeError(
+                                    fmt::format("MutabilityError: Can not set the constant `{}' to {}", name, node.constList()[2].repr()),
+                                    CodeErrorContext(node.filename(), node.constList()[1].position()));
+                        }
+                        break;
+
+                    case Keyword::Import:
+                        if (node.constList().size() >= 2 && !node.constList()[1].constList().empty())
+                            m_plugin_names.push_back(node.constList()[1].constList().back().string());
+                        break;
+
+                    case Keyword::While:
+                        // create a new scope to track variables
+                        m_scope_resolver.createNew();
+                        for (auto& child : node.list())
+                            registerDeclarations(child);
+                        // remove the scope once the loop has been compiled, only we were registering declarations
+                        m_scope_resolver.removeLastScope();
+                        break;
+
+                    case Keyword::Fun:
+                        // create a new scope to track variables
+                        m_scope_resolver.createNew();
+
+                        if (node.constList()[1].nodeType() == NodeType::List)
+                        {
+                            for (auto& child : node.list()[1].list())
+                            {
+                                if (child.nodeType() == NodeType::Capture)
+                                {
+                                    if (!m_scope_resolver.isRegistered(child.string()))
+                                        throw CodeError(
+                                            fmt::format("Can not capture `{}' because it is referencing a variable defined in an unreachable scope.", child.string()),
+                                            CodeErrorContext(child.filename(), child.position()));
+
+                                    // save the old unqualified name of the capture, so that we can use it in the
+                                    // ASTLowerer later one
+                                    if (!child.getUnqualifiedName())
+                                    {
+                                        child.setUnqualifiedName(child.string());
+                                        m_defined_symbols.emplace(child.string());
+                                    }
+                                }
+                                else if (child.nodeType() == NodeType::Symbol || child.nodeType() == NodeType::RefArg)
+                                    m_defined_symbols.emplace(m_scope_resolver.registerInCurrent(child.string(), /* is_mutable= */ false));
+                                else if (child.nodeType() == NodeType::MutArg)
+                                    m_defined_symbols.emplace(m_scope_resolver.registerInCurrent(child.string(), /* is_mutable= */ true));
+                            }
+                        }
+                        if (node.constList().size() > 2)
+                            registerDeclarations(node.list()[2]);
+
+                        // remove the scope once the function has been compiled, only we were registering declarations
+                        m_scope_resolver.removeLastScope();
+                        break;
+
+                    case Keyword::Begin:
+                        [[fallthrough]];
+                    case Keyword::Del:
+                        [[fallthrough]];
+                    case Keyword::If:
+                        for (auto& child : node.list())
+                            registerDeclarations(child);
+                        break;
+                }
+            }
+            else
+            {
+                // function calls
+                // the UpdateRef function calls kind get a special treatment, like let/mut/set,
+                // because we need to check for mutability errors
+                if (node.constList().size() > 1 && node.constList()[0].nodeType() == NodeType::Symbol &&
+                    node.constList()[1].nodeType() == NodeType::Symbol)
+                {
+                    const auto funcname = node.constList()[0].string();
+                    const auto arg = node.constList()[1].string();
+
+                    if (std::ranges::find(Language::UpdateRef, funcname) != Language::UpdateRef.end() && m_scope_resolver.isImmutable(arg).value_or(false))
+                        throw CodeError(
+                            fmt::format("MutabilityError: Can not modify the constant list `{}' using `{}'", arg, funcname),
+                            CodeErrorContext(node.filename(), node.constList()[1].position()));
+
+                    // check that we aren't doing a (append! a a) nor a (concat! a a)
+                    if (funcname == Language::AppendInPlace || funcname == Language::ConcatInPlace)
+                    {
+                        for (std::size_t i = 2, end = node.constList().size(); i < end; ++i)
+                        {
+                            if (node.constList()[i].nodeType() == NodeType::Symbol && node.constList()[i].string() == arg)
+                                throw CodeError(
+                                    fmt::format("MutabilityError: Can not {} the list `{}' to itself", funcname, arg),
+                                    CodeErrorContext(node.filename(), node.constList()[1].position()));
+                        }
+                    }
+                }
+
+                for (auto& child : node.list())
+                    registerDeclarations(child);
+            }
+        }
+        else if (node.nodeType() == NodeType::Namespace)
+        {
+            auto& namespace_ = node.arkNamespace();
+            // we want to keep the namespace node (which will get ignored by the compiler,
+            // that only uses its AST), so that we can (re)construct the scopes correctly
+            m_scope_resolver.createNewNamespace(namespace_.name, namespace_.package, namespace_.imports);
+            StaticScope* scope = m_scope_resolver.currentScope();
+
+            registerDeclarations(*namespace_.ast);
+            qualifyNames(*namespace_.ast);
+
+            // if we had specific symbols to import, check that those exist
+            if (!namespace_.symbols.empty())
+            {
+                const auto it = std::ranges::find_if(
+                    namespace_.symbols,
+                    [&scope, &namespace_](const std::string& sym) -> bool {
+                        return !scope->get(sym, namespace_.name).has_value();
+                    });
+
+                if (it != namespace_.symbols.end())
+                    throw CodeError(
+                        fmt::format("ImportError: Can not import symbol {} from {}, as it isn't in the package", *it, namespace_.name),
+                        CodeErrorContext(namespace_.ast->filename(), namespace_.ast->position()));
+            }
+
+            m_scope_resolver.saveNamespaceAndRemove();
+        }
+    }
+
+    void NameResolutionPass::qualifyNames(Node& node)
     {
         switch (node.nodeType())
         {
             case NodeType::Symbol:
             {
-                const std::string old_name = node.string();
-                updateSymbolWithFullyQualifiedName(node);
-                addSymbolNode(node, old_name);
+                tryQualifyAndUpdateSymbol(node);
+                savedAsKnownSymbol(node);
                 break;
             }
 
@@ -102,11 +265,11 @@ namespace Ark::internal
                         const std::string old_name = child.string();
                         // in case of field, no need to check if we can fully qualify names
                         child.setString(m_scope_resolver.getFullyQualifiedNameInNearestScope(old_name));
-                        addSymbolNode(child, old_name);
+                        savedAsKnownSymbol(child);
                         statIncrementCount(Stats::FullyQualifiedNames);
                     }
                     else
-                        addSymbolNode(child);
+                        savedAsKnownSymbol(child);
                 }
                 break;
 
@@ -114,194 +277,125 @@ namespace Ark::internal
                 if (!node.constList().empty())
                 {
                     if (node.constList()[0].nodeType() == NodeType::Keyword)
-                        visitKeyword(node, node.constList()[0].keyword(), register_declarations);
+                    {
+                        const Keyword keyword = node.constList()[0].keyword();
+
+                        switch (keyword)
+                        {
+                            case Keyword::Set:
+                                [[fallthrough]];
+                            case Keyword::Let:
+                                [[fallthrough]];
+                            case Keyword::Mut:
+                                // first, visit the value, then qualify the symbol
+                                // this allows us to detect things like (let foo (fun (&foo) ()))
+                                if (node.constList().size() > 2)
+                                    qualifyNames(node.list()[2]);
+                                if (node.constList().size() > 1 && node.constList()[1].nodeType() == NodeType::Symbol)
+                                {
+                                    const std::string& name = node.constList()[1].string();
+
+                                    if (keyword == Keyword::Set && m_scope_resolver.isRegistered(name))
+                                        tryQualifyAndUpdateSymbol(node.list()[1]);
+                                    else if (keyword != Keyword::Set)
+                                    {
+                                        // update the declared variable name to use the fully qualified name
+                                        // this will prevent name conflicts, and handle scope resolution
+                                        const std::string fully_qualified_name = qualifyAndRegisterSymbol(name, keyword != Keyword::Let);
+                                        node.list()[1].setString(fully_qualified_name);
+                                    }
+                                }
+                                break;
+
+                            case Keyword::Import:
+                                break;
+
+                            case Keyword::While:
+                                m_scope_resolver.createNew();
+                                for (auto& child : node.list())
+                                    qualifyNames(child);
+                                m_scope_resolver.removeLastScope();
+                                break;
+
+                            case Keyword::Fun:
+                                m_scope_resolver.createNew();
+
+                                if (node.constList()[1].nodeType() == NodeType::List)
+                                {
+                                    for (auto& child : node.list()[1].list())
+                                    {
+                                        if (child.nodeType() == NodeType::Capture)
+                                        {
+                                            if (!m_scope_resolver.isRegistered(child.string()))
+                                                throw CodeError(
+                                                    fmt::format("Can not capture `{}' because it is referencing a variable defined in an unreachable scope.", child.string()),
+                                                    CodeErrorContext(child.filename(), child.position()));
+
+                                            // save the old unqualified name of the capture, so that we can use it in the
+                                            // ASTLowerer later one
+                                            if (!child.getUnqualifiedName())
+                                            {
+                                                child.setUnqualifiedName(child.string());
+                                                m_defined_symbols.emplace(child.string());
+                                            }
+                                            // update the declared variable name to use the fully qualified name
+                                            // this will prevent name conflicts, and handle scope resolution
+                                            std::string old_name = child.string();
+                                            tryQualifyAndUpdateSymbol(child);
+                                            qualifyAndRegisterSymbol(old_name, true);  // todo: why do we use old name? -> because we qualified previously...
+                                            // todo: we could just register the symbol ourselves here
+                                        }
+                                        else if (child.nodeType() == NodeType::Symbol || child.nodeType() == NodeType::RefArg)
+                                            qualifyAndRegisterSymbol(child.string(), /* is_mutable= */ false);
+                                        else if (child.nodeType() == NodeType::MutArg)
+                                            qualifyAndRegisterSymbol(child.string(), /* is_mutable= */ true);
+                                    }
+                                }
+                                if (node.constList().size() > 2)
+                                    qualifyNames(node.list()[2]);
+
+                                m_scope_resolver.removeLastScope();
+                                break;
+
+                            default:
+                                for (auto& child : node.list())
+                                    qualifyNames(child);
+                                break;
+                        }
+                    }
                     else
                     {
-                        // function calls
-                        // the UpdateRef function calls kind get a special treatment, like let/mut/set,
-                        // because we need to check for mutability errors
-                        if (node.constList().size() > 1 && node.constList()[0].nodeType() == NodeType::Symbol &&
-                            node.constList()[1].nodeType() == NodeType::Symbol && register_declarations)
-                        {
-                            const auto funcname = node.constList()[0].string();
-                            const auto arg = node.constList()[1].string();
-
-                            if (std::ranges::find(Language::UpdateRef, funcname) != Language::UpdateRef.end() && m_scope_resolver.isImmutable(arg).value_or(false))
-                                throw CodeError(
-                                    fmt::format("MutabilityError: Can not modify the constant list `{}' using `{}'", arg, funcname),
-                                    CodeErrorContext(node.filename(), node.constList()[1].position()));
-
-                            // check that we aren't doing a (append! a a) nor a (concat! a a)
-                            if (funcname == Language::AppendInPlace || funcname == Language::ConcatInPlace)
-                            {
-                                for (std::size_t i = 2, end = node.constList().size(); i < end; ++i)
-                                {
-                                    if (node.constList()[i].nodeType() == NodeType::Symbol && node.constList()[i].string() == arg)
-                                        throw CodeError(
-                                            fmt::format("MutabilityError: Can not {} the list `{}' to itself", funcname, arg),
-                                            CodeErrorContext(node.filename(), node.constList()[1].position()));
-                                }
-                            }
-                        }
 
                         for (auto& child : node.list())
-                            visit(child, register_declarations);
+                            qualifyNames(child);
                     }
                 }
                 break;
 
             case NodeType::Namespace:
-            {
-                // Avoid a double visit of namespaces, eg:
-                //   a(true) -> [b(true) -> [c(true), c(false)], b(false) -> [c(true), c(false)]], a(false) -> [...]
-                // so that we only have to do:
-                //   a(true) -> [b(true) -> [c(true), c(false)], b(false)], a(false)
-                if (register_declarations)
-                {
-                    auto& namespace_ = node.arkNamespace();
-                    // we want to keep the namespace node (which will get ignored by the compiler,
-                    // that only uses its AST), so that we can (re)construct the scopes correctly
-                    m_scope_resolver.createNewNamespace(namespace_.name, namespace_.package, namespace_.imports);
-                    // StaticScope* scope = m_scope_resolver.currentScope();
-
-                    visit(*namespace_.ast, /* register_declarations= */ true);
-                    // dual visit so that we can handle forward references
-                    visit(*namespace_.ast, /* register_declarations= */ false);
-
-                    // if we had specific symbols to import, check that those exist
-                    // todo: redo this check differently
-                    //if (!namespace_.symbols.empty())
-                    //{
-                    //    const auto it = std::ranges::find_if(
-                    //        namespace_.symbols,
-                    //        [&scope, &namespace_](const std::string& sym) -> bool {
-                    //            return !scope->get(sym, namespace_.name, true).has_value();
-                    //        });
-                    //
-                    //    if (it != namespace_.symbols.end())
-                    //        throw CodeError(
-                    //            fmt::format("ImportError: Can not import symbol {} from {}, as it isn't in the package", *it, namespace_.name),
-                    //            CodeErrorContext(namespace_.ast->filename(), namespace_.ast->position()));
-                    //}
-
-                    m_scope_resolver.saveNamespaceAndRemove();
-                }
-                break;
-            }
-
-            default:
+                [[fallthrough]];
+            case NodeType::MutArg:
+                [[fallthrough]];
+            case NodeType::RefArg:
+                [[fallthrough]];
+            case NodeType::Capture:
+                [[fallthrough]];
+            case NodeType::Keyword:
+                [[fallthrough]];
+            case NodeType::String:
+                [[fallthrough]];
+            case NodeType::Number:
+                [[fallthrough]];
+            case NodeType::Spread:
+                [[fallthrough]];
+            case NodeType::Macro:
+                [[fallthrough]];
+            case NodeType::Unused:
                 break;
         }
     }
 
-    void NameResolutionPass::visitKeyword(Node& node, const Keyword keyword, const bool register_declarations)
-    {
-        switch (keyword)
-        {
-            case Keyword::Set:
-                [[fallthrough]];
-            case Keyword::Let:
-                [[fallthrough]];
-            case Keyword::Mut:
-                // first, visit the value, then register the symbol
-                // this allows us to detect things like (let foo (fun (&foo) ()))
-                if (node.constList().size() > 2)
-                    visit(node.list()[2], register_declarations);
-                if (node.constList().size() > 1 && node.constList()[1].nodeType() == NodeType::Symbol)
-                {
-                    const std::string& name = node.constList()[1].string();
-                    if (m_language_symbols.contains(name) && register_declarations)
-                        throw CodeError(
-                            fmt::format("Can not use a reserved identifier ('{}') as a {} name.", name, keyword == Keyword::Let ? "constant" : "variable"),
-                            CodeErrorContext(node.filename(), node.constList()[1].position()));
-
-                    if (m_scope_resolver.isInScope(name) && keyword == Keyword::Let && register_declarations)
-                        throw CodeError(
-                            fmt::format("MutabilityError: Can not use 'let' to redefine variable `{}'", name),
-                            CodeErrorContext(node.filename(), node.constList()[1].position()));
-                    if (keyword == Keyword::Set && m_scope_resolver.isRegistered(name))
-                    {
-                        if (m_scope_resolver.isImmutable(name).value_or(false) && register_declarations)
-                            throw CodeError(
-                                fmt::format("MutabilityError: Can not set the constant `{}' to {}", name, node.constList()[2].repr()),
-                                CodeErrorContext(node.filename(), node.constList()[1].position()));
-
-                        updateSymbolWithFullyQualifiedName(node.list()[1]);
-                    }
-                    else if (keyword != Keyword::Set)
-                    {
-                        // update the declared variable name to use the fully qualified name
-                        // this will prevent name conflicts, and handle scope resolution
-                        const std::string fully_qualified_name = addDefinedSymbol(name, keyword != Keyword::Let);
-                        if (register_declarations)
-                            node.list()[1].setString(fully_qualified_name);
-                    }
-                }
-                break;
-
-            case Keyword::Import:
-                if (!node.constList().empty())
-                    m_plugin_names.push_back(node.constList()[1].constList().back().string());
-                break;
-
-            case Keyword::While:
-                // create a new scope to track variables
-                m_scope_resolver.createNew();
-                for (auto& child : node.list())
-                    visit(child, register_declarations);
-                // remove the scope once the loop has been compiled, only we were registering declarations
-                m_scope_resolver.removeLastScope();
-                break;
-
-            case Keyword::Fun:
-                // create a new scope to track variables
-                m_scope_resolver.createNew();
-
-                if (node.constList()[1].nodeType() == NodeType::List)
-                {
-                    for (auto& child : node.list()[1].list())
-                    {
-                        if (child.nodeType() == NodeType::Capture)
-                        {
-                            if (!m_scope_resolver.isRegistered(child.string()) && register_declarations)
-                                throw CodeError(
-                                    fmt::format("Can not capture `{}' because it is referencing a variable defined in an unreachable scope.", child.string()),
-                                    CodeErrorContext(child.filename(), child.position()));
-
-                            // save the old unqualified name of the capture, so that we can use it in the
-                            // ASTLowerer later one
-                            if (!child.getUnqualifiedName())
-                            {
-                                child.setUnqualifiedName(child.string());
-                                m_defined_symbols.emplace(child.string());
-                            }
-                            // update the declared variable name to use the fully qualified name
-                            // this will prevent name conflicts, and handle scope resolution
-                            std::string old_name = child.string();
-                            updateSymbolWithFullyQualifiedName(child);
-                            addDefinedSymbol(old_name, true);
-                        }
-                        else if (child.nodeType() == NodeType::Symbol || child.nodeType() == NodeType::RefArg)
-                            addDefinedSymbol(child.string(), /* is_mutable= */ false);
-                        else if (child.nodeType() == NodeType::MutArg)
-                            addDefinedSymbol(child.string(), /* is_mutable= */ true);
-                    }
-                }
-                if (node.constList().size() > 2)
-                    visit(node.list()[2], register_declarations);
-
-                // remove the scope once the function has been compiled, only we were registering declarations
-                m_scope_resolver.removeLastScope();
-                break;
-
-            default:
-                for (auto& child : node.list())
-                    visit(child, register_declarations);
-                break;
-        }
-    }
-
-    void NameResolutionPass::addSymbolNode(const Node& symbol, const std::string& old_name)
+    void NameResolutionPass::savedAsKnownSymbol(const Node& symbol)
     {
         const std::string& name = symbol.string();
 
@@ -309,45 +403,28 @@ namespace Ark::internal
         if (m_language_symbols.contains(name))
             return;
 
-        // remove the old name node, to avoid false positive when looking for unbound symbols
-        if (!old_name.empty())
-        {
-            const auto it = std::ranges::find_if(m_symbol_nodes, [&old_name, &symbol](const Node& sym_node) -> bool {
-                return sym_node.string() == old_name &&
-                    sym_node.position().start == symbol.position().start &&
-                    sym_node.filename() == symbol.filename();
+        // todo: maybe we could get rid of the check
+        const auto it = std::ranges::find_if(
+            m_symbol_nodes,
+            [&name](const Node& sym_node) -> bool {
+                return sym_node.string() == name;
             });
-            if (it != m_symbol_nodes.end())
-            {
-                it->setString(name);
-                return;
-            }
-        }
-
-        const auto it = std::ranges::find_if(m_symbol_nodes, [&name](const Node& sym_node) -> bool {
-            return sym_node.string() == name;
-        });
         if (it == m_symbol_nodes.end())
             m_symbol_nodes.push_back(symbol);
     }
 
     bool NameResolutionPass::mayBeFromPlugin(const std::string& name) const noexcept
     {
-        std::string splitted = Utils::splitString(name, ':')[0];
-        const auto it = std::ranges::find_if(
-            m_plugin_names,
-            [&splitted](const std::string& plugin) -> bool {
-                return plugin == splitted;
-            });
-        return it != m_plugin_names.end();
+        const std::string prefix = name.substr(0, name.find_first_of(':'));
+        return std::ranges::find(m_plugin_names, prefix) != m_plugin_names.end();
     }
 
-    std::string NameResolutionPass::updateSymbolWithFullyQualifiedName(Node& symbol)
+    std::string NameResolutionPass::tryQualifyAndUpdateSymbol(Node& symbol)
     {
         if (m_language_symbols.contains(symbol.string()))
             return symbol.string();
 
-        auto [allowed, fqn] = m_scope_resolver.canFullyQualifyName(symbol.string());
+        auto [maybe_error, fqn] = m_scope_resolver.tryFullyQualifyName(symbol.string());
 
         if (m_language_symbols.contains(fqn) && symbol.string() != fqn)
         {
@@ -357,16 +434,23 @@ namespace Ark::internal
                     symbol.string(), fqn),
                 CodeErrorContext(symbol.filename(), symbol.position()));
         }
-        if (!allowed)
+
+        if (maybe_error.has_value())
         {
             std::string message;
-            if (fqn.ends_with(HiddenSymbolSuffix))
-                message = fmt::format(
-                    R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to add it to the symbol list while importing?)",
-                    symbol.string(),
-                    fqn.substr(0, fqn.find_first_of('#')));
-            else
-                message = fmt::format(R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to prefix it with its namespace?)", symbol.string(), fqn);
+            switch (maybe_error.value())
+            {
+                case QualifyingFailReason::NotInSymbolList:
+                    message = fmt::format(
+                        R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to add it to the symbol list while importing?)",
+                        symbol.string(),
+                        fqn);
+                    break;
+
+                case QualifyingFailReason::NeedPrefixing:
+                    message = fmt::format(R"(Unbound variable "{}". However, it exists in a namespace as "{}", did you forget to prefix it with its namespace?)", symbol.string(), fqn);
+                    break;
+            }
 
             if (m_logger.shouldTrace())
                 m_ast.debugPrint(std::cout) << '\n';
@@ -393,10 +477,10 @@ namespace Ark::internal
                 const std::string suggestion = offerSuggestion(str);
                 if (suggestion.empty())
                     message = fmt::format(R"(Unbound variable "{}" (variable is used but not defined))", str);
-                else if (suggestion.ends_with(HiddenSymbolSuffix))
+                else if (false)  // todo hidden / unreachable
                 {
                     const std::string prefix = suggestion.substr(0, suggestion.find_first_of(':'));
-                    const std::string suffix = suggestion.substr(suggestion.find_first_of(':') + 1, suggestion.size() - prefix.size() - 1 - HiddenSymbolSuffix.size());
+                    const std::string suffix = suggestion.substr(suggestion.find_first_of(':') + 1, suggestion.size() - prefix.size() - 1);
                     message = fmt::format(R"(Unbound variable "{0}". Did you forget to add '{1}' when importing '{2}', eg `(import {2} :{1})'? (symbol is visible but not available))", str, suffix, prefix);
                 }
                 else
@@ -423,12 +507,6 @@ namespace Ark::internal
             std::size_t suggestion_distance = word.size() / 2;
             for (const std::string& symbol : dict)
             {
-                if (symbol.starts_with(word) && symbol.ends_with(HiddenSymbolSuffix))
-                {
-                    suggestion = symbol;
-                    break;
-                }
-
                 const std::size_t current_distance = Utils::levenshteinDistance(word, symbol);
                 if (current_distance <= suggestion_distance)
                 {
